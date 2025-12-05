@@ -1,0 +1,36 @@
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { API_URL } from '@route/api.route';
+import {
+  RutaCreateDto,
+  RutaResultDto,
+  RutaUpdateDto,
+} from '@interface/admin/ruta.interface';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class RutaService {
+  private http = inject(HttpClient);
+
+  findAll(): Observable<RutaResultDto[]> {
+    return this.http.get<RutaResultDto[]>(API_URL.rutas.findAll);
+  }
+
+  findOne(id: number): Observable<RutaResultDto> {
+    return this.http.get<RutaResultDto>(API_URL.rutas.findOne(id));
+  }
+
+  create(ruta: RutaCreateDto): Observable<RutaResultDto> {
+    return this.http.post<RutaResultDto>(API_URL.rutas.create, ruta);
+  }
+
+  update(id: number, ruta: RutaUpdateDto): Observable<RutaResultDto> {
+    return this.http.patch<RutaResultDto>(API_URL.rutas.update(id), ruta);
+  }
+
+  delete(id: number): Observable<RutaResultDto> {
+    return this.http.delete<RutaResultDto>(API_URL.rutas.delete(id));
+  }
+}

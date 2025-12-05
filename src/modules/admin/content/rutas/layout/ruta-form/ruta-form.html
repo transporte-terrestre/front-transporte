@@ -1,0 +1,169 @@
+<form [formGroup]="rutaForm" class="p-4 space-y-3">
+  <!-- Contenedor Principal: Mapa + Coordenadas -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <!-- Columna Izquierda: Mapa -->
+    <div class="space-y-2 flex flex-col">
+      <label class="text-xs font-inter-bold text-text uppercase flex items-center gap-2">
+        <i class="fas fa-map text-secondary"></i>
+        Mapa de la Ruta
+      </label>
+      <div class="bg-text/5 rounded-lg border border-text/10 overflow-hidden h-[300px] flex-1">
+        @if (mapUrl()) {
+          <iframe
+            [src]="mapUrl()"
+            class="w-full h-full"
+            frameborder="0"
+            style="border:0"
+            allowfullscreen
+          ></iframe>
+        } @else {
+          <div class="w-full h-full flex items-center justify-center">
+            <div class="text-center">
+              <i class="fas fa-map-marked-alt text-4xl text-text/20 mb-2"></i>
+              <p class="text-xs text-text/50 font-inter-regular">Ingresa las coordenadas para ver el mapa</p>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Columna Derecha: Ciudades y Coordenadas -->
+    <div class="space-y-3 flex flex-col justify-end">
+      <!-- Ciudad Origen -->
+      <div>
+        <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+          <i class="fas fa-location-dot text-success"></i>
+          Ciudad Origen
+        </label>
+        <input
+          type="text"
+          formControlName="origen"
+          class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+          placeholder="Lima"
+        />
+        @if (rutaForm.get('origen')?.touched && rutaForm.get('origen')?.errors) {
+          <p class="text-danger text-xs font-inter-medium mt-1">Ciudad de origen requerida (mín. 3 caracteres)</p>
+        }
+      </div>
+
+      <!-- Coordenadas Origen -->
+      <div class="bg-text/5 p-4 rounded-lg border border-text/10">
+        <label class="text-xs font-inter-bold text-text uppercase mb-2 flex items-center gap-2">
+          <i class="fas fa-map-marker-alt text-success"></i>
+          Coordenadas del Origen
+        </label>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <input
+              type="text"
+              formControlName="origenLat"
+              placeholder="Latitud"
+              class="w-full px-3 py-2 text-sm bg-background border border-text/20 focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+            />
+            @if (rutaForm.get('origenLat')?.touched && rutaForm.get('origenLat')?.errors) {
+              <p class="text-danger text-xs font-inter-medium mt-1">Latitud válida requerida</p>
+            }
+          </div>
+          <div>
+            <input
+              type="text"
+              formControlName="origenLng"
+              placeholder="Longitud"
+              class="w-full px-3 py-2 text-sm bg-background border border-text/20 focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+            />
+            @if (rutaForm.get('origenLng')?.touched && rutaForm.get('origenLng')?.errors) {
+              <p class="text-danger text-xs font-inter-medium mt-1">Longitud válida requerida</p>
+            }
+          </div>
+        </div>
+        <p class="text-xs text-text/50 mt-2">Ej: -12.0464, -77.0428 (Lima)</p>
+      </div>
+
+      <!-- Ciudad Destino -->
+      <div>
+        <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+          <i class="fas fa-location-dot text-danger"></i>
+          Ciudad Destino
+        </label>
+        <input
+          type="text"
+          formControlName="destino"
+          class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+          placeholder="Ica"
+        />
+        @if (rutaForm.get('destino')?.touched && rutaForm.get('destino')?.errors) {
+          <p class="text-danger text-xs font-inter-medium mt-1">Ciudad de destino requerida (mín. 3 caracteres)</p>
+        }
+      </div>
+
+      <!-- Coordenadas Destino -->
+      <div class="bg-text/5 p-4 rounded-lg border border-text/10">
+        <label class="text-xs font-inter-bold text-text uppercase mb-2 flex items-center gap-2">
+          <i class="fas fa-map-marker-alt text-danger"></i>
+          Coordenadas del Destino
+        </label>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <input
+              type="text"
+              formControlName="destinoLat"
+              placeholder="Latitud"
+              class="w-full px-3 py-2 text-sm bg-background border border-text/20 focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+            />
+            @if (rutaForm.get('destinoLat')?.touched && rutaForm.get('destinoLat')?.errors) {
+              <p class="text-danger text-xs font-inter-medium mt-1">Latitud válida requerida</p>
+            }
+          </div>
+          <div>
+            <input
+              type="text"
+              formControlName="destinoLng"
+              placeholder="Longitud"
+              class="w-full px-3 py-2 text-sm bg-background border border-text/20 focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+            />
+            @if (rutaForm.get('destinoLng')?.touched && rutaForm.get('destinoLng')?.errors) {
+              <p class="text-danger text-xs font-inter-medium mt-1">Longitud válida requerida</p>
+            }
+          </div>
+        </div>
+        <p class="text-xs text-text/50 mt-2">Ej: -14.0678, -75.7286 (Ica)</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Distancia y Costo -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+    <div>
+      <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+        <i class="fas fa-road text-info"></i>
+        Distancia (km) - Calculada automáticamente
+      </label>
+      <input
+        type="text"
+        formControlName="distancia"
+        readonly
+        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent rounded-lg text-text font-inter-semibold outline-none"
+        placeholder="300.00"
+      />
+      @if (rutaForm.get('distancia')?.touched && rutaForm.get('distancia')?.errors) {
+        <p class="text-danger text-xs font-inter-medium mt-1">Distancia válida requerida</p>
+      }
+    </div>
+
+    <div>
+      <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+        <i class="fas fa-dollar-sign text-success"></i>
+        Costo Base (S/)
+      </label>
+      <input
+        type="text"
+        formControlName="costoBase"
+        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+        placeholder="150.00"
+      />
+      @if (rutaForm.get('costoBase')?.touched && rutaForm.get('costoBase')?.errors) {
+        <p class="text-danger text-xs font-inter-medium mt-1">Costo base válido requerido</p>
+      }
+    </div>
+  </div>
+</form>

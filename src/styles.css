@@ -1,0 +1,109 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Custom Fonts */
+@font-face {
+  font-family: 'Anton SC';
+  src: url('/font/AntonSC-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Inter Light';
+  src: url('/font/Inter-Light.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Inter Regular';
+  src: url('/font/Inter-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Inter Medium';
+  src: url('/font/Inter-Medium.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Inter SemiBold';
+  src: url('/font/Inter-SemiBold.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Inter Bold';
+  src: url('/font/Inter-Bold.ttf') format('truetype');
+}
+
+:root {
+  --color-primary: #f2e41c;
+  --color-secondary: #f2a518;
+  --color-accent: #f2bb18;
+  --color-background: #f2f2f2;
+  --color-text: #00010f;
+
+  --color-danger: #C90D0D;
+  --color-warning: #F8A50D;
+  --color-success: #34A851;
+  --color-info: #4590F2;
+}
+
+[data-theme="dark"] {
+  --color-primary: #e3d40d;
+  --color-secondary: #e79b0d;
+  --color-accent: #e7b10d;
+  --color-background: #0d0d0d;
+  --color-text: #f0f1ff;
+
+  --color-danger: #F05252;
+  --color-warning: #C27803;
+  --color-success: #0E9F6E;
+  --color-info: #3F83F8;
+}
+
+@theme {
+  --color-primary: var(--color-primary);
+  --color-secondary: var(--color-secondary);
+  --color-accent: var(--color-accent);
+  --color-background: var(--color-background);
+  --color-text: var(--color-text);
+  --color-neutral: var(--color-neutral);
+
+  --color-danger: var(--color-danger);
+  --color-warning: var(--color-warning);
+  --color-success: var(--color-success);
+  --color-info: var(--color-info);
+
+  --font-anton: 'Anton SC', sans-serif;
+  --font-inter-light: 'Inter Light', sans-serif;
+  --font-inter-regular: 'Inter Regular', sans-serif;
+  --font-inter-medium: 'Inter Medium', sans-serif;
+  --font-inter-semibold: 'Inter SemiBold', sans-serif;
+  --font-inter-bold: 'Inter Bold', sans-serif;
+}
+
+/* Global placeholder style */
+::placeholder {
+  color: var(--color-text);
+  opacity: 0.4;
+}
+
+/* Scrollbar styles for dark mode */
+[data-theme="dark"] * {
+  scrollbar-color: var(--color-text) var(--color-background);
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-track {
+  background: var(--color-background);
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: var(--color-text);
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+  background: var(--color-secondary);
+}
+
+/* Select dropdown options in dark mode */
+[data-theme="dark"] select option {
+  background-color: var(--color-background);
+  color: var(--color-text);
+}

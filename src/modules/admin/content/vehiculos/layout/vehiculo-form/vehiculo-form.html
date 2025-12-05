@@ -1,0 +1,143 @@
+<form [formGroup]="vehiculoForm" class="p-4 space-y-3">
+  <!-- Placa -->
+  <div>
+    <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+      <i class="fas fa-id-card text-secondary"></i>
+      Placa
+    </label>
+    <input
+      type="text"
+      formControlName="placa"
+      class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-bold uppercase outline-none transition-all"
+      placeholder="ABC123"
+      maxlength="7"
+    />
+    @if (vehiculoForm.get('placa')?.touched && vehiculoForm.get('placa')?.errors) {
+      <p class="text-danger text-xs font-inter-medium mt-1">La placa es requerida (6-7 caracteres alfanuméricos)</p>
+    }
+  </div>
+
+  <!-- Marca y Modelo -->
+  <div class="grid grid-cols-2 gap-3">
+    <div>
+      <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+        <i class="fas fa-tag text-secondary"></i>
+        Marca
+      </label>
+      <input
+        type="text"
+        formControlName="marca"
+        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+        placeholder="Toyota"
+      />
+      @if (vehiculoForm.get('marca')?.touched && vehiculoForm.get('marca')?.errors) {
+        <p class="text-danger text-xs font-inter-medium mt-1">Marca requerida</p>
+      }
+    </div>
+
+    <div>
+      <label class="text-xs font-inter-semibold text-text mb-1.5">
+        Modelo
+      </label>
+      <input
+        type="text"
+        formControlName="modelo"
+        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+        placeholder="Corolla"
+      />
+      @if (vehiculoForm.get('modelo')?.touched && vehiculoForm.get('modelo')?.errors) {
+        <p class="text-danger text-xs font-inter-medium mt-1">Modelo requerido</p>
+      }
+    </div>
+  </div>
+
+  <!-- Año y Kilometraje -->
+  <div class="grid grid-cols-2 gap-3">
+    <div>
+      <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+        <i class="fas fa-calendar-alt text-primary"></i>
+        Año
+      </label>
+      <input
+        type="number"
+        formControlName="anio"
+        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+        placeholder="2024"
+        min="1900"
+        max="2100"
+      />
+      @if (vehiculoForm.get('anio')?.touched && vehiculoForm.get('anio')?.errors) {
+        <p class="text-danger text-xs font-inter-medium mt-1">Año válido requerido</p>
+      }
+    </div>
+
+    <div>
+      <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+        <i class="fas fa-tachometer-alt text-info"></i>
+        Kilometraje
+      </label>
+      <input
+        type="number"
+        formControlName="kilometraje"
+        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+        placeholder="50000"
+        min="0"
+      />
+      @if (vehiculoForm.get('kilometraje')?.touched && vehiculoForm.get('kilometraje')?.errors) {
+        <p class="text-danger text-xs font-inter-medium mt-1">Kilometraje válido requerido</p>
+      }
+    </div>
+  </div>
+
+  <!-- Fecha Vencimiento SOAT -->
+  <div>
+    <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+      <i class="fas fa-shield-alt text-success"></i>
+      Fecha de Vencimiento SOAT
+    </label>
+    <input
+      type="date"
+      formControlName="fechaVencimientoSoat"
+      class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+    />
+    @if (vehiculoForm.get('fechaVencimientoSoat')?.touched && vehiculoForm.get('fechaVencimientoSoat')?.errors) {
+      <p class="text-danger text-xs font-inter-medium mt-1">Fecha de vencimiento SOAT requerida</p>
+    }
+  </div>
+
+  <!-- Estado -->
+  <div>
+    <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+      <i class="fas fa-info-circle text-secondary"></i>
+      Estado del Vehículo
+    </label>
+    <div class="grid grid-cols-1 gap-2">
+      @for (estado of estados; track estado.value) {
+        <label
+          class="flex items-center gap-3 px-3 py-2.5 rounded-lg border-2 cursor-pointer transition-all"
+          [class.bg-secondary/10]="vehiculoForm.get('estado')?.value === estado.value"
+          [class.border-secondary]="vehiculoForm.get('estado')?.value === estado.value"
+          [class.border-text/10]="vehiculoForm.get('estado')?.value !== estado.value"
+        >
+          <input
+            type="radio"
+            [value]="estado.value"
+            formControlName="estado"
+            class="w-4 h-4 text-secondary border-2 border-text/30 focus:ring-2 focus:ring-secondary/20 cursor-pointer accent-secondary"
+          />
+          <div class="flex items-center gap-2 flex-1">
+            <i [class]="'fas ' + estado.icon + ' text-sm'"
+              [class.text-success]="estado.value === 'activo'"
+              [class.text-warning]="estado.value === 'taller'"
+              [class.text-danger]="estado.value === 'retirado'"
+            ></i>
+            <span class="text-sm font-inter-medium text-text">{{ estado.label }}</span>
+          </div>
+        </label>
+      }
+    </div>
+    @if (vehiculoForm.get('estado')?.touched && vehiculoForm.get('estado')?.errors) {
+      <p class="text-danger text-xs font-inter-medium mt-1">El estado es requerido</p>
+    }
+  </div>
+</form>

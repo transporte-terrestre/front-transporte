@@ -1,0 +1,93 @@
+<div
+  class="min-h-screen flex items-center justify-center bg-background p-4 font-inter-regular text-text"
+>
+  <div class="w-full max-w-md bg-background rounded-2xl shadow-lg overflow-hidden">
+    <!-- Header -->
+    <div class="bg-primary p-8 text-center">
+      <div
+        class="w-16 h-16 bg-background text-primary rounded-full flex items-center justify-center mx-auto mb-4 shadow-md text-2xl"
+      >
+        <i class="fas fa-shipping-fast"></i>
+      </div>
+      <h2 class="text-3xl font-anton tracking-wide text-text">ERIXCEL</h2>
+      <p class="text-text/80 font-inter-medium mt-2">Transport Management System</p>
+    </div>
+
+    <!-- Form -->
+    <div class="p-8">
+      <form (ngSubmit)="onLogin()" class="space-y-6">
+        <!-- Email -->
+        <div class="space-y-2">
+          <label for="email" class="block text-sm font-inter-semibold text-text/40"
+            >Email Address</label
+          >
+          <div class="relative">
+            <div
+              class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-text/40"
+            >
+              <i class="fas fa-envelope"></i>
+            </div>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              [ngModel]="email()"
+              (ngModelChange)="email.set($event)"
+              required
+              class="block w-full pl-10 pr-3 py-2.5 border border-text/30 rounded-lg focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-colors outline-none bg-background text-text placeholder-text/40"
+              placeholder="admin@example.com"
+            />
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="space-y-2">
+          <label for="password" class="block text-sm font-inter-semibold text-text/40"
+            >Password</label
+          >
+          <div class="relative">
+            <div
+              class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-text/40"
+            >
+              <i class="fas fa-lock"></i>
+            </div>
+            <input
+              [type]="showPassword() ? 'text' : 'password'"
+              id="password"
+              name="password"
+              [ngModel]="password()"
+              (ngModelChange)="password.set($event)"
+              required
+              class="block w-full pl-10 pr-10 py-2.5 border border-text/70 rounded-lg focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-colors outline-none bg-background text-text placeholder-text/40"
+              placeholder="••••••••"
+            />
+            <button
+              type="button"
+              (click)="togglePasswordVisibility()"
+              class="absolute inset-y-0 right-0 pr-3 flex items-center text-text/40 hover:text-secondary transition-colors cursor-pointer"
+            >
+              <i [class]="showPassword() ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button
+          type="submit"
+          [disabled]="loading()"
+          class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-inter-bold text-text bg-secondary hover:bg-accent focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-secondary transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          @if (loading()) {
+          <i class="fas fa-circle-notch fa-spin mr-2"></i> Signing in... } @else { Sign In }
+        </button>
+      </form>
+    </div>
+
+    <!-- Footer -->
+    <div class="bg-text/5 px-8 py-4 border-t border-text/10 text-center">
+      <p class="text-xs text-text/50 font-inter-medium">
+        &copy; 2025 Erixcel. All rights reserved.
+      </p>
+    </div>
+  </div>
+</div>
