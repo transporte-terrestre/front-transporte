@@ -1,7 +1,7 @@
 const BASE_URL_LOCAL = 'http://localhost:3000';
-const BASE_URL_GLOBAL = 'http://34.31.2.133:3000';
+const BASE_URL_GLOBAL = 'https://transporte-terrestre.onrender.com';
 
-const BASE_URL = BASE_URL_LOCAL;
+const BASE_URL = BASE_URL_GLOBAL;
 
 export const API_URL = {
   auth: {
@@ -62,5 +62,21 @@ export const API_URL = {
     create: `${BASE_URL}/cliente/create`,
     update: (id: number) => `${BASE_URL}/cliente/update/${id}`,
     delete: (id: number) => `${BASE_URL}/cliente/delete/${id}`,
+  },
+  dashboard: {
+    stats: `${BASE_URL}/dashboard/stats`,
+    vehiculosEstado: `${BASE_URL}/dashboard/vehiculos-estado`,
+    viajesRecientes: `${BASE_URL}/dashboard/viajes-recientes`,
+    mantenimientosProximos: `${BASE_URL}/dashboard/mantenimientos-proximos`,
+    rutasPopulares: `${BASE_URL}/dashboard/rutas-populares`,
+    ingresosMensuales: `${BASE_URL}/dashboard/ingresos-mensuales`,
+  },
+  storage: {
+    upload: (params?: { folder?: string }) => {
+      const query = new URLSearchParams();
+      if (params?.folder) query.append('folder', params.folder);
+      return `${BASE_URL}/storage?${query.toString()}`
+    },
+    delete: (publicId: string) => `${BASE_URL}/storage/${encodeURIComponent(publicId)}`,
   },
 };

@@ -1,1 +1,262 @@
-<p>viajes works!</p>
+<div class="space-y-6">
+  <!-- Header -->
+  <div class="flex flex-col gap-4">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-2xl font-anton text-text lowercase">Viajes</h1>
+        <p class="text-sm text-text/60 font-inter-regular mt-1">Administra los viajes y rutas programadas</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <button
+          (click)="toggleViewMode()"
+          class="flex items-center gap-2 px-4 py-2 bg-text/10 text-text rounded-lg text-sm font-inter-semibold hover:bg-text/20 transition-all self-stretch"
+          title="Cambiar vista"
+        >
+          <i [class]="viewMode() === 'grid' ? 'fas fa-list' : 'fas fa-th-large'" class="text-xs"></i>
+        </button>
+        <button
+          (click)="openCreateModal()"
+          class="flex items-center gap-2 px-4 py-2 bg-secondary text-background rounded-lg text-sm font-inter-semibold hover:bg-secondary/90 transition-all shadow-sm hover:shadow-md"
+        >
+          <i class="fas fa-plus text-xs"></i>
+          <span>Nuevo Viaje</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Buscador -->
+    <div class="relative">
+      <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"></i>
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="filterViajes()"
+        placeholder="Buscar por ruta, vehículo, conductor o estado..."
+        class="w-full pl-10 pr-4 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all"
+      />
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="flex items-center justify-center py-12">
+      <div class="flex flex-col items-center gap-3">
+        <i class="fas fa-spinner fa-spin text-3xl text-secondary"></i>
+        <p class="text-text/60 font-inter-medium">Cargando viajes...</p>
+      </div>
+    </div>
+  }
+
+  <!-- Empty State -->
+  @else if (viajes().length === 0) {
+    <div class="flex flex-col items-center justify-center py-12 text-text/60 bg-background border border-text/10 rounded-xl">
+      <i class="fas fa-route text-5xl mb-4 text-text/20"></i>
+      <p class="font-inter-semibold text-lg">No hay viajes registrados</p>
+      <p class="font-inter-regular text-sm mt-1">Comienza programando un nuevo viaje</p>
+    </div>
+  }
+
+  <!-- Grid View -->
+  @else if (viewMode() === 'grid') {
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      @for (viaje of filteredViajes(); track viaje.id) {
+        <div class="viaje-card bg-background border border-text/10 rounded-xl shadow-sm hover:shadow-md transition-all overflow-hidden group">
+          <!-- Header with Gradient -->
+          <div class="relative bg-linear-to-br from-info/20 to-primary/10 p-6">
+            <div class="flex items-start justify-between mb-4">
+              <div class="flex items-center gap-2">
+                <div class="w-12 h-12 bg-background/90 rounded-lg flex items-center justify-center shadow-md">
+                  <i class="fas fa-route text-2xl text-info"></i>
+                </div>
+                <div>
+                  <h3 class="text-lg font-inter-bold text-text">Viaje #{{ viaje.id }}</h3>
+                  <p class="text-xs font-inter-medium text-text/60">{{ formatDate(viaje.fechaSalida) }}</p>
+                </div>
+              </div>
+              <span
+                class="px-2.5 py-1 text-xs font-inter-bold rounded-full flex items-center gap-1.5"
+                [ngClass]="getEstadoBadgeClass(viaje.estado)"
+              >
+                <i [class]="'fas ' + getEstadoIcon(viaje.estado)" class="text-xs"></i>
+                <span>{{ getEstadoLabel(viaje.estado) }}</span>
+              </span>
+            </div>
+
+            <!-- Route Display -->
+            <div class="flex items-center justify-center py-2">
+              <div class="flex items-center gap-2 text-text/60">
+                <i class="fas fa-map-marker-alt text-success"></i>
+                <span class="text-sm font-inter-medium">{{ getRutaDisplay(viaje.rutaId) }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Details -->
+          <div class="p-4 space-y-3">
+            <!-- Vehículo -->
+            <div class="flex items-center gap-2 text-text">
+              <i class="fas fa-car text-secondary/70 text-sm w-5"></i>
+              <div class="flex-1">
+                <p class="text-xs font-inter-medium text-text/60">Vehículo</p>
+                <p class="text-sm font-inter-bold">{{ getVehiculoDisplay(viaje.vehiculoId) }}</p>
+              </div>
+            </div>
+
+            <!-- Conductor -->
+            <div class="flex items-center gap-2 text-text">
+              <i class="fas fa-user text-primary/70 text-sm w-5"></i>
+              <div class="flex-1">
+                <p class="text-xs font-inter-medium text-text/60">Conductor</p>
+                <p class="text-sm font-inter-bold">{{ getConductorDisplay(viaje.conductorId) }}</p>
+              </div>
+            </div>
+
+            <!-- Fecha Salida -->
+            <div class="flex items-center gap-2 text-text">
+              <i class="fas fa-calendar-plus text-success/70 text-sm w-5"></i>
+              <div class="flex-1">
+                <p class="text-xs font-inter-medium text-text/60">Fecha de Salida</p>
+                <p class="text-sm font-inter-bold">{{ formatDate(viaje.fechaSalida) }}</p>
+              </div>
+            </div>
+
+            <!-- Fecha Llegada -->
+            <div class="flex items-center gap-2 text-text">
+              <i class="fas fa-calendar-check text-warning/70 text-sm w-5"></i>
+              <div class="flex-1">
+                <p class="text-xs font-inter-medium text-text/60">Fecha de Llegada</p>
+                <p class="text-sm font-inter-bold">
+                  @if (viaje.fechaLlegada) {
+                    {{ formatDate(viaje.fechaLlegada) }}
+                  } @else {
+                    <span class="text-text/40">Pendiente</span>
+                  }
+                </p>
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="pt-3 border-t border-text/10 flex items-center justify-end gap-2">
+              <button
+                (click)="openEditModal(viaje)"
+                class="flex items-center gap-1.5 px-3 py-1.5 text-info hover:bg-info/10 rounded-lg transition-colors text-xs font-inter-semibold"
+                title="Editar"
+              >
+                <i class="fas fa-edit"></i>
+                <span>Editar</span>
+              </button>
+              <button
+                (click)="deleteViaje(viaje.id)"
+                class="flex items-center gap-1.5 px-3 py-1.5 text-danger hover:bg-danger/10 rounded-lg transition-colors text-xs font-inter-semibold"
+                title="Eliminar"
+              >
+                <i class="fas fa-trash"></i>
+                <span>Eliminar</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Table View -->
+  @else {
+    <div class="bg-background border border-text/10 rounded-xl shadow-sm overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-text/5 border-b border-text/10">
+            <tr>
+              <th class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider">ID</th>
+              <th class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider">Ruta</th>
+              <th class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider">Vehículo</th>
+              <th class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider">Conductor</th>
+              <th class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider">Salida</th>
+              <th class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider">Llegada</th>
+              <th class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider">Estado</th>
+              <th class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase tracking-wider">Acciones</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-text/10">
+            @for (viaje of filteredViajes(); track viaje.id) {
+              <tr class="hover:bg-text/5 transition-colors">
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <span class="text-xs font-inter-semibold text-text">{{ viaje.id }}</span>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-info/10 flex items-center justify-center text-info text-xs">
+                      <i class="fas fa-route"></i>
+                    </div>
+                    <span class="text-xs font-inter-bold text-text">{{ getRutaDisplay(viaje.rutaId) }}</span>
+                  </div>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <span class="text-xs font-inter-medium text-text">{{ getVehiculoDisplay(viaje.vehiculoId) }}</span>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <span class="text-xs font-inter-medium text-text">{{ getConductorDisplay(viaje.conductorId) }}</span>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <span class="text-xs font-inter-medium text-text">{{ formatDate(viaje.fechaSalida) }}</span>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <span class="text-xs font-inter-medium text-text">
+                    @if (viaje.fechaLlegada) {
+                      {{ formatDate(viaje.fechaLlegada) }}
+                    } @else {
+                      <span class="text-text/40">-</span>
+                    }
+                  </span>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <span
+                    class="px-2 py-1 text-xs font-inter-bold rounded-full"
+                    [ngClass]="getEstadoBadgeClass(viaje.estado)"
+                  >
+                    {{ getEstadoLabel(viaje.estado) }}
+                  </span>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-right">
+                  <div class="flex items-center justify-end gap-1">
+                    <button
+                      (click)="openEditModal(viaje)"
+                      class="p-1.5 text-info hover:bg-info/10 rounded-lg transition-colors"
+                      title="Editar"
+                    >
+                      <i class="fas fa-edit text-xs"></i>
+                    </button>
+                    <button
+                      (click)="deleteViaje(viaje.id)"
+                      class="p-1.5 text-danger hover:bg-danger/10 rounded-lg transition-colors"
+                      title="Eliminar"
+                    >
+                      <i class="fas fa-trash text-xs"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+</div>
+
+<!-- Modal Form -->
+@if (showModal()) {
+  <app-modal-form
+    [title]="editMode() ? 'Editar Viaje' : 'Nuevo Viaje'"
+    [submitText]="editMode() ? 'Actualizar' : 'Crear'"
+    [loading]="loading()"
+    (onSubmit)="handleModalSubmit()"
+    (onClose)="closeModal()"
+  >
+    <app-viaje-form
+      [viaje]="selectedViaje()"
+      [editMode]="editMode()"
+      (onSubmitForm)="handleFormSubmit($event)"
+    />
+  </app-modal-form>
+}

@@ -70,9 +70,17 @@
                 </td>
                 <td class="px-4 py-3 whitespace-nowrap">
                   <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center text-secondary text-xs font-inter-bold">
-                      {{ conductor.nombre.split(' ')[0].charAt(0) }}{{ conductor.nombre.split(' ')[1]?.charAt(0) || '' }}
-                    </div>
+                    @if (conductor.imagenes && conductor.imagenes.length > 0) {
+                      <img
+                        [src]="conductor.imagenes[0]"
+                        [alt]="conductor.nombre"
+                        class="w-8 h-8 rounded-full object-cover border border-text/10"
+                      />
+                    } @else {
+                      <div class="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center text-secondary text-xs font-inter-bold">
+                        {{ conductor.nombre.split(' ')[0].charAt(0) }}{{ conductor.nombre.split(' ')[1]?.charAt(0) || '' }}
+                      </div>
+                    }
                     <p class="text-xs font-inter-semibold text-text capitalize">{{ conductor.nombre }}</p>
                   </div>
                 </td>

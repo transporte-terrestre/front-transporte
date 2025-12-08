@@ -1,11 +1,12 @@
-import { Component, inject, input, output, OnInit, effect } from '@angular/core';
+import { Component, inject, input, output, OnInit, effect, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ClienteResultDto, ClienteCreateDto, ClienteUpdateDto } from '@interface/admin/cliente.interface';
+import { ImagesUpload } from '@module/admin/components/images-upload/images-upload';
 
 @Component({
   selector: 'app-cliente-form',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, ImagesUpload],
   templateUrl: './cliente-form.html',
   styleUrl: './cliente-form.css',
 })
@@ -18,6 +19,9 @@ export class ClienteForm implements OnInit {
 
   // Outputs
   onSubmitForm = output<ClienteCreateDto | ClienteUpdateDto>();
+
+  // State
+  imagenes = signal<string[]>([]);
 
   clienteForm: FormGroup = this.fb.group({
     dni: ['', [Validators.required, Validators.maxLength(20)]],
@@ -43,13 +47,19 @@ export class ClienteForm implements OnInit {
           telefono: clienteData.telefono || '',
           direccion: clienteData.direccion || '',
         });
+        this.imagenes.set(clienteData.imagenes || []);
       } else {
         this.clienteForm.reset();
+        this.imagenes.set([]);
       }
     });
   }
 
   ngOnInit() {}
+
+  onImagesChange(images: string[]) {
+    this.imagenes.set(images);
+  }
 
   submitForm() {
     if (this.clienteForm.invalid) {
@@ -64,6 +74,7 @@ export class ClienteForm implements OnInit {
       dni: formData.dni,
       nombre: formData.nombre,
       apellido: formData.apellido,
+      imagenes: this.imagenes(),
     };
 
     if (formData.email) cleanData.email = formData.email;

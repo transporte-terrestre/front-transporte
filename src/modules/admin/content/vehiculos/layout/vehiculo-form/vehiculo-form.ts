@@ -1,11 +1,13 @@
-import { Component, inject, input, output, OnInit, effect } from '@angular/core';
+import { Component, inject, input, output, OnInit, effect, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { VehiculoResultDto, VehiculoCreateDto, VehiculoUpdateDto } from '@interface/admin/vehiculo.interface';
+import { ImagesUpload } from '@module/admin/components/images-upload/images-upload';
+import { DocumentsUpload } from '@module/admin/components/documents-upload/documents-upload';
 
 @Component({
   selector: 'app-vehiculo-form',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, ImagesUpload, DocumentsUpload],
   templateUrl: './vehiculo-form.html',
   styleUrl: './vehiculo-form.css',
 })
@@ -18,6 +20,10 @@ export class VehiculoForm implements OnInit {
 
   // Outputs
   onSubmitForm = output<VehiculoCreateDto | VehiculoUpdateDto>();
+
+  // State
+  imagenes = signal<string[]>([]);
+  documentos = signal<string[]>([]);
 
   vehiculoForm: FormGroup = this.fb.group({
     placa: ['', [Validators.required, Validators.pattern(/^[A-Z0-9]{6,7}$/)]],
@@ -51,13 +57,25 @@ export class VehiculoForm implements OnInit {
           fechaVencimientoSoat: vehiculoData.fechaVencimientoSoat.split('T')[0],
           estado: vehiculoData.estado,
         });
+        this.imagenes.set(vehiculoData.imagenes || []);
+        this.documentos.set(vehiculoData.documentos || []);
       } else {
         this.vehiculoForm.reset({ estado: 'activo' });
+        this.imagenes.set([]);
+        this.documentos.set([]);
       }
     });
   }
 
   ngOnInit() {}
+
+  onImagesChange(images: string[]) {
+    this.imagenes.set(images);
+  }
+
+  onDocumentosChange(docs: string[]) {
+    this.documentos.set(docs);
+  }
 
   submitForm() {
     if (this.vehiculoForm.invalid) {
@@ -65,7 +83,11 @@ export class VehiculoForm implements OnInit {
       return;
     }
 
-    const formData = this.vehiculoForm.value;
+    const formData = {
+      ...this.vehiculoForm.value,
+      imagenes: this.imagenes(),
+      documentos: this.documentos(),
+    };
     this.onSubmitForm.emit(formData);
   }
 }

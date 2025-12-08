@@ -98,4 +98,24 @@
       }
     </div>
   </div>
+
+  <!-- Imágenes -->
+  <div class="mb-3">
+    <app-images-upload
+      [images]="imagenes()"
+      [folder]="'conductores/imagenes'"
+      [maxImages]="5"
+      [label]="'Fotos del conductor'"
+      (imagesChange)="onImagesChange($event)"
+    />
+  </div>
+
+  <!-- Documentos -->
+  <app-documents-upload
+    [documents]="documentos()"
+    [folder]="'conductores/documentos'"
+    [maxDocuments]="10"
+    [label]="'Documentos del conductor (Licencia, DNI, etc.)'"
+    (documentsChange)="onDocumentosChange($event)"
+  />
 </form>

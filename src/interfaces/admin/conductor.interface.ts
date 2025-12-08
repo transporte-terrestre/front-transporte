@@ -10,6 +10,8 @@ export interface ConductorResultDto {
   categoriaLicencia: CategoriaLicencia;
   fechaExpedicion: string;
   fechaRevalidacion: string;
+  imagenes: string[];
+  documentos: string[];
   creadoEn: string;
   actualizadoEn: string;
 }
@@ -22,6 +24,8 @@ export interface ConductorCreateDto {
   categoriaLicencia: CategoriaLicencia;
   fechaExpedicion: string;
   fechaRevalidacion: string;
+  imagenes?: string[];
+  documentos?: string[];
 }
 
 export interface ConductorUpdateDto extends Partial<ConductorCreateDto> {}

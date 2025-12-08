@@ -7,6 +7,8 @@ export interface VehiculoResultDto {
   kilometraje: number;
   fechaVencimientoSoat: string;
   estado: 'activo' | 'taller' | 'retirado';
+  imagenes: string[];
+  documentos: string[];
   creadoEn: string;
   actualizadoEn: string;
 }
@@ -19,6 +21,8 @@ export interface VehiculoCreateDto {
   kilometraje: number;
   fechaVencimientoSoat: string;
   estado?: 'activo' | 'taller' | 'retirado';
+  imagenes?: string[];
+  documentos?: string[];
 }
 
 export interface VehiculoUpdateDto extends Partial<VehiculoCreateDto> {}

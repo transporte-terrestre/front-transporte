@@ -6,6 +6,7 @@ export interface ClienteResultDto {
   email: string | null;
   telefono: string | null;
   direccion: string | null;
+  imagenes: string[];
   creadoEn: string;
   actualizadoEn: string;
 }
@@ -17,6 +18,7 @@ export interface ClienteCreateDto {
   email?: string | null;
   telefono?: string | null;
   direccion?: string | null;
+  imagenes?: string[];
 }
 
 export interface ClienteUpdateDto extends Partial<ClienteCreateDto> {}

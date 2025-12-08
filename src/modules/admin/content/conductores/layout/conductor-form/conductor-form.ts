@@ -1,11 +1,13 @@
-import { Component, inject, input, output, OnInit, effect } from '@angular/core';
+import { Component, inject, input, output, OnInit, effect, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ConductorResultDto, ConductorCreateDto, ConductorUpdateDto, ClaseLicencia, CategoriaLicencia } from '@interface/admin/conductor.interface';
+import { ImagesUpload } from '@module/admin/components/images-upload/images-upload';
+import { DocumentsUpload } from '@module/admin/components/documents-upload/documents-upload';
 
 @Component({
   selector: 'app-conductor-form',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, ImagesUpload, DocumentsUpload],
   templateUrl: './conductor-form.html',
   styleUrl: './conductor-form.css',
 })
@@ -18,6 +20,10 @@ export class ConductorForm implements OnInit {
 
   // Outputs
   onSubmitForm = output<ConductorCreateDto | ConductorUpdateDto>();
+
+  // State
+  imagenes = signal<string[]>([]);
+  documentos = signal<string[]>([]);
 
   conductorForm: FormGroup = this.fb.group({
     dni: ['', [Validators.required, Validators.pattern(/^\d{8}$/)]],
@@ -48,13 +54,25 @@ export class ConductorForm implements OnInit {
           fechaExpedicion: conductorData.fechaExpedicion.split('T')[0],
           fechaRevalidacion: conductorData.fechaRevalidacion.split('T')[0],
         });
+        this.imagenes.set(conductorData.imagenes || []);
+        this.documentos.set(conductorData.documentos || []);
       } else {
         this.conductorForm.reset();
+        this.imagenes.set([]);
+        this.documentos.set([]);
       }
     });
   }
 
   ngOnInit() {}
+
+  onImagesChange(images: string[]) {
+    this.imagenes.set(images);
+  }
+
+  onDocumentosChange(docs: string[]) {
+    this.documentos.set(docs);
+  }
 
   submitForm() {
     if (this.conductorForm.invalid) {
@@ -62,7 +80,11 @@ export class ConductorForm implements OnInit {
       return;
     }
 
-    const formData = this.conductorForm.value;
+    const formData = {
+      ...this.conductorForm.value,
+      imagenes: this.imagenes(),
+      documentos: this.documentos(),
+    };
     this.onSubmitForm.emit(formData);
   }
 }

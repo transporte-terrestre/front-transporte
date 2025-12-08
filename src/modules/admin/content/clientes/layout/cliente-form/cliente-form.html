@@ -80,4 +80,13 @@
       }
     </div>
   </div>
+
+  <!-- Imágenes -->
+  <app-images-upload
+    [images]="imagenes()"
+    [folder]="'clientes'"
+    [maxImages]="5"
+    [label]="'Imágenes del cliente'"
+    (imagesChange)="onImagesChange($event)"
+  />
 </form>
