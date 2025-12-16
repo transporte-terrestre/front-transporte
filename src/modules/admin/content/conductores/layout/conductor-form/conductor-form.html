@@ -62,15 +62,20 @@
   <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
     <div>
       <label class="block text-xs font-inter-semibold text-text mb-1.5">Clase</label>
-      <select
-        formControlName="claseLicencia"
-        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-      >
-        <option value="" disabled selected>Selecciona clase</option>
-        @for (clase of clases; track clase) {
-        <option [value]="clase">{{ clase }}</option>
-        }
-      </select>
+      <div class="relative">
+        <select
+          formControlName="claseLicencia"
+          class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all appearance-none cursor-pointer"
+        >
+          <option value="" disabled selected>Selecciona clase</option>
+          @for (clase of clases; track clase) {
+          <option [value]="clase">{{ clase }}</option>
+          }
+        </select>
+        <span class="absolute inset-y-0 right-3 flex items-center text-text/60 pointer-events-none">
+          <i class="fas fa-chevron-down text-xs"></i>
+        </span>
+      </div>
       @if (conductorForm.get('claseLicencia')?.touched &&
       conductorForm.get('claseLicencia')?.errors) {
       <p class="text-danger text-xs font-inter-medium mt-1">Clase requerida</p>
@@ -79,15 +84,20 @@
 
     <div>
       <label class="block text-xs font-inter-semibold text-text mb-1.5">Categoría</label>
-      <select
-        formControlName="categoriaLicencia"
-        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-      >
-        <option value="" disabled selected>Selecciona categoría</option>
-        @for (categoria of categorias; track categoria) {
-        <option [value]="categoria">{{ categoria }}</option>
-        }
-      </select>
+      <div class="relative">
+        <select
+          formControlName="categoriaLicencia"
+          class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all appearance-none cursor-pointer"
+        >
+          <option value="" disabled selected>Selecciona categoría</option>
+          @for (categoria of categorias; track categoria) {
+          <option [value]="categoria">{{ categoria }}</option>
+          }
+        </select>
+        <span class="absolute inset-y-0 right-3 flex items-center text-text/60 pointer-events-none">
+          <i class="fas fa-chevron-down text-xs"></i>
+        </span>
+      </div>
       @if (conductorForm.get('categoriaLicencia')?.touched &&
       conductorForm.get('categoriaLicencia')?.errors) {
       <p class="text-danger text-xs font-inter-medium mt-1">Categoría requerida</p>
@@ -105,4 +115,25 @@
       (imagesChange)="onImagesChange($event)"
     />
   </div>
+
+  <!-- Documentos -->
+  @if (editMode() && conductor()) {
+  <div class="space-y-4 mt-6">
+    <h3 class="text-sm font-inter-bold text-text mb-4">Documentos</h3>
+    <div class="grid grid-cols-1 gap-4">
+      @for (docType of documentTypes; track docType.value) {
+      <div class="bg-background rounded-lg p-4 border border-text/10">
+        <app-documents-date-upload
+          [label]="docType.label"
+          [documents]="getDocuments(docType.value)"
+          [maxDocuments]="10"
+          (onUpload)="handleDocumentUpload($event, docType.value)"
+          (onUpdate)="handleDocumentUpdate($event)"
+          (onDelete)="deleteDocument($event, docType.value)"
+        ></app-documents-date-upload>
+      </div>
+      }
+    </div>
+  </div>
+  }
 </form>

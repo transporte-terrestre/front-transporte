@@ -30,7 +30,7 @@
         placeholder="V-001"
       />
       @if (vehiculoForm.get('codigoInterno')?.touched && vehiculoForm.get('codigoInterno')?.errors) {
-        <p class="text-danger text-xs font-inter-medium mt-1">Código inválido</p>
+        <p class="text-danger text-xs font-inter-medium mt-1">El código interno es requerido</p>
       }
     </div>
   </div>
@@ -107,21 +107,6 @@
     </div>
   </div>
 
-  <!-- Fecha Vencimiento SOAT -->
-  <div>
-    <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
-      <i class="fas fa-shield-alt text-success"></i>
-      Fecha de Vencimiento SOAT
-    </label>
-    <input
-      type="date"
-      formControlName="fechaVencimientoSoat"
-      class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-    />
-    @if (vehiculoForm.get('fechaVencimientoSoat')?.touched && vehiculoForm.get('fechaVencimientoSoat')?.errors) {
-      <p class="text-danger text-xs font-inter-medium mt-1">Fecha de vencimiento SOAT requerida</p>
-    }
-  </div>
 
   <!-- Estado -->
   <div>
@@ -129,7 +114,7 @@
       <i class="fas fa-info-circle text-secondary"></i>
       Estado del Vehículo
     </label>
-    <div class="grid grid-cols-1 gap-2">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
       @for (estado of estados; track estado.value) {
         <label
           class="flex items-center gap-3 px-3 py-2.5 rounded-lg border-2 cursor-pointer transition-all"
@@ -169,4 +154,25 @@
       (imagesChange)="onImagesChange($event)"
     />
   </div>
+
+  <!-- Documentos -->
+  @if (editMode() && vehiculo()) {
+  <div class="space-y-4 mt-6">
+    <h3 class="text-sm font-inter-bold text-text mb-4">Documentos</h3>
+    <div class="grid grid-cols-1 gap-4">
+      @for (docType of documentTypes; track docType.value) {
+      <div class="bg-background rounded-lg p-4 border border-text/10">
+        <app-documents-date-upload
+          [label]="docType.label"
+          [documents]="getDocuments(docType.value)"
+          [maxDocuments]="10"
+          (onUpload)="handleDocumentUpload($event, docType.value)"
+          (onUpdate)="handleDocumentUpdate($event)"
+          (onDelete)="deleteDocument($event, docType.value)"
+        ></app-documents-date-upload>
+      </div>
+      }
+    </div>
+  </div>
+  }
 </form>

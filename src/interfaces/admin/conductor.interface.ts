@@ -1,5 +1,5 @@
-export type ClaseLicencia = 'Uno' | 'Dos' | 'Tres';
-export type CategoriaLicencia = 'A' | 'B';
+export type ClaseLicencia = 'A' | 'B';
+export type CategoriaLicencia = 'Uno' | 'Dos' | 'Tres';
 
 export interface ConductorDocumentoResultDto {
   id: number;
@@ -14,6 +14,7 @@ export interface ConductorDocumentoResultDto {
     | 'induccion_general'
     | 'manejo_defensivo'
     | 'licencia_interna';
+  nombre: string;
   url: string;
   fechaExpiracion?: string | null;
   fechaEmision?: string | null;
@@ -86,6 +87,7 @@ export interface ConductorDocumentoCreateDto {
     | 'induccion_general'
     | 'manejo_defensivo'
     | 'licencia_interna';
+  nombre: string;
   url: string;
   fechaExpiracion?: string;
   fechaEmision?: string;

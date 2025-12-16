@@ -22,6 +22,7 @@ export interface VehiculoDocumentoResultDto {
     | 'certificado_caracteristicas_tecnicas'
     | 'certificado_adas'
     | 'otros';
+  nombre: string;
   url: string;
   fechaExpiracion?: string | null;
   fechaEmision?: string | null;
@@ -53,13 +54,13 @@ export interface DocumentosAgrupadosVehiculoDto {
 export interface VehiculoListDto {
   id: number;
   placa: string;
+  codigoInterno: string | null;
   marca: string;
   modelo: string;
   anio: number;
   kilometraje: number;
   estado: VehiculoEstado;
   imagenes: string[];
-  fechaVencimientoSoat?: string;
   creadoEn: string;
   actualizadoEn: string;
 }
@@ -72,7 +73,6 @@ export interface VehiculoResultDto {
   modelo: string;
   anio: number;
   kilometraje: number;
-  fechaVencimientoSoat: string;
   estado: VehiculoEstado;
   imagenes: string[];
   documentosLegacy: string[];
@@ -88,7 +88,6 @@ export interface VehiculoCreateDto {
   modelo: string;
   anio: number;
   kilometraje: number;
-  fechaVencimientoSoat: string;
   estado?: VehiculoEstado;
   imagenes?: string[];
   documentos?: string[];
@@ -117,6 +116,7 @@ export interface VehiculoDocumentoCreateDto {
     | 'certificado_caracteristicas_tecnicas'
     | 'certificado_adas'
     | 'otros';
+  nombre: string;
   url: string;
   fechaExpiracion?: string;
   fechaEmision?: string;

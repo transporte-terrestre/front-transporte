@@ -2,10 +2,13 @@ import { Component, inject, signal, OnInit, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UsuarioService } from '@service/admin/usuario.service';
-import { UsuarioListDto, UsuarioUpdateDto } from '@interface/admin/usuario.interface';
+import {
+  UsuarioUpdateDto,
+  UsuarioResultDto,
+} from '@interface/admin/usuario.interface';
 import { ToastService } from '@service/toast.service';
 import { UsuarioForm } from '../../layout/usuario-form/usuario-form';
-import { PATH, getPath } from '@route/path.route';
+import { PATH, buildPath } from '@route/path.route';
 
 @Component({
   selector: 'app-usuarios-edit',
@@ -19,7 +22,7 @@ export class UsuariosEdit implements OnInit {
   private usuarioService = inject(UsuarioService);
   private toastService = inject(ToastService);
 
-  usuario = signal<UsuarioListDto | null>(null);
+  usuario = signal<UsuarioResultDto | null>(null);
   loading = signal(false);
 
   usuarioFormComponent = viewChild<UsuarioForm>(UsuarioForm);
@@ -29,7 +32,7 @@ export class UsuariosEdit implements OnInit {
     if (id) {
       this.loadUsuario(+id);
     } else {
-      this.router.navigate([getPath(PATH.admin.usuarios.list)]);
+      this.router.navigate([buildPath(PATH.admin.usuarios.list)]);
     }
   }
 
@@ -43,7 +46,7 @@ export class UsuariosEdit implements OnInit {
       error: (error) => {
         console.error('Error al cargar usuario:', error);
         this.toastService.error('Error al cargar usuario');
-        this.router.navigate([getPath(PATH.admin.usuarios.list)]);
+        this.router.navigate([buildPath(PATH.admin.usuarios.list)]);
       },
     });
   }
@@ -55,7 +58,7 @@ export class UsuariosEdit implements OnInit {
     this.usuarioService.update(this.usuario()!.id, data as UsuarioUpdateDto).subscribe({
       next: () => {
         this.toastService.success('Usuario actualizado exitosamente');
-        this.router.navigate([getPath(PATH.admin.usuarios.list)]);
+        this.router.navigate([buildPath(PATH.admin.usuarios.list)]);
       },
       error: (error) => {
         console.error('Error al actualizar usuario:', error);
@@ -66,6 +69,6 @@ export class UsuariosEdit implements OnInit {
   }
 
   onCancel() {
-    this.router.navigate([getPath(PATH.admin.usuarios.list)]);
+    this.router.navigate([buildPath(PATH.admin.usuarios.list)]);
   }
 }

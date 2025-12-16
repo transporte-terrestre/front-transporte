@@ -4,6 +4,7 @@ export interface UsuarioDocumentoResultDto {
   id: number;
   usuarioId: number;
   tipo: 'dni' | 'seguro_vida_ley' | 'sctr' | 'examen_medico' | 'induccion_general';
+  nombre: string;
   url: string;
   fechaExpiracion?: string | null;
   fechaEmision?: string | null;
@@ -49,6 +50,7 @@ export interface UsuarioUpdateDto extends Partial<UsuarioCreateDto> {}
 export interface UsuarioDocumentoCreateDto {
   usuarioId: number;
   tipo: 'dni' | 'seguro_vida_ley' | 'sctr' | 'examen_medico' | 'induccion_general';
+  nombre: string;
   url: string;
   fechaExpiracion?: string;
   fechaEmision?: string;

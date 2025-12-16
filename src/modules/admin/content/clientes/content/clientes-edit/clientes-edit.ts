@@ -5,7 +5,7 @@ import { ClienteService } from '@service/admin/cliente.service';
 import { ClienteResultDto, ClienteUpdateDto } from '@interface/admin/cliente.interface';
 import { ToastService } from '@service/toast.service';
 import { ClienteForm } from '../../layout/cliente-form/cliente-form';
-import { PATH, getPath } from '@route/path.route';
+import { PATH, buildPath } from '@route/path.route';
 
 @Component({
   selector: 'app-clientes-edit',
@@ -29,7 +29,7 @@ export class ClientesEdit implements OnInit {
     if (id) {
       this.loadCliente(+id);
     } else {
-      this.router.navigate([getPath(PATH.admin.clientes)]);
+      this.router.navigate([buildPath(PATH.admin.clientes)]);
     }
   }
 
@@ -43,7 +43,7 @@ export class ClientesEdit implements OnInit {
       error: (error) => {
         console.error('Error al cargar cliente:', error);
         this.toastService.error('Error al cargar cliente');
-        this.router.navigate([getPath(PATH.admin.clientes)]);
+        this.router.navigate([buildPath(PATH.admin.clientes)]);
       },
     });
   }
@@ -55,7 +55,7 @@ export class ClientesEdit implements OnInit {
     this.clienteService.update(this.cliente()!.id, data as ClienteUpdateDto).subscribe({
       next: () => {
         this.toastService.success('Cliente actualizado exitosamente');
-        this.router.navigate([getPath(PATH.admin.clientes)]);
+        this.router.navigate([buildPath(PATH.admin.clientes)]);
       },
       error: (error) => {
         console.error('Error al actualizar cliente:', error);
@@ -66,6 +66,6 @@ export class ClientesEdit implements OnInit {
   }
 
   onCancel() {
-    this.router.navigate([getPath(PATH.admin.clientes)]);
+    this.router.navigate([buildPath(PATH.admin.clientes)]);
   }
 }

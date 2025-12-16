@@ -1,3 +1,4 @@
+<!-- Usuario Form Template - Updated -->
 <form [formGroup]="usuarioForm" class="p-4 space-y-3">
   <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
     <div>
@@ -89,4 +90,24 @@
       <p class="text-danger text-xs font-inter-medium mt-1">Selecciona al menos un rol</p>
     }
   </div>
+
+  @if (editMode()) {
+    <div class="pt-4">
+      <h3 class="text-sm font-inter-bold text-text mb-3">Documentos</h3>
+      <div class="space-y-3">
+        @for (docType of documentTypes; track docType.value) {
+          <div class="bg-text/5 rounded-lg p-3 border border-text/10">
+            <app-documents-date-upload
+              [label]="docType.label"
+              [documents]="getDocuments(docType.value)"
+              [maxDocuments]="10"
+              (onUpload)="handleDocumentUpload($event, docType.value)"
+              (onUpdate)="handleDocumentUpdate($event)"
+              (onDelete)="deleteDocument($event, docType.value)"
+            ></app-documents-date-upload>
+          </div>
+        }
+      </div>
+    </div>
+  }
 </form>

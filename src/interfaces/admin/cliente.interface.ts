@@ -2,6 +2,7 @@ export interface ClienteDocumentoResultDto {
   id: number;
   clienteId: number;
   tipo: 'dni' | 'ruc' | 'contrato' | 'carta_compromiso' | 'ficha_ruc' | 'otros';
+  nombre: string;
   url: string;
   fechaExpiracion?: string | null;
   fechaEmision?: string | null;
@@ -69,6 +70,7 @@ export interface ClienteUpdateDto extends Partial<ClienteCreateDto> {}
 export interface ClienteDocumentoCreateDto {
   clienteId: number;
   tipo: 'dni' | 'ruc' | 'contrato' | 'carta_compromiso' | 'ficha_ruc' | 'otros';
+  nombre: string;
   url: string;
   fechaExpiracion?: string;
   fechaEmision?: string;

@@ -206,20 +206,4 @@ export class VehiculosList implements OnInit, OnDestroy {
         return 'fa-circle';
     }
   }
-
-  isSoatExpiring(fecha?: string): boolean {
-    if (!fecha) return false;
-    const soatDate = new Date(fecha);
-    const today = new Date();
-    const diffTime = soatDate.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays <= 30 && diffDays > 0;
-  }
-
-  isSoatExpired(fecha?: string): boolean {
-    if (!fecha) return false;
-    const soatDate = new Date(fecha);
-    const today = new Date();
-    return soatDate < today;
-  }
 }
