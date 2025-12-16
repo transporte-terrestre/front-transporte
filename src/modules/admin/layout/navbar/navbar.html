@@ -1,5 +1,4 @@
 <div class="h-full px-6 flex items-center justify-between bg-background">
-
   <div class="flex items-center gap-4">
     <button
       (click)="onToggleSidebar()"
@@ -17,7 +16,9 @@
     </button>
   </div>
   <div class="flex items-center gap-2 sm:gap-4">
-    <div class="hidden md:flex items-center bg-text/5 rounded-lg px-3 py-2 max-w-64 border-2 border-transparent focus-within:border-secondary transition-all">
+    <div
+      class="hidden md:flex items-center bg-text/5 rounded-lg px-3 py-2 max-w-64 border-2 border-transparent focus-within:border-secondary transition-all"
+    >
       <i class="fas fa-search text-text/40 text-sm"></i>
 
       <input
@@ -27,19 +28,30 @@
       />
     </div>
 
-    <button class="w-10 h-10 rounded-full flex items-center justify-center text-text/40 hover:bg-text/5 hover:text-secondary transition-colors relative">
+    <button
+      class="w-10 h-10 rounded-full flex items-center justify-center text-text/40 hover:bg-text/5 hover:text-secondary transition-colors relative"
+    >
       <i class="fas fa-bell"></i>
-      <span class="absolute top-2.5 right-2.5 w-2 h-2 bg-danger rounded-full border-2 border-background"></span>
+      <span
+        class="absolute top-2.5 right-2.5 w-2 h-2 bg-danger rounded-full border-2 border-background"
+      ></span>
     </button>
 
-    <div class="flex items-center gap-3 pl-2 sm:pl-4 sm:border-l border-text/10 cursor-pointer group">
+    <div
+      class="flex items-center gap-3 pl-2 sm:pl-4 sm:border-l border-text/10 cursor-pointer group"
+    >
       <div class="text-right hidden sm:block">
-        <div class="text-sm font-inter-semibold text-text group-hover:text-secondary transition-colors capitalize">{{ user()?.nombre?.split(' ')?.[0] }} {{ user()?.apellido?.split(' ')?.[0] }}</div>
-        <div class="text-xs text-text/40 font-inter-medium capitalize">{{ user()?.roles?.[0] }}
+        <div
+          class="text-sm font-inter-semibold text-text group-hover:text-secondary transition-colors capitalize"
+        >
+          {{ userName() }}
         </div>
+        <div class="text-xs text-text/40 font-inter-medium capitalize">{{ userRole() }}</div>
       </div>
-      <div class="w-10 h-10 rounded-full bg-text/5 flex items-center justify-center text-secondary font-inter-bold border-2 border-background shadow-sm group-hover:shadow-md transition-all">
-        {{ user()?.nombre?.charAt(0) }}{{ user()?.apellido?.charAt(0) }}
+      <div
+        class="w-10 h-10 rounded-full bg-text/5 flex items-center justify-center text-secondary font-inter-bold border-2 border-background shadow-sm group-hover:shadow-md transition-all"
+      >
+        {{ userInitials() }}
       </div>
     </div>
   </div>

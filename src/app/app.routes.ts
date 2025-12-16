@@ -3,17 +3,58 @@ import { authGuard } from '@guard/auth/auth.guard';
 import { PATH, getPath } from '@route/path.route';
 
 export const routes: Routes = [
-  {
-    path: getPath(PATH.admin), loadComponent: () => import('@module/admin/admin').then(m => m.Admin), canActivate: [authGuard],
+  { path: getPath(PATH.admin), loadComponent: () => import('@module/admin/admin').then((m) => m.Admin), canActivate: [authGuard],
     children: [
       { path: getPath(PATH.admin.dashboard), loadComponent: () => import('@module/admin/content/dashboard/dashboard').then(m => m.Dashboard)},
-      { path: getPath(PATH.admin.conductores), loadComponent: () => import('@module/admin/content/conductores/conductores').then(m => m.Conductores) },
-      { path: getPath(PATH.admin.vehiculos), loadComponent: () => import('@module/admin/content/vehiculos/vehiculos').then(m => m.Vehiculos) },
-      { path: getPath(PATH.admin.mantenimientos), loadComponent: () => import('@module/admin/content/mantenimientos/mantenimientos').then(m => m.Mantenimientos) },
-      { path: getPath(PATH.admin.rutas), loadComponent: () => import('@module/admin/content/rutas/rutas').then(m => m.Rutas) },
-      { path: getPath(PATH.admin.viajes), loadComponent: () => import('@module/admin/content/viajes/viajes').then(m => m.Viajes) },
-      { path: getPath(PATH.admin.usuarios), loadComponent: () => import('@module/admin/content/usuarios/usuarios').then(m => m.Usuarios) },
-      { path: getPath(PATH.admin.clientes), loadComponent: () => import('@module/admin/content/clientes/clientes').then(m => m.Clientes) },
+      { path: getPath(PATH.admin.conductores), loadComponent: () => import('@module/admin/content/conductores/conductores').then(m => m.Conductores),
+        children: [
+          { path: getPath(PATH.admin.conductores.list), loadComponent: () => import('@module/admin/content/conductores/content/conductores-list/conductores-list').then(m => m.ConductoresList) },
+          { path: getPath(PATH.admin.conductores.edit), loadComponent: () => import('@module/admin/content/conductores/content/conductores-edit/conductores-edit').then(m => m.ConductoresEdit) },
+          { path: "**", redirectTo: getPath(PATH.admin.conductores.list), pathMatch: 'full' },
+        ]
+      },
+      { path: getPath(PATH.admin.vehiculos), loadComponent: () => import('@module/admin/content/vehiculos/vehiculos').then(m => m.Vehiculos),
+        children: [
+          { path: getPath(PATH.admin.vehiculos.list), loadComponent: () => import('@module/admin/content/vehiculos/content/vehiculos-list/vehiculos-list').then(m => m.VehiculosList) },
+          { path: getPath(PATH.admin.vehiculos.edit), loadComponent: () => import('@module/admin/content/vehiculos/content/vehiculos-edit/vehiculos-edit').then(m => m.VehiculosEdit) },
+          { path: "**", redirectTo: getPath(PATH.admin.vehiculos.list), pathMatch: 'full' },
+        ]
+      },
+      { path: getPath(PATH.admin.mantenimientos), loadComponent: () => import('@module/admin/content/mantenimientos/mantenimientos').then(m => m.Mantenimientos),
+        children: [
+          { path: getPath(PATH.admin.mantenimientos.list), loadComponent: () => import('@module/admin/content/mantenimientos/content/mantenimientos-list/mantenimientos-list').then(m => m.MantenimientosList) },
+          { path: getPath(PATH.admin.mantenimientos.edit), loadComponent: () => import('@module/admin/content/mantenimientos/content/mantenimientos-edit/mantenimientos-edit').then(m => m.MantenimientosEdit) },
+          { path: "**", redirectTo: getPath(PATH.admin.mantenimientos.list), pathMatch: 'full' },
+        ]
+      },
+      { path: getPath(PATH.admin.rutas), loadComponent: () => import('@module/admin/content/rutas/rutas').then(m => m.Rutas),
+        children: [
+          { path: getPath(PATH.admin.rutas.list), loadComponent: () => import('@module/admin/content/rutas/content/rutas-list/rutas-list').then(m => m.RutasList) },
+          { path: getPath(PATH.admin.rutas.edit), loadComponent: () => import('@module/admin/content/rutas/content/rutas-edit/rutas-edit').then(m => m.RutasEdit) },
+          { path: "**", redirectTo: getPath(PATH.admin.rutas.list), pathMatch: 'full' },
+        ]
+      },
+      { path: getPath(PATH.admin.viajes), loadComponent: () => import('@module/admin/content/viajes/viajes').then(m => m.Viajes),
+        children: [
+          { path: getPath(PATH.admin.viajes.list), loadComponent: () => import('@module/admin/content/viajes/content/viajes-list/viajes-list').then(m => m.ViajesList) },
+          { path: getPath(PATH.admin.viajes.edit), loadComponent: () => import('@module/admin/content/viajes/content/viajes-edit/viajes-edit').then(m => m.ViajesEdit) },
+          { path: "**", redirectTo: getPath(PATH.admin.viajes.list), pathMatch: 'full' },
+        ]
+      },
+      { path: getPath(PATH.admin.usuarios), loadComponent: () => import('@module/admin/content/usuarios/usuarios').then(m => m.Usuarios),
+        children: [
+          { path: getPath(PATH.admin.usuarios.list), loadComponent: () => import('@module/admin/content/usuarios/content/usuarios-list/usuarios-list').then(m => m.UsuariosList) },
+          { path: getPath(PATH.admin.usuarios.edit), loadComponent: () => import('@module/admin/content/usuarios/content/usuarios-edit/usuarios-edit').then(m => m.UsuariosEdit) },
+          { path: "**", redirectTo: getPath(PATH.admin.usuarios.list), pathMatch: 'full' },
+        ]
+      },
+      { path: getPath(PATH.admin.clientes), loadComponent: () => import('@module/admin/content/clientes/clientes').then(m => m.Clientes),
+        children: [
+          { path: getPath(PATH.admin.clientes.list), loadComponent: () => import('@module/admin/content/clientes/content/clientes-list/clientes-list').then(m => m.ClientesList) },
+          { path: getPath(PATH.admin.clientes.edit), loadComponent: () => import('@module/admin/content/clientes/content/clientes-edit/clientes-edit').then(m => m.ClientesEdit) },
+          { path: "**", redirectTo: getPath(PATH.admin.clientes.list), pathMatch: 'full' },
+        ]
+      },
       { path: '**', redirectTo: getPath(PATH.admin.dashboard), pathMatch: 'full' },
     ]
   },

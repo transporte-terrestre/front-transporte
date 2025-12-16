@@ -2,7 +2,16 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { API_URL } from '@route/api.route';
-import { UsuarioCreateDto, UsuarioResultDto, UsuarioUpdateDto } from '@interface/admin/usuario.interface';
+import {
+  UsuarioCreateDto,
+  UsuarioResultDto,
+  UsuarioUpdateDto,
+  PaginatedUsuarioResultDto,
+  UsuarioDocumentoResultDto,
+  UsuarioDocumentoCreateDto,
+  UsuarioDocumentoUpdateDto,
+  UsuarioPaginationParams,
+} from '@interface/admin/usuario.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -10,8 +19,8 @@ import { UsuarioCreateDto, UsuarioResultDto, UsuarioUpdateDto } from '@interface
 export class UsuarioService {
   private http = inject(HttpClient);
 
-  findAll(): Observable<UsuarioResultDto[]> {
-    return this.http.get<UsuarioResultDto[]>(API_URL.usuarios.findAll);
+  findAll(params?: UsuarioPaginationParams): Observable<PaginatedUsuarioResultDto> {
+    return this.http.get<PaginatedUsuarioResultDto>(API_URL.usuarios.findAll(params));
   }
 
   findOne(id: number): Observable<UsuarioResultDto> {
@@ -28,5 +37,27 @@ export class UsuarioService {
 
   delete(id: number): Observable<UsuarioResultDto> {
     return this.http.delete<UsuarioResultDto>(API_URL.usuarios.delete(id));
+  }
+
+  findDocumento(id: number): Observable<UsuarioDocumentoResultDto> {
+    return this.http.get<UsuarioDocumentoResultDto>(API_URL.usuarios.documentos.find(id));
+  }
+
+  createDocumento(documento: UsuarioDocumentoCreateDto): Observable<UsuarioDocumentoResultDto> {
+    return this.http.post<UsuarioDocumentoResultDto>(API_URL.usuarios.documentos.create, documento);
+  }
+
+  updateDocumento(
+    id: number,
+    documento: UsuarioDocumentoUpdateDto
+  ): Observable<UsuarioDocumentoResultDto> {
+    return this.http.patch<UsuarioDocumentoResultDto>(
+      API_URL.usuarios.documentos.update(id),
+      documento
+    );
+  }
+
+  deleteDocumento(id: number): Observable<UsuarioDocumentoResultDto> {
+    return this.http.delete<UsuarioDocumentoResultDto>(API_URL.usuarios.documentos.delete(id));
   }
 }

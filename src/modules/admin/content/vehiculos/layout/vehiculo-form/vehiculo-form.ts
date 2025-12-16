@@ -1,13 +1,16 @@
 import { Component, inject, input, output, OnInit, effect, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { VehiculoResultDto, VehiculoCreateDto, VehiculoUpdateDto } from '@interface/admin/vehiculo.interface';
+import {
+  VehiculoResultDto,
+  VehiculoCreateDto,
+  VehiculoUpdateDto,
+} from '@interface/admin/vehiculo.interface';
 import { ImagesUpload } from '@module/admin/components/images-upload/images-upload';
-import { DocumentsUpload } from '@module/admin/components/documents-upload/documents-upload';
 
 @Component({
   selector: 'app-vehiculo-form',
-  imports: [CommonModule, ReactiveFormsModule, ImagesUpload, DocumentsUpload],
+  imports: [CommonModule, ReactiveFormsModule, ImagesUpload],
   templateUrl: './vehiculo-form.html',
   styleUrl: './vehiculo-form.css',
 })
@@ -27,6 +30,7 @@ export class VehiculoForm implements OnInit {
 
   vehiculoForm: FormGroup = this.fb.group({
     placa: ['', [Validators.required, Validators.pattern(/^[A-Z0-9]{6,7}$/)]],
+    codigoInterno: ['', [Validators.maxLength(20)]],
     marca: ['', [Validators.required, Validators.minLength(2)]],
     modelo: ['', [Validators.required, Validators.minLength(2)]],
     anio: ['', [Validators.required, Validators.min(1900), Validators.max(2100)]],
@@ -50,6 +54,7 @@ export class VehiculoForm implements OnInit {
       if (isEditMode && vehiculoData) {
         this.vehiculoForm.patchValue({
           placa: vehiculoData.placa,
+          codigoInterno: vehiculoData.codigoInterno,
           marca: vehiculoData.marca,
           modelo: vehiculoData.modelo,
           anio: vehiculoData.anio,
@@ -58,11 +63,9 @@ export class VehiculoForm implements OnInit {
           estado: vehiculoData.estado,
         });
         this.imagenes.set(vehiculoData.imagenes || []);
-        this.documentos.set(vehiculoData.documentos || []);
       } else {
         this.vehiculoForm.reset({ estado: 'activo' });
         this.imagenes.set([]);
-        this.documentos.set([]);
       }
     });
   }
@@ -71,10 +74,6 @@ export class VehiculoForm implements OnInit {
 
   onImagesChange(images: string[]) {
     this.imagenes.set(images);
-  }
-
-  onDocumentosChange(docs: string[]) {
-    this.documentos.set(docs);
   }
 
   submitForm() {
@@ -86,7 +85,6 @@ export class VehiculoForm implements OnInit {
     const formData = {
       ...this.vehiculoForm.value,
       imagenes: this.imagenes(),
-      documentos: this.documentos(),
     };
     this.onSubmitForm.emit(formData);
   }

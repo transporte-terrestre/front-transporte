@@ -1,13 +1,18 @@
 import { Component, inject, input, output, OnInit, effect, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ConductorResultDto, ConductorCreateDto, ConductorUpdateDto, ClaseLicencia, CategoriaLicencia } from '@interface/admin/conductor.interface';
+import {
+  ConductorResultDto,
+  ConductorCreateDto,
+  ConductorUpdateDto,
+  ClaseLicencia,
+  CategoriaLicencia,
+} from '@interface/admin/conductor.interface';
 import { ImagesUpload } from '@module/admin/components/images-upload/images-upload';
-import { DocumentsUpload } from '@module/admin/components/documents-upload/documents-upload';
 
 @Component({
   selector: 'app-conductor-form',
-  imports: [CommonModule, ReactiveFormsModule, ImagesUpload, DocumentsUpload],
+  imports: [CommonModule, ReactiveFormsModule, ImagesUpload],
   templateUrl: './conductor-form.html',
   styleUrl: './conductor-form.css',
 })
@@ -27,16 +32,15 @@ export class ConductorForm implements OnInit {
 
   conductorForm: FormGroup = this.fb.group({
     dni: ['', [Validators.required, Validators.pattern(/^\d{8}$/)]],
-    nombre: ['', [Validators.required, Validators.minLength(3)]],
+    nombres: ['', [Validators.required, Validators.minLength(2)]],
+    apellidos: ['', [Validators.required, Validators.minLength(2)]],
     numeroLicencia: ['', [Validators.required, Validators.minLength(5)]],
     claseLicencia: ['', [Validators.required]],
     categoriaLicencia: ['', [Validators.required]],
-    fechaExpedicion: ['', [Validators.required]],
-    fechaRevalidacion: ['', [Validators.required]],
   });
 
-  clases: ClaseLicencia[] = ['A', 'B'];
-  categorias: CategoriaLicencia[] = ['Uno', 'Dos', 'Tres'];
+  clases: ClaseLicencia[] = ['Uno', 'Dos', 'Tres'];
+  categorias: CategoriaLicencia[] = ['A', 'B'];
 
   constructor() {
     // Effect para actualizar formulario cuando cambia el conductor
@@ -47,19 +51,16 @@ export class ConductorForm implements OnInit {
       if (isEditMode && conductorData) {
         this.conductorForm.patchValue({
           dni: conductorData.dni,
-          nombre: conductorData.nombre,
+          nombres: conductorData.nombres,
+          apellidos: conductorData.apellidos,
           numeroLicencia: conductorData.numeroLicencia,
           claseLicencia: conductorData.claseLicencia,
           categoriaLicencia: conductorData.categoriaLicencia,
-          fechaExpedicion: conductorData.fechaExpedicion.split('T')[0],
-          fechaRevalidacion: conductorData.fechaRevalidacion.split('T')[0],
         });
-        this.imagenes.set(conductorData.imagenes || []);
-        this.documentos.set(conductorData.documentos || []);
+        this.imagenes.set(conductorData.fotocheck || []);
       } else {
         this.conductorForm.reset();
         this.imagenes.set([]);
-        this.documentos.set([]);
       }
     });
   }
@@ -70,10 +71,6 @@ export class ConductorForm implements OnInit {
     this.imagenes.set(images);
   }
 
-  onDocumentosChange(docs: string[]) {
-    this.documentos.set(docs);
-  }
-
   submitForm() {
     if (this.conductorForm.invalid) {
       this.conductorForm.markAllAsTouched();
@@ -82,8 +79,7 @@ export class ConductorForm implements OnInit {
 
     const formData = {
       ...this.conductorForm.value,
-      imagenes: this.imagenes(),
-      documentos: this.documentos(),
+      fotocheck: this.imagenes(),
     };
     this.onSubmitForm.emit(formData);
   }

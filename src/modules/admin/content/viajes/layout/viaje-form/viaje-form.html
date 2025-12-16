@@ -7,24 +7,99 @@
     </div>
   }
 
-  <!-- Ruta -->
+  <!-- Cliente -->
   <div>
     <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
-      <i class="fas fa-route text-secondary"></i>
-      Ruta
+      <i class="fas fa-user-tie text-secondary"></i>
+      Cliente
     </label>
     <select
-      formControlName="rutaId"
+      formControlName="clienteId"
       class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
     >
-      <option value="">Seleccionar ruta...</option>
-      @for (ruta of rutas(); track ruta.id) {
-        <option [value]="ruta.id">{{ ruta.origen }} → {{ ruta.destino }}</option>
+      <option value="">Seleccionar cliente...</option>
+      @for (cliente of clientes(); track cliente.id) {
+        <option [value]="cliente.id">
+          {{ cliente.razonSocial || (cliente.nombres + ' ' + cliente.apellidos) }}
+        </option>
       }
     </select>
-    @if (viajeForm.get('rutaId')?.touched && viajeForm.get('rutaId')?.errors) {
-      <p class="text-danger text-xs font-inter-medium mt-1">La ruta es requerida</p>
+    @if (viajeForm.get('clienteId')?.touched && viajeForm.get('clienteId')?.errors) {
+      <p class="text-danger text-xs font-inter-medium mt-1">El cliente es requerido</p>
     }
+  </div>
+
+  <!-- Tipo de Ruta -->
+  <div>
+    <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+      <i class="fas fa-map-signs text-secondary"></i>
+      Tipo de Ruta
+    </label>
+    <div class="flex gap-4">
+      <label class="flex items-center gap-2 cursor-pointer">
+        <input type="radio" formControlName="tipoRuta" value="fija" class="accent-secondary" />
+        <span class="text-sm font-inter-medium text-text">Fija</span>
+      </label>
+      <label class="flex items-center gap-2 cursor-pointer">
+        <input type="radio" formControlName="tipoRuta" value="ocasional" class="accent-secondary" />
+        <span class="text-sm font-inter-medium text-text">Ocasional</span>
+      </label>
+    </div>
+  </div>
+
+  <!-- Ruta Fija -->
+  @if (viajeForm.get('tipoRuta')?.value === 'fija') {
+    <div>
+      <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+        <i class="fas fa-route text-secondary"></i>
+        Ruta
+      </label>
+      <select
+        formControlName="rutaId"
+        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+      >
+        <option value="">Seleccionar ruta...</option>
+        @for (ruta of rutas(); track ruta.id) {
+          <option [value]="ruta.id">{{ ruta.origen }} → {{ ruta.destino }}</option>
+        }
+      </select>
+      @if (viajeForm.get('rutaId')?.touched && viajeForm.get('rutaId')?.errors) {
+        <p class="text-danger text-xs font-inter-medium mt-1">La ruta es requerida</p>
+      }
+    </div>
+  } @else {
+    <!-- Ruta Ocasional -->
+    <div>
+      <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+        <i class="fas fa-map-marker-alt text-secondary"></i>
+        Descripción de Ruta
+      </label>
+      <input
+        type="text"
+        formControlName="rutaOcasional"
+        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+        placeholder="Ej: Lima - Ica (Servicio Especial)"
+      />
+      @if (viajeForm.get('rutaOcasional')?.touched && viajeForm.get('rutaOcasional')?.errors) {
+        <p class="text-danger text-xs font-inter-medium mt-1">La descripción de la ruta es requerida</p>
+      }
+    </div>
+  }
+
+  <!-- Modalidad de Servicio -->
+  <div>
+    <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+      <i class="fas fa-briefcase text-secondary"></i>
+      Modalidad de Servicio
+    </label>
+    <select
+      formControlName="modalidadServicio"
+      class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+    >
+      @for (modalidad of modalidades; track modalidad.value) {
+        <option [value]="modalidad.value">{{ modalidad.label }}</option>
+      }
+    </select>
   </div>
 
   <!-- Vehículo -->
@@ -59,7 +134,7 @@
     >
       <option value="">Seleccionar conductor...</option>
       @for (conductor of conductores(); track conductor.id) {
-        <option [value]="conductor.id">{{ conductor.nombre }} - {{ conductor.dni }}</option>
+        <option [value]="conductor.id">{{ conductor.nombres }} {{ conductor.apellidos }} - {{ conductor.dni }}</option>
       }
     </select>
     @if (viajeForm.get('conductorId')?.touched && viajeForm.get('conductorId')?.errors) {

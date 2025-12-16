@@ -1,0 +1,49 @@
+<div class="space-y-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-anton text-text lowercase">Editar Usuario</h1>
+      <p class="text-sm text-text/60 font-inter-regular mt-1">
+        Actualiza la información del usuario
+      </p>
+    </div>
+    <button
+      (click)="onCancel()"
+      class="flex items-center gap-2 px-4 py-2 bg-background border border-text/10 text-text rounded-lg text-sm font-inter-medium hover:bg-text/5 transition-all"
+    >
+      <i class="fas fa-arrow-left text-xs"></i>
+      <span>Volver</span>
+    </button>
+  </div>
+
+  <div class="bg-background border border-text/10 rounded-xl p-6 shadow-sm">
+    @if (loading()) {
+    <div class="flex items-center justify-center py-12">
+      <div class="flex flex-col items-center gap-3">
+        <i class="fas fa-spinner fa-spin text-3xl text-secondary"></i>
+        <p class="text-text/60 font-inter-medium">Cargando información...</p>
+      </div>
+    </div>
+    } @else if (usuario()) {
+    <app-usuario-form
+      [usuario]="usuario()"
+      [editMode]="true"
+      (onSubmitForm)="handleFormSubmit($event)"
+    />
+
+    <div class="flex justify-end gap-3 mt-6 pt-6 border-t border-text/10">
+      <button
+        (click)="onCancel()"
+        class="px-4 py-2 text-text/60 hover:text-text hover:bg-text/5 rounded-lg transition-all text-sm font-inter-medium"
+      >
+        Cancelar
+      </button>
+      <button
+        (click)="usuarioFormComponent()?.submitForm()"
+        class="px-6 py-2 bg-secondary text-background rounded-lg text-sm font-inter-semibold hover:bg-secondary/90 transition-all shadow-sm hover:shadow-md"
+      >
+        Guardar Cambios
+      </button>
+    </div>
+    }
+  </div>
+</div>

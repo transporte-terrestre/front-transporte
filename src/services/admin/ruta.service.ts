@@ -6,7 +6,17 @@ import {
   RutaCreateDto,
   RutaResultDto,
   RutaUpdateDto,
+  PaginatedRutaResultDto,
 } from '@interface/admin/ruta.interface';
+
+export interface PaginationParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  fechaInicio?: string;
+  fechaFin?: string;
+  [key: string]: any;
+}
 
 @Injectable({
   providedIn: 'root',
@@ -14,8 +24,8 @@ import {
 export class RutaService {
   private http = inject(HttpClient);
 
-  findAll(): Observable<RutaResultDto[]> {
-    return this.http.get<RutaResultDto[]>(API_URL.rutas.findAll);
+  findAll(params?: PaginationParams): Observable<PaginatedRutaResultDto> {
+    return this.http.get<PaginatedRutaResultDto>(API_URL.rutas.findAll(params));
   }
 
   findOne(id: number): Observable<RutaResultDto> {

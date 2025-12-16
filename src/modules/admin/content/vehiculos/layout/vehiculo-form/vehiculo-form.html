@@ -1,20 +1,38 @@
 <form [formGroup]="vehiculoForm" class="p-4 space-y-3">
-  <!-- Placa -->
-  <div>
-    <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
-      <i class="fas fa-id-card text-secondary"></i>
-      Placa
-    </label>
-    <input
-      type="text"
-      formControlName="placa"
-      class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-bold uppercase outline-none transition-all"
-      placeholder="ABC123"
-      maxlength="7"
-    />
-    @if (vehiculoForm.get('placa')?.touched && vehiculoForm.get('placa')?.errors) {
-      <p class="text-danger text-xs font-inter-medium mt-1">La placa es requerida (6-7 caracteres alfanuméricos)</p>
-    }
+  <!-- Placa y Código Interno -->
+  <div class="grid grid-cols-2 gap-3">
+    <div>
+      <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+        <i class="fas fa-id-card text-secondary"></i>
+        Placa
+      </label>
+      <input
+        type="text"
+        formControlName="placa"
+        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-bold uppercase outline-none transition-all"
+        placeholder="ABC123"
+        maxlength="7"
+      />
+      @if (vehiculoForm.get('placa')?.touched && vehiculoForm.get('placa')?.errors) {
+        <p class="text-danger text-xs font-inter-medium mt-1">La placa es requerida (6-7 caracteres alfanuméricos)</p>
+      }
+    </div>
+
+    <div>
+      <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+        <i class="fas fa-barcode text-secondary"></i>
+        Código Interno
+      </label>
+      <input
+        type="text"
+        formControlName="codigoInterno"
+        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+        placeholder="V-001"
+      />
+      @if (vehiculoForm.get('codigoInterno')?.touched && vehiculoForm.get('codigoInterno')?.errors) {
+        <p class="text-danger text-xs font-inter-medium mt-1">Código inválido</p>
+      }
+    </div>
   </div>
 
   <!-- Marca y Modelo -->
@@ -151,13 +169,4 @@
       (imagesChange)="onImagesChange($event)"
     />
   </div>
-
-  <!-- Documentos -->
-  <app-documents-upload
-    [documents]="documentos()"
-    [folder]="'vehiculos/documentos'"
-    [maxDocuments]="10"
-    [label]="'Documentos del vehículo (SOAT, Tarjeta, etc.)'"
-    (documentsChange)="onDocumentosChange($event)"
-  />
 </form>

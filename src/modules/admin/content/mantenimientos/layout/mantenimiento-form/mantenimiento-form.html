@@ -27,6 +27,62 @@
     }
   </div>
 
+  <!-- Taller -->
+  <div>
+    <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+      <i class="fas fa-building text-secondary"></i>
+      Taller
+    </label>
+    <select
+      formControlName="tallerId"
+      class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+    >
+      <option value="">Seleccionar taller...</option>
+      @for (taller of talleres(); track taller.id) {
+        <option [value]="taller.id">{{ taller.nombre }}</option>
+      }
+    </select>
+    @if (mantenimientoForm.get('tallerId')?.touched && mantenimientoForm.get('tallerId')?.errors) {
+      <p class="text-danger text-xs font-inter-medium mt-1">El taller es requerido</p>
+    }
+  </div>
+
+  <!-- Código Orden y Kilometraje -->
+  <div class="grid grid-cols-2 gap-3">
+    <div>
+      <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+        <i class="fas fa-file-invoice text-secondary"></i>
+        Código Orden
+      </label>
+      <input
+        type="text"
+        formControlName="codigoOrden"
+        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+        placeholder="ORD-001"
+      />
+      @if (mantenimientoForm.get('codigoOrden')?.touched && mantenimientoForm.get('codigoOrden')?.errors) {
+        <p class="text-danger text-xs font-inter-medium mt-1">El código de orden es requerido</p>
+      }
+    </div>
+
+    <div>
+      <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+        <i class="fas fa-tachometer-alt text-info"></i>
+        Kilometraje
+      </label>
+      <input
+        type="number"
+        formControlName="kilometraje"
+        min="0"
+        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+        placeholder="55000"
+      />
+      @if (mantenimientoForm.get('kilometraje')?.touched && mantenimientoForm.get('kilometraje')?.errors) {
+        <p class="text-danger text-xs font-inter-medium mt-1">El kilometraje es requerido</p>
+      }
+    </div>
+  </div>
+
   <!-- Tipo de Mantenimiento -->
   <div>
     <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
@@ -59,74 +115,87 @@
     }
   </div>
 
-  <!-- Costo y Kilometraje -->
-  <div class="grid grid-cols-2 gap-3">
-    <div>
-      <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
-        <i class="fas fa-dollar-sign text-success"></i>
-        Costo
-      </label>
-      <input
-        type="number"
-        formControlName="costo"
-        step="0.01"
-        min="0"
-        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-        placeholder="150.50"
-      />
-      @if (mantenimientoForm.get('costo')?.touched && mantenimientoForm.get('costo')?.errors) {
-        <p class="text-danger text-xs font-inter-medium mt-1">El costo es requerido</p>
-      }
-    </div>
-
-    <div>
-      <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
-        <i class="fas fa-tachometer-alt text-info"></i>
-        Kilometraje
-      </label>
-      <input
-        type="number"
-        formControlName="kilometraje"
-        min="0"
-        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-        placeholder="55000"
-      />
-      @if (mantenimientoForm.get('kilometraje')?.touched && mantenimientoForm.get('kilometraje')?.errors) {
-        <p class="text-danger text-xs font-inter-medium mt-1">El kilometraje es requerido</p>
-      }
-    </div>
-  </div>
-
-  <!-- Fecha -->
+  <!-- Costo -->
   <div>
     <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
-      <i class="fas fa-calendar-alt text-warning"></i>
-      Fecha del Mantenimiento
+      <i class="fas fa-dollar-sign text-success"></i>
+      Costo Total
     </label>
     <input
-      type="date"
-      formControlName="fecha"
+      type="number"
+      formControlName="costoTotal"
+      step="0.01"
+      min="0"
       class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+      placeholder="150.50"
     />
-    @if (mantenimientoForm.get('fecha')?.touched && mantenimientoForm.get('fecha')?.errors) {
-      <p class="text-danger text-xs font-inter-medium mt-1">La fecha es requerida</p>
+    @if (mantenimientoForm.get('costoTotal')?.touched && mantenimientoForm.get('costoTotal')?.errors) {
+      <p class="text-danger text-xs font-inter-medium mt-1">El costo es requerido</p>
     }
   </div>
 
-  <!-- Proveedor -->
+  <!-- Fechas -->
+  <div class="grid grid-cols-2 gap-3">
+    <div>
+      <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+        <i class="fas fa-calendar-alt text-warning"></i>
+        Fecha Ingreso
+      </label>
+      <input
+        type="date"
+        formControlName="fechaIngreso"
+        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+      />
+      @if (mantenimientoForm.get('fechaIngreso')?.touched && mantenimientoForm.get('fechaIngreso')?.errors) {
+        <p class="text-danger text-xs font-inter-medium mt-1">La fecha de ingreso es requerida</p>
+      }
+    </div>
+
+    <div>
+      <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+        <i class="fas fa-calendar-check text-success"></i>
+        Fecha Salida
+      </label>
+      <input
+        type="date"
+        formControlName="fechaSalida"
+        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+      />
+      @if (mantenimientoForm.get('fechaSalida')?.touched && mantenimientoForm.get('fechaSalida')?.errors) {
+        <p class="text-danger text-xs font-inter-medium mt-1">La fecha de salida es requerida</p>
+      }
+    </div>
+  </div>
+
+  <!-- Estado -->
   <div>
     <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
-      <i class="fas fa-building text-secondary"></i>
-      Proveedor
+      <i class="fas fa-info-circle text-secondary"></i>
+      Estado
     </label>
-    <input
-      type="text"
-      formControlName="proveedor"
-      class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-      placeholder="Taller Mecánico XYZ"
-    />
-    @if (mantenimientoForm.get('proveedor')?.touched && mantenimientoForm.get('proveedor')?.errors) {
-      <p class="text-danger text-xs font-inter-medium mt-1">El proveedor es requerido (mín. 3 caracteres)</p>
+    <div class="grid grid-cols-3 gap-2">
+      @for (estado of estados; track estado.value) {
+        <label
+          class="flex items-center gap-2 px-3 py-2.5 rounded-lg border-2 cursor-pointer transition-all"
+          [class.bg-secondary/10]="mantenimientoForm.get('estado')?.value === estado.value"
+          [class.border-secondary]="mantenimientoForm.get('estado')?.value === estado.value"
+          [class.border-text/10]="mantenimientoForm.get('estado')?.value !== estado.value"
+        >
+          <input
+            type="radio"
+            [value]="estado.value"
+            formControlName="estado"
+            class="w-4 h-4 text-secondary border-2 border-text/30 focus:ring-2 focus:ring-secondary/20 cursor-pointer accent-secondary"
+          />
+          <div class="flex items-center gap-2 flex-1 min-w-0">
+            <i [class]="'fas ' + estado.icon + ' text-sm ' + estado.color"></i>
+            <span class="text-sm font-inter-medium text-text truncate">{{ estado.label }}</span>
+          </div>
+        </label>
+      }
+    </div>
+    @if (mantenimientoForm.get('estado')?.touched && mantenimientoForm.get('estado')?.errors) {
+      <p class="text-danger text-xs font-inter-medium mt-1">El estado es requerido</p>
     }
   </div>
 

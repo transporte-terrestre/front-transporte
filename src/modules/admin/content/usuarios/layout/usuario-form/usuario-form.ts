@@ -1,7 +1,13 @@
 import { Component, inject, input, output, OnInit, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { UsuarioResultDto, UsuarioCreateDto, UsuarioUpdateDto, Rol } from '@interface/admin/usuario.interface';
+import {
+  UsuarioResultDto,
+  UsuarioListDto,
+  UsuarioCreateDto,
+  UsuarioUpdateDto,
+  Rol,
+} from '@interface/admin/usuario.interface';
 
 @Component({
   selector: 'app-usuario-form',
@@ -13,15 +19,15 @@ export class UsuarioForm implements OnInit {
   private fb = inject(FormBuilder);
 
   // Inputs
-  usuario = input<UsuarioResultDto | null>(null);
+  usuario = input<UsuarioListDto | null>(null);
   editMode = input<boolean>(false);
 
   // Outputs
   onSubmitForm = output<UsuarioCreateDto | UsuarioUpdateDto>();
 
   usuarioForm: FormGroup = this.fb.group({
-    nombre: ['', [Validators.required, Validators.minLength(2)]],
-    apellido: ['', [Validators.required, Validators.minLength(2)]],
+    nombres: ['', [Validators.required, Validators.minLength(2)]],
+    apellidos: ['', [Validators.required, Validators.minLength(2)]],
     email: ['', [Validators.required, Validators.email]],
     contrasenia: ['', [Validators.required, Validators.minLength(6)]],
     roles: [['empleado'], [Validators.required]],
@@ -37,8 +43,8 @@ export class UsuarioForm implements OnInit {
 
       if (isEditMode && usuarioData) {
         this.usuarioForm.patchValue({
-          nombre: usuarioData.nombre,
-          apellido: usuarioData.apellido,
+          nombres: usuarioData.nombres,
+          apellidos: usuarioData.apellidos,
           email: usuarioData.email,
           roles: usuarioData.roles,
         });
@@ -46,7 +52,9 @@ export class UsuarioForm implements OnInit {
         this.usuarioForm.get('contrasenia')?.updateValueAndValidity();
       } else {
         this.usuarioForm.reset({ roles: ['empleado'] });
-        this.usuarioForm.get('contrasenia')?.setValidators([Validators.required, Validators.minLength(6)]);
+        this.usuarioForm
+          .get('contrasenia')
+          ?.setValidators([Validators.required, Validators.minLength(6)]);
         this.usuarioForm.get('contrasenia')?.updateValueAndValidity();
       }
     });

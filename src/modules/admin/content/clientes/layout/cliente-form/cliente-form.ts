@@ -1,7 +1,11 @@
 import { Component, inject, input, output, OnInit, effect, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ClienteResultDto, ClienteCreateDto, ClienteUpdateDto } from '@interface/admin/cliente.interface';
+import {
+  ClienteResultDto,
+  ClienteCreateDto,
+  ClienteUpdateDto,
+} from '@interface/admin/cliente.interface';
 import { ImagesUpload } from '@module/admin/components/images-upload/images-upload';
 
 @Component({
@@ -24,9 +28,12 @@ export class ClienteForm implements OnInit {
   imagenes = signal<string[]>([]);
 
   clienteForm: FormGroup = this.fb.group({
+    tipoDocumento: ['DNI', [Validators.required]],
     dni: ['', [Validators.required, Validators.maxLength(20)]],
-    nombre: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
-    apellido: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
+    ruc: ['', [Validators.maxLength(20)]],
+    nombres: ['', [Validators.maxLength(100)]],
+    apellidos: ['', [Validators.maxLength(100)]],
+    razonSocial: ['', [Validators.maxLength(200)]],
     email: ['', [Validators.email, Validators.maxLength(100)]],
     telefono: ['', [Validators.maxLength(20)]],
     direccion: ['', [Validators.maxLength(255)]],
@@ -40,22 +47,56 @@ export class ClienteForm implements OnInit {
 
       if (isEditMode && clienteData) {
         this.clienteForm.patchValue({
-          dni: clienteData.dni,
-          nombre: clienteData.nombre,
-          apellido: clienteData.apellido,
+          tipoDocumento: clienteData.tipoDocumento,
+          dni: clienteData.dni || '',
+          ruc: clienteData.ruc || '',
+          nombres: clienteData.nombres || '',
+          apellidos: clienteData.apellidos || '',
+          razonSocial: clienteData.razonSocial || '',
           email: clienteData.email || '',
           telefono: clienteData.telefono || '',
           direccion: clienteData.direccion || '',
         });
         this.imagenes.set(clienteData.imagenes || []);
       } else {
-        this.clienteForm.reset();
+        this.clienteForm.reset({ tipoDocumento: 'DNI' });
         this.imagenes.set([]);
       }
     });
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    // Suscribirse a cambios en tipoDocumento para validaciones
+    this.clienteForm.get('tipoDocumento')?.valueChanges.subscribe((tipo) => {
+      const dniControl = this.clienteForm.get('dni');
+      const rucControl = this.clienteForm.get('ruc');
+      const nombresControl = this.clienteForm.get('nombres');
+      const apellidosControl = this.clienteForm.get('apellidos');
+      const razonSocialControl = this.clienteForm.get('razonSocial');
+
+      if (tipo === 'DNI') {
+        dniControl?.setValidators([Validators.required, Validators.maxLength(20)]);
+        nombresControl?.setValidators([Validators.required, Validators.maxLength(100)]);
+        apellidosControl?.setValidators([Validators.required, Validators.maxLength(100)]);
+
+        rucControl?.clearValidators();
+        razonSocialControl?.clearValidators();
+      } else {
+        rucControl?.setValidators([Validators.required, Validators.maxLength(20)]);
+        razonSocialControl?.setValidators([Validators.required, Validators.maxLength(200)]);
+
+        dniControl?.clearValidators();
+        nombresControl?.clearValidators();
+        apellidosControl?.clearValidators();
+      }
+
+      dniControl?.updateValueAndValidity();
+      rucControl?.updateValueAndValidity();
+      nombresControl?.updateValueAndValidity();
+      apellidosControl?.updateValueAndValidity();
+      razonSocialControl?.updateValueAndValidity();
+    });
+  }
 
   onImagesChange(images: string[]) {
     this.imagenes.set(images);
@@ -71,11 +112,18 @@ export class ClienteForm implements OnInit {
 
     // Limpiar campos vacíos
     const cleanData: any = {
-      dni: formData.dni,
-      nombre: formData.nombre,
-      apellido: formData.apellido,
+      tipoDocumento: formData.tipoDocumento,
       imagenes: this.imagenes(),
     };
+
+    if (formData.tipoDocumento === 'DNI') {
+      cleanData.dni = formData.dni;
+      cleanData.nombres = formData.nombres;
+      cleanData.apellidos = formData.apellidos;
+    } else {
+      cleanData.ruc = formData.ruc;
+      cleanData.razonSocial = formData.razonSocial;
+    }
 
     if (formData.email) cleanData.email = formData.email;
     if (formData.telefono) cleanData.telefono = formData.telefono;

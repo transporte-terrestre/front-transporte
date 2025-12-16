@@ -1,26 +1,57 @@
 export type TipoMantenimiento = 'preventivo' | 'correctivo';
+export type MantenimientoEstado = 'pendiente' | 'en_proceso' | 'finalizado';
 
 export interface MantenimientoResultDto {
   id: number;
   vehiculoId: number;
+  tallerId: number;
+  codigoOrden: string;
   tipo: TipoMantenimiento;
-  costo: string;
+  costoTotal: string;
   descripcion: string;
-  fecha: string;
+  fechaIngreso: string;
+  fechaSalida: string;
   kilometraje: number;
-  proveedor: string;
+  estado: MantenimientoEstado;
   creadoEn: string;
   actualizadoEn: string;
 }
 
 export interface MantenimientoCreateDto {
   vehiculoId: number;
+  tallerId: number;
+  codigoOrden: string;
   tipo: TipoMantenimiento;
-  costo: string;
+  costoTotal: string;
   descripcion: string;
-  fecha: string;
+  fechaIngreso: string;
+  fechaSalida: string;
   kilometraje: number;
-  proveedor: string;
+  estado: MantenimientoEstado;
 }
 
 export interface MantenimientoUpdateDto extends Partial<MantenimientoCreateDto> {}
+
+export interface PaginationMeta {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+}
+
+export interface PaginatedMantenimientoResultDto {
+  data: MantenimientoResultDto[];
+  meta: PaginationMeta;
+}
+
+export interface MantenimientoPaginationParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  fechaInicio?: string;
+  fechaFin?: string;
+  tipo?: TipoMantenimiento;
+  estado?: MantenimientoEstado;
+}

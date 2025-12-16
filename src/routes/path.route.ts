@@ -53,26 +53,38 @@ export const PATH = {
     },
     conductores: {
       _path: 'conductores',
-      edit: { _path: 'edit' },
+      list: { _path: 'list' },
+      edit: { _path: 'edit/:id' },
     },
     vehiculos: {
       _path: 'vehiculos',
-      edit: { _path: 'edit' },
+      list: { _path: 'list' },
+      edit: { _path: 'edit/:id' },
     },
     mantenimientos: {
       _path: 'mantenimientos',
+      list: { _path: 'list' },
+      edit: { _path: 'edit/:id' },
     },
     rutas: {
       _path: 'rutas',
+      list: { _path: 'list' },
+      edit: { _path: 'edit/:id' },
     },
     viajes: {
       _path: 'viajes',
+      list: { _path: 'list' },
+      edit: { _path: 'edit/:id' },
     },
     usuarios: {
       _path: 'usuarios',
+      list: { _path: 'list' },
+      edit: { _path: 'edit/:id' },
     },
     clientes: {
       _path: 'clientes',
+      list: { _path: 'list' },
+      edit: { _path: 'edit/:id' },
     },
   },
 } as const;

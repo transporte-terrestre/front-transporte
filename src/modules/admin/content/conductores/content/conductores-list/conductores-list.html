@@ -1,0 +1,216 @@
+<div class="space-y-6">
+  <!-- Header -->
+  <div class="flex flex-col gap-4">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-2xl font-anton text-text lowercase">Conductores</h1>
+        <p class="text-sm text-text/60 font-inter-regular mt-1">
+          Administra los conductores del sistema
+        </p>
+      </div>
+      <button
+        (click)="openCreateModal()"
+        class="flex items-center gap-2 px-4 py-2 bg-secondary text-background rounded-lg text-sm font-inter-semibold hover:bg-secondary/90 transition-all shadow-sm hover:shadow-md"
+      >
+        <i class="fas fa-plus text-xs"></i>
+        <span>Nuevo Conductor</span>
+      </button>
+    </div>
+
+    <!-- Buscador y Filtros -->
+    <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+      <!-- Búsqueda -->
+      <div class="relative sm:col-span-4 lg:col-span-2">
+        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"></i>
+        <input
+          type="text"
+          [ngModel]="searchTerm()"
+          (ngModelChange)="onSearchChange($event)"
+          placeholder="Buscar por nombre, DNI o número de licencia..."
+          class="w-full pl-10 pr-4 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all"
+        />
+      </div>
+
+      <!-- Fecha Inicio -->
+      <div class="relative sm:col-span-2 lg:col-span-1">
+        <i
+          class="fas fa-calendar absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"
+        ></i>
+        <input
+          type="date"
+          [ngModel]="fechaInicio()"
+          (ngModelChange)="fechaInicio.set($event); onDateChange()"
+          placeholder="Fecha inicio"
+          class="w-full pl-10 pr-4 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all"
+        />
+      </div>
+
+      <!-- Fecha Fin -->
+      <div class="relative sm:col-span-2 lg:col-span-1">
+        <i
+          class="fas fa-calendar absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"
+        ></i>
+        <input
+          type="date"
+          [ngModel]="fechaFin()"
+          (ngModelChange)="fechaFin.set($event); onDateChange()"
+          placeholder="Fecha fin"
+          class="w-full pl-10 pr-4 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all"
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabla -->
+  <div class="bg-background border border-text/10 rounded-xl shadow-sm overflow-hidden">
+    @if (loading()) {
+    <div class="flex items-center justify-center py-12">
+      <div class="flex flex-col items-center gap-3">
+        <i class="fas fa-spinner fa-spin text-3xl text-secondary"></i>
+        <p class="text-text/60 font-inter-medium">Cargando conductores...</p>
+      </div>
+    </div>
+    } @else if (conductores().length === 0) {
+    <div class="flex flex-col items-center justify-center py-12 text-text/60">
+      <i class="fas fa-user-tie text-5xl mb-4 text-text/20"></i>
+      <p class="font-inter-semibold text-lg">No hay conductores registrados</p>
+      <p class="font-inter-regular text-sm mt-1">Comienza agregando un nuevo conductor</p>
+    </div>
+    } @else {
+    <div class="overflow-x-auto">
+      <table class="w-full">
+        <thead class="bg-text/5 border-b border-text/10">
+          <tr>
+            <th
+              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+            >
+              ID
+            </th>
+            <th
+              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+            >
+              DNI
+            </th>
+            <th
+              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+            >
+              Nombre Completo
+            </th>
+            <th
+              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+            >
+              N° Licencia
+            </th>
+            <th
+              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+            >
+              Clase
+            </th>
+            <th
+              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+            >
+              Categoría
+            </th>
+            <th
+              class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+            >
+              Acciones
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-text/10">
+          @for (conductor of conductores(); track conductor.id) {
+          <tr class="hover:bg-text/5 transition-colors">
+            <td class="px-4 py-3 whitespace-nowrap">
+              <span class="text-xs font-inter-semibold text-text">{{ conductor.id }}</span>
+            </td>
+            <td class="px-4 py-3 whitespace-nowrap">
+              <span class="text-xs font-inter-medium text-text">{{ conductor.dni }}</span>
+            </td>
+            <td class="px-4 py-3 whitespace-nowrap">
+              <div class="flex items-center gap-2">
+                @if (conductor.fotocheck && conductor.fotocheck.length > 0) {
+                <img
+                  [src]="conductor.fotocheck[0]"
+                  [alt]="conductor.nombres + ' ' + conductor.apellidos"
+                  class="w-8 h-8 rounded-full object-cover border border-text/10"
+                />
+                } @else {
+                <div
+                  class="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center text-secondary text-xs font-inter-bold"
+                >
+                  {{ conductor.nombres.charAt(0) }}{{ conductor.apellidos.charAt(0) }}
+                </div>
+                }
+                <p class="text-xs font-inter-semibold text-text capitalize">
+                  {{ conductor.nombres }} {{ conductor.apellidos }}
+                </p>
+              </div>
+            </td>
+            <td class="px-4 py-3 whitespace-nowrap">
+              <span class="text-xs font-inter-medium text-text/70">{{
+                conductor.numeroLicencia
+              }}</span>
+            </td>
+            <td class="px-4 py-3 whitespace-nowrap">
+              <span
+                class="px-2 py-0.5 text-xs font-inter-bold rounded-full bg-primary/10 text-primary"
+              >
+                {{ conductor.claseLicencia }}
+              </span>
+            </td>
+            <td class="px-4 py-3 whitespace-nowrap">
+              <span
+                class="px-2 py-0.5 text-xs font-inter-semibold rounded-full bg-secondary/10 text-secondary"
+              >
+                {{ conductor.categoriaLicencia }}
+              </span>
+            </td>
+            <td class="px-4 py-3 whitespace-nowrap text-right">
+              <div class="flex items-center justify-end gap-1">
+                <button
+                  (click)="navigateToEdit(conductor)"
+                  class="p-1.5 text-info hover:bg-info/10 rounded-lg transition-colors text-sm"
+                  title="Editar"
+                >
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button
+                  (click)="deleteConductor(conductor.id)"
+                  class="p-1.5 text-danger hover:bg-danger/10 rounded-lg transition-colors text-sm"
+                  title="Eliminar"
+                >
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Paginación -->
+    <app-pagination
+      [meta]="meta()"
+      [currentPage]="currentPage()"
+      [pageSize]="pageSize()"
+      (pageChange)="onPageChange($event)"
+      (pageSizeChange)="onPageSizeChange($event)"
+    />
+    }
+  </div>
+</div>
+
+<!-- Modal -->
+@if (showModal()) {
+<app-modal-form
+  title="Nuevo Conductor"
+  submitText="Crear"
+  [loading]="loading()"
+  (onSubmit)="handleModalSubmit()"
+  (onClose)="closeModal()"
+>
+  <app-conductor-form [editMode]="false" (onSubmitForm)="handleFormSubmit($event)" />
+</app-modal-form>
+}

@@ -1,9 +1,17 @@
 import { Component, inject, input, output, OnInit, effect, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MantenimientoResultDto, MantenimientoCreateDto, MantenimientoUpdateDto, TipoMantenimiento } from '@interface/admin/mantenimiento.interface';
-import { VehiculoResultDto } from '@interface/admin/vehiculo.interface';
+import {
+  MantenimientoResultDto,
+  MantenimientoCreateDto,
+  MantenimientoUpdateDto,
+  TipoMantenimiento,
+  MantenimientoEstado,
+} from '@interface/admin/mantenimiento.interface';
+import { VehiculoResultDto, VehiculoListDto } from '@interface/admin/vehiculo.interface';
+import { TallerResultDto } from '@interface/admin/taller.interface';
 import { VehiculoService } from '@service/admin/vehiculo.service';
+import { TallerService } from '@service/admin/taller.service';
 
 @Component({
   selector: 'app-mantenimiento-form',
@@ -14,6 +22,7 @@ import { VehiculoService } from '@service/admin/vehiculo.service';
 export class MantenimientoForm implements OnInit {
   private fb = inject(FormBuilder);
   private vehiculoService = inject(VehiculoService);
+  private tallerService = inject(TallerService);
 
   // Inputs
   mantenimiento = input<MantenimientoResultDto | null>(null);
@@ -24,22 +33,32 @@ export class MantenimientoForm implements OnInit {
   onSubmitForm = output<MantenimientoCreateDto | MantenimientoUpdateDto>();
 
   // Catálogos
-  vehiculos = signal<VehiculoResultDto[]>([]);
+  vehiculos = signal<VehiculoListDto[]>([]);
+  talleres = signal<TallerResultDto[]>([]);
   loadingCatalogos = signal(false);
 
   mantenimientoForm: FormGroup = this.fb.group({
     vehiculoId: ['', [Validators.required]],
+    tallerId: ['', [Validators.required]],
+    codigoOrden: ['', [Validators.required]],
     tipo: ['preventivo', [Validators.required]],
-    costo: ['', [Validators.required, Validators.min(0)]],
+    costoTotal: ['', [Validators.required, Validators.min(0)]],
     descripcion: ['', [Validators.required, Validators.minLength(10)]],
-    fecha: ['', [Validators.required]],
+    fechaIngreso: ['', [Validators.required]],
+    fechaSalida: ['', [Validators.required]],
     kilometraje: ['', [Validators.required, Validators.min(0)]],
-    proveedor: ['', [Validators.required, Validators.minLength(3)]],
+    estado: ['pendiente', [Validators.required]],
   });
 
   tipos: Array<{ value: TipoMantenimiento; label: string; icon: string; color: string }> = [
     { value: 'preventivo', label: 'Preventivo', icon: 'fa-shield-alt', color: 'text-info' },
     { value: 'correctivo', label: 'Correctivo', icon: 'fa-wrench', color: 'text-warning' },
+  ];
+
+  estados: Array<{ value: MantenimientoEstado; label: string; icon: string; color: string }> = [
+    { value: 'pendiente', label: 'Pendiente', icon: 'fa-clock', color: 'text-info' },
+    { value: 'en_proceso', label: 'En Proceso', icon: 'fa-tools', color: 'text-warning' },
+    { value: 'finalizado', label: 'Finalizado', icon: 'fa-check-circle', color: 'text-success' },
   ];
 
   constructor() {
@@ -51,19 +70,23 @@ export class MantenimientoForm implements OnInit {
       if (isEditMode && mantenimientoData) {
         this.mantenimientoForm.patchValue({
           vehiculoId: mantenimientoData.vehiculoId,
+          tallerId: mantenimientoData.tallerId,
+          codigoOrden: mantenimientoData.codigoOrden,
           tipo: mantenimientoData.tipo,
-          costo: mantenimientoData.costo,
+          costoTotal: mantenimientoData.costoTotal,
           descripcion: mantenimientoData.descripcion,
-          fecha: mantenimientoData.fecha,
+          fechaIngreso: mantenimientoData.fechaIngreso.split('T')[0],
+          fechaSalida: mantenimientoData.fechaSalida.split('T')[0],
           kilometraje: mantenimientoData.kilometraje,
-          proveedor: mantenimientoData.proveedor,
+          estado: mantenimientoData.estado,
         });
       } else {
         // Si hay una fecha seleccionada del calendario, usarla
         const fechaInicial = dateSelected ? this.formatDateForInput(dateSelected) : '';
         this.mantenimientoForm.reset({
           tipo: 'preventivo',
-          fecha: fechaInicial
+          estado: 'pendiente',
+          fechaIngreso: fechaInicial,
         });
       }
     });
@@ -76,13 +99,22 @@ export class MantenimientoForm implements OnInit {
   loadCatalogos() {
     this.loadingCatalogos.set(true);
 
-    this.vehiculoService.findAll().subscribe({
-      next: (data) => {
-        this.vehiculos.set(data);
-        this.loadingCatalogos.set(false);
+    this.vehiculoService.findAll({ limit: 1000 }).subscribe({
+      next: (response) => {
+        this.vehiculos.set(response.data);
       },
       error: (err) => {
         console.error('Error cargando vehículos:', err);
+      },
+    });
+
+    this.tallerService.findAll({ limit: 1000 }).subscribe({
+      next: (response) => {
+        this.talleres.set(response.data);
+        this.loadingCatalogos.set(false);
+      },
+      error: (err) => {
+        console.error('Error cargando talleres:', err);
         this.loadingCatalogos.set(false);
       },
     });
@@ -97,12 +129,15 @@ export class MantenimientoForm implements OnInit {
     const formValue = this.mantenimientoForm.value;
     const formData: MantenimientoCreateDto | MantenimientoUpdateDto = {
       vehiculoId: Number(formValue.vehiculoId),
+      tallerId: Number(formValue.tallerId),
+      codigoOrden: formValue.codigoOrden,
       tipo: formValue.tipo,
-      costo: String(formValue.costo),
+      costoTotal: String(formValue.costoTotal),
       descripcion: formValue.descripcion,
-      fecha: formValue.fecha,
+      fechaIngreso: new Date(formValue.fechaIngreso).toISOString(),
+      fechaSalida: new Date(formValue.fechaSalida).toISOString(),
       kilometraje: Number(formValue.kilometraje),
-      proveedor: formValue.proveedor,
+      estado: formValue.estado,
     };
 
     this.onSubmitForm.emit(formData);
