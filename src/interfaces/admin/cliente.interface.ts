@@ -21,7 +21,9 @@ export interface DocumentosAgrupadosClienteDto {
 
 export interface ClienteListDto {
   id: number;
+  tipoDocumento: 'DNI' | 'RUC';
   dni: string | null;
+  ruc: string | null;
   nombres: string | null;
   apellidos: string | null;
   razonSocial: string | null;

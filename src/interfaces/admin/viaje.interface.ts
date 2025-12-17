@@ -1,3 +1,5 @@
+import { RutaResultDto } from './ruta.interface';
+
 export type ViajeEstado = 'programado' | 'en_progreso' | 'completado' | 'cancelado';
 export type ViajeModalidadServicio = 'regular' | 'expreso' | 'ejecutivo' | 'especial' | 'turismo';
 export type ViajeTipoRuta = 'ocasional' | 'fija';
@@ -32,6 +34,7 @@ export interface ViajeResultDto {
   actualizadoEn: string;
   conductores?: ViajeConductorResultDto[];
   vehiculos?: ViajeVehiculoResultDto[];
+  ruta?: RutaResultDto;
 }
 
 export interface ViajeCreateDto {

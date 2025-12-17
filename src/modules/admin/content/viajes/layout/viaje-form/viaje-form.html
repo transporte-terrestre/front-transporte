@@ -7,43 +7,31 @@
     </div>
   }
 
-  <!-- Cliente -->
-  <div>
-    <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
-      <i class="fas fa-user-tie text-secondary"></i>
-      Cliente
-    </label>
-    <select
-      formControlName="clienteId"
-      class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-    >
-      <option value="">Seleccionar cliente...</option>
-      @for (cliente of clientes(); track cliente.id) {
-        <option [value]="cliente.id">
-          {{ cliente.razonSocial || (cliente.nombres + ' ' + cliente.apellidos) }}
-        </option>
-      }
-    </select>
-    @if (viajeForm.get('clienteId')?.touched && viajeForm.get('clienteId')?.errors) {
-      <p class="text-danger text-xs font-inter-medium mt-1">El cliente es requerido</p>
-    }
-  </div>
-
   <!-- Tipo de Ruta -->
   <div>
     <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
       <i class="fas fa-map-signs text-secondary"></i>
       Tipo de Ruta
     </label>
-    <div class="flex gap-4">
-      <label class="flex items-center gap-2 cursor-pointer">
-        <input type="radio" formControlName="tipoRuta" value="fija" class="accent-secondary" />
-        <span class="text-sm font-inter-medium text-text">Fija</span>
-      </label>
-      <label class="flex items-center gap-2 cursor-pointer">
-        <input type="radio" formControlName="tipoRuta" value="ocasional" class="accent-secondary" />
-        <span class="text-sm font-inter-medium text-text">Ocasional</span>
-      </label>
+    <div class="grid grid-cols-2 gap-2">
+      @for (tipo of tiposRuta; track tipo.value) {
+        <label
+          class="flex items-center gap-3 px-3 py-2.5 rounded-lg border-2 cursor-pointer transition-all"
+          [class.bg-secondary/10]="viajeForm.get('tipoRuta')?.value === tipo.value"
+          [class.border-secondary]="viajeForm.get('tipoRuta')?.value === tipo.value"
+          [class.border-text/10]="viajeForm.get('tipoRuta')?.value !== tipo.value"
+        >
+          <input
+            type="radio"
+            [value]="tipo.value"
+            formControlName="tipoRuta"
+            class="w-4 h-4 text-secondary border-2 border-text/30 focus:ring-2 focus:ring-secondary/20 cursor-pointer accent-secondary"
+          />
+          <div class="flex items-center gap-2 flex-1">
+            <span class="text-sm font-inter-medium text-text">{{ tipo.label }}</span>
+          </div>
+        </label>
+      }
     </div>
   </div>
 
@@ -54,15 +42,7 @@
         <i class="fas fa-route text-secondary"></i>
         Ruta
       </label>
-      <select
-        formControlName="rutaId"
-        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-      >
-        <option value="">Seleccionar ruta...</option>
-        @for (ruta of rutas(); track ruta.id) {
-          <option [value]="ruta.id">{{ ruta.origen }} → {{ ruta.destino }}</option>
-        }
-      </select>
+      <app-ruta-input-search formControlName="rutaId"></app-ruta-input-search>
       @if (viajeForm.get('rutaId')?.touched && viajeForm.get('rutaId')?.errors) {
         <p class="text-danger text-xs font-inter-medium mt-1">La ruta es requerida</p>
       }
@@ -86,20 +66,16 @@
     </div>
   }
 
-  <!-- Modalidad de Servicio -->
+  <!-- Cliente -->
   <div>
     <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
-      <i class="fas fa-briefcase text-secondary"></i>
-      Modalidad de Servicio
+      <i class="fas fa-user-tie text-secondary"></i>
+      Cliente
     </label>
-    <select
-      formControlName="modalidadServicio"
-      class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-    >
-      @for (modalidad of modalidades; track modalidad.value) {
-        <option [value]="modalidad.value">{{ modalidad.label }}</option>
-      }
-    </select>
+    <app-cliente-input-search formControlName="clienteId"></app-cliente-input-search>
+    @if (viajeForm.get('clienteId')?.touched && viajeForm.get('clienteId')?.errors) {
+      <p class="text-danger text-xs font-inter-medium mt-1">El cliente es requerido</p>
+    }
   </div>
 
   <!-- Vehículo -->
@@ -108,15 +84,7 @@
       <i class="fas fa-car text-primary"></i>
       Vehículo
     </label>
-    <select
-      formControlName="vehiculoId"
-      class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-    >
-      <option value="">Seleccionar vehículo...</option>
-      @for (vehiculo of vehiculos(); track vehiculo.id) {
-        <option [value]="vehiculo.id">{{ vehiculo.placa }} - {{ vehiculo.marca }} {{ vehiculo.modelo }}</option>
-      }
-    </select>
+    <app-vehiculo-input-search formControlName="vehiculoId"></app-vehiculo-input-search>
     @if (viajeForm.get('vehiculoId')?.touched && viajeForm.get('vehiculoId')?.errors) {
       <p class="text-danger text-xs font-inter-medium mt-1">El vehículo es requerido</p>
     }
@@ -128,18 +96,77 @@
       <i class="fas fa-user text-info"></i>
       Conductor
     </label>
-    <select
-      formControlName="conductorId"
-      class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-    >
-      <option value="">Seleccionar conductor...</option>
-      @for (conductor of conductores(); track conductor.id) {
-        <option [value]="conductor.id">{{ conductor.nombres }} {{ conductor.apellidos }} - {{ conductor.dni }}</option>
-      }
-    </select>
+    <app-conductor-input-search formControlName="conductorId"></app-conductor-input-search>
     @if (viajeForm.get('conductorId')?.touched && viajeForm.get('conductorId')?.errors) {
       <p class="text-danger text-xs font-inter-medium mt-1">El conductor es requerido</p>
     }
+  </div>
+
+  <!-- Modalidad de Servicio -->
+  <div>
+    <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+      <i class="fas fa-briefcase text-secondary"></i>
+      Modalidad de Servicio
+    </label>
+    <div class="relative">
+      <select
+        formControlName="modalidadServicio"
+        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all appearance-none cursor-pointer"
+      >
+        <option value="" disabled>Seleccionar modalidad...</option>
+        @for (modalidad of modalidades; track modalidad.value) {
+          <option [value]="modalidad.value">{{ modalidad.label }}</option>
+        }
+      </select>
+      <span class="absolute inset-y-0 right-3 flex items-center text-text/60 pointer-events-none">
+        <i class="fas fa-chevron-down text-xs"></i>
+      </span>
+    </div>
+    @if (viajeForm.get('modalidadServicio')?.touched && viajeForm.get('modalidadServicio')?.errors) {
+      <p class="text-danger text-xs font-inter-medium mt-1">La modalidad es requerida</p>
+    }
+  </div>
+
+  <!-- Tripulantes -->
+  <div>
+    <div class="flex items-center justify-between mb-1.5">
+      <label class="text-xs font-inter-semibold text-text flex items-center gap-2">
+        <i class="fas fa-users text-text/60"></i>
+        Tripulantes
+      </label>
+      <button
+        type="button"
+        (click)="addTripulante()"
+        class="text-xs font-inter-medium text-secondary hover:text-secondary/80 flex items-center gap-1 transition-colors"
+      >
+        <i class="fas fa-plus"></i> Agregar
+      </button>
+    </div>
+
+    <div formArrayName="tripulantes" class="space-y-2">
+      @for (control of tripulantesArray.controls; track $index) {
+        <div class="flex items-center gap-2">
+          <input
+            [formControlName]="$index"
+            type="text"
+            placeholder="Nombre completo del tripulante"
+            class="flex-1 px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+          />
+          <button
+            type="button"
+            (click)="removeTripulante($index)"
+            class="w-9 h-9 flex items-center justify-center rounded-lg bg-danger/10 text-danger hover:bg-danger/20 transition-colors"
+          >
+            <i class="fas fa-trash-alt text-sm"></i>
+          </button>
+        </div>
+      }
+      @if (tripulantesArray.controls.length === 0) {
+        <div class="text-xs text-text/40 text-center py-2 border-2 border-dashed border-text/10 rounded-lg">
+          No hay tripulantes asignados
+        </div>
+      }
+    </div>
   </div>
 
   <!-- Fechas -->
@@ -179,26 +206,19 @@
       <i class="fas fa-info-circle text-secondary"></i>
       Estado del Viaje
     </label>
-    <div class="grid grid-cols-2 gap-2">
-      @for (estado of estados; track estado.value) {
-        <label
-          class="flex items-center gap-3 px-3 py-2.5 rounded-lg border-2 cursor-pointer transition-all"
-          [class.bg-secondary/10]="viajeForm.get('estado')?.value === estado.value"
-          [class.border-secondary]="viajeForm.get('estado')?.value === estado.value"
-          [class.border-text/10]="viajeForm.get('estado')?.value !== estado.value"
-        >
-          <input
-            type="radio"
-            [value]="estado.value"
-            formControlName="estado"
-            class="w-4 h-4 text-secondary border-2 border-text/30 focus:ring-2 focus:ring-secondary/20 cursor-pointer accent-secondary"
-          />
-          <div class="flex items-center gap-2 flex-1">
-            <i [class]="'fas ' + estado.icon + ' text-sm ' + estado.color"></i>
-            <span class="text-sm font-inter-medium text-text">{{ estado.label }}</span>
-          </div>
-        </label>
-      }
+    <div class="relative">
+      <select
+        formControlName="estado"
+        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all appearance-none cursor-pointer"
+      >
+        <option value="" disabled>Seleccionar estado...</option>
+        @for (estado of estados; track estado.value) {
+          <option [value]="estado.value">{{ estado.label }}</option>
+        }
+      </select>
+      <span class="absolute inset-y-0 right-3 flex items-center text-text/60 pointer-events-none">
+        <i class="fas fa-chevron-down text-xs"></i>
+      </span>
     </div>
     @if (viajeForm.get('estado')?.touched && viajeForm.get('estado')?.errors) {
       <p class="text-danger text-xs font-inter-medium mt-1">El estado es requerido</p>
