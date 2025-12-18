@@ -1,6 +1,7 @@
 import { Component, inject, output, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '@service/auth/auth.service';
+import { NotificacionService } from '@service/admin/notificacion.service';
 
 @Component({
   selector: 'app-navbar',
@@ -10,6 +11,8 @@ import { AuthService } from '@service/auth/auth.service';
 })
 export class Navbar {
   authService = inject(AuthService);
+  notificationService = inject(NotificacionService);
+  unreadCount = this.notificationService.unreadCount;
   user = this.authService.user;
 
   userName = computed(() => {
@@ -42,5 +45,9 @@ export class Navbar {
 
   onToggleCollapse() {
     this.toggleCollapse.emit();
+  }
+
+  onToggleNotifications() {
+    this.notificationService.toggle();
   }
 }

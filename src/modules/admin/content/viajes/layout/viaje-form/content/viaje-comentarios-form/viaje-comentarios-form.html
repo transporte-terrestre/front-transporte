@@ -1,0 +1,117 @@
+<div class="space-y-3">
+  <div class="flex items-center justify-between">
+    <label class="text-sm font-inter-bold text-text flex items-center gap-2">
+      <i class="fas fa-comments text-success"></i>
+      Comentarios y Novedades
+    </label>
+    <button
+      type="button"
+      (click)="openAddComentario()"
+      class="text-xs bg-secondary/10 text-secondary px-3 py-1.5 rounded-lg font-inter-semibold hover:bg-secondary/20 transition-all"
+    >
+      + Agregar Comentario
+    </button>
+  </div>
+  <div class="grid grid-cols-1 gap-2">
+    @for (c of viaje().comentarios; track c.id) {
+    <div
+      class="bg-background border border-text/10 p-4 rounded-lg hover:border-text/20 transition-all"
+    >
+      <div class="flex items-center justify-between mb-2">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-text/5 flex items-center justify-center text-text/60">
+            <i class="fas fa-user text-xs"></i>
+          </div>
+          <span class="text-sm font-inter-semibold text-text">
+            {{ c.usuarioNombreCompleto }}
+          </span>
+        </div>
+        <span class="text-xs text-text/40 font-inter-regular">{{
+          c.creadoEn | date : 'short'
+        }}</span>
+      </div>
+      <p class="text-sm text-text/60 italic mb-2 pl-11">"{{ c.comentario }}"</p>
+      <div class="flex items-center gap-2 pl-11">
+        <span
+          class="text-[10px] px-2 py-0.5 rounded-full border uppercase tracking-wider font-inter-medium"
+          [class.border-info]="c.tipo === 'novedad'"
+          [class.text-info]="c.tipo === 'novedad'"
+          [class.border-warning]="c.tipo === 'observacion'"
+          [class.text-warning]="c.tipo === 'observacion'"
+          [class.border-danger]="c.tipo === 'incidencia'"
+          [class.text-danger]="c.tipo === 'incidencia'"
+          [class.border-text/20]="c.tipo === 'general'"
+          [class.text-text/60]="c.tipo === 'general'"
+        >
+          {{ c.tipo }}
+        </span>
+      </div>
+    </div>
+    } @if (!viaje().comentarios?.length) {
+    <p class="text-xs text-text/40 italic py-2 text-center">No hay comentarios registrados.</p>
+    }
+  </div>
+</div>
+
+<!-- Add Comentario Modal -->
+@if (showComentarioModal()) {
+<div
+  class="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-fade-in"
+>
+  <div
+    class="bg-background w-full max-w-md rounded-2xl shadow-2xl overflow-hidden border border-text/10"
+    (click)="$event.stopPropagation()"
+  >
+    <div class="px-6 py-4 border-b border-text/10 flex justify-between items-center bg-text/5">
+      <h3 class="text-lg font-anton text-text lowercase">Agregar Comentario</h3>
+      <button type="button" (click)="closeAddComentario()" class="text-text/40 hover:text-text">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <form [formGroup]="addComentarioForm" (ngSubmit)="saveComentario()" class="p-6 space-y-4">
+      <div>
+        <label class="block text-xs font-inter-medium text-text mb-2">Tipo</label>
+        <div class="relative">
+          <select
+            formControlName="tipo"
+            class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all appearance-none cursor-pointer"
+          >
+            <option value="general">General</option>
+            <option value="novedad">Novedad</option>
+            <option value="incidencia">Incidencia</option>
+            <option value="observacion">Observación</option>
+          </select>
+          <span class="absolute inset-y-0 right-3 flex items-center text-text/60 pointer-events-none">
+            <i class="fas fa-chevron-down text-xs"></i>
+          </span>
+        </div>
+      </div>
+      <div>
+        <label class="block text-xs font-inter-medium text-text mb-2">Comentario</label>
+        <textarea
+          formControlName="comentario"
+          rows="4"
+          class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text outline-none placeholder:text-text/40 resize-none"
+          placeholder="Escribe el comentario aquí..."
+        ></textarea>
+      </div>
+      <div class="flex justify-end gap-3 pt-2">
+        <button
+          type="button"
+          (click)="closeAddComentario()"
+          class="px-4 py-2 text-sm font-inter-medium text-text/60 hover:text-text"
+        >
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          [disabled]="addComentarioForm.invalid"
+          class="px-4 py-2 bg-secondary text-background text-sm font-inter-bold rounded-lg hover:bg-secondary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Guardar
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+}

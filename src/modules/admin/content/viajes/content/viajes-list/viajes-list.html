@@ -38,7 +38,7 @@
           type="text"
           [ngModel]="searchTerm()"
           (ngModelChange)="onSearchChange($event)"
-          placeholder="Buscar por ruta, vehículo o conductor..."
+          placeholder="Buscar por ruta ocasional"
           class="w-full pl-10 pr-4 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all"
         />
       </div>
@@ -377,6 +377,7 @@
 <app-modal-form
   title="Nuevo Viaje"
   submitText="Crear"
+  [maxWidth]="'2xl'"
   [loading]="loading()"
   (onSubmit)="handleModalSubmit()"
   (onClose)="closeModal()"

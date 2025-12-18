@@ -75,7 +75,6 @@ export interface VehiculoResultDto {
   kilometraje: number;
   estado: VehiculoEstado;
   imagenes: string[];
-  documentosLegacy: string[];
   documentos: DocumentosAgrupadosVehiculoDto;
   creadoEn: string;
   actualizadoEn: string;

@@ -1,4 +1,8 @@
 import { RutaResultDto } from './ruta.interface';
+import { ClienteResultDto } from './cliente.interface';
+
+import { ConductorResultDto } from './conductor.interface';
+import { VehiculoResultDto } from './vehiculo.interface';
 
 export type ViajeEstado = 'programado' | 'en_progreso' | 'completado' | 'cancelado';
 export type ViajeModalidadServicio = 'regular' | 'expreso' | 'ejecutivo' | 'especial' | 'turismo';
@@ -17,6 +21,10 @@ export interface ViajeListDto {
   fechaLlegada?: string | null;
   creadoEn: string;
   actualizadoEn: string;
+  conductorPrincipal?: ConductorResultDto;
+  vehiculoPrincipal?: VehiculoResultDto;
+  cliente?: ClienteResultDto;
+  ruta?: RutaResultDto;
 }
 
 export interface ViajeResultDto {
@@ -32,9 +40,13 @@ export interface ViajeResultDto {
   fechaLlegada?: string | null;
   creadoEn: string;
   actualizadoEn: string;
-  conductores?: ViajeConductorResultDto[];
-  vehiculos?: ViajeVehiculoResultDto[];
+  conductores?: Array<ConductorResultDto & { rol: string; esPrincipal: boolean }>;
+  vehiculos?: Array<VehiculoResultDto & { rol: string; esPrincipal: boolean }>;
+  comentarios?: Array<ViajeComentarioResultDto & { usuarioNombreCompleto: string }>;
+  conductorPrincipal?: ConductorResultDto;
+  vehiculoPrincipal?: VehiculoResultDto;
   ruta?: RutaResultDto;
+  cliente?: ClienteResultDto;
 }
 
 export interface ViajeCreateDto {
@@ -47,6 +59,8 @@ export interface ViajeCreateDto {
   fechaSalida: string;
   fechaLlegada?: string | null;
   estado?: ViajeEstado;
+  conductorId?: number;
+  vehiculoId?: number;
 }
 
 export interface ViajeUpdateDto extends Partial<ViajeCreateDto> {}

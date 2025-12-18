@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { API_URL } from '@route/api.route';
 import {
   ViajeCreateDto,
@@ -18,6 +19,7 @@ import {
   ViajeComentarioUpdateDto,
   ViajePaginationParams,
 } from '@interface/admin/viaje.interface';
+import { generateHojaRutaPdf } from '@template/hoja-ruta.template';
 
 @Injectable({
   providedIn: 'root',
@@ -30,7 +32,17 @@ export class ViajeService {
   }
 
   findOne(id: number): Observable<ViajeResultDto> {
-    return this.http.get<ViajeResultDto>(API_URL.viajes.findOne(id));
+    return this.http.get<ViajeResultDto>(API_URL.viajes.findOne(id)).pipe(
+      map((viaje) => {
+        const conductorPrincipal = viaje.conductores?.find((c) => c.esPrincipal);
+        const vehiculoPrincipal = viaje.vehiculos?.find((v) => v.esPrincipal);
+        return {
+          ...viaje,
+          conductorPrincipal,
+          vehiculoPrincipal,
+        };
+      })
+    );
   }
 
   create(viaje: ViajeCreateDto): Observable<ViajeResultDto> {
@@ -115,5 +127,9 @@ export class ViajeService {
 
   deleteComentario(id: number): Observable<ViajeComentarioResultDto> {
     return this.http.delete<ViajeComentarioResultDto>(API_URL.viajes.comentarios.delete(id));
+  }
+
+  generateHojaRuta(viaje: ViajeResultDto): void {
+    generateHojaRutaPdf(viaje);
   }
 }

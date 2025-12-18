@@ -1,7 +1,7 @@
-<form [formGroup]="viajeForm" class="p-4 space-y-3">
+<form [formGroup]="viajeForm" class="p-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
   <!-- Loading Catálogos -->
   @if (loadingCatalogos()) {
-    <div class="flex items-center justify-center py-4">
+    <div class="col-span-1 lg:col-span-2 flex items-center justify-center py-4">
       <i class="fas fa-spinner fa-spin text-secondary mr-2"></i>
       <span class="text-sm text-text/60">Cargando datos...</span>
     </div>
@@ -78,30 +78,6 @@
     }
   </div>
 
-  <!-- Vehículo -->
-  <div>
-    <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
-      <i class="fas fa-car text-primary"></i>
-      Vehículo
-    </label>
-    <app-vehiculo-input-search formControlName="vehiculoId"></app-vehiculo-input-search>
-    @if (viajeForm.get('vehiculoId')?.touched && viajeForm.get('vehiculoId')?.errors) {
-      <p class="text-danger text-xs font-inter-medium mt-1">El vehículo es requerido</p>
-    }
-  </div>
-
-  <!-- Conductor -->
-  <div>
-    <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
-      <i class="fas fa-user text-info"></i>
-      Conductor
-    </label>
-    <app-conductor-input-search formControlName="conductorId"></app-conductor-input-search>
-    @if (viajeForm.get('conductorId')?.touched && viajeForm.get('conductorId')?.errors) {
-      <p class="text-danger text-xs font-inter-medium mt-1">El conductor es requerido</p>
-    }
-  </div>
-
   <!-- Modalidad de Servicio -->
   <div>
     <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
@@ -127,8 +103,34 @@
     }
   </div>
 
+  @if (!editMode()) {
+    <!-- Vehículo -->
+    <div>
+      <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+        <i class="fas fa-car text-primary"></i>
+        Vehículo Principal
+      </label>
+      <app-vehiculo-input-search formControlName="vehiculoId"></app-vehiculo-input-search>
+      @if (viajeForm.get('vehiculoId')?.touched && viajeForm.get('vehiculoId')?.errors) {
+        <p class="text-danger text-xs font-inter-medium mt-1">El vehículo es requerido</p>
+      }
+    </div>
+
+    <!-- Conductor -->
+    <div>
+      <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+        <i class="fas fa-user text-info"></i>
+        Conductor Principal
+      </label>
+      <app-conductor-input-search formControlName="conductorId"></app-conductor-input-search>
+      @if (viajeForm.get('conductorId')?.touched && viajeForm.get('conductorId')?.errors) {
+        <p class="text-danger text-xs font-inter-medium mt-1">El conductor es requerido</p>
+      }
+    </div>
+  }
+
   <!-- Tripulantes -->
-  <div>
+  <div class="col-span-1 lg:col-span-2">
     <div class="flex items-center justify-between mb-1.5">
       <label class="text-xs font-inter-semibold text-text flex items-center gap-2">
         <i class="fas fa-users text-text/60"></i>
@@ -170,7 +172,7 @@
   </div>
 
   <!-- Fechas -->
-  <div class="grid grid-cols-2 gap-3">
+  <div class="col-span-1 lg:col-span-2 grid grid-cols-2 gap-4">
     <div>
       <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
         <i class="fas fa-calendar-plus text-success"></i>
@@ -199,9 +201,8 @@
       <p class="text-text/40 text-xs font-inter-regular mt-1">Opcional - Puede agregarse después</p>
     </div>
   </div>
-
   <!-- Estado -->
-  <div>
+  <div class="col-span-1 lg:col-span-2">
     <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
       <i class="fas fa-info-circle text-secondary"></i>
       Estado del Viaje
@@ -224,4 +225,31 @@
       <p class="text-danger text-xs font-inter-medium mt-1">El estado es requerido</p>
     }
   </div>
+
+    <!-- SECCIONES DE EDICIÓN: CONDUCTORES, VEHÍCULOS, COMENTARIOS -->
+  @if (editMode() && viaje()) {
+    <div class="col-span-1 lg:col-span-2 space-y-6 mt-4 pt-4 border-t border-text/10">
+      <div>
+        <!-- Conductores -->
+        <app-viaje-conductores-form
+          [viaje]="viaje()!"
+          (onDataChange)="onDataChange.emit()">
+        </app-viaje-conductores-form>
+      </div>
+      <div>
+        <!-- Vehículos -->
+        <app-viaje-vehiculos-form
+          [viaje]="viaje()!"
+          (onDataChange)="onDataChange.emit()">
+        </app-viaje-vehiculos-form>
+      </div>
+      <div>
+        <!-- Comentarios -->
+        <app-viaje-comentarios-form
+          [viaje]="viaje()!"
+          (onDataChange)="onDataChange.emit()">
+        </app-viaje-comentarios-form>
+      </div>
+    </div>
+  }
 </form>

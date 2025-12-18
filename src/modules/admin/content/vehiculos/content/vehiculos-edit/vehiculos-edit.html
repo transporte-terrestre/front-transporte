@@ -1,5 +1,5 @@
 <div class="space-y-6">
-  <div class="flex items-center justify-between">
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
     <div>
       <h1 class="text-2xl font-anton text-text lowercase">Editar Vehículo</h1>
       <p class="text-sm text-text/60 font-inter-regular mt-1">
@@ -15,7 +15,7 @@
     </button>
   </div>
 
-  <div class="bg-background border border-text/10 rounded-xl p-6 shadow-sm">
+  <div class="bg-background border border-text/10 rounded-xl p-0 sm:p-6 shadow-sm">
     @if (loading()) {
     <div class="flex items-center justify-center py-12">
       <div class="flex flex-col items-center gap-3">

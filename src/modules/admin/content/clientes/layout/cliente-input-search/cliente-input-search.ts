@@ -1,4 +1,4 @@
-import { Component, inject, signal, ElementRef, HostListener } from '@angular/core';
+import { Component, inject, signal, ElementRef, HostListener, Input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   ControlValueAccessor,
@@ -29,11 +29,16 @@ export class ClienteInputSearch implements ControlValueAccessor {
   private clienteService = inject(ClienteService);
   private elementRef = inject(ElementRef);
 
+  // Inputs
+  @Input() initialData: ClienteListDto | null = null;
   // State
   isOpen = signal(false);
   loading = signal(false);
   clientes = signal<ClienteListDto[]>([]);
   selectedCliente = signal<ClienteListDto | null>(null);
+
+  // Output to emit the full entity
+  onEntitySelected = output<ClienteListDto | null>();
 
   // Search Control
   searchControl = new FormControl('');
@@ -69,7 +74,11 @@ export class ClienteInputSearch implements ControlValueAccessor {
 
   writeValue(obj: any): void {
     if (obj) {
-      this.loadInitialCliente(obj);
+      if (this.initialData && this.initialData.id === obj) {
+        this.selectedCliente.set(this.initialData);
+      } else {
+        this.loadInitialCliente(obj);
+      }
     } else {
       this.selectedCliente.set(null);
     }
@@ -83,8 +92,7 @@ export class ClienteInputSearch implements ControlValueAccessor {
     this.onTouched = fn;
   }
 
-  setDisabledState?(isDisabled: boolean): void {
-  }
+  setDisabledState?(isDisabled: boolean): void {}
 
   // UI Actions
   toggleDropdown() {
@@ -101,6 +109,7 @@ export class ClienteInputSearch implements ControlValueAccessor {
   selectCliente(cliente: ClienteListDto) {
     this.selectedCliente.set(cliente);
     this.onChange(cliente.id);
+    this.onEntitySelected.emit(cliente);
     this.isOpen.set(false);
   }
 

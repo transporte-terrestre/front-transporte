@@ -1,11 +1,4 @@
-import {
-  Component,
-  signal,
-  inject,
-  ChangeDetectionStrategy,
-  input,
-  output,
-} from '@angular/core';
+import { Component, signal, inject, ChangeDetectionStrategy, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, NavigationEnd } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -40,15 +33,11 @@ export class Sidebar {
       path: buildPath(PATH.admin.dashboard),
       icon: 'fas fa-home',
     },
+
     {
-      label: 'Conductores',
-      path: buildPath(PATH.admin.conductores),
-      icon: 'fas fa-id-card',
-    },
-    {
-      label: 'Vehículos',
-      path: buildPath(PATH.admin.vehiculos),
-      icon: 'fas fa-car',
+      label: 'Viajes',
+      path: buildPath(PATH.admin.viajes),
+      icon: 'fas fa-shipping-fast',
     },
     {
       label: 'Mantenimientos',
@@ -56,14 +45,29 @@ export class Sidebar {
       icon: 'fas fa-tools',
     },
     {
+      label: 'Vehículos',
+      path: buildPath(PATH.admin.vehiculos),
+      icon: 'fas fa-car',
+    },
+    {
+      label: 'Conductores',
+      path: buildPath(PATH.admin.conductores),
+      icon: 'fas fa-id-card',
+    },
+    {
+      label: 'Talleres',
+      path: buildPath(PATH.admin.talleres),
+      icon: 'fas fa-building',
+    },
+    {
       label: 'Rutas',
       path: buildPath(PATH.admin.rutas),
       icon: 'fas fa-route',
     },
     {
-      label: 'Viajes',
-      path: buildPath(PATH.admin.viajes),
-      icon: 'fas fa-shipping-fast',
+      label: 'Clientes',
+      path: buildPath(PATH.admin.clientes),
+      icon: 'fas fa-user-tie',
     },
     {
       label: 'Usuarios',
@@ -71,9 +75,9 @@ export class Sidebar {
       icon: 'fas fa-users',
     },
     {
-      label: 'Clientes',
-      path: buildPath(PATH.admin.clientes),
-      icon: 'fas fa-user-tie',
+      label: 'Reportes',
+      path: buildPath(PATH.admin.reportes),
+      icon: 'fas fa-chart-bar',
     },
   ]);
 

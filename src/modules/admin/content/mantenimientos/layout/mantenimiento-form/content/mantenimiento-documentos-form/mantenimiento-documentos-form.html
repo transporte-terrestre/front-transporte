@@ -1,0 +1,209 @@
+<div class="space-y-2">
+  <div class="flex items-center justify-between">
+    <label class="block text-xs font-inter-semibold text-text"> Documentos Adjuntos </label>
+    <label
+      class="cursor-pointer text-xs font-inter-semibold text-secondary hover:text-secondary/80 flex items-center gap-1"
+    >
+      <i class="fas fa-upload"></i>
+      <span>Subir Documento</span>
+      <input type="file" class="hidden" (change)="onFileSelected($event)" />
+    </label>
+  </div>
+
+  @if (mantenimiento().documentos.length > 0) {
+  <div class="space-y-2">
+    @for (d of mantenimiento().documentos; track d.id) {
+    <div
+      class="flex flex-col sm:flex-row sm:items-center justify-between bg-background p-2 rounded border border-text/5 gap-2"
+    >
+      <div class="flex items-center gap-3 min-w-0 flex-1">
+        <div
+          class="w-8 h-8 rounded bg-secondary/10 flex items-center justify-center text-secondary shrink-0"
+        >
+          <i class="fas fa-file-pdf"></i>
+        </div>
+        <div class="min-w-0 flex-1">
+          <span class="block truncate font-inter-medium text-xs text-text mb-0.5">{{
+            d.nombre
+          }}</span>
+          <div class="flex items-center gap-2 text-[10px] text-text/60">
+            <span class="uppercase tracking-wider">{{ d.tipo }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-1 shrink-0 self-end sm:self-center">
+        <a
+          [href]="d.url"
+          target="_blank"
+          class="w-7 h-7 flex items-center justify-center rounded hover:bg-text/5 text-text/60 hover:text-secondary transition-colors"
+          title="Ver documento"
+        >
+          <i class="fas fa-eye text-xs"></i>
+        </a>
+
+        <button
+          type="button"
+          (click)="editDocument(d)"
+          class="w-7 h-7 flex items-center justify-center rounded hover:bg-secondary/10 text-text/60 hover:text-secondary transition-colors"
+          title="Editar documento"
+        >
+          <i class="fas fa-pencil-alt text-xs"></i>
+        </button>
+
+        <button
+          type="button"
+          (click)="removeDocumento(d.id)"
+          class="w-7 h-7 flex items-center justify-center rounded hover:bg-danger/10 text-text/60 hover:text-danger transition-colors"
+          title="Eliminar documento"
+        >
+          <i class="fas fa-trash text-xs"></i>
+        </button>
+      </div>
+    </div>
+    }
+  </div>
+  } @else {
+  <div class="bg-text/5 rounded-lg p-4 border border-dashed border-text/20 text-center">
+    <p class="text-xs text-text/40 italic">Sin documentos</p>
+  </div>
+  }
+</div>
+
+<!-- Add Documento Modal -->
+@if (showDocumentoModal()) {
+<div class="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+  <div
+    class="bg-background rounded-xl shadow-xl w-full max-w-md overflow-hidden border border-text/10"
+    (click)="$event.stopPropagation()"
+  >
+    <div class="p-4 border-b border-text/10 flex items-center justify-between bg-text/5">
+      <h3 class="text-sm font-inter-bold text-text">
+        {{ editingDocId() ? 'Editar Documento' : 'Subir Documento' }}
+      </h3>
+      <button
+        type="button"
+        (click)="closeAddDocumento()"
+        [disabled]="uploading()"
+        class="text-text/60 hover:text-text transition-colors disabled:opacity-50"
+      >
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <form [formGroup]="addDocumentoForm" (ngSubmit)="saveDocumento()" class="p-4 space-y-4">
+      <!-- Selected File Info -->
+      @if (pendingFile) {
+      <div class="bg-secondary/5 border border-secondary/20 rounded-lg p-3 flex items-center gap-3">
+        <div
+          class="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center text-secondary shrink-0"
+        >
+          @if (uploading()) {
+          <i class="fas fa-spinner fa-spin"></i>
+          } @else {
+          <i class="fas fa-file-alt"></i>
+          }
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-xs font-inter-medium text-text/60">
+            {{ uploading() ? 'Subiendo...' : 'Archivo seleccionado' }}
+          </p>
+          <p class="text-sm font-inter-semibold text-text truncate">{{ pendingFile.name }}</p>
+        </div>
+      </div>
+      } @else if (editingDocId()) {
+      <div
+        class="bg-secondary/5 border border-secondary/20 rounded-lg p-3 flex flex-col sm:flex-row items-start sm:items-center gap-3"
+      >
+        <div
+          class="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center text-secondary shrink-0"
+        >
+          <i class="fas fa-file-pdf"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-xs font-inter-medium text-text/60">Documento Actual</p>
+          <a
+            [href]="editingDocUrl"
+            target="_blank"
+            class="text-sm font-inter-semibold text-secondary hover:underline truncate block"
+            >Ver documento actual</a
+          >
+        </div>
+        <label
+          class="cursor-pointer text-xs bg-secondary text-white px-3 py-1.5 rounded hover:bg-secondary/90 transition-all font-inter-medium shrink-0"
+        >
+          Cambiar
+          <input type="file" class="hidden" (change)="onFileSelected($event)" />
+        </label>
+      </div>
+      }
+      <div>
+        <label class="block text-xs font-inter-semibold text-text mb-1.5"
+          >Nombre del Documento</label
+        >
+        <input
+          type="text"
+          formControlName="nombre"
+          [disabled]="uploading()"
+          class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all disabled:opacity-50"
+          placeholder="Ej: Factura F001-123"
+        />
+      </div>
+      <div>
+        <label class="block text-xs font-inter-semibold text-text mb-1.5">Tipo</label>
+        <div class="relative">
+          <select
+            formControlName="tipo"
+            [disabled]="uploading()"
+            class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all appearance-none cursor-pointer disabled:opacity-50"
+          >
+            <option value="factura">Factura</option>
+            <option value="guia_remision">Guía de Remisión</option>
+            <option value="informe_tecnico">Informe Técnico</option>
+            <option value="cotizacion">Cotización</option>
+            <option value="fotos">Fotos</option>
+            <option value="otros">Otros</option>
+          </select>
+          <span
+            class="absolute inset-y-0 right-3 flex items-center text-text/60 pointer-events-none"
+          >
+            <i class="fas fa-chevron-down text-xs"></i>
+          </span>
+        </div>
+      </div>
+      <div>
+        <label class="block text-xs font-inter-semibold text-text mb-1.5"
+          >Descripción (Opcional)</label
+        >
+        <textarea
+          formControlName="descripcion"
+          rows="2"
+          [disabled]="uploading()"
+          class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none resize-none disabled:opacity-50"
+        ></textarea>
+      </div>
+      <div class="flex flex-col sm:flex-row items-center gap-2 pt-2">
+        <button
+          type="button"
+          (click)="closeAddDocumento()"
+          [disabled]="uploading()"
+          class="w-full sm:flex-1 px-4 py-2 rounded-lg border-2 border-text/10 text-text text-sm font-inter-semibold hover:bg-text/5 transition-colors disabled:opacity-50"
+        >
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          [disabled]="addDocumentoForm.invalid || uploading()"
+          class="w-full sm:flex-1 px-4 py-2 rounded-lg bg-secondary text-white text-sm font-inter-semibold hover:bg-secondary/90 transition-colors shadow-lg shadow-secondary/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        >
+          @if (uploading()) {
+          <i class="fas fa-spinner fa-spin"></i>
+          <span>Subiendo...</span>
+          } @else {
+          <span>{{ editingDocId() ? 'Guardar Cambios' : 'Guardar' }}</span>
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+}

@@ -23,9 +23,21 @@ export class MantenimientosEdit implements OnInit {
   private toastService = inject(ToastService);
 
   mantenimiento = signal<MantenimientoResultDto | null>(null);
+
+  downloadOrdenServicio() {
+    if (this.mantenimiento()) {
+      this.mantenimientoService.generateOrdenServicio(this.mantenimiento()!);
+    }
+  }
   loading = signal(false);
 
   mantenimientoFormComponent = viewChild<MantenimientoForm>(MantenimientoForm);
+
+  handleDataChange() {
+    if (this.mantenimiento()) {
+      this.loadMantenimiento(this.mantenimiento()!.id);
+    }
+  }
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');

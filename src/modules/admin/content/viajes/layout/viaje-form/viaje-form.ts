@@ -1,10 +1,8 @@
-import { Component, inject, input, output, OnInit, effect, signal } from '@angular/core';
+import { Component, inject, input, output, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormArray } from '@angular/forms';
 import {
   ViajeResultDto,
-  ViajeCreateDto,
-  ViajeUpdateDto,
   ViajeEstado,
   ViajeModalidadServicio,
 } from '@interface/admin/viaje.interface';
@@ -12,7 +10,9 @@ import { ClienteInputSearch } from '@module/admin/content/clientes/layout/client
 import { RutaInputSearch } from '@module/admin/content/rutas/layout/ruta-input-search/ruta-input-search';
 import { VehiculoInputSearch } from '@module/admin/content/vehiculos/layout/vehiculo-input-search/vehiculo-input-search';
 import { ConductorInputSearch } from '@module/admin/content/conductores/layout/conductor-input-search/conductor-input-search';
-import { forkJoin } from 'rxjs';
+import { ViajeConductoresForm } from './content/viaje-conductores-form/viaje-conductores-form';
+import { ViajeVehiculosForm } from './content/viaje-vehiculos-form/viaje-vehiculos-form';
+import { ViajeComentariosForm } from './content/viaje-comentarios-form/viaje-comentarios-form';
 
 @Component({
   selector: 'app-viaje-form',
@@ -23,6 +23,9 @@ import { forkJoin } from 'rxjs';
     RutaInputSearch,
     VehiculoInputSearch,
     ConductorInputSearch,
+    ViajeConductoresForm,
+    ViajeVehiculosForm,
+    ViajeComentariosForm,
   ],
   templateUrl: './viaje-form.html',
   styleUrl: './viaje-form.css',
@@ -35,9 +38,9 @@ export class ViajeForm implements OnInit {
   editMode = input<boolean>(false);
 
   // Outputs
-  onSubmitForm = output<any>(); // Emits combined data
+  onSubmitForm = output<any>();
+  onDataChange = output<void>();
 
-  // Catálogos
   // Catálogos
   loadingCatalogos = signal(false);
 
@@ -56,7 +59,7 @@ export class ViajeForm implements OnInit {
   });
 
   estados: Array<{ value: ViajeEstado; label: string; icon: string; color: string }> = [
-    { value: 'programado', label: 'Programado', icon: 'fa-clock', color: 'text-info' },
+    { value: 'programado', label: 'Programado', icon: 'fa-calendar', color: 'text-primary' },
     { value: 'en_progreso', label: 'En Progreso', icon: 'fa-truck', color: 'text-warning' },
     { value: 'completado', label: 'Completado', icon: 'fa-check-circle', color: 'text-success' },
     { value: 'cancelado', label: 'Cancelado', icon: 'fa-times-circle', color: 'text-danger' },
@@ -124,8 +127,8 @@ export class ViajeForm implements OnInit {
         rutaId: viajeData.rutaId,
         rutaOcasional: viajeData.rutaOcasional,
         modalidadServicio: viajeData.modalidadServicio,
-        vehiculoId: viajeData.vehiculos?.[0]?.vehiculoId,
-        conductorId: viajeData.conductores?.[0]?.conductorId,
+        vehiculoId: viajeData.vehiculoPrincipal?.id,
+        conductorId: viajeData.conductorPrincipal?.id,
         fechaSalida: this.formatDateTimeLocal(viajeData.fechaSalida),
         fechaLlegada: viajeData.fechaLlegada
           ? this.formatDateTimeLocal(viajeData.fechaLlegada)

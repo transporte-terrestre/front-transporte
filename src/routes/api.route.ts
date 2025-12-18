@@ -6,6 +6,8 @@ import { RutaPaginationParams } from '@interface/admin/ruta.interface';
 import { ViajePaginationParams } from '@interface/admin/viaje.interface';
 import { ClientePaginationParams } from '@interface/admin/cliente.interface';
 import { TallerPaginationParams } from '@interface/admin/taller.interface';
+import { NotificacionPaginationParams } from '@interface/admin/notificacion.interface';
+import { ReporteQueryDto } from '@interface/admin/reportes.interface';
 
 const BASE_URL_LOCAL = 'http://localhost:3000';
 const BASE_URL_GLOBAL = 'https://transporte-terrestre.onrender.com';
@@ -143,6 +145,12 @@ export const API_URL = {
     update: (id: number) => `${BASE_URL}/taller/update/${id}`,
     delete: (id: number) => `${BASE_URL}/taller/delete/${id}`,
   },
+  notificaciones: {
+    findAll: (params?: NotificacionPaginationParams) =>
+      `${BASE_URL}/notificacion/find-all${buildQueryString(params)}`,
+    create: `${BASE_URL}/notificacion/create`,
+    leido: (id: number, userId: number) => `${BASE_URL}/notificacion/leido/${id}?userId=${userId}`,
+  },
   dashboard: {
     stats: `${BASE_URL}/dashboard/stats`,
     vehiculosEstado: `${BASE_URL}/dashboard/vehiculos-estado`,
@@ -158,5 +166,20 @@ export const API_URL = {
       return `${BASE_URL}/storage?${query.toString()}`;
     },
     delete: (publicId: string) => `${BASE_URL}/storage/${encodeURIComponent(publicId)}`,
+  },
+  reportes: {
+    viajesVehiculo: (params?: ReporteQueryDto) =>
+      `${BASE_URL}/reportes/viajes-vehiculo${buildQueryString(params)}`,
+    viajesConductor: (params?: ReporteQueryDto) =>
+      `${BASE_URL}/reportes/viajes-conductor${buildQueryString(params)}`,
+    kilometrajeVehiculo: (params?: ReporteQueryDto) =>
+      `${BASE_URL}/reportes/kilometraje-vehiculo${buildQueryString(params)}`,
+    // Detailed reports
+    viajesDetalladosVehiculo: (id: number, params?: ReporteQueryDto) =>
+      `${BASE_URL}/reportes/viajes-detallados/vehiculo/${id}${buildQueryString(params)}`,
+    viajesDetalladosConductor: (id: number, params?: ReporteQueryDto) =>
+      `${BASE_URL}/reportes/viajes-detallados/conductor/${id}${buildQueryString(params)}`,
+    viajesDetalladosCliente: (id: number, params?: ReporteQueryDto) =>
+      `${BASE_URL}/reportes/viajes-detallados/cliente/${id}${buildQueryString(params)}`,
   },
 };

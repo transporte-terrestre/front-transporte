@@ -1,4 +1,4 @@
-import { Component, inject, signal, ElementRef, HostListener } from '@angular/core';
+import { Component, inject, signal, ElementRef, HostListener, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   ControlValueAccessor,
@@ -33,6 +33,9 @@ export class VehiculoInputSearch implements ControlValueAccessor {
   loading = signal(false);
   vehiculos = signal<VehiculoResultDto[]>([]);
   selectedVehiculo = signal<VehiculoResultDto | null>(null);
+
+  // Output to emit the full entity
+  onEntitySelected = output<VehiculoResultDto | null>();
 
   // Search Control
   searchControl = new FormControl('');
@@ -99,6 +102,7 @@ export class VehiculoInputSearch implements ControlValueAccessor {
   selectVehiculo(vehiculo: VehiculoResultDto) {
     this.selectedVehiculo.set(vehiculo);
     this.onChange(vehiculo.id);
+    this.onEntitySelected.emit(vehiculo);
     this.isOpen.set(false);
   }
 

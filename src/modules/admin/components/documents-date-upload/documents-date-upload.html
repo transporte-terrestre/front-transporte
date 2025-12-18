@@ -19,8 +19,10 @@
   @if (documents().length > 0) {
   <div class="space-y-2">
     @for (doc of documents(); track doc.id) {
-    <div class="flex items-center justify-between bg-background p-2 rounded border border-text/5">
-      <div class="flex items-center gap-3 min-w-0 flex-1 mr-2">
+    <div
+      class="flex flex-col sm:flex-row sm:items-center justify-between bg-background p-2 rounded border border-text/5 gap-2"
+    >
+      <div class="flex items-center gap-3 min-w-0 flex-1">
         <div
           class="w-8 h-8 rounded bg-secondary/10 flex items-center justify-center text-secondary shrink-0"
         >
@@ -30,15 +32,15 @@
           <span class="block truncate font-inter-medium text-xs text-text mb-0.5">{{
             doc.nombre
           }}</span>
-          <div class="flex items-center gap-2 text-[10px] text-text/60">
+          <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] text-text/60">
             <span>Emisión: {{ doc.fechaEmision | date : 'dd/MM/yyyy' }}</span>
-            <span>•</span>
+            <span class="hidden sm:inline">•</span>
             <span>Expira: {{ doc.fechaExpiracion | date : 'dd/MM/yyyy' }}</span>
           </div>
         </div>
       </div>
 
-      <div class="flex items-center gap-1 shrink-0">
+      <div class="flex items-center gap-1 shrink-0 self-end sm:self-center">
         <a
           [href]="doc.url"
           target="_blank"
@@ -88,24 +90,32 @@
         <button
           type="button"
           (click)="cancelUpload()"
-          class="text-text/60 hover:text-text transition-colors"
+          [disabled]="uploading()"
+          class="text-text/60 hover:text-text transition-colors disabled:opacity-50"
         >
           <i class="fas fa-times"></i>
         </button>
       </div>
 
       <div class="p-4 space-y-4" [formGroup]="documentUploadForm">
+        <!-- File info -->
         <div
           class="bg-secondary/5 border border-secondary/20 rounded-lg p-3 flex items-center gap-3"
         >
           <div
-            class="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center text-secondary"
+            class="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center text-secondary shrink-0"
           >
+            @if (uploading()) {
+            <i class="fas fa-spinner fa-spin"></i>
+            } @else {
             <i class="fas fa-file-alt"></i>
+            }
           </div>
           <div class="flex-1 min-w-0">
             <p class="text-xs font-inter-medium text-text/60">
-              {{ editingDocId() ? 'Documento' : 'Archivo seleccionado' }}
+              {{
+                editingDocId() ? 'Documento' : uploading() ? 'Subiendo...' : 'Archivo seleccionado'
+              }}
             </p>
             <p class="text-sm font-inter-semibold text-text truncate">
               {{ editingDocId() ? editingDocName : pendingFile?.name }}
@@ -113,13 +123,15 @@
           </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-3">
+        <!-- Dates -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label class="block text-xs font-inter-semibold text-text mb-1.5">Fecha Emisión</label>
             <input
               type="date"
               formControlName="fechaEmision"
-              class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+              [disabled]="uploading()"
+              class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all disabled:opacity-50"
             />
             @if (documentUploadForm.get('fechaEmision')?.touched &&
             documentUploadForm.get('fechaEmision')?.errors) {
@@ -133,7 +145,8 @@
             <input
               type="date"
               formControlName="fechaExpiracion"
-              class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+              [disabled]="uploading()"
+              class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all disabled:opacity-50"
             />
             @if (documentUploadForm.get('fechaExpiracion')?.touched &&
             documentUploadForm.get('fechaExpiracion')?.errors) {
@@ -142,20 +155,28 @@
           </div>
         </div>
 
-        <div class="flex items-center gap-2 pt-2">
+        <!-- Actions -->
+        <div class="flex flex-col sm:flex-row items-center gap-2 pt-2">
           <button
             type="button"
             (click)="cancelUpload()"
-            class="flex-1 px-4 py-2 rounded-lg border-2 border-text/10 text-text text-sm font-inter-semibold hover:bg-text/5 transition-colors"
+            [disabled]="uploading()"
+            class="w-full sm:flex-1 px-4 py-2 rounded-lg border-2 border-text/10 text-text text-sm font-inter-semibold hover:bg-text/5 transition-colors disabled:opacity-50"
           >
             Cancelar
           </button>
           <button
             type="button"
             (click)="confirmUpload()"
-            class="flex-1 px-4 py-2 rounded-lg bg-secondary text-white text-sm font-inter-semibold hover:bg-secondary/90 transition-colors shadow-lg shadow-secondary/20"
+            [disabled]="uploading() || documentUploadForm.invalid"
+            class="w-full sm:flex-1 px-4 py-2 rounded-lg bg-secondary text-white text-sm font-inter-semibold hover:bg-secondary/90 transition-colors shadow-lg shadow-secondary/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
-            {{ editingDocId() ? 'Guardar Cambios' : 'Subir Documento' }}
+            @if (uploading()) {
+            <i class="fas fa-spinner fa-spin"></i>
+            <span>Subiendo...</span>
+            } @else {
+            <span>{{ editingDocId() ? 'Guardar Cambios' : 'Subir Documento' }}</span>
+            }
           </button>
         </div>
       </div>

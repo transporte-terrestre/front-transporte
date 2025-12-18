@@ -1,0 +1,132 @@
+<form [formGroup]="tallerForm" class="p-4 space-y-4">
+  <!-- RUC y Razón Social -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div>
+      <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+        <i class="fas fa-barcode text-secondary"></i>
+        RUC
+      </label>
+      <input
+        type="text"
+        formControlName="ruc"
+        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+        placeholder="12345678901"
+        maxlength="11"
+      />
+      @if (tallerForm.get('ruc')?.touched && tallerForm.get('ruc')?.errors) {
+        <p class="text-danger text-xs font-inter-medium mt-1">RUC válido de 11 dígitos requerido</p>
+      }
+    </div>
+
+    <div>
+      <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+        <i class="fas fa-building text-secondary"></i>
+        Razón Social
+      </label>
+      <input
+        type="text"
+        formControlName="razonSocial"
+        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+        placeholder="Razón Social S.A.C."
+      />
+      @if (tallerForm.get('razonSocial')?.touched && tallerForm.get('razonSocial')?.errors) {
+        <p class="text-danger text-xs font-inter-medium mt-1">La razón social es requerida</p>
+      }
+    </div>
+  </div>
+
+  <!-- Nombre Comercial y Tipo -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div>
+      <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+        <i class="fas fa-store text-secondary"></i>
+        Nombre Comercial
+      </label>
+      <input
+        type="text"
+        formControlName="nombreComercial"
+        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+        placeholder="Taller Example"
+      />
+    </div>
+
+    <div>
+        <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+            <i class="fas fa-info-circle text-secondary"></i>
+            Tipo de Taller
+        </label>
+        <div class="grid grid-cols-2 gap-2">
+            @for (tipo of tipos; track tipo.value) {
+            <label
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg border-2 cursor-pointer transition-all"
+                [class.bg-secondary/10]="tallerForm.get('tipo')?.value === tipo.value"
+                [class.border-secondary]="tallerForm.get('tipo')?.value === tipo.value"
+                [class.border-text/10]="tallerForm.get('tipo')?.value !== tipo.value"
+            >
+                <input
+                type="radio"
+                [value]="tipo.value"
+                formControlName="tipo"
+                class="w-4 h-4 text-secondary border-2 border-text/30 focus:ring-2 focus:ring-secondary/20 cursor-pointer accent-secondary"
+                />
+                <div class="flex items-center gap-2 flex-1">
+                <i [class]="'fas ' + tipo.icon + ' text-sm'"></i>
+                <span class="text-sm font-inter-medium text-text">{{ tipo.label }}</span>
+                </div>
+            </label>
+            }
+        </div>
+        @if (tallerForm.get('tipo')?.touched && tallerForm.get('tipo')?.errors) {
+            <p class="text-danger text-xs font-inter-medium mt-1">El tipo es requerido</p>
+        }
+    </div>
+  </div>
+
+  <!-- Contacto -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div>
+      <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+        <i class="fas fa-phone text-secondary"></i>
+        Teléfono
+      </label>
+      <input
+        type="text"
+        formControlName="telefono"
+        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+        placeholder="999888777"
+      />
+    </div>
+
+    <div>
+      <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+        <i class="fas fa-envelope text-secondary"></i>
+        Email
+      </label>
+      <input
+        type="email"
+        formControlName="email"
+        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+        placeholder="contacto@taller.com"
+      />
+       @if (tallerForm.get('email')?.touched && tallerForm.get('email')?.errors) {
+        <p class="text-danger text-xs font-inter-medium mt-1">Email inválido</p>
+      }
+    </div>
+  </div>
+
+  <!-- Direccion -->
+  <div>
+    <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+      <i class="fas fa-map-marker-alt text-secondary"></i>
+      Dirección
+    </label>
+    <input
+      type="text"
+      formControlName="direccion"
+      class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+      placeholder="Av. Principal 123"
+    />
+  </div>
+
+
+</form>

@@ -19,7 +19,8 @@
       "@guard/*": ["guards/*"],
       "@route/*": ["routes/*"],
       "@interceptor/*": ["interceptors/*"],
-      "@environment/*": ["environments/*"]
+      "@environment/*": ["environments/*"],
+      "@template/*": ["templates/*"]
     }
   },
   "include": ["src/**/*.ts"],

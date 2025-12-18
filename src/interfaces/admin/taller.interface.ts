@@ -1,22 +1,26 @@
+export type TallerTipo = 'interno' | 'externo';
+
 export interface TallerResultDto {
   id: number;
-  nombre: string;
   ruc?: string;
-  direccion?: string;
+  razonSocial: string;
+  nombreComercial?: string;
+  tipo: TallerTipo;
   telefono?: string;
-  contacto?: string;
-  estado: 'activo' | 'inactivo';
+  email?: string;
+  direccion?: string;
   creadoEn: string;
   actualizadoEn: string;
 }
 
 export interface TallerCreateDto {
-  nombre: string;
   ruc?: string;
-  direccion?: string;
+  razonSocial: string;
+  nombreComercial?: string;
+  tipo: TallerTipo;
   telefono?: string;
-  contacto?: string;
-  estado?: 'activo' | 'inactivo';
+  email?: string;
+  direccion?: string;
 }
 
 export interface TallerUpdateDto extends Partial<TallerCreateDto> {}
@@ -41,5 +45,5 @@ export interface TallerPaginationParams {
   search?: string;
   fechaInicio?: string;
   fechaFin?: string;
-  estado?: 'activo' | 'inactivo';
+  tipo?: TallerTipo;
 }

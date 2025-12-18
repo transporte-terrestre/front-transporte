@@ -86,6 +86,14 @@ export const PATH = {
       list: { _path: 'list' },
       edit: { _path: 'edit/:id' },
     },
+    talleres: {
+      _path: 'talleres',
+      list: { _path: 'list' },
+      edit: { _path: 'edit/:id' },
+    },
+    reportes: {
+      _path: 'reportes',
+    },
   },
 } as const;
 
@@ -115,6 +123,9 @@ export const ROUTE_CONFIG = {
     [buildPath(PATH.admin.viajes)]: ['admin', 'empleado'],
     [buildPath(PATH.admin.usuarios)]: ['admin'],
     [buildPath(PATH.admin.clientes)]: ['admin', 'empleado'],
+    [buildPath(PATH.admin.talleres)]: ['admin', 'empleado'],
+    [buildPath(PATH.admin.talleres.edit)]: ['admin', 'empleado'],
+    [buildPath(PATH.admin.reportes)]: ['admin', 'empleado'],
   } as Record<string, Rol[]>,
 };
 

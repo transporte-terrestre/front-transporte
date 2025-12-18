@@ -29,10 +29,12 @@
     </div>
 
     <button
+      (click)="onToggleNotifications()"
       class="w-10 h-10 rounded-full flex items-center justify-center text-text/40 hover:bg-text/5 hover:text-secondary transition-colors relative"
     >
       <i class="fas fa-bell"></i>
       <span
+        *ngIf="unreadCount() > 0"
         class="absolute top-2.5 right-2.5 w-2 h-2 bg-danger rounded-full border-2 border-background"
       ></span>
     </button>

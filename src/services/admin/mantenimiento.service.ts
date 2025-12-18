@@ -7,7 +7,12 @@ import {
   MantenimientoResultDto,
   MantenimientoUpdateDto,
   PaginatedMantenimientoResultDto,
+  MantenimientoTareaCreateDto,
+  MantenimientoTareaUpdateDto,
+  MantenimientoDocumentoCreateDto,
+  MantenimientoDocumentoUpdateDto,
 } from '@interface/admin/mantenimiento.interface';
+import { generateOrdenServicioPdf } from '@template/orden-servicio.template';
 
 export interface PaginationParams {
   page?: number;
@@ -45,5 +50,59 @@ export class MantenimientoService {
 
   delete(id: number): Observable<MantenimientoResultDto> {
     return this.http.delete<MantenimientoResultDto>(API_URL.mantenimientos.delete(id));
+  }
+
+  // Tareas
+  createTarea(tarea: MantenimientoTareaCreateDto): Observable<MantenimientoResultDto> {
+    return this.http.post<MantenimientoResultDto>(`${API_URL.mantenimientos.create}/tarea`, tarea);
+  }
+
+  updateTarea(
+    mantenimientoId: number,
+    tareaId: number,
+    tarea: MantenimientoTareaUpdateDto
+  ): Observable<MantenimientoResultDto> {
+    return this.http.patch<MantenimientoResultDto>(
+      `${API_URL.mantenimientos.update(mantenimientoId)}/tarea/${tareaId}`,
+      tarea
+    );
+  }
+
+  deleteTarea(mantenimientoId: number, tareaId: number): Observable<MantenimientoResultDto> {
+    return this.http.delete<MantenimientoResultDto>(
+      `${API_URL.mantenimientos.delete(mantenimientoId)}/tarea/${tareaId}`
+    );
+  }
+
+  // Documentos
+  createDocumento(documento: MantenimientoDocumentoCreateDto): Observable<MantenimientoResultDto> {
+    return this.http.post<MantenimientoResultDto>(
+      `${API_URL.mantenimientos.create}/documento`,
+      documento
+    );
+  }
+
+  updateDocumento(
+    mantenimientoId: number,
+    documentoId: number,
+    documento: MantenimientoDocumentoUpdateDto
+  ): Observable<MantenimientoResultDto> {
+    return this.http.patch<MantenimientoResultDto>(
+      `${API_URL.mantenimientos.update(mantenimientoId)}/documento/${documentoId}`,
+      documento
+    );
+  }
+
+  deleteDocumento(
+    mantenimientoId: number,
+    documentoId: number
+  ): Observable<MantenimientoResultDto> {
+    return this.http.delete<MantenimientoResultDto>(
+      `${API_URL.mantenimientos.delete(mantenimientoId)}/documento/${documentoId}`
+    );
+  }
+
+  generateOrdenServicio(mantenimiento: MantenimientoResultDto): void {
+    generateOrdenServicioPdf(mantenimiento);
   }
 }

@@ -1,0 +1,103 @@
+<div
+  class="fixed inset-0 z-50 overflow-hidden"
+  [class.pointer-events-none]="!isOpen()"
+>
+  <!-- Overlay (only clickable when open) -->
+  <div
+    class="absolute inset-0 bg-black/50 transition-opacity duration-300 ease-in-out"
+    [class.opacity-0]="!isOpen()"
+    [class.opacity-100]="isOpen()"
+    [class.pointer-events-auto]="isOpen()"
+    (click)="close()"
+  ></div>
+
+  <!-- Drawer -->
+  <div
+    class="absolute right-0 top-0 h-full w-80 md:w-96 bg-background border-l border-text/10 shadow-2xl flex flex-col pointer-events-auto transform transition-transform duration-300 ease-out"
+    [class.translate-x-full]="!isOpen()"
+    [class.translate-x-0]="isOpen()"
+  >
+    <!-- Header -->
+    <div class="p-4 border-b border-text/10 flex justify-between items-center bg-background/50 backdrop-blur-sm z-10">
+      <div>
+        <h2 class="text-xl font-anton text-text uppercase">Notificaciones</h2>
+        <p class="text-xs text-text/60 font-inter-medium mt-1">
+          Tienes {{ unreadCount() }} nuevas notificaciones
+        </p>
+      </div>
+      <div class="flex items-center gap-2">
+        <button
+          (click)="close()"
+          class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-text/5 text-text/60 hover:text-text transition-all"
+        >
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Scrollable List -->
+    <div class="flex-1 overflow-y-auto p-4 space-y-3 scroll-smooth">
+      @for (notif of notificaciones(); track notif.id) {
+      <div
+        class="group relative p-4 rounded-xl border transition-all duration-200 hover:shadow-md cursor-pointer"
+        [class.bg-text/5]="!notif.leido"
+        [class.bg-background]="notif.leido"
+        [class.border-transparent]="!notif.leido"
+        [class.border-text/10]="notif.leido"
+      >
+        <!-- Unread Indicator -->
+        <div
+          *ngIf="!notif.leido"
+          class="absolute top-4 right-4 w-2 h-2 rounded-full bg-secondary"
+        ></div>
+
+        <div class="flex gap-4">
+            <!-- Icon based on type -->
+            <div
+                class="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
+                [ngClass]="{
+                    'bg-secondary/10 text-secondary': notif.tipo === 'warning',
+                    'bg-green-500/10 text-green-500': notif.tipo === 'success',
+                    'bg-blue-500/10 text-blue-500': notif.tipo === 'info',
+                    'bg-red-500/10 text-red-500': notif.tipo === 'error'
+                }"
+            >
+                <i class="fas" [ngClass]="{
+                    'fa-exclamation-triangle': notif.tipo === 'warning',
+                    'fa-check-circle': notif.tipo === 'success',
+                    'fa-info-circle': notif.tipo === 'info',
+                    'fa-times-circle': notif.tipo === 'error'
+                }"></i>
+            </div>
+
+            <div class="flex-1 min-w-0">
+                <h4 class="text-sm font-inter-bold text-text truncate pr-4">
+                    {{ notif.titulo }}
+                </h4>
+                <p class="text-xs text-text/70 font-inter-regular mt-1 line-clamp-2 leading-relaxed">
+                    {{ notif.mensaje }}
+                </p>
+                <span class="text-[10px] text-text/40 font-inter-medium mt-2 block">
+                    {{ notif.creadoEn | date:'short':'':'es-PE' }}
+                </span>
+            </div>
+        </div>
+
+        <!-- Hover Action: Mark read -->
+        <button
+            *ngIf="!notif.leido"
+            (click)="markAsRead(notif.id, $event)"
+            class="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 text-xs text-text/40 hover:text-secondary transition-all font-inter-medium"
+        >
+            Marcar leída
+        </button>
+      </div>
+      } @empty {
+        <div class="flex flex-col items-center justify-center h-64 text-center opacity-40">
+            <i class="fas fa-bell-slash text-4xl mb-3"></i>
+            <p class="text-sm font-inter-medium">No tienes notificaciones</p>
+        </div>
+      }
+    </div>
+  </div>
+</div>

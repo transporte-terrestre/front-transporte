@@ -163,25 +163,24 @@ export class ClienteForm implements OnInit {
   handleDocumentUpload(event: DocumentWithDate, tipo: string) {
     if (!this.cliente()) return;
 
-    const fakeUrl = URL.createObjectURL(event.file);
-
+    // URL now comes directly from the event (already uploaded to Cloudinary)
     const documento: ClienteDocumentoCreateDto = {
       clienteId: this.cliente()!.id,
       tipo: tipo as any,
       nombre: event.nombre,
-      url: fakeUrl,
+      url: event.url,
       fechaEmision: event.fechaEmision,
       fechaExpiracion: event.fechaExpiracion,
     };
 
     this.clienteService.createDocumento(documento).subscribe({
       next: (doc) => {
-        this.toastService.success('Documento subido exitosamente');
+        this.toastService.success('Documento guardado exitosamente');
         this.addDocumentToLocalList(doc);
       },
       error: (err) => {
-        console.error('Error al subir documento:', err);
-        this.toastService.error('Error al subir documento');
+        console.error('Error al guardar documento:', err);
+        this.toastService.error('Error al guardar documento');
       },
     });
   }

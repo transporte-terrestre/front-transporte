@@ -8,21 +8,26 @@ import {
   TipoMantenimiento,
   MantenimientoEstado,
 } from '@interface/admin/mantenimiento.interface';
-import { VehiculoResultDto, VehiculoListDto } from '@interface/admin/vehiculo.interface';
-import { TallerResultDto } from '@interface/admin/taller.interface';
-import { VehiculoService } from '@service/admin/vehiculo.service';
-import { TallerService } from '@service/admin/taller.service';
+import { VehiculoInputSearch } from '@module/admin/content/vehiculos/layout/vehiculo-input-search/vehiculo-input-search';
+import { TallerInputSearch } from '@module/admin/content/talleres/layout/taller-input-search/taller-input-search';
+import { MantenimientoTareasForm } from './content/mantenimiento-tareas-form/mantenimiento-tareas-form';
+import { MantenimientoDocumentosForm } from './content/mantenimiento-documentos-form/mantenimiento-documentos-form';
 
 @Component({
   selector: 'app-mantenimiento-form',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    VehiculoInputSearch,
+    TallerInputSearch,
+    MantenimientoTareasForm,
+    MantenimientoDocumentosForm,
+  ],
   templateUrl: './mantenimiento-form.html',
   styleUrl: './mantenimiento-form.css',
 })
 export class MantenimientoForm implements OnInit {
   private fb = inject(FormBuilder);
-  private vehiculoService = inject(VehiculoService);
-  private tallerService = inject(TallerService);
 
   // Inputs
   mantenimiento = input<MantenimientoResultDto | null>(null);
@@ -31,11 +36,7 @@ export class MantenimientoForm implements OnInit {
 
   // Outputs
   onSubmitForm = output<MantenimientoCreateDto | MantenimientoUpdateDto>();
-
-  // Catálogos
-  vehiculos = signal<VehiculoListDto[]>([]);
-  talleres = signal<TallerResultDto[]>([]);
-  loadingCatalogos = signal(false);
+  onDataChange = output<void>();
 
   mantenimientoForm: FormGroup = this.fb.group({
     vehiculoId: ['', [Validators.required]],
@@ -75,8 +76,12 @@ export class MantenimientoForm implements OnInit {
           tipo: mantenimientoData.tipo,
           costoTotal: mantenimientoData.costoTotal,
           descripcion: mantenimientoData.descripcion,
-          fechaIngreso: mantenimientoData.fechaIngreso.split('T')[0],
-          fechaSalida: mantenimientoData.fechaSalida.split('T')[0],
+          fechaIngreso: mantenimientoData.fechaIngreso
+            ? mantenimientoData.fechaIngreso.split('T')[0]
+            : '',
+          fechaSalida: mantenimientoData.fechaSalida
+            ? mantenimientoData.fechaSalida.split('T')[0]
+            : '',
           kilometraje: mantenimientoData.kilometraje,
           estado: mantenimientoData.estado,
         });
@@ -92,33 +97,7 @@ export class MantenimientoForm implements OnInit {
     });
   }
 
-  ngOnInit() {
-    this.loadCatalogos();
-  }
-
-  loadCatalogos() {
-    this.loadingCatalogos.set(true);
-
-    this.vehiculoService.findAll({ limit: 1000 }).subscribe({
-      next: (response) => {
-        this.vehiculos.set(response.data);
-      },
-      error: (err) => {
-        console.error('Error cargando vehículos:', err);
-      },
-    });
-
-    this.tallerService.findAll({ limit: 1000 }).subscribe({
-      next: (response) => {
-        this.talleres.set(response.data);
-        this.loadingCatalogos.set(false);
-      },
-      error: (err) => {
-        console.error('Error cargando talleres:', err);
-        this.loadingCatalogos.set(false);
-      },
-    });
-  }
+  ngOnInit() {}
 
   submitForm() {
     if (this.mantenimientoForm.invalid) {

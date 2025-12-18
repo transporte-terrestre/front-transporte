@@ -35,8 +35,6 @@ interface CalendarDay {
 })
 export class MantenimientosList implements OnInit {
   private mantenimientoService = inject(MantenimientoService);
-  private vehiculoService = inject(VehiculoService);
-  private tallerService = inject(TallerService);
   private toastService = inject(ToastService);
   private alertService = inject(AlertService);
   private router = inject(Router);
@@ -60,6 +58,12 @@ export class MantenimientosList implements OnInit {
   // Calendario
   currentDate = signal(new Date());
   calendarDays = signal<CalendarDay[]>([]);
+
+  // Set default page size to 1000 for calendar view
+  constructor() {
+    this.pageSize.set(1000);
+  }
+
   monthNames = [
     'Enero',
     'Febrero',
@@ -76,10 +80,6 @@ export class MantenimientosList implements OnInit {
   ];
   dayNames = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 
-  // Catálogos
-  vehiculos = signal<Map<number, VehiculoListDto>>(new Map());
-  talleres = signal<Map<number, TallerResultDto>>(new Map());
-
   // Día seleccionado para ver detalles
   selectedDay = signal<CalendarDay | null>(null);
   showDayDetails = signal(false);
@@ -87,26 +87,7 @@ export class MantenimientosList implements OnInit {
   mantenimientoFormComponent = viewChild<MantenimientoForm>(MantenimientoForm);
 
   ngOnInit() {
-    this.loadCatalogos();
-    this.loadMantenimientos();
-  }
-
-  loadCatalogos() {
-    this.vehiculoService.findAll({ limit: 1000 }).subscribe({
-      next: (response) => {
-        const map = new Map<number, VehiculoListDto>();
-        response.data.forEach((v) => map.set(v.id, v));
-        this.vehiculos.set(map);
-      },
-    });
-
-    this.tallerService.findAll({ limit: 1000 }).subscribe({
-      next: (response) => {
-        const map = new Map<number, TallerResultDto>();
-        response.data.forEach((t) => map.set(t.id, t));
-        this.talleres.set(map);
-      },
-    });
+    this.updateCalendarData();
   }
 
   loadMantenimientos() {
@@ -242,18 +223,44 @@ export class MantenimientosList implements OnInit {
   previousMonth() {
     const current = this.currentDate();
     this.currentDate.set(new Date(current.getFullYear(), current.getMonth() - 1));
-    this.generateCalendar();
+    this.updateCalendarData();
   }
 
   nextMonth() {
     const current = this.currentDate();
     this.currentDate.set(new Date(current.getFullYear(), current.getMonth() + 1));
-    this.generateCalendar();
+    this.updateCalendarData();
   }
 
   goToToday() {
     this.currentDate.set(new Date());
-    this.generateCalendar();
+    this.updateCalendarData();
+  }
+
+  updateCalendarData() {
+    const current = this.currentDate();
+    const year = current.getFullYear();
+    const month = current.getMonth();
+
+    // Calcular el rango de fechas visible en el calendario (6 semanas = 42 días)
+    const firstDay = new Date(year, month, 1);
+    const firstDayOfWeek = firstDay.getDay(); // 0 (Domingo) - 6 (Sábado)
+
+    // Fecha de inicio del grid (si empieza domingo, es el 1, si no, días del mes anterior)
+    const startDate = new Date(year, month, 1 - firstDayOfWeek);
+
+    // Fecha fin del grid (start + 41 días)
+    const endDate = new Date(startDate);
+    endDate.setDate(startDate.getDate() + 41);
+
+    this.fechaInicio.set(this.formatDateToCompare(startDate));
+    this.fechaFin.set(this.formatDateToCompare(endDate));
+
+    // Asegurar que traemos todos los mantenimientos
+    this.pageSize.set(1000);
+    this.currentPage.set(1);
+
+    this.loadMantenimientos();
   }
 
   onDayClick(day: CalendarDay) {
@@ -343,21 +350,25 @@ export class MantenimientosList implements OnInit {
     );
   }
 
-  getTallerDisplay(tallerId: number): string {
-    const taller = this.talleres().get(tallerId);
-    return taller ? taller.nombre : `Taller #${tallerId}`;
+  getTallerDisplay(tallerId: number, mantenimiento?: MantenimientoResultDto): string {
+    if (mantenimiento?.taller) {
+      return mantenimiento.taller.nombreComercial || mantenimiento.taller.razonSocial;
+    }
+    return `Taller #${tallerId}`;
   }
 
-  getVehiculoDisplay(vehiculoId: number): string {
-    const vehiculo = this.vehiculos().get(vehiculoId);
-    return vehiculo
-      ? `${vehiculo.placa} - ${vehiculo.marca} ${vehiculo.modelo}`
-      : `Vehículo #${vehiculoId}`;
+  getVehiculoDisplay(vehiculoId: number, mantenimiento?: MantenimientoResultDto): string {
+    if (mantenimiento?.vehiculo) {
+      return `${mantenimiento.vehiculo.marca} ${mantenimiento.vehiculo.modelo}`;
+    }
+    return `Vehículo #${vehiculoId}`;
   }
 
-  getVehiculoPlaca(vehiculoId: number): string {
-    const vehiculo = this.vehiculos().get(vehiculoId);
-    return vehiculo ? vehiculo.placa : `#${vehiculoId}`;
+  getVehiculoPlaca(vehiculoId: number, mantenimiento?: MantenimientoResultDto): string {
+    if (mantenimiento?.vehiculo) {
+      return mantenimiento.vehiculo.placa;
+    }
+    return `#${vehiculoId}`;
   }
 
   getTipoBadgeClass(tipo: TipoMantenimiento): string {

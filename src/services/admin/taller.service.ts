@@ -7,7 +7,6 @@ import {
   TallerCreateDto,
   TallerUpdateDto,
   PaginatedTallerResultDto,
-  PaginationMeta,
 } from '@interface/admin/taller.interface';
 
 export interface PaginationParams {

@@ -1,9 +1,12 @@
 import { Component, inject, input, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { StorageService } from '@service/admin/storage.service';
+import { ToastService } from '@service/toast.service';
+import { finalize } from 'rxjs/operators';
 
 export interface DocumentWithDate {
-  file: File;
+  url: string;
   nombre: string;
   fechaEmision: string;
   fechaExpiracion: string;
@@ -25,20 +28,24 @@ export interface DocumentItem {
 })
 export class DocumentsDateUpload {
   private fb = inject(FormBuilder);
+  private storageService = inject(StorageService);
+  private toastService = inject(ToastService);
 
   // Inputs
   documents = input<DocumentItem[]>([]);
   label = input<string>('Documentos');
   maxDocuments = input<number>(10);
   accept = input<string>('.pdf,.jpg,.jpeg,.png');
+  folder = input<string>('documentos'); // Cloudinary folder
 
-  // Outputs
+  // Outputs - now emits URL instead of File
   onUpload = output<DocumentWithDate>();
   onUpdate = output<{ id: number; fechaEmision: string; fechaExpiracion: string }>();
   onDelete = output<number>();
 
   // State
   showUploadModal = signal(false);
+  uploading = signal(false);
   editingDocId = signal<number | null>(null);
   pendingFile: File | null = null;
   editingDocName: string | null = null;
@@ -70,10 +77,8 @@ export class DocumentsDateUpload {
     this.pendingFile = null;
 
     this.documentUploadForm.patchValue({
-      fechaEmision: doc.fechaEmision ? new Date(doc.fechaEmision).toISOString().split('T')[0] : '',
-      fechaExpiracion: doc.fechaExpiracion
-        ? new Date(doc.fechaExpiracion).toISOString().split('T')[0]
-        : '',
+      fechaEmision: doc.fechaEmision ? this.formatDateForInput(doc.fechaEmision) : '',
+      fechaExpiracion: doc.fechaExpiracion ? this.formatDateForInput(doc.fechaExpiracion) : '',
     });
 
     this.showUploadModal.set(true);
@@ -84,6 +89,7 @@ export class DocumentsDateUpload {
     this.pendingFile = null;
     this.editingDocId.set(null);
     this.editingDocName = null;
+    this.uploading.set(false);
     this.documentUploadForm.reset();
   }
 
@@ -96,23 +102,36 @@ export class DocumentsDateUpload {
     const { fechaEmision, fechaExpiracion } = this.documentUploadForm.value;
 
     if (this.editingDocId()) {
-      // Update existing document
+      // Update existing document dates only
       this.onUpdate.emit({
         id: this.editingDocId()!,
         fechaEmision: new Date(fechaEmision).toISOString(),
         fechaExpiracion: new Date(fechaExpiracion).toISOString(),
       });
+      this.cancelUpload();
     } else if (this.pendingFile) {
-      // Upload new document
-      this.onUpload.emit({
-        file: this.pendingFile,
-        nombre: this.pendingFile.name,
-        fechaEmision: new Date(fechaEmision).toISOString(),
-        fechaExpiracion: new Date(fechaExpiracion).toISOString(),
-      });
-    }
+      // Upload new document to Cloudinary first
+      this.uploading.set(true);
 
-    this.cancelUpload();
+      this.storageService
+        .upload(this.pendingFile, this.folder())
+        .pipe(finalize(() => this.uploading.set(false)))
+        .subscribe({
+          next: (res) => {
+            this.onUpload.emit({
+              url: res.secureUrl,
+              nombre: this.pendingFile!.name,
+              fechaEmision: new Date(fechaEmision).toISOString(),
+              fechaExpiracion: new Date(fechaExpiracion).toISOString(),
+            });
+            this.toastService.success('Documento subido correctamente');
+            this.cancelUpload();
+          },
+          error: () => {
+            this.toastService.error('Error al subir el documento');
+          },
+        });
+    }
   }
 
   deleteDocument(id: number | undefined) {
@@ -123,5 +142,15 @@ export class DocumentsDateUpload {
 
   canAddMore(): boolean {
     return this.documents().length < this.maxDocuments();
+  }
+
+  private formatDateForInput(dateStr: string): string {
+    try {
+      // Parse as local date to avoid timezone issues
+      const [year, month, day] = dateStr.split('T')[0].split('-');
+      return `${year}-${month}-${day}`;
+    } catch {
+      return '';
+    }
   }
 }

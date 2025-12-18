@@ -34,10 +34,6 @@ import { PATH, buildPath } from '@route/path.route';
 })
 export class ViajesList implements OnInit, OnDestroy {
   private viajeService = inject(ViajeService);
-  private rutaService = inject(RutaService);
-  private vehiculoService = inject(VehiculoService);
-  private conductorService = inject(ConductorService);
-  private clienteService = inject(ClienteService);
   private toastService = inject(ToastService);
   private alertService = inject(AlertService);
   private router = inject(Router);
@@ -61,15 +57,12 @@ export class ViajesList implements OnInit, OnDestroy {
   fechaFin = signal('');
 
   // Catálogos para mostrar nombres en lugar de IDs
-  rutas = signal<Map<number, RutaResultDto>>(new Map());
-  vehiculos = signal<Map<number, VehiculoListDto>>(new Map());
-  conductores = signal<Map<number, ConductorListDto>>(new Map());
-  clientes = signal<Map<number, ClienteListDto>>(new Map());
+  // vehiculos = signal<Map<number, VehiculoListDto>>(new Map());
+  // conductores = signal<Map<number, ConductorListDto>>(new Map());
 
   viajeFormComponent = viewChild<ViajeForm>(ViajeForm);
 
   ngOnInit() {
-    this.loadCatalogos();
     this.loadViajes();
 
     // Configurar debounce para el buscador
@@ -80,41 +73,6 @@ export class ViajesList implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.searchSubject.complete();
-  }
-
-  loadCatalogos() {
-    // Para los catálogos usamos parámetros para obtener todos sin paginación
-    this.rutaService.findAll({ limit: 1000 }).subscribe({
-      next: (response) => {
-        const map = new Map<number, RutaResultDto>();
-        response.data.forEach((r) => map.set(r.id, r));
-        this.rutas.set(map);
-      },
-    });
-
-    this.vehiculoService.findAll({ limit: 1000 }).subscribe({
-      next: (response) => {
-        const map = new Map<number, VehiculoListDto>();
-        response.data.forEach((v) => map.set(v.id, v));
-        this.vehiculos.set(map);
-      },
-    });
-
-    this.conductorService.findAll({ limit: 1000 }).subscribe({
-      next: (response) => {
-        const map = new Map<number, ConductorListDto>();
-        response.data.forEach((c) => map.set(c.id, c));
-        this.conductores.set(map);
-      },
-    });
-
-    this.clienteService.findAll({ limit: 1000 }).subscribe({
-      next: (response) => {
-        const map = new Map<number, ClienteListDto>();
-        response.data.forEach((c) => map.set(c.id, c));
-        this.clientes.set(map);
-      },
-    });
   }
 
   loadViajes() {
@@ -237,31 +195,26 @@ export class ViajesList implements OnInit, OnDestroy {
   }
 
   getRutaDisplay(viaje: ViajeListDto): string {
-    if (viaje.rutaId) {
-      const ruta = this.rutas().get(viaje.rutaId);
-      return ruta ? `${ruta.origen} → ${ruta.destino}` : `Ruta #${viaje.rutaId}`;
+    if (viaje.ruta) {
+      return `${viaje.ruta.origen} → ${viaje.ruta.destino}`;
     }
     return viaje.rutaOcasional || 'Ruta no especificada';
   }
 
   getVehiculoDisplay(viaje: ViajeListDto): string {
-    // ViajeListDto no tiene vehiculos, así que no podemos mostrarlo en la lista
-    // a menos que el backend lo envíe. Por ahora mostramos un placeholder o nada.
-    return 'Ver detalle';
+    return viaje.vehiculoPrincipal
+      ? `${viaje.vehiculoPrincipal.marca ?? ''} ${viaje.vehiculoPrincipal.modelo ?? ''} - ${
+          viaje.vehiculoPrincipal.placa
+        }`.trim() || viaje.vehiculoPrincipal.placa
+      : 'Sin vehículo';
   }
 
   getConductorDisplay(viaje: ViajeListDto): string {
-    // ViajeListDto no tiene conductores, así que no podemos mostrarlo en la lista
-    // a menos que el backend lo envíe. Por ahora mostramos un placeholder o nada.
-    return 'Ver detalle';
+    return viaje.conductorPrincipal?.nombreCompleto || 'Sin conductor';
   }
 
   getClienteDisplay(viaje: ViajeListDto): string {
-    if (!viaje.clienteId) return 'Sin cliente';
-    const cliente = this.clientes().get(viaje.clienteId);
-    return cliente
-      ? cliente.razonSocial || `${cliente.nombres} ${cliente.apellidos}`
-      : `Cliente #${viaje.clienteId}`;
+    return viaje.cliente?.razonSocial || viaje.cliente?.nombreCompleto || 'Sin cliente';
   }
 
   getEstadoBadgeClass(estado: ViajeEstado): string {
