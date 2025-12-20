@@ -6,7 +6,7 @@
     [class.border-secondary]="isOpen()"
     [attr.tabindex]="0"
   >
-    <span [class.text-text]="selectedTaller()" [class.text-text/50]="!selectedTaller()">
+    <span class="truncate" [class.text-text]="selectedTaller()" [class.text-text/50]="!selectedTaller()">
       {{ getDisplayText() }}
     </span>
     <i class="fas fa-chevron-down text-text/50 transition-transform duration-200" [class.rotate-180]="isOpen()"></i>

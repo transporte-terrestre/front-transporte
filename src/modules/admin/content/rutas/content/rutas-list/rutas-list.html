@@ -1,17 +1,17 @@
 <div class="space-y-6">
   <!-- Header -->
   <div class="flex flex-col gap-4">
-    <div class="flex items-center justify-between">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
       <div>
         <h1 class="text-2xl font-anton text-text lowercase">Rutas</h1>
         <p class="text-sm text-text/60 font-inter-regular mt-1">
           Administra las rutas de transporte del sistema
         </p>
       </div>
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-2 w-full sm:w-auto">
         <button
           (click)="toggleViewMode()"
-          class="flex items-center gap-2 px-4 py-2 bg-text/10 text-text rounded-lg text-sm font-inter-semibold hover:bg-text/20 transition-all self-stretch"
+          class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-text/10 text-text rounded-lg text-sm font-inter-semibold hover:bg-text/20 transition-all self-stretch"
           title="Cambiar vista"
         >
           <i
@@ -21,10 +21,10 @@
         </button>
         <button
           (click)="openCreateModal()"
-          class="flex items-center gap-2 px-4 py-2 bg-secondary text-background rounded-lg text-sm font-inter-semibold hover:bg-secondary/90 transition-all shadow-sm hover:shadow-md"
+          class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-secondary text-background rounded-lg text-sm font-inter-semibold hover:bg-secondary/90 transition-all shadow-sm hover:shadow-md"
         >
           <i class="fas fa-plus text-xs"></i>
-          <span>Nueva Ruta</span>
+          <span>Nuevo</span>
         </button>
       </div>
     </div>
@@ -109,7 +109,9 @@
         </div>
 
         <!-- Overlay with route info -->
-        <div class="absolute top-0 left-0 right-0 p-3 bg-linear-to-b from-background/50 to-transparent">
+        <div
+          class="absolute top-0 left-0 right-0 p-3 bg-linear-to-b from-background/50 to-transparent"
+        >
           <div class="flex items-start justify-between">
             <div class="flex items-center gap-2">
               <div

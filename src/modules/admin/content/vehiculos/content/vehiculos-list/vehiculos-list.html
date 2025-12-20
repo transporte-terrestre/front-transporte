@@ -1,17 +1,25 @@
 <div class="space-y-6">
   <!-- Header -->
   <div class="flex flex-col gap-4">
-    <div class="flex items-center justify-between">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
       <div>
         <h1 class="text-2xl font-anton text-text lowercase">Vehículos</h1>
         <p class="text-sm text-text/60 font-inter-regular mt-1">
           Administra la flota de vehículos del sistema
         </p>
       </div>
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-2 w-full sm:w-auto">
+        <button
+          (click)="navigateToLineas()"
+          class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-info/10 text-info rounded-lg text-sm font-inter-semibold hover:bg-info/20 transition-all self-stretch"
+          title="Marcas y Modelos"
+        >
+          <i class="fas fa-industry text-xs"></i>
+          <span class="hidden sm:inline">Líneas</span>
+        </button>
         <button
           (click)="toggleViewMode()"
-          class="flex items-center gap-2 px-4 py-2 bg-text/10 text-text rounded-lg text-sm font-inter-semibold hover:bg-text/20 transition-all self-stretch"
+          class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-text/10 text-text rounded-lg text-sm font-inter-semibold hover:bg-text/20 transition-all self-stretch"
           title="Cambiar vista"
         >
           <i
@@ -21,10 +29,10 @@
         </button>
         <button
           (click)="openCreateModal()"
-          class="flex items-center gap-2 px-4 py-2 bg-secondary text-background rounded-lg text-sm font-inter-semibold hover:bg-secondary/90 transition-all shadow-sm hover:shadow-md"
+          class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-secondary text-background rounded-lg text-sm font-inter-semibold hover:bg-secondary/90 transition-all shadow-sm hover:shadow-md"
         >
           <i class="fas fa-plus text-xs"></i>
-          <span>Nuevo Vehículo</span>
+          <span>Nuevo</span>
         </button>
       </div>
     </div>

@@ -1,5 +1,79 @@
 export type VehiculoEstado = 'activo' | 'taller' | 'retirado';
 
+// ========== PAGINATION ==========
+export interface PaginationMeta {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+}
+
+// ========== MARCA ==========
+export interface MarcaResultDto {
+  id: number;
+  nombre: string;
+  modelos: string[];
+  creadoEn: string;
+  actualizadoEn: string;
+}
+
+export interface MarcaCreateDto {
+  nombre: string;
+}
+
+export interface MarcaUpdateDto {
+  nombre?: string;
+}
+
+export interface MarcaPaginationParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  fechaInicio?: string;
+  fechaFin?: string;
+}
+
+export interface PaginatedMarcaResultDto {
+  data: MarcaResultDto[];
+  meta: PaginationMeta;
+}
+
+// ========== MODELO ==========
+export interface ModeloResultDto {
+  id: number;
+  nombre: string;
+  marcaId: number;
+  nombreMarca?: string;
+  creadoEn: string;
+  actualizadoEn: string;
+}
+
+export interface ModeloCreateDto {
+  nombre: string;
+  marcaId: number;
+}
+
+export interface ModeloUpdateDto {
+  nombre?: string;
+}
+
+export interface ModeloPaginationParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  marcaId?: number;
+  fechaInicio?: string;
+  fechaFin?: string;
+}
+
+export interface PaginatedModeloResultDto {
+  data: ModeloResultDto[];
+  meta: PaginationMeta;
+}
+
+// ========== VEHICULO DOCUMENTO ==========
 export interface VehiculoDocumentoResultDto {
   id: number;
   vehiculoId: number;
@@ -51,10 +125,12 @@ export interface DocumentosAgrupadosVehiculoDto {
   otros: VehiculoDocumentoResultDto[];
 }
 
+// ========== VEHICULO ==========
 export interface VehiculoListDto {
   id: number;
   placa: string;
   codigoInterno: string | null;
+  modeloId: number;
   marca: string;
   modelo: string;
   anio: number;
@@ -69,6 +145,7 @@ export interface VehiculoResultDto {
   id: number;
   placa: string;
   codigoInterno: string | null;
+  modeloId: number;
   marca: string;
   modelo: string;
   anio: number;
@@ -83,13 +160,11 @@ export interface VehiculoResultDto {
 export interface VehiculoCreateDto {
   placa: string;
   codigoInterno?: string;
-  marca: string;
-  modelo: string;
+  modeloId: number;
   anio: number;
   kilometraje: number;
   estado?: VehiculoEstado;
   imagenes?: string[];
-  documentos?: string[];
 }
 
 export interface VehiculoUpdateDto extends Partial<VehiculoCreateDto> {}
@@ -123,15 +198,6 @@ export interface VehiculoDocumentoCreateDto {
 
 export interface VehiculoDocumentoUpdateDto
   extends Partial<Omit<VehiculoDocumentoCreateDto, 'vehiculoId'>> {}
-
-export interface PaginationMeta {
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-  hasNextPage: boolean;
-  hasPreviousPage: boolean;
-}
 
 export interface PaginatedVehiculoResultDto {
   data: VehiculoListDto[];

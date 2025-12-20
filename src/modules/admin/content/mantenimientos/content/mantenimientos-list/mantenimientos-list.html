@@ -1,20 +1,22 @@
 <div class="space-y-6">
   <!-- Header -->
   <div class="flex flex-col gap-4">
-    <div class="flex items-center justify-between">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
       <div>
         <h1 class="text-2xl font-anton text-text lowercase">Calendario de Mantenimientos</h1>
         <p class="text-sm text-text/60 font-inter-regular mt-1">
           Programa y gestiona los mantenimientos de tu flota
         </p>
       </div>
-      <button
-        (click)="openCreateModal()"
-        class="flex items-center gap-2 px-4 py-2 bg-secondary text-background rounded-lg text-sm font-inter-semibold hover:bg-secondary/90 transition-all shadow-sm hover:shadow-md"
-      >
-        <i class="fas fa-plus text-xs"></i>
-        <span>Nuevo Mantenimiento</span>
-      </button>
+      <div class="flex items-center gap-2 w-full sm:w-auto">
+        <button
+          (click)="openCreateModal()"
+          class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-secondary text-background rounded-lg text-sm font-inter-semibold hover:bg-secondary/90 transition-all shadow-sm hover:shadow-md"
+        >
+          <i class="fas fa-plus text-xs"></i>
+          <span>Nuevo</span>
+        </button>
+      </div>
     </div>
   </div>
 

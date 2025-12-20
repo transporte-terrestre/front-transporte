@@ -1,5 +1,9 @@
 import { UsuarioPaginationParams } from '@interface/admin/usuario.interface';
-import { VehiculoPaginationParams } from '@interface/admin/vehiculo.interface';
+import {
+  VehiculoPaginationParams,
+  MarcaPaginationParams,
+  ModeloPaginationParams,
+} from '@interface/admin/vehiculo.interface';
 import { ConductorPaginationParams } from '@interface/admin/conductor.interface';
 import { MantenimientoPaginationParams } from '@interface/admin/mantenimiento.interface';
 import { RutaPaginationParams } from '@interface/admin/ruta.interface';
@@ -56,6 +60,22 @@ export const API_URL = {
       create: `${BASE_URL}/vehiculo/documento/create`,
       update: (id: number) => `${BASE_URL}/vehiculo/documento/update/${id}`,
       delete: (id: number) => `${BASE_URL}/vehiculo/documento/delete/${id}`,
+    },
+    marcas: {
+      findAll: (params?: MarcaPaginationParams) =>
+        `${BASE_URL}/vehiculo/marca/find-all${buildQueryString(params)}`,
+      findOne: (id: number) => `${BASE_URL}/vehiculo/marca/find-one/${id}`,
+      create: `${BASE_URL}/vehiculo/marca/create`,
+      update: (id: number) => `${BASE_URL}/vehiculo/marca/update/${id}`,
+      delete: (id: number) => `${BASE_URL}/vehiculo/marca/delete/${id}`,
+    },
+    modelos: {
+      findAll: (params?: ModeloPaginationParams) =>
+        `${BASE_URL}/vehiculo/modelo/find-all${buildQueryString(params)}`,
+      findOne: (id: number) => `${BASE_URL}/vehiculo/modelo/find-one/${id}`,
+      create: `${BASE_URL}/vehiculo/modelo/create`,
+      update: (id: number) => `${BASE_URL}/vehiculo/modelo/update/${id}`,
+      delete: (id: number) => `${BASE_URL}/vehiculo/modelo/delete/${id}`,
     },
   },
   conductores: {

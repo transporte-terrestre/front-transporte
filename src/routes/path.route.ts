@@ -60,6 +60,9 @@ export const PATH = {
       _path: 'vehiculos',
       list: { _path: 'list' },
       edit: { _path: 'edit/:id' },
+      lineas: {
+        _path: 'lineas',
+      },
     },
     mantenimientos: {
       _path: 'mantenimientos',

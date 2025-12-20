@@ -54,6 +54,13 @@ export const routes: Routes = [
                 (m) => m.VehiculosEdit
               ),
           },
+          {
+            path: getPath(PATH.admin.vehiculos.lineas),
+            loadComponent: () =>
+              import('@module/admin/content/vehiculos/content/vehiculos-lineas/vehiculos-lineas').then(
+                (m) => m.VehiculosLineas
+              ),
+          },
           { path: '**', redirectTo: getPath(PATH.admin.vehiculos.list), pathMatch: 'full' },
         ],
       },

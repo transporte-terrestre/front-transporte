@@ -32,29 +32,31 @@ export class PaginationComponent {
     const current = this.currentPage();
     const pages: (number | string)[] = [];
 
-    if (total <= 7) {
+    if (total <= 5) {
+      // Si hay 5 o menos páginas, mostrar todas
       for (let i = 1; i <= total; i++) {
         pages.push(i);
       }
     } else {
-      if (current <= 4) {
-        for (let i = 1; i <= 5; i++) {
+      if (current <= 3) {
+        // Cerca del inicio: 1 2 3 ... N
+        for (let i = 1; i <= 3; i++) {
           pages.push(i);
         }
         pages.push('...');
         pages.push(total);
-      } else if (current >= total - 3) {
+      } else if (current >= total - 2) {
+        // Cerca del final: 1 ... N-2 N-1 N
         pages.push(1);
         pages.push('...');
-        for (let i = total - 4; i <= total; i++) {
+        for (let i = total - 2; i <= total; i++) {
           pages.push(i);
         }
       } else {
+        // En el medio: 1 ... X ... N
         pages.push(1);
         pages.push('...');
-        for (let i = current - 1; i <= current + 1; i++) {
-          pages.push(i);
-        }
+        pages.push(current);
         pages.push('...');
         pages.push(total);
       }

@@ -132,6 +132,11 @@ export class VehiculosList implements OnInit, OnDestroy {
     this.router.navigate([path]);
   }
 
+  navigateToLineas() {
+    const path = buildPath(PATH.admin.vehiculos.lineas);
+    this.router.navigate([path]);
+  }
+
   closeModal() {
     this.showModal.set(false);
   }

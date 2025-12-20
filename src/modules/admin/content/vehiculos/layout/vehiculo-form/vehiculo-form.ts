@@ -16,10 +16,19 @@ import {
 } from '../../../../components/documents-date-upload/documents-date-upload';
 import { VehiculoService } from '@service/admin/vehiculo.service';
 import { ToastService } from '@service/toast.service';
+import { MarcaInputSearch } from '../../content/vehiculos-lineas/layout/marca-input-search/marca-input-search';
+import { ModeloInputSearch } from '../../content/vehiculos-lineas/layout/modelo-input-search/modelo-input-search';
 
 @Component({
   selector: 'app-vehiculo-form',
-  imports: [CommonModule, ReactiveFormsModule, ImagesUpload, DocumentsDateUpload],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    ImagesUpload,
+    DocumentsDateUpload,
+    MarcaInputSearch,
+    ModeloInputSearch,
+  ],
   templateUrl: './vehiculo-form.html',
   styleUrl: './vehiculo-form.css',
 })
@@ -38,12 +47,13 @@ export class VehiculoForm implements OnInit {
   // State
   imagenes = signal<string[]>([]);
   localDocuments = signal<DocumentosAgrupadosVehiculoDto | null>(null);
+  selectedMarcaId = signal<number | null>(null);
 
   vehiculoForm: FormGroup = this.fb.group({
     placa: ['', [Validators.required, Validators.pattern(/^[A-Z0-9]{6,7}$/)]],
     codigoInterno: ['', [Validators.required, Validators.maxLength(20)]],
-    marca: ['', [Validators.required, Validators.minLength(2)]],
-    modelo: ['', [Validators.required, Validators.minLength(2)]],
+    marcaId: [null, []],
+    modeloId: [null, [Validators.required]],
     anio: ['', [Validators.required, Validators.min(1900), Validators.max(2100)]],
     kilometraje: ['', [Validators.required, Validators.min(0)]],
     estado: ['activo', [Validators.required]],
@@ -78,26 +88,49 @@ export class VehiculoForm implements OnInit {
 
   constructor() {
     // Effect para actualizar formulario cuando cambia el vehículo
-    effect(() => {
-      const vehiculoData = this.vehiculo();
-      const isEditMode = this.editMode();
+    effect(
+      () => {
+        const vehiculoData = this.vehiculo();
+        const isEditMode = this.editMode();
 
-      if (isEditMode && vehiculoData) {
-        this.vehiculoForm.patchValue({
-          placa: vehiculoData.placa,
-          codigoInterno: vehiculoData.codigoInterno,
-          marca: vehiculoData.marca,
-          modelo: vehiculoData.modelo,
-          anio: vehiculoData.anio,
-          kilometraje: vehiculoData.kilometraje,
-          estado: vehiculoData.estado,
-        });
-        this.imagenes.set(vehiculoData.imagenes || []);
-        this.localDocuments.set(JSON.parse(JSON.stringify(vehiculoData.documentos)));
-      } else {
-        this.vehiculoForm.reset({ estado: 'activo' });
-        this.imagenes.set([]);
-        this.localDocuments.set(null);
+        if (isEditMode && vehiculoData) {
+          this.vehiculoForm.patchValue({
+            placa: vehiculoData.placa,
+            codigoInterno: vehiculoData.codigoInterno,
+            modeloId: vehiculoData.modeloId,
+            anio: vehiculoData.anio,
+            kilometraje: vehiculoData.kilometraje,
+            estado: vehiculoData.estado,
+          });
+          this.imagenes.set(vehiculoData.imagenes || []);
+          this.localDocuments.set(JSON.parse(JSON.stringify(vehiculoData.documentos)));
+
+          // Load marca from modelo if available
+          if (vehiculoData.modeloId) {
+            this.vehiculoService.findOneModelo(vehiculoData.modeloId).subscribe({
+              next: (modelo) => {
+                this.selectedMarcaId.set(modelo.marcaId);
+                this.vehiculoForm.patchValue({ marcaId: modelo.marcaId });
+              },
+              error: () => {},
+            });
+          }
+        } else {
+          this.vehiculoForm.reset({ estado: 'activo' });
+          this.imagenes.set([]);
+          this.localDocuments.set(null);
+          this.selectedMarcaId.set(null);
+        }
+      },
+      { allowSignalWrites: true }
+    );
+
+    // Watch for marcaId changes to update selectedMarcaId signal
+    this.vehiculoForm.get('marcaId')?.valueChanges.subscribe((value) => {
+      this.selectedMarcaId.set(value);
+      // Clear modeloId when marca changes
+      if (value !== this.selectedMarcaId()) {
+        this.vehiculoForm.patchValue({ modeloId: null });
       }
     });
   }
@@ -114,8 +147,13 @@ export class VehiculoForm implements OnInit {
       return;
     }
 
-    const formData = {
-      ...this.vehiculoForm.value,
+    const formData: VehiculoCreateDto = {
+      placa: this.vehiculoForm.value.placa,
+      codigoInterno: this.vehiculoForm.value.codigoInterno,
+      modeloId: this.vehiculoForm.value.modeloId,
+      anio: this.vehiculoForm.value.anio,
+      kilometraje: this.vehiculoForm.value.kilometraje,
+      estado: this.vehiculoForm.value.estado,
       imagenes: this.imagenes(),
     };
     this.onSubmitForm.emit(formData);

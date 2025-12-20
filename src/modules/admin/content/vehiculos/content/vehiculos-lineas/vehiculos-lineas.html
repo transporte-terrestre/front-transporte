@@ -3,12 +3,20 @@
   <div class="flex flex-col gap-4">
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
       <div>
-        <h1 class="text-2xl font-anton text-text lowercase">Clientes</h1>
+        <h1 class="text-2xl font-anton text-text lowercase">Marcas y Modelos</h1>
         <p class="text-sm text-text/60 font-inter-regular mt-1">
-          Administra los clientes del sistema
+          Administra las marcas y modelos de vehículos
         </p>
       </div>
       <div class="flex items-center gap-2 w-full sm:w-auto">
+        <button
+          (click)="navigateToVehiculos()"
+          class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-text/10 text-text rounded-lg text-sm font-inter-semibold hover:bg-text/20 transition-all self-stretch"
+          title="Volver a Vehículos"
+        >
+          <i class="fas fa-arrow-left text-xs"></i>
+          <span class="hidden sm:inline">Vehículos</span>
+        </button>
         <button
           (click)="openCreateModal()"
           class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-secondary text-background rounded-lg text-sm font-inter-semibold hover:bg-secondary/90 transition-all shadow-sm hover:shadow-md"
@@ -19,21 +27,21 @@
       </div>
     </div>
 
-    <!-- Buscador y Filtros -->
+    <!-- Search and Filters -->
     <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
-      <!-- Búsqueda -->
+      <!-- Search -->
       <div class="relative sm:col-span-4 lg:col-span-2">
         <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"></i>
         <input
           type="text"
           [ngModel]="searchTerm()"
           (ngModelChange)="onSearchChange($event)"
-          placeholder="Buscar por nombre, apellido, DNI o email..."
+          placeholder="Buscar por nombre de marca..."
           class="w-full pl-10 pr-4 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all"
         />
       </div>
 
-      <!-- Fecha Inicio -->
+      <!-- Date Start -->
       <div class="relative sm:col-span-2 lg:col-span-1">
         <i
           class="fas fa-calendar absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"
@@ -47,7 +55,7 @@
         />
       </div>
 
-      <!-- Fecha Fin -->
+      <!-- Date End -->
       <div class="relative sm:col-span-2 lg:col-span-1">
         <i
           class="fas fa-calendar absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"
@@ -63,20 +71,20 @@
     </div>
   </div>
 
-  <!-- Tabla -->
+  <!-- Table -->
   <div class="bg-background border border-text/10 rounded-xl shadow-sm overflow-hidden">
     @if (loading()) {
     <div class="flex items-center justify-center py-12">
       <div class="flex flex-col items-center gap-3">
         <i class="fas fa-spinner fa-spin text-3xl text-secondary"></i>
-        <p class="text-text/60 font-inter-medium">Cargando clientes...</p>
+        <p class="text-text/60 font-inter-medium">Cargando marcas...</p>
       </div>
     </div>
-    } @else if (clientes().length === 0) {
+    } @else if (marcas().length === 0) {
     <div class="flex flex-col items-center justify-center py-12 text-text/60">
-      <i class="fas fa-user-tag text-5xl mb-4 text-text/20"></i>
-      <p class="font-inter-semibold text-lg">No hay clientes registrados</p>
-      <p class="font-inter-regular text-sm mt-1">Comienza agregando un nuevo cliente</p>
+      <i class="fas fa-industry text-5xl mb-4 text-text/20"></i>
+      <p class="font-inter-semibold text-lg">No hay marcas registradas</p>
+      <p class="font-inter-regular text-sm mt-1">Comienza agregando una nueva marca</p>
     </div>
     } @else {
     <div class="overflow-x-auto">
@@ -91,22 +99,12 @@
             <th
               class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
             >
-              DNI
+              Marca
             </th>
             <th
               class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
             >
-              Nombre Completo
-            </th>
-            <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
-            >
-              Email
-            </th>
-            <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
-            >
-              Teléfono
+              Modelos
             </th>
             <th
               class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
@@ -121,60 +119,58 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-text/10">
-          @for (cliente of clientes(); track cliente.id) {
+          @for (marca of marcas(); track marca.id) {
           <tr class="hover:bg-text/5 transition-colors">
             <td class="px-4 py-3 whitespace-nowrap">
-              <span class="text-xs font-inter-semibold text-text">{{ cliente.id }}</span>
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap">
-              <span class="text-xs font-inter-medium text-text/70">{{ cliente.dni }}</span>
+              <span class="text-xs font-inter-semibold text-text">{{ marca.id }}</span>
             </td>
             <td class="px-4 py-3 whitespace-nowrap">
               <div class="flex items-center gap-2">
-                @if (cliente.imagenes && cliente.imagenes.length > 0) {
-                <img
-                  [src]="cliente.imagenes[0]"
-                  [alt]="cliente.nombres + ' ' + cliente.apellidos"
-                  class="w-8 h-8 rounded-full object-cover border border-text/10"
-                />
-                } @else {
                 <div
                   class="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center text-secondary text-xs font-inter-bold"
                 >
-                  {{ (cliente.nombres || '').charAt(0) }}{{ (cliente.apellidos || '').charAt(0) }}
+                  <i class="fas fa-industry"></i>
                 </div>
-                }
                 <div>
-                  <p class="text-xs font-inter-semibold text-text capitalize">
-                    {{ cliente.nombres }} {{ cliente.apellidos }}
-                  </p>
+                  <p class="text-sm font-inter-semibold text-text">{{ marca.nombre }}</p>
                 </div>
               </div>
             </td>
-            <td class="px-4 py-3 whitespace-nowrap">
-              <span class="text-xs font-inter-medium text-text/70">{{ cliente.email || '-' }}</span>
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap">
-              <span class="text-xs font-inter-medium text-text/70">{{
-                cliente.telefono || '-'
-              }}</span>
+            <td class="px-4 py-3">
+              <div class="flex flex-wrap gap-1 max-w-xs">
+                @if (marca.modelos.length === 0) {
+                <span class="text-xs text-text/40 italic">Sin modelos</span>
+                } @else { @for (modelo of marca.modelos.slice(0, 4); track modelo) {
+                <span
+                  class="px-2 py-0.5 text-xs font-inter-medium rounded-full bg-info/10 text-info"
+                >
+                  {{ modelo }}
+                </span>
+                } @if (marca.modelos.length > 4) {
+                <span
+                  class="px-2 py-0.5 text-xs font-inter-medium rounded-full bg-text/10 text-text/60"
+                >
+                  +{{ marca.modelos.length - 4 }}
+                </span>
+                } }
+              </div>
             </td>
             <td class="px-4 py-3 whitespace-nowrap">
               <span class="text-xs font-inter-regular text-text/60">{{
-                cliente.creadoEn | date : 'short'
+                marca.creadoEn | date : 'short'
               }}</span>
             </td>
             <td class="px-4 py-3 whitespace-nowrap text-right">
               <div class="flex items-center justify-end gap-1">
                 <button
-                  (click)="navigateToEdit(cliente)"
+                  (click)="openEditModal(marca)"
                   class="p-1.5 text-info hover:bg-info/10 rounded-lg transition-colors text-sm"
                   title="Editar"
                 >
                   <i class="fas fa-edit"></i>
                 </button>
                 <button
-                  (click)="deleteCliente(cliente.id)"
+                  (click)="deleteMarca(marca.id)"
                   class="p-1.5 text-danger hover:bg-danger/10 rounded-lg transition-colors text-sm"
                   title="Eliminar"
                 >
@@ -188,28 +184,31 @@
       </table>
     </div>
 
-    <!-- Paginación -->
-    @if (meta()) {
+    <!-- Pagination -->
     <app-pagination
       [meta]="meta()"
       [currentPage]="currentPage()"
       [pageSize]="pageSize()"
       (pageChange)="onPageChange($event)"
-      (pageSizeChange)="pageSize.set($event); onPageSizeChange()"
+      (pageSizeChange)="onPageSizeChange($event)"
     />
-    } }
+    }
   </div>
-</div>
 
-<!-- Modal -->
-@if (showModal()) {
-<app-modal-form
-  title="Nuevo Cliente"
-  submitText="Crear"
-  [loading]="loading()"
-  (onSubmit)="handleModalSubmit()"
-  (onClose)="closeModal()"
->
-  <app-cliente-form [editMode]="false" (onSubmitForm)="handleFormSubmit($event)" />
-</app-modal-form>
-}
+  <!-- Modal -->
+  @if (showModal()) {
+  <app-modal-form
+    [title]="editMode() ? 'Editar Marca' : 'Nueva Marca'"
+    [submitText]="editMode() ? 'Guardar' : 'Crear'"
+    [loading]="loading()"
+    (onSubmit)="handleModalSubmit()"
+    (onClose)="closeModal()"
+  >
+    <app-vehiculo-linea-form
+      [marca]="selectedMarca()"
+      [editMode]="editMode()"
+      (onSubmitSuccess)="handleFormSuccess()"
+    />
+  </app-modal-form>
+  }
+</div>
