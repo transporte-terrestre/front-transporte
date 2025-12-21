@@ -39,8 +39,8 @@ export class MantenimientoForm implements OnInit {
   onDataChange = output<void>();
 
   mantenimientoForm: FormGroup = this.fb.group({
-    vehiculoId: ['', [Validators.required]],
-    tallerId: ['', [Validators.required]],
+    vehiculo: [null, [Validators.required]],
+    taller: [null, [Validators.required]],
     codigoOrden: ['', [Validators.required]],
     tipo: ['preventivo', [Validators.required]],
     costoTotal: ['', [Validators.required, Validators.min(0)]],
@@ -70,8 +70,8 @@ export class MantenimientoForm implements OnInit {
 
       if (isEditMode && mantenimientoData) {
         this.mantenimientoForm.patchValue({
-          vehiculoId: mantenimientoData.vehiculoId,
-          tallerId: mantenimientoData.tallerId,
+          vehiculo: mantenimientoData.vehiculoId,
+          taller: mantenimientoData.tallerId,
           codigoOrden: mantenimientoData.codigoOrden,
           tipo: mantenimientoData.tipo,
           costoTotal: mantenimientoData.costoTotal,
@@ -107,8 +107,10 @@ export class MantenimientoForm implements OnInit {
 
     const formValue = this.mantenimientoForm.value;
     const formData: MantenimientoCreateDto | MantenimientoUpdateDto = {
-      vehiculoId: Number(formValue.vehiculoId),
-      tallerId: Number(formValue.tallerId),
+      vehiculoId: formValue.vehiculo?.id
+        ? Number(formValue.vehiculo.id)
+        : Number(formValue.vehiculo),
+      tallerId: formValue.taller?.id ? Number(formValue.taller.id) : Number(formValue.taller),
       codigoOrden: formValue.codigoOrden,
       tipo: formValue.tipo,
       costoTotal: String(formValue.costoTotal),

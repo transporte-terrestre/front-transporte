@@ -71,39 +71,36 @@ export class Reportes implements OnInit {
     this.selectedEntityName.set('');
   }
 
-  onVehiculoSelected(id: number | null) {
-    this.selectedVehiculoId.set(id);
-  }
-
-  onVehiculoEntitySelected(vehiculo: VehiculoResultDto | null) {
+  onVehiculoSelected(vehiculo: VehiculoResultDto | null) {
     this.selectedVehiculo.set(vehiculo);
+    this.selectedVehiculoId.set(vehiculo?.id ?? null);
     if (vehiculo) {
       this.selectedEntityName.set(`${vehiculo.placa} - ${vehiculo.marca} ${vehiculo.modelo}`);
+    } else {
+      this.selectedEntityName.set('');
     }
   }
 
-  onConductorSelected(id: number | null) {
-    this.selectedConductorId.set(id);
-  }
-
-  onConductorEntitySelected(conductor: ConductorListDto | null) {
+  onConductorSelected(conductor: ConductorListDto | null) {
     this.selectedConductor.set(conductor);
+    this.selectedConductorId.set(conductor?.id ?? null);
     if (conductor) {
       this.selectedEntityName.set(`${conductor.nombreCompleto} (Lic. ${conductor.numeroLicencia})`);
+    } else {
+      this.selectedEntityName.set('');
     }
   }
 
-  onClienteSelected(id: number | null) {
-    this.selectedClienteId.set(id);
-  }
-
-  onClienteEntitySelected(cliente: ClienteListDto | null) {
+  onClienteSelected(cliente: ClienteListDto | null) {
     this.selectedCliente.set(cliente);
+    this.selectedClienteId.set(cliente?.id ?? null);
     if (cliente) {
       const nombre = cliente.razonSocial || cliente.nombreCompleto;
       const documento = cliente.ruc || cliente.dni;
       const tipoDoc = cliente.ruc ? 'RUC' : 'DNI';
       this.selectedEntityName.set(`${nombre} (${tipoDoc}: ${documento})`);
+    } else {
+      this.selectedEntityName.set('');
     }
   }
 
@@ -202,11 +199,22 @@ export class Reportes implements OnInit {
     return viaje.rutaOcasional || 'Sin ruta definida';
   }
 
-  getTotalKilometros(): number {
+  getTotalKilometrosFinales(): number {
     return this.viajes().reduce((total, viaje) => {
-      const distancia = viaje.distancia ? parseFloat(viaje.distancia) : 0;
+      const distancia = viaje.distanciaFinal ? parseFloat(viaje.distanciaFinal) : 0;
       return total + distancia;
     }, 0);
+  }
+
+  getTotalKilometrosEstimados(): number {
+    return this.viajes().reduce((total, viaje) => {
+      const distancia = viaje.distanciaEstimada ? parseFloat(viaje.distanciaEstimada) : 0;
+      return total + distancia;
+    }, 0);
+  }
+
+  getTotalDiferencia(): number {
+    return this.viajes().reduce((total, viaje) => total + viaje.diferencia, 0);
   }
 
   descargarPdf() {
@@ -221,7 +229,9 @@ export class Reportes implements OnInit {
       fechaInicio: this.fechaInicio(),
       fechaFin: this.fechaFin(),
       viajes: this.viajes(),
-      totalKilometros: this.getTotalKilometros(),
+      totalKilometrosFinales: this.getTotalKilometrosFinales(),
+      totalKilometrosEstimados: this.getTotalKilometrosEstimados(),
+      totalDiferencia: this.getTotalDiferencia(),
     });
 
     this.toastService.success('PDF generado exitosamente');

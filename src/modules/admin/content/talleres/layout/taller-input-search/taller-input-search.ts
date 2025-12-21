@@ -42,7 +42,7 @@ export class TallerInputSearch implements ControlValueAccessor {
   searchControl = new FormControl('');
 
   // Value Accessor callbacks
-  onChange: (value: number | null) => void = () => {};
+  onChange: (value: TallerResultDto | null) => void = () => {};
   onTouched: () => void = () => {};
 
   constructor() {
@@ -102,7 +102,7 @@ export class TallerInputSearch implements ControlValueAccessor {
 
   selectTaller(taller: TallerResultDto) {
     this.selectedTaller.set(taller);
-    this.onChange(taller.id);
+    this.onChange(taller);
     this.isOpen.set(false);
   }
 

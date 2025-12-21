@@ -38,7 +38,7 @@ export class ViajeInputSearch implements ControlValueAccessor {
   searchControl = new FormControl('');
 
   // Value Accessor callbacks
-  onChange: (value: number | null) => void = () => {};
+  onChange: (value: ViajeResultDto | null) => void = () => {};
   onTouched: () => void = () => {};
 
   constructor() {
@@ -98,7 +98,7 @@ export class ViajeInputSearch implements ControlValueAccessor {
 
   selectViaje(viaje: ViajeResultDto) {
     this.selectedViaje.set(viaje);
-    this.onChange(viaje.id);
+    this.onChange(viaje);
     this.isOpen.set(false);
   }
 

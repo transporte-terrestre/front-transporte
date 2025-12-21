@@ -38,7 +38,7 @@ export class RutaInputSearch implements ControlValueAccessor {
   searchControl = new FormControl('');
 
   // Value Accessor callbacks
-  onChange: (value: number | null) => void = () => {};
+  onChange: (value: RutaResultDto | null) => void = () => {};
   onTouched: () => void = () => {};
 
   constructor() {
@@ -98,7 +98,7 @@ export class RutaInputSearch implements ControlValueAccessor {
 
   selectRuta(ruta: RutaResultDto) {
     this.selectedRuta.set(ruta);
-    this.onChange(ruta.id);
+    this.onChange(ruta);
     this.isOpen.set(false);
   }
 
@@ -106,6 +106,7 @@ export class RutaInputSearch implements ControlValueAccessor {
     this.rutaService.findOne(id).subscribe({
       next: (ruta) => {
         this.selectedRuta.set(ruta);
+        this.onChange(ruta);
       },
       error: () => {
         console.error('Could not load initial ruta');

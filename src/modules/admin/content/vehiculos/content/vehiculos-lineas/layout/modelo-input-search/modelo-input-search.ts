@@ -43,7 +43,7 @@ export class ModeloInputSearch implements ControlValueAccessor {
   searchControl = new FormControl('');
 
   // Value Accessor callbacks
-  onChange: (value: number | null) => void = () => {};
+  onChange: (value: ModeloResultDto | null) => void = () => {};
   onTouched: () => void = () => {};
 
   constructor() {
@@ -127,7 +127,7 @@ export class ModeloInputSearch implements ControlValueAccessor {
 
   selectModelo(modelo: ModeloResultDto) {
     this.selectedModelo.set(modelo);
-    this.onChange(modelo.id);
+    this.onChange(modelo);
     this.isOpen.set(false);
   }
 

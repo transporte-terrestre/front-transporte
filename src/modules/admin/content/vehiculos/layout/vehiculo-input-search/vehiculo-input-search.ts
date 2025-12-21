@@ -1,4 +1,4 @@
-import { Component, inject, signal, ElementRef, HostListener, output } from '@angular/core';
+import { Component, inject, signal, ElementRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   ControlValueAccessor,
@@ -34,14 +34,14 @@ export class VehiculoInputSearch implements ControlValueAccessor {
   vehiculos = signal<VehiculoResultDto[]>([]);
   selectedVehiculo = signal<VehiculoResultDto | null>(null);
 
-  // Output to emit the full entity
-  onEntitySelected = output<VehiculoResultDto | null>();
+  // Output to emit the full entity - REMOVED: Ahora se usa onChange
+  // onEntitySelected = output<VehiculoResultDto | null>();
 
   // Search Control
   searchControl = new FormControl('');
 
   // Value Accessor callbacks
-  onChange: (value: number | null) => void = () => {};
+  onChange: (value: VehiculoResultDto | null) => void = () => {};
   onTouched: () => void = () => {};
 
   constructor() {
@@ -101,8 +101,7 @@ export class VehiculoInputSearch implements ControlValueAccessor {
 
   selectVehiculo(vehiculo: VehiculoResultDto) {
     this.selectedVehiculo.set(vehiculo);
-    this.onChange(vehiculo.id);
-    this.onEntitySelected.emit(vehiculo);
+    this.onChange(vehiculo);
     this.isOpen.set(false);
   }
 

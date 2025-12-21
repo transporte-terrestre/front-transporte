@@ -12,6 +12,8 @@ export interface ViajeListDto {
   id: number;
   rutaId?: number;
   rutaOcasional?: string;
+  distanciaEstimada?: string | null;
+  distanciaFinal?: string | null;
   tipoRuta: ViajeTipoRuta;
   clienteId: number;
   tripulantes?: string[];
@@ -31,6 +33,8 @@ export interface ViajeResultDto {
   id: number;
   rutaId?: number;
   rutaOcasional?: string;
+  distanciaEstimada?: string | null;
+  distanciaFinal?: string | null;
   tipoRuta: ViajeTipoRuta;
   clienteId: number;
   tripulantes?: string[];
@@ -52,6 +56,8 @@ export interface ViajeResultDto {
 export interface ViajeCreateDto {
   rutaId?: number;
   rutaOcasional?: string;
+  distanciaEstimada?: string;
+  distanciaFinal?: string;
   tipoRuta?: ViajeTipoRuta;
   clienteId: number;
   tripulantes?: string[];

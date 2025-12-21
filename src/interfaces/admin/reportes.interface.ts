@@ -31,7 +31,9 @@ export interface ViajeDetalladoDto {
   rutaOcasional: string | null;
   rutaOrigen: string | null;
   rutaDestino: string | null;
-  distancia: string | null;
+  distanciaEstimada: string | null;
+  distanciaFinal: string | null;
+  diferencia: number;
   estado: string;
   modalidadServicio: string;
   fechaSalida: string;

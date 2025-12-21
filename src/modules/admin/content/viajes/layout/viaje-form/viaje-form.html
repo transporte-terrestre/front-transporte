@@ -42,8 +42,8 @@
         <i class="fas fa-route text-secondary"></i>
         Ruta
       </label>
-      <app-ruta-input-search formControlName="rutaId"></app-ruta-input-search>
-      @if (viajeForm.get('rutaId')?.touched && viajeForm.get('rutaId')?.errors) {
+      <app-ruta-input-search formControlName="ruta"></app-ruta-input-search>
+      @if (viajeForm.get('ruta')?.touched && viajeForm.get('ruta')?.errors) {
         <p class="text-danger text-xs font-inter-medium mt-1">La ruta es requerida</p>
       }
     </div>
@@ -66,14 +66,59 @@
     </div>
   }
 
+  <!-- Distancias -->
+  <div class="col-span-1 lg:col-span-2 grid grid-cols-2 gap-4">
+    <div>
+      <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+        <i class="fas fa-ruler text-info"></i>
+        Distancia Estimada (km)
+      </label>
+      <input
+        type="number"
+        step="0.01"
+        formControlName="distanciaEstimada"
+        class="w-full px-3 py-2 text-sm border-2 border-transparent rounded-lg font-inter-regular outline-none transition-all"
+        [class.bg-text/5]="viajeForm.get('tipoRuta')?.value !== 'fija'"
+        [class.bg-text/10]="viajeForm.get('tipoRuta')?.value === 'fija'"
+        [class.cursor-not-allowed]="viajeForm.get('tipoRuta')?.value === 'fija'"
+        [readonly]="viajeForm.get('tipoRuta')?.value === 'fija'"
+        [placeholder]="viajeForm.get('tipoRuta')?.value === 'fija' ? 'Se autocompleta con la ruta' : 'Ej: 450.00'"
+      />
+      @if (viajeForm.get('distanciaEstimada')?.touched && viajeForm.get('distanciaEstimada')?.errors) {
+        <p class="text-danger text-xs font-inter-medium mt-1">La distancia estimada es requerida</p>
+      }
+    </div>
+    <div>
+      <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+        <i class="fas fa-road text-success"></i>
+        Distancia Final (km)
+      </label>
+      <input
+        type="number"
+        step="0.01"
+        formControlName="distanciaFinal"
+        class="w-full px-3 py-2 text-sm border-2 border-transparent rounded-lg font-inter-regular outline-none transition-all"
+        [class.bg-text/5]="viajeForm.get('estado')?.value === 'completado'"
+        [class.bg-text/10]="viajeForm.get('estado')?.value !== 'completado'"
+        [class.text-text]="viajeForm.get('estado')?.value === 'completado'"
+        [class.text-text/40]="viajeForm.get('estado')?.value !== 'completado'"
+        [class.cursor-not-allowed]="viajeForm.get('estado')?.value !== 'completado'"
+        [placeholder]="viajeForm.get('estado')?.value === 'completado' ? 'Ej: 455.50' : 'Viaje no completado'"
+      />
+      @if (viajeForm.get('distanciaFinal')?.touched && viajeForm.get('distanciaFinal')?.errors && viajeForm.get('estado')?.value === 'completado') {
+        <p class="text-danger text-xs font-inter-medium mt-1">La distancia final es requerida</p>
+      }
+    </div>
+  </div>
+
   <!-- Cliente -->
   <div>
     <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
       <i class="fas fa-user-tie text-secondary"></i>
       Cliente
     </label>
-    <app-cliente-input-search formControlName="clienteId"></app-cliente-input-search>
-    @if (viajeForm.get('clienteId')?.touched && viajeForm.get('clienteId')?.errors) {
+    <app-cliente-input-search formControlName="cliente"></app-cliente-input-search>
+    @if (viajeForm.get('cliente')?.touched && viajeForm.get('cliente')?.errors) {
       <p class="text-danger text-xs font-inter-medium mt-1">El cliente es requerido</p>
     }
   </div>
@@ -110,8 +155,8 @@
         <i class="fas fa-car text-primary"></i>
         Vehículo Principal
       </label>
-      <app-vehiculo-input-search formControlName="vehiculoId"></app-vehiculo-input-search>
-      @if (viajeForm.get('vehiculoId')?.touched && viajeForm.get('vehiculoId')?.errors) {
+      <app-vehiculo-input-search formControlName="vehiculo"></app-vehiculo-input-search>
+      @if (viajeForm.get('vehiculo')?.touched && viajeForm.get('vehiculo')?.errors) {
         <p class="text-danger text-xs font-inter-medium mt-1">El vehículo es requerido</p>
       }
     </div>
@@ -122,8 +167,8 @@
         <i class="fas fa-user text-info"></i>
         Conductor Principal
       </label>
-      <app-conductor-input-search formControlName="conductorId"></app-conductor-input-search>
-      @if (viajeForm.get('conductorId')?.touched && viajeForm.get('conductorId')?.errors) {
+      <app-conductor-input-search formControlName="conductor"></app-conductor-input-search>
+      @if (viajeForm.get('conductor')?.touched && viajeForm.get('conductor')?.errors) {
         <p class="text-danger text-xs font-inter-medium mt-1">El conductor es requerido</p>
       }
     </div>
@@ -198,7 +243,9 @@
         formControlName="fechaLlegada"
         class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
       />
-      <p class="text-text/40 text-xs font-inter-regular mt-1">Opcional - Puede agregarse después</p>
+      @if (viajeForm.get('fechaLlegada')?.touched && viajeForm.get('fechaLlegada')?.errors) {
+        <p class="text-danger text-xs font-inter-medium mt-1">Fecha de llegada requerida</p>
+      }
     </div>
   </div>
   <!-- Estado -->

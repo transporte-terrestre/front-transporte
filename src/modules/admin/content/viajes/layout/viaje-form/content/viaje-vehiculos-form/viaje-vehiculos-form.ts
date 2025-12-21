@@ -25,7 +25,7 @@ export class ViajeVehiculosForm {
   showVehiculoModal = signal(false);
 
   addVehiculoForm = this.fb.group({
-    vehiculoId: ['', Validators.required],
+    vehiculo: [null, Validators.required],
     rol: ['apoyo', Validators.required],
     esPrincipal: [false],
   });
@@ -44,11 +44,12 @@ export class ViajeVehiculosForm {
       this.addVehiculoForm.markAllAsTouched();
       return;
     }
-    const val = this.addVehiculoForm.value;
+    const val = this.addVehiculoForm.value as any;
+    const vehiculoId = val.vehiculo?.id ? Number(val.vehiculo.id) : Number(val.vehiculo);
     this.viajeService
       .assignVehiculo({
         viajeId: this.viaje().id,
-        vehiculoId: Number(val.vehiculoId),
+        vehiculoId: vehiculoId,
         rol: val.rol as any,
         esPrincipal: val.esPrincipal || false,
       })

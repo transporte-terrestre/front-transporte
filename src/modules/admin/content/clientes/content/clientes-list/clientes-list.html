@@ -91,7 +91,12 @@
             <th
               class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
             >
-              DNI
+              Doc
+            </th>
+            <th
+              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+            >
+              N° Documento
             </th>
             <th
               class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
@@ -127,7 +132,16 @@
               <span class="text-xs font-inter-semibold text-text">{{ cliente.id }}</span>
             </td>
             <td class="px-4 py-3 whitespace-nowrap">
-              <span class="text-xs font-inter-medium text-text/70">{{ cliente.dni }}</span>
+              <span
+                class="px-1.5 py-0.5 rounded text-[10px] font-inter-bold uppercase"
+                [class.bg-info/10]="cliente.tipoDocumento === 'DNI'"
+                [class.text-info]="cliente.tipoDocumento === 'DNI'"
+                [class.bg-secondary/10]="cliente.tipoDocumento === 'RUC'"
+                [class.text-secondary]="cliente.tipoDocumento === 'RUC'"
+              >{{ cliente.tipoDocumento }}</span>
+            </td>
+            <td class="px-4 py-3 whitespace-nowrap">
+              <span class="text-xs font-inter-medium text-text/70">{{ cliente.tipoDocumento === 'DNI' ? cliente.dni : cliente.ruc }}</span>
             </td>
             <td class="px-4 py-3 whitespace-nowrap">
               <div class="flex items-center gap-2">

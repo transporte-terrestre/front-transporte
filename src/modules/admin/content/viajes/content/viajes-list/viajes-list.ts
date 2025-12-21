@@ -271,4 +271,25 @@ export class ViajesList implements OnInit, OnDestroy {
       minute: '2-digit',
     });
   }
+
+  getDistanciaEstimada(viaje: ViajeListDto): string {
+    return viaje.distanciaEstimada ? `${viaje.distanciaEstimada} km` : '-';
+  }
+
+  getDistanciaFinal(viaje: ViajeListDto): string {
+    return viaje.distanciaFinal ? `${viaje.distanciaFinal} km` : '-';
+  }
+
+  getDiferenciaDistancia(viaje: ViajeListDto): { value: string; class: string } {
+    if (!viaje.distanciaEstimada || !viaje.distanciaFinal) {
+      return { value: '-', class: 'text-text/40' };
+    }
+    const diff = parseFloat(viaje.distanciaFinal) - parseFloat(viaje.distanciaEstimada);
+    if (diff > 0) {
+      return { value: `+${diff.toFixed(2)} km`, class: 'text-warning' };
+    } else if (diff < 0) {
+      return { value: `${diff.toFixed(2)} km`, class: 'text-success' };
+    }
+    return { value: '0 km', class: 'text-text/60' };
+  }
 }

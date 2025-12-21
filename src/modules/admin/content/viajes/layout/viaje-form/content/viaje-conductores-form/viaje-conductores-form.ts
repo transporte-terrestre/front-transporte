@@ -25,7 +25,7 @@ export class ViajeConductoresForm {
   showConductorModal = signal(false);
 
   addConductorForm = this.fb.group({
-    conductorId: ['', Validators.required],
+    conductor: [null, Validators.required],
     rol: ['conductor', Validators.required],
     esPrincipal: [false],
   });
@@ -44,11 +44,12 @@ export class ViajeConductoresForm {
       this.addConductorForm.markAllAsTouched();
       return;
     }
-    const val = this.addConductorForm.value;
+    const val = this.addConductorForm.value as any;
+    const conductorId = val.conductor?.id ? Number(val.conductor.id) : Number(val.conductor);
     this.viajeService
       .assignConductor({
         viajeId: this.viaje().id,
-        conductorId: Number(val.conductorId),
+        conductorId: conductorId,
         rol: val.rol as any,
         esPrincipal: val.esPrincipal || false,
       })

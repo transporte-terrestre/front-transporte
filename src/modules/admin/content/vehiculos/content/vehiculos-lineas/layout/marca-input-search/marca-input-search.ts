@@ -40,7 +40,7 @@ export class MarcaInputSearch implements ControlValueAccessor {
   searchControl = new FormControl('');
 
   // Value Accessor callbacks
-  onChange: (value: number | null) => void = () => {};
+  onChange: (value: MarcaResultDto | null) => void = () => {};
   onTouched: () => void = () => {};
 
   constructor() {
@@ -103,7 +103,7 @@ export class MarcaInputSearch implements ControlValueAccessor {
 
   selectMarca(marca: MarcaResultDto) {
     this.selectedMarca.set(marca);
-    this.onChange(marca.id);
+    this.onChange(marca);
     this.isOpen.set(false);
   }
 

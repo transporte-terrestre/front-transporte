@@ -52,8 +52,8 @@ export class VehiculoForm implements OnInit {
   vehiculoForm: FormGroup = this.fb.group({
     placa: ['', [Validators.required, Validators.pattern(/^[A-Z0-9]{6,7}$/)]],
     codigoInterno: ['', [Validators.required, Validators.maxLength(20)]],
-    marcaId: [null, []],
-    modeloId: [null, [Validators.required]],
+    marca: [null, []],
+    modelo: [null, [Validators.required]],
     anio: ['', [Validators.required, Validators.min(1900), Validators.max(2100)]],
     kilometraje: ['', [Validators.required, Validators.min(0)]],
     estado: ['activo', [Validators.required]],
@@ -125,12 +125,13 @@ export class VehiculoForm implements OnInit {
       { allowSignalWrites: true }
     );
 
-    // Watch for marcaId changes to update selectedMarcaId signal
-    this.vehiculoForm.get('marcaId')?.valueChanges.subscribe((value) => {
-      this.selectedMarcaId.set(value);
-      // Clear modeloId when marca changes
-      if (value !== this.selectedMarcaId()) {
-        this.vehiculoForm.patchValue({ modeloId: null });
+    // Watch for marca changes to update selectedMarcaId signal
+    this.vehiculoForm.get('marca')?.valueChanges.subscribe((value) => {
+      const marcaId = value?.id ?? value;
+      this.selectedMarcaId.set(marcaId);
+      // Clear modelo when marca changes
+      if (marcaId !== this.selectedMarcaId()) {
+        this.vehiculoForm.patchValue({ modelo: null });
       }
     });
   }
@@ -147,13 +148,14 @@ export class VehiculoForm implements OnInit {
       return;
     }
 
+    const formValue = this.vehiculoForm.value;
     const formData: VehiculoCreateDto = {
-      placa: this.vehiculoForm.value.placa,
-      codigoInterno: this.vehiculoForm.value.codigoInterno,
-      modeloId: this.vehiculoForm.value.modeloId,
-      anio: this.vehiculoForm.value.anio,
-      kilometraje: this.vehiculoForm.value.kilometraje,
-      estado: this.vehiculoForm.value.estado,
+      placa: formValue.placa,
+      codigoInterno: formValue.codigoInterno,
+      modeloId: formValue.modelo?.id ? Number(formValue.modelo.id) : Number(formValue.modelo),
+      anio: formValue.anio,
+      kilometraje: formValue.kilometraje,
+      estado: formValue.estado,
       imagenes: this.imagenes(),
     };
     this.onSubmitForm.emit(formData);

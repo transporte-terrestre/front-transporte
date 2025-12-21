@@ -123,23 +123,20 @@
 
         @if (activeMode() === 'vehiculo') {
         <app-vehiculo-input-search
-          [ngModel]="selectedVehiculoId()"
+          [ngModel]="selectedVehiculo()"
           (ngModelChange)="onVehiculoSelected($event)"
-          (onEntitySelected)="onVehiculoEntitySelected($event)"
         >
         </app-vehiculo-input-search>
         } @else if (activeMode() === 'conductor') {
         <app-conductor-input-search
-          [ngModel]="selectedConductorId()"
+          [ngModel]="selectedConductor()"
           (ngModelChange)="onConductorSelected($event)"
-          (onEntitySelected)="onConductorEntitySelected($event)"
         >
         </app-conductor-input-search>
         } @else {
         <app-cliente-input-search
-          [ngModel]="selectedClienteId()"
+          [ngModel]="selectedCliente()"
           (ngModelChange)="onClienteSelected($event)"
-          (onEntitySelected)="onClienteEntitySelected($event)"
         >
         </app-cliente-input-search>
         }
@@ -237,37 +234,47 @@
         <thead class="bg-text/5 border-b border-text/10">
           <tr>
             <th
-              class="text-left px-6 py-4 text-xs font-inter-bold text-text/50 uppercase tracking-wider"
+              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
             >
               ID
             </th>
             <th
-              class="text-left px-6 py-4 text-xs font-inter-bold text-text/50 uppercase tracking-wider"
+              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
             >
               Ruta
             </th>
             <th
-              class="text-left px-6 py-4 text-xs font-inter-bold text-text/50 uppercase tracking-wider"
+              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
             >
               Modalidad
             </th>
             <th
-              class="text-left px-6 py-4 text-xs font-inter-bold text-text/50 uppercase tracking-wider"
+              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
             >
               Estado
             </th>
             <th
-              class="text-right px-6 py-4 text-xs font-inter-bold text-text/50 uppercase tracking-wider"
+              class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase tracking-wider"
             >
-              Km
+              Km Est.
             </th>
             <th
-              class="text-left px-6 py-4 text-xs font-inter-bold text-text/50 uppercase tracking-wider"
+              class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+            >
+              Km Final
+            </th>
+            <th
+              class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+            >
+              Dif.
+            </th>
+            <th
+              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
             >
               Fecha Salida
             </th>
             <th
-              class="text-left px-6 py-4 text-xs font-inter-bold text-text/50 uppercase tracking-wider"
+              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
             >
               Fecha Llegada
             </th>
@@ -276,38 +283,80 @@
         <tbody class="divide-y divide-text/5">
           @for (viaje of viajes(); track viaje.id) {
           <tr class="group hover:bg-text/5 transition-colors">
-            <td class="px-6 py-4">
-              <span class="text-sm font-inter-bold text-text">#{{ viaje.id }}</span>
+            <td class="px-4 py-3 whitespace-nowrap">
+              <span class="text-xs font-inter-bold text-text">#{{ viaje.id }}</span>
             </td>
-            <td class="px-6 py-4">
+            <td class="px-4 py-3 whitespace-nowrap">
               <div class="flex items-center gap-2">
                 <i class="fas fa-route text-text/30 text-xs"></i>
-                <span class="text-sm font-inter-medium text-text">{{ getRutaDisplay(viaje) }}</span>
+                <span class="text-xs font-inter-medium text-text">{{ getRutaDisplay(viaje) }}</span>
               </div>
             </td>
-            <td class="px-6 py-4 text-sm font-inter-regular text-text/70 capitalize">
+            <td
+              class="px-4 py-3 whitespace-nowrap text-xs font-inter-regular text-text/70 capitalize"
+            >
               {{ viaje.modalidadServicio }}
             </td>
-            <td class="px-6 py-4">
+            <td class="px-4 py-3 whitespace-nowrap">
               <span
-                class="px-2.5 py-1 rounded-full text-xs font-inter-bold"
+                class="px-2 py-0.5 rounded-full text-xs font-inter-semibold"
                 [class]="getEstadoClass(viaje.estado)"
               >
                 {{ getEstadoLabel(viaje.estado) }}
               </span>
             </td>
-            <td class="px-6 py-4 text-right">
-              @if (viaje.distancia) {
-              <span class="text-sm font-inter-semibold text-text">{{ viaje.distancia }}</span>
-              <span class="text-xs text-text/40">km</span>
+            <td class="px-4 py-3 whitespace-nowrap text-right">
+              @if (viaje.distanciaEstimada) {
+              <span class="text-xs font-inter-semibold text-text">{{
+                viaje.distanciaEstimada | number : '1.0-0'
+              }}</span>
+              <span class="text-[10px] text-text/40"> km</span>
               } @else {
-              <span class="text-sm text-text/30">—</span>
+              <span class="text-xs text-text/30">—</span>
               }
             </td>
-            <td class="px-6 py-4 text-sm font-inter-medium text-text/70">
+            <td class="px-4 py-3 whitespace-nowrap text-right">
+              @if (viaje.distanciaFinal) {
+              <span class="text-xs font-inter-semibold text-text">{{
+                viaje.distanciaFinal | number : '1.0-0'
+              }}</span>
+              <span class="text-[10px] text-text/40"> km</span>
+              } @else {
+              <span class="text-xs text-text/30">—</span>
+              }
+            </td>
+            <td class="px-4 py-3 whitespace-nowrap text-right">
+              @if (viaje.diferencia !== 0) {
+              <span
+                class="text-xs font-inter-bold"
+                [class.text-success]="viaje.diferencia < 0"
+                [class.text-danger]="viaje.diferencia > 0"
+              >
+                @if (viaje.diferencia > 0) {
+                <i class="fas fa-arrow-up text-[10px]"></i>
+                } @else {
+                <i class="fas fa-arrow-down text-[10px]"></i>
+                }
+                {{
+                  viaje.diferencia > 0 ? viaje.diferencia : (-viaje.diferencia | number : '1.0-0')
+                }}
+              </span>
+              <span
+                class="text-[10px]"
+                [class.text-success]="viaje.diferencia < 0"
+                [class.text-danger]="viaje.diferencia > 0"
+              >
+                km</span
+              >
+              } @else {
+              <span class="text-xs text-text/30">0</span>
+              <span class="text-[10px] text-text/30"> km</span>
+              }
+            </td>
+            <td class="px-4 py-3 whitespace-nowrap text-xs font-inter-regular text-text/60">
               {{ viaje.fechaSalida | date : 'dd/MM/yyyy HH:mm' }}
             </td>
-            <td class="px-6 py-4 text-sm font-inter-medium text-text/50">
+            <td class="px-4 py-3 whitespace-nowrap text-xs font-inter-regular text-text/60">
               {{ viaje.fechaLlegada ? (viaje.fechaLlegada | date : 'dd/MM/yyyy HH:mm') : '—' }}
             </td>
           </tr>
@@ -317,20 +366,20 @@
     </div>
 
     <!-- Summary Footer -->
-    <div class="px-6 py-4 border-t border-text/10 bg-secondary/5 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <i class="fas fa-road text-secondary"></i>
-        <span class="text-sm font-inter-medium text-text">Total Recorrido:</span>
-        <span class="text-lg font-inter-bold text-secondary">
-          {{ getTotalKilometros() | number : '1.2-2' }} km
+    <div class="px-4 py-3 border-t border-text/10 bg-secondary/5 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <i class="fas fa-road text-secondary text-xs"></i>
+        <span class="text-xs font-inter-medium text-text">Total Recorrido:</span>
+        <span class="text-sm font-inter-bold text-secondary">
+          {{ getTotalKilometrosFinales() | number : '1.0-0' }} km
         </span>
       </div>
       <button
         (click)="descargarPdf()"
-        class="flex items-center gap-2 px-4 py-2 bg-danger/10 text-danger rounded-lg text-sm font-inter-bold hover:bg-danger/20 transition-all border border-danger/20"
+        class="flex items-center gap-1.5 px-3 py-1.5 bg-danger/10 text-danger rounded-lg text-xs font-inter-bold hover:bg-danger/20 transition-all border border-danger/20"
         title="Descargar PDF"
       >
-        <i class="fas fa-file-pdf"></i>
+        <i class="fas fa-file-pdf text-xs"></i>
         <span>Descargar PDF</span>
       </button>
     </div>

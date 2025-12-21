@@ -8,7 +8,9 @@ export interface ReportePdfData {
   fechaInicio: string;
   fechaFin: string;
   viajes: ViajeDetalladoDto[];
-  totalKilometros: number;
+  totalKilometrosFinales: number;
+  totalKilometrosEstimados?: number;
+  totalDiferencia?: number;
 }
 
 export const generateReportePdf = (data: ReportePdfData) => {
@@ -21,6 +23,25 @@ export const generateReportePdf = (data: ReportePdfData) => {
   const primaryColor = [245, 158, 11] as const; // Amber/Secondary
   const textColor = [31, 41, 55] as const; // Gray-800
   const lightBg = [249, 250, 251] as const; // Gray-50
+  const successColor = [34, 197, 94] as const; // Green
+  const dangerColor = [239, 68, 68] as const; // Red
+  const infoColor = [59, 130, 246] as const; // Blue
+
+  // Calculate totals if not provided
+  const totalKmEstimados =
+    data.totalKilometrosEstimados ??
+    data.viajes.reduce((acc, v) => {
+      return acc + (v.distanciaEstimada ? parseFloat(v.distanciaEstimada) : 0);
+    }, 0);
+
+  const totalKmFinales =
+    data.totalKilometrosFinales ??
+    data.viajes.reduce((acc, v) => {
+      return acc + (v.distanciaFinal ? parseFloat(v.distanciaFinal) : 0);
+    }, 0);
+
+  const totalDiferencia =
+    data.totalDiferencia ?? data.viajes.reduce((acc, v) => acc + v.diferencia, 0);
 
   // Helper function
   const drawField = (label: string, value: string, x: number, currentY: number) => {
@@ -93,43 +114,62 @@ export const generateReportePdf = (data: ReportePdfData) => {
 
   y += 8;
 
-  // === SUMMARY CARDS ===
-  const cardWidth = (pageWidth - margin * 2 - 10) / 3;
+  // === SUMMARY CARDS (4 cards now) ===
+  const cardWidth = (pageWidth - margin * 2 - 15) / 4;
   const cardHeight = 18;
 
   // Card 1: Total Viajes
   doc.setFillColor(...lightBg);
   doc.roundedRect(margin, y, cardWidth, cardHeight, 2, 2, 'F');
-  doc.setFontSize(8);
+  doc.setFontSize(7);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(100);
-  doc.text('TOTAL VIAJES', margin + 4, y + 6);
-  doc.setFontSize(14);
+  doc.text('TOTAL VIAJES', margin + 3, y + 6);
+  doc.setFontSize(12);
   doc.setTextColor(...textColor);
-  doc.text(data.viajes.length.toString(), margin + 4, y + 14);
+  doc.text(data.viajes.length.toString(), margin + 3, y + 14);
 
-  // Card 2: Completados
-  const completados = data.viajes.filter((v) => v.estado === 'completado').length;
+  // Card 2: Km Estimados
   doc.setFillColor(...lightBg);
   doc.roundedRect(margin + cardWidth + 5, y, cardWidth, cardHeight, 2, 2, 'F');
-  doc.setFontSize(8);
+  doc.setFontSize(7);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(100);
-  doc.text('COMPLETADOS', margin + cardWidth + 9, y + 6);
-  doc.setFontSize(14);
-  doc.setTextColor(34, 197, 94); // Green
-  doc.text(completados.toString(), margin + cardWidth + 9, y + 14);
+  doc.text('KM ESTIMADOS', margin + cardWidth + 8, y + 6);
+  doc.setFontSize(12);
+  doc.setTextColor(...infoColor);
+  doc.text(totalKmEstimados.toFixed(2), margin + cardWidth + 8, y + 14);
 
-  // Card 3: Total Km
+  // Card 3: Km Finales
   doc.setFillColor(...lightBg);
   doc.roundedRect(margin + (cardWidth + 5) * 2, y, cardWidth, cardHeight, 2, 2, 'F');
-  doc.setFontSize(8);
+  doc.setFontSize(7);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(100);
-  doc.text('KILÓMETROS', margin + (cardWidth + 5) * 2 + 4, y + 6);
-  doc.setFontSize(14);
+  doc.text('KM FINALES', margin + (cardWidth + 5) * 2 + 3, y + 6);
+  doc.setFontSize(12);
   doc.setTextColor(...primaryColor);
-  doc.text(`${data.totalKilometros.toFixed(2)} km`, margin + (cardWidth + 5) * 2 + 4, y + 14);
+  doc.text(totalKmFinales.toFixed(2), margin + (cardWidth + 5) * 2 + 3, y + 14);
+
+  // Card 4: Diferencia
+  doc.setFillColor(...lightBg);
+  doc.roundedRect(margin + (cardWidth + 5) * 3, y, cardWidth, cardHeight, 2, 2, 'F');
+  doc.setFontSize(7);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(100);
+  doc.text('DIFERENCIA', margin + (cardWidth + 5) * 3 + 3, y + 6);
+  doc.setFontSize(12);
+  // Color based on difference
+  if (totalDiferencia > 0) {
+    doc.setTextColor(...dangerColor);
+    doc.text(`+${totalDiferencia.toFixed(2)}`, margin + (cardWidth + 5) * 3 + 3, y + 14);
+  } else if (totalDiferencia < 0) {
+    doc.setTextColor(...successColor);
+    doc.text(totalDiferencia.toFixed(2), margin + (cardWidth + 5) * 3 + 3, y + 14);
+  } else {
+    doc.setTextColor(100);
+    doc.text('0.00', margin + (cardWidth + 5) * 3 + 3, y + 14);
+  }
 
   doc.setTextColor(...textColor);
   y += cardHeight + 10;
@@ -146,7 +186,14 @@ export const generateReportePdf = (data: ReportePdfData) => {
         ? `${viaje.rutaOrigen} → ${viaje.rutaDestino}`
         : viaje.rutaOcasional || 'Sin ruta';
 
-    const distancia = viaje.distancia ? `${viaje.distancia} km` : '—';
+    const kmEstimado = viaje.distanciaEstimada || '—';
+    const kmFinal = viaje.distanciaFinal || '—';
+    const diferencia =
+      viaje.diferencia !== 0
+        ? viaje.diferencia > 0
+          ? `+${viaje.diferencia.toFixed(2)}`
+          : viaje.diferencia.toFixed(2)
+        : '0';
 
     const estadoLabels: Record<string, string> = {
       programado: 'Programado',
@@ -162,21 +209,22 @@ export const generateReportePdf = (data: ReportePdfData) => {
     return [
       `#${viaje.id}`,
       ruta,
-      viaje.modalidadServicio,
       estadoLabels[viaje.estado] || viaje.estado,
-      distancia,
+      kmEstimado,
+      kmFinal,
+      diferencia,
       fechaSalida,
     ];
   });
 
   autoTable(doc, {
     startY: y,
-    head: [['ID', 'Ruta', 'Modalidad', 'Estado', 'Km', 'Fecha']],
+    head: [['ID', 'Ruta', 'Estado', 'Km Est.', 'Km Final', 'Dif.', 'Fecha']],
     body: tableData,
     theme: 'grid',
     styles: {
-      fontSize: 8,
-      cellPadding: 3,
+      fontSize: 7,
+      cellPadding: 2.5,
       lineColor: [220, 220, 220],
       lineWidth: 0.1,
       textColor: [50, 50, 50],
@@ -186,30 +234,41 @@ export const generateReportePdf = (data: ReportePdfData) => {
       textColor: [255, 255, 255],
       fontStyle: 'bold',
       halign: 'center',
+      fontSize: 7,
     },
     columnStyles: {
-      0: { cellWidth: 18, halign: 'center' },
+      0: { cellWidth: 14, halign: 'center' },
       1: { cellWidth: 'auto' },
-      2: { cellWidth: 25 },
-      3: { cellWidth: 25 },
-      4: { cellWidth: 22, halign: 'right' },
-      5: { cellWidth: 25, halign: 'center' },
+      2: { cellWidth: 22 },
+      3: { cellWidth: 18, halign: 'right' },
+      4: { cellWidth: 18, halign: 'right' },
+      5: { cellWidth: 16, halign: 'right' },
+      6: { cellWidth: 22, halign: 'center' },
     },
     alternateRowStyles: {
       fillColor: [249, 250, 251],
     },
-    didParseCell: (data) => {
+    didParseCell: (cellData) => {
       // Color for status column
-      if (data.column.index === 3 && data.section === 'body') {
-        const estado = data.cell.raw as string;
+      if (cellData.column.index === 2 && cellData.section === 'body') {
+        const estado = cellData.cell.raw as string;
         if (estado === 'Completado') {
-          data.cell.styles.textColor = [34, 197, 94];
+          cellData.cell.styles.textColor = [34, 197, 94];
         } else if (estado === 'En Progreso') {
-          data.cell.styles.textColor = [59, 130, 246];
+          cellData.cell.styles.textColor = [59, 130, 246];
         } else if (estado === 'Cancelado') {
-          data.cell.styles.textColor = [239, 68, 68];
+          cellData.cell.styles.textColor = [239, 68, 68];
         } else if (estado === 'Programado') {
-          data.cell.styles.textColor = [245, 158, 11];
+          cellData.cell.styles.textColor = [245, 158, 11];
+        }
+      }
+      // Color for difference column
+      if (cellData.column.index === 5 && cellData.section === 'body') {
+        const dif = cellData.cell.raw as string;
+        if (dif.startsWith('+')) {
+          cellData.cell.styles.textColor = [239, 68, 68]; // Red for positive
+        } else if (dif.startsWith('-')) {
+          cellData.cell.styles.textColor = [34, 197, 94]; // Green for negative
         }
       }
     },
@@ -222,15 +281,57 @@ export const generateReportePdf = (data: ReportePdfData) => {
   doc.line(margin, y, pageWidth - margin, y);
   y += 6;
 
-  // Total Summary
-  doc.setFillColor(...primaryColor);
-  doc.roundedRect(pageWidth - margin - 60, y - 2, 60, 12, 2, 2, 'F');
-  doc.setFontSize(10);
+  // Total Summary - 3 badges
+  const badgeWidth = 50;
+  const badgeHeight = 12;
+  const badgeGap = 5;
+  const badgesStartX = pageWidth - margin - (badgeWidth * 3 + badgeGap * 2);
+
+  // Badge 1: Km Estimados
+  doc.setFillColor(...infoColor);
+  doc.roundedRect(badgesStartX, y - 2, badgeWidth, badgeHeight, 2, 2, 'F');
+  doc.setFontSize(7);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(255);
-  doc.text(`Total: ${data.totalKilometros.toFixed(2)} km`, pageWidth - margin - 5, y + 6, {
-    align: 'right',
+  doc.text(`Est: ${totalKmEstimados.toFixed(1)} km`, badgesStartX + badgeWidth / 2, y + 5, {
+    align: 'center',
   });
+
+  // Badge 2: Km Finales
+  doc.setFillColor(...primaryColor);
+  doc.roundedRect(badgesStartX + badgeWidth + badgeGap, y - 2, badgeWidth, badgeHeight, 2, 2, 'F');
+  doc.text(
+    `Final: ${totalKmFinales.toFixed(1)} km`,
+    badgesStartX + badgeWidth + badgeGap + badgeWidth / 2,
+    y + 5,
+    { align: 'center' }
+  );
+
+  // Badge 3: Diferencia
+  if (totalDiferencia > 0) {
+    doc.setFillColor(...dangerColor);
+  } else if (totalDiferencia < 0) {
+    doc.setFillColor(...successColor);
+  } else {
+    doc.setFillColor(150, 150, 150);
+  }
+  doc.roundedRect(
+    badgesStartX + (badgeWidth + badgeGap) * 2,
+    y - 2,
+    badgeWidth,
+    badgeHeight,
+    2,
+    2,
+    'F'
+  );
+  const difText =
+    totalDiferencia > 0 ? `+${totalDiferencia.toFixed(1)}` : totalDiferencia.toFixed(1);
+  doc.text(
+    `Dif: ${difText} km`,
+    badgesStartX + (badgeWidth + badgeGap) * 2 + badgeWidth / 2,
+    y + 5,
+    { align: 'center' }
+  );
 
   doc.setTextColor(100);
   doc.setFontSize(8);

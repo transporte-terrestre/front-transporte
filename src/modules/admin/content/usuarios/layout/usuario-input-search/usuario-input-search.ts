@@ -38,7 +38,7 @@ export class UsuarioInputSearch implements ControlValueAccessor {
   searchControl = new FormControl('');
 
   // Value Accessor callbacks
-  onChange: (value: number | null) => void = () => {};
+  onChange: (value: UsuarioListDto | null) => void = () => {};
   onTouched: () => void = () => {};
 
   constructor() {
@@ -98,7 +98,7 @@ export class UsuarioInputSearch implements ControlValueAccessor {
 
   selectUsuario(usuario: UsuarioListDto) {
     this.selectedUsuario.set(usuario);
-    this.onChange(usuario.id);
+    this.onChange(usuario);
     this.isOpen.set(false);
   }
 

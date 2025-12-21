@@ -6,6 +6,7 @@ import {
   ViajeEstado,
   ViajeModalidadServicio,
 } from '@interface/admin/viaje.interface';
+import { RutaResultDto } from '@interface/admin/ruta.interface';
 import { ClienteInputSearch } from '@module/admin/content/clientes/layout/cliente-input-search/cliente-input-search';
 import { RutaInputSearch } from '@module/admin/content/rutas/layout/ruta-input-search/ruta-input-search';
 import { VehiculoInputSearch } from '@module/admin/content/vehiculos/layout/vehiculo-input-search/vehiculo-input-search';
@@ -45,16 +46,18 @@ export class ViajeForm implements OnInit {
   loadingCatalogos = signal(false);
 
   viajeForm: FormGroup = this.fb.group({
-    clienteId: ['', [Validators.required]],
+    cliente: [null, [Validators.required]],
     tipoRuta: ['fija', [Validators.required]],
-    rutaId: [''],
+    ruta: [null, [Validators.required]],
     rutaOcasional: [''],
+    distanciaEstimada: ['', [Validators.required]],
+    distanciaFinal: [{ value: '', disabled: true }],
     modalidadServicio: ['regular', [Validators.required]],
-    vehiculoId: ['', [Validators.required]],
-    conductorId: ['', [Validators.required]],
+    vehiculo: [null, [Validators.required]],
+    conductor: [null, [Validators.required]],
     tripulantes: this.fb.array([]),
     fechaSalida: ['', [Validators.required]],
-    fechaLlegada: [''],
+    fechaLlegada: ['', [Validators.required]],
     estado: ['programado', [Validators.required]],
   });
 
@@ -100,21 +103,56 @@ export class ViajeForm implements OnInit {
 
     // Validaciones condicionales para ruta
     this.viajeForm.get('tipoRuta')?.valueChanges.subscribe((tipo) => {
-      const rutaIdControl = this.viajeForm.get('rutaId');
+      const rutaControl = this.viajeForm.get('ruta');
       const rutaOcasionalControl = this.viajeForm.get('rutaOcasional');
+      const distanciaEstimadaControl = this.viajeForm.get('distanciaEstimada');
 
       if (tipo === 'fija') {
-        rutaIdControl?.setValidators([Validators.required]);
+        rutaControl?.setValidators([Validators.required]);
         rutaOcasionalControl?.clearValidators();
         rutaOcasionalControl?.setValue('');
+        // La distancia se seteará automáticamente al seleccionar la ruta
       } else {
         rutaOcasionalControl?.setValidators([Validators.required]);
-        rutaIdControl?.clearValidators();
-        rutaIdControl?.setValue('');
+        rutaControl?.clearValidators();
+        rutaControl?.setValue(null);
+        // Limpiar distancia para que el usuario la ingrese manualmente
+        distanciaEstimadaControl?.setValue('');
       }
-      rutaIdControl?.updateValueAndValidity();
+      rutaControl?.updateValueAndValidity();
       rutaOcasionalControl?.updateValueAndValidity();
     });
+
+    // Escuchar cambios en ruta para setear la distancia automáticamente (cuando es ruta fija)
+    this.viajeForm.get('ruta')?.valueChanges.subscribe((ruta: RutaResultDto | null) => {
+      if (ruta && this.viajeForm.get('tipoRuta')?.value === 'fija') {
+        this.viajeForm.patchValue({
+          distanciaEstimada: ruta.distancia || '',
+        });
+      }
+    });
+
+    // Control de distanciaFinal basado en estado
+    this.viajeForm.get('estado')?.valueChanges.subscribe((estado) => {
+      this.updateDistanciaFinalState(estado);
+    });
+
+    // Aplicar estado inicial
+    this.updateDistanciaFinalState(this.viajeForm.get('estado')?.value);
+  }
+
+  updateDistanciaFinalState(estado: string) {
+    const distanciaFinalControl = this.viajeForm.get('distanciaFinal');
+
+    if (estado === 'completado') {
+      distanciaFinalControl?.enable();
+      distanciaFinalControl?.setValidators([Validators.required]);
+    } else {
+      distanciaFinalControl?.disable();
+      distanciaFinalControl?.setValue('');
+      distanciaFinalControl?.clearValidators();
+    }
+    distanciaFinalControl?.updateValueAndValidity();
   }
 
   loadCatalogos() {
@@ -122,13 +160,15 @@ export class ViajeForm implements OnInit {
     const viajeData = this.viaje();
     if (this.editMode() && viajeData) {
       this.viajeForm.patchValue({
-        clienteId: viajeData.clienteId,
+        cliente: viajeData.clienteId,
         tipoRuta: viajeData.tipoRuta,
-        rutaId: viajeData.rutaId,
+        ruta: viajeData.rutaId,
         rutaOcasional: viajeData.rutaOcasional,
+        distanciaEstimada: viajeData.distanciaEstimada || '',
+        distanciaFinal: viajeData.distanciaFinal || '',
         modalidadServicio: viajeData.modalidadServicio,
-        vehiculoId: viajeData.vehiculoPrincipal?.id,
-        conductorId: viajeData.conductorPrincipal?.id,
+        vehiculo: viajeData.vehiculoPrincipal?.id,
+        conductor: viajeData.conductorPrincipal?.id,
         fechaSalida: this.formatDateTimeLocal(viajeData.fechaSalida),
         fechaLlegada: viajeData.fechaLlegada
           ? this.formatDateTimeLocal(viajeData.fechaLlegada)
@@ -141,6 +181,9 @@ export class ViajeForm implements OnInit {
       if (viajeData.tripulantes && viajeData.tripulantes.length > 0) {
         viajeData.tripulantes.forEach((t) => this.addTripulante(t));
       }
+
+      // Aplicar estado de distanciaFinal después de cargar datos
+      this.updateDistanciaFinalState(viajeData.estado);
     } else {
       this.viajeForm.reset({
         estado: 'programado',
@@ -148,6 +191,8 @@ export class ViajeForm implements OnInit {
         modalidadServicio: 'regular',
       });
       this.tripulantesArray.clear();
+      // Desactivar distanciaFinal por defecto (estado = programado)
+      this.updateDistanciaFinalState('programado');
     }
   }
 
@@ -165,13 +210,18 @@ export class ViajeForm implements OnInit {
     const formValue = this.viajeForm.value;
     const formData = {
       ...formValue,
-      rutaId: formValue.rutaId ? Number(formValue.rutaId) : undefined,
-      vehiculoId: Number(formValue.vehiculoId),
-      conductorId: Number(formValue.conductorId),
-      clienteId: Number(formValue.clienteId),
+      rutaId: formValue.ruta?.id ? Number(formValue.ruta.id) : undefined,
+      vehiculoId: formValue.vehiculo?.id ? Number(formValue.vehiculo.id) : undefined,
+      conductorId: formValue.conductor?.id ? Number(formValue.conductor.id) : undefined,
+      clienteId: formValue.cliente?.id ? Number(formValue.cliente.id) : undefined,
       fechaSalida: new Date(formValue.fechaSalida).toISOString(),
       fechaLlegada: formValue.fechaLlegada ? new Date(formValue.fechaLlegada).toISOString() : null,
       tripulantes: formValue.tripulantes, // Already an array of strings
+      // Eliminar campos con nombres de objeto
+      ruta: undefined,
+      vehiculo: undefined,
+      conductor: undefined,
+      cliente: undefined,
     };
 
     this.onSubmitForm.emit(formData);

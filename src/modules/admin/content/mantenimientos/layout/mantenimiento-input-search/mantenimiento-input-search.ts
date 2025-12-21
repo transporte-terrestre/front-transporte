@@ -38,7 +38,7 @@ export class MantenimientoInputSearch implements ControlValueAccessor {
   searchControl = new FormControl('');
 
   // Value Accessor callbacks
-  onChange: (value: number | null) => void = () => {};
+  onChange: (value: MantenimientoResultDto | null) => void = () => {};
   onTouched: () => void = () => {};
 
   constructor() {
@@ -98,7 +98,7 @@ export class MantenimientoInputSearch implements ControlValueAccessor {
 
   selectMantenimiento(mantenimiento: MantenimientoResultDto) {
     this.selectedMantenimiento.set(mantenimiento);
-    this.onChange(mantenimiento.id);
+    this.onChange(mantenimiento);
     this.isOpen.set(false);
   }
 

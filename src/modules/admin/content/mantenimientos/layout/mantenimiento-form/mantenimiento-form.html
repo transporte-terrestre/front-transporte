@@ -9,8 +9,8 @@
         <i class="fas fa-car text-secondary"></i>
         Vehículo
       </label>
-      <app-vehiculo-input-search formControlName="vehiculoId" />
-      @if (mantenimientoForm.get('vehiculoId')?.touched && mantenimientoForm.get('vehiculoId')?.errors) {
+      <app-vehiculo-input-search formControlName="vehiculo" />
+      @if (mantenimientoForm.get('vehiculo')?.touched && mantenimientoForm.get('vehiculo')?.errors) {
         <p class="text-danger text-xs font-inter-medium mt-1">El vehículo es requerido</p>
       }
     </div>
@@ -20,8 +20,8 @@
         <i class="fas fa-building text-secondary"></i>
         Taller
       </label>
-      <app-taller-input-search formControlName="tallerId" />
-      @if (mantenimientoForm.get('tallerId')?.touched && mantenimientoForm.get('tallerId')?.errors) {
+      <app-taller-input-search formControlName="taller" />
+      @if (mantenimientoForm.get('taller')?.touched && mantenimientoForm.get('taller')?.errors) {
         <p class="text-danger text-xs font-inter-medium mt-1">El taller es requerido</p>
       }
     </div>

@@ -42,7 +42,7 @@
         <i class="fas fa-industry text-secondary"></i>
         Marca
       </label>
-      <app-marca-input-search formControlName="marcaId"></app-marca-input-search>
+      <app-marca-input-search formControlName="marca"></app-marca-input-search>
     </div>
 
     <div>
@@ -52,9 +52,9 @@
       </label>
       <app-modelo-input-search
         [marcaId]="selectedMarcaId()"
-        formControlName="modeloId"
+        formControlName="modelo"
       ></app-modelo-input-search>
-      @if (vehiculoForm.get('modeloId')?.touched && vehiculoForm.get('modeloId')?.errors) {
+      @if (vehiculoForm.get('modelo')?.touched && vehiculoForm.get('modelo')?.errors) {
         <p class="text-danger text-xs font-inter-medium mt-1">Modelo requerido</p>
       }
     </div>
