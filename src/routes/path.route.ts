@@ -68,6 +68,7 @@ export const PATH = {
       _path: 'mantenimientos',
       list: { _path: 'list' },
       edit: { _path: 'edit/:id' },
+      tareas: { _path: 'tareas' },
     },
     rutas: {
       _path: 'rutas',

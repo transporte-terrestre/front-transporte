@@ -57,9 +57,9 @@ export const routes: Routes = [
           {
             path: getPath(PATH.admin.vehiculos.lineas),
             loadComponent: () =>
-              import('@module/admin/content/vehiculos/content/vehiculos-lineas/vehiculos-lineas').then(
-                (m) => m.VehiculosLineas
-              ),
+              import(
+                '@module/admin/content/vehiculos/content/vehiculos-lineas/vehiculos-lineas'
+              ).then((m) => m.VehiculosLineas),
           },
           { path: '**', redirectTo: getPath(PATH.admin.vehiculos.list), pathMatch: 'full' },
         ],
@@ -84,6 +84,13 @@ export const routes: Routes = [
               import(
                 '@module/admin/content/mantenimientos/content/mantenimientos-edit/mantenimientos-edit'
               ).then((m) => m.MantenimientosEdit),
+          },
+          {
+            path: getPath(PATH.admin.mantenimientos.tareas),
+            loadComponent: () =>
+              import(
+                '@module/admin/content/mantenimientos/content/mantenimientos-tareas/mantenimientos-tareas'
+              ).then((m) => m.MantenimientosTareas),
           },
           { path: '**', redirectTo: getPath(PATH.admin.mantenimientos.list), pathMatch: 'full' },
         ],

@@ -37,12 +37,9 @@
       <input
         type="text"
         formControlName="codigoOrden"
-        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-        placeholder="ORD-001"
+        class="w-full px-3 py-2 text-sm bg-text/10 border-2 border-transparent rounded-lg text-text/60 font-inter-medium outline-none cursor-not-allowed"
+        [placeholder]="editMode() && mantenimiento()?.codigoOrden ? '' : 'Autogenerado'"
       />
-      @if (mantenimientoForm.get('codigoOrden')?.touched && mantenimientoForm.get('codigoOrden')?.errors) {
-        <p class="text-danger text-xs font-inter-medium mt-1">El código de orden es requerido</p>
-      }
     </div>
 
     <div>
@@ -122,7 +119,7 @@
         Fecha Ingreso
       </label>
       <input
-        type="date"
+        type="datetime-local"
         formControlName="fechaIngreso"
         class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
       />
@@ -137,7 +134,7 @@
         Fecha Salida
       </label>
       <input
-        type="date"
+        type="datetime-local"
         formControlName="fechaSalida"
         class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
       />

@@ -41,7 +41,7 @@ export class MantenimientoForm implements OnInit {
   mantenimientoForm: FormGroup = this.fb.group({
     vehiculo: [null, [Validators.required]],
     taller: [null, [Validators.required]],
-    codigoOrden: ['', [Validators.required]],
+    codigoOrden: [{ value: '', disabled: true }],
     tipo: ['preventivo', [Validators.required]],
     costoTotal: ['', [Validators.required, Validators.min(0)]],
     descripcion: ['', [Validators.required, Validators.minLength(10)]],
@@ -77,17 +77,17 @@ export class MantenimientoForm implements OnInit {
           costoTotal: mantenimientoData.costoTotal,
           descripcion: mantenimientoData.descripcion,
           fechaIngreso: mantenimientoData.fechaIngreso
-            ? mantenimientoData.fechaIngreso.split('T')[0]
+            ? this.formatDateTimeForInput(mantenimientoData.fechaIngreso)
             : '',
           fechaSalida: mantenimientoData.fechaSalida
-            ? mantenimientoData.fechaSalida.split('T')[0]
+            ? this.formatDateTimeForInput(mantenimientoData.fechaSalida)
             : '',
           kilometraje: mantenimientoData.kilometraje,
           estado: mantenimientoData.estado,
         });
       } else {
         // Si hay una fecha seleccionada del calendario, usarla
-        const fechaInicial = dateSelected ? this.formatDateForInput(dateSelected) : '';
+        const fechaInicial = dateSelected ? this.formatDateTimeForInput(dateSelected) : '';
         this.mantenimientoForm.reset({
           tipo: 'preventivo',
           estado: 'pendiente',
@@ -111,7 +111,6 @@ export class MantenimientoForm implements OnInit {
         ? Number(formValue.vehiculo.id)
         : Number(formValue.vehiculo),
       tallerId: formValue.taller?.id ? Number(formValue.taller.id) : Number(formValue.taller),
-      codigoOrden: formValue.codigoOrden,
       tipo: formValue.tipo,
       costoTotal: String(formValue.costoTotal),
       descripcion: formValue.descripcion,
@@ -124,11 +123,14 @@ export class MantenimientoForm implements OnInit {
     this.onSubmitForm.emit(formData);
   }
 
-  // Formatea una fecha al formato YYYY-MM-DD para el input type="date"
-  formatDateForInput(date: Date): string {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+  // Formatea una fecha al formato YYYY-MM-DDTHH:mm para el input type="datetime-local"
+  formatDateTimeForInput(date: Date | string): string {
+    const d = typeof date === 'string' ? new Date(date) : date;
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const hours = String(d.getHours()).padStart(2, '0');
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
   }
 }

@@ -159,7 +159,6 @@ export interface VehiculoResultDto {
 
 export interface VehiculoCreateDto {
   placa: string;
-  codigoInterno?: string;
   modeloId: number;
   anio: number;
   kilometraje: number;

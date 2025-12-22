@@ -1,9 +1,31 @@
-import { TallerResultDto } from "./taller.interface";
-import { VehiculoResultDto } from "./vehiculo.interface";
+import { TallerResultDto } from './taller.interface';
+import { VehiculoResultDto } from './vehiculo.interface';
 
 export type TipoMantenimiento = 'preventivo' | 'correctivo';
 export type MantenimientoEstado = 'pendiente' | 'en_proceso' | 'finalizado';
 
+// ========== CATÁLOGO DE TAREAS ==========
+export interface TareaResultDto {
+  id: number;
+  codigo: string;
+  descripcion: string;
+  creadoEn: string;
+  actualizadoEn: string;
+}
+
+export interface TareaCreateDto {
+  codigo: string;
+  descripcion: string;
+}
+
+export interface TareaUpdateDto extends Partial<TareaCreateDto> {}
+
+export interface PaginatedTareaResultDto {
+  data: TareaResultDto[];
+  meta: PaginationMeta;
+}
+
+// ========== MANTENIMIENTO ==========
 export interface MantenimientoResultDto {
   id: number;
   vehiculoId: number;
@@ -17,7 +39,6 @@ export interface MantenimientoResultDto {
   kilometraje: number;
   estado: MantenimientoEstado;
   creadoEn: string;
-
   actualizadoEn: string;
   vehiculo?: VehiculoResultDto;
   taller?: TallerResultDto;
@@ -28,15 +49,12 @@ export interface MantenimientoResultDto {
 export interface MantenimientoTareaResultDto {
   id: number;
   mantenimientoId: number;
-  codigo?: string;
-  categoria?: string;
-  descripcion: string;
+  tareaId: number;
+  tarea: TareaResultDto;
   responsable?: string;
   horaInicio?: string;
   horaFin?: string;
   completada: boolean;
-  costoEstimado?: string;
-  costoReal?: string;
   observaciones?: string;
   creadoEn: string;
   actualizadoEn: string;
@@ -56,7 +74,6 @@ export interface MantenimientoDocumentoResultDto {
 export interface MantenimientoCreateDto {
   vehiculoId: number;
   tallerId: number;
-  codigoOrden: string;
   tipo: TipoMantenimiento;
   costoTotal: string;
   descripcion: string;
@@ -68,15 +85,11 @@ export interface MantenimientoCreateDto {
 
 export interface MantenimientoTareaCreateDto {
   mantenimientoId: number;
-  codigo?: string;
-  categoria?: string;
-  descripcion: string;
+  tareaId: number;
   responsable?: string;
   horaInicio?: string;
   horaFin?: string;
   completada?: boolean;
-  costoEstimado?: string;
-  costoReal?: string;
   observaciones?: string;
 }
 

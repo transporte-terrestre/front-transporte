@@ -95,11 +95,11 @@ export const generateOrdenServicioPdf = (mantenimiento: MantenimientoResultDto) 
   const tareas = mantenimiento.tareas ?? [];
   const bodyData = tareas.map((t, index) => [
     (index + 1).toString(),
-    t.codigo || '',
-    t.descripcion,
+    t.tarea?.codigo || '',
+    t.tarea?.descripcion || '',
     t.responsable || '',
-    t.horaInicio || '',
-    t.horaFin || '',
+    '', // H.Inicio - dejado vacío para llenar manualmente
+    '', // H.Fin - dejado vacío para llenar manualmente
     '',
   ]);
 

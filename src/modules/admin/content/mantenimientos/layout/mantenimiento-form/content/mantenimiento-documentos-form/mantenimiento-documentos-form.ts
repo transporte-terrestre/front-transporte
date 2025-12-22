@@ -119,7 +119,7 @@ export class MantenimientoDocumentosForm {
           url: url,
         };
         this.mantenimientoService
-          .updateDocumento(this.mantenimiento().id, this.editingDocId()!, updateDto)
+          .updateDocumento(this.editingDocId()!, updateDto)
           .pipe(finalize(() => this.uploading.set(false)))
           .subscribe({
             next: () => {
@@ -174,7 +174,7 @@ export class MantenimientoDocumentosForm {
       'Eliminar Documento',
       '¿Estás seguro de eliminar este documento?',
       () => {
-        this.mantenimientoService.deleteDocumento(this.mantenimiento().id, documentoId).subscribe({
+        this.mantenimientoService.deleteDocumento(documentoId).subscribe({
           next: () => {
             this.toastService.success('Documento eliminado');
             this.onDataChange.emit();

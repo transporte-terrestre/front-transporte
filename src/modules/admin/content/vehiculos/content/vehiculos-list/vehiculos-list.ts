@@ -35,7 +35,7 @@ export class VehiculosList implements OnInit, OnDestroy {
   vehiculos = signal<VehiculoListDto[]>([]);
   loading = signal(false);
   showModal = signal(false);
-  viewMode = signal<'grid' | 'table'>('grid');
+  viewMode = signal<'grid' | 'table'>('table');
 
   // Paginación
   currentPage = signal(1);

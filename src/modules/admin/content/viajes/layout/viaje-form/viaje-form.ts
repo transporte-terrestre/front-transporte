@@ -84,6 +84,7 @@ export class ViajeForm implements OnInit {
     { value: 'ejecutivo', label: 'Ejecutivo', icon: 'fa-briefcase', color: 'text-primary' },
     { value: 'especial', label: 'Especial', icon: 'fa-star', color: 'text-secondary' },
     { value: 'turismo', label: 'Turismo', icon: 'fa-camera', color: 'text-success' },
+    { value: 'corporativo', label: 'Corporativo', icon: 'fa-briefcase', color: 'text-primary' },
   ];
 
   get tripulantesArray() {

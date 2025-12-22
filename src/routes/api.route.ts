@@ -99,6 +99,27 @@ export const API_URL = {
     create: `${BASE_URL}/mantenimiento/create`,
     update: (id: number) => `${BASE_URL}/mantenimiento/update/${id}`,
     delete: (id: number) => `${BASE_URL}/mantenimiento/delete/${id}`,
+    // Catálogo de tareas
+    tareas: {
+      findAll: (params?: { page?: number; limit?: number; search?: string }) =>
+        `${BASE_URL}/mantenimiento/tarea/find-all${buildQueryString(params)}`,
+      findOne: (id: number) => `${BASE_URL}/mantenimiento/tarea/find-one/${id}`,
+      create: `${BASE_URL}/mantenimiento/tarea/create`,
+      update: (id: number) => `${BASE_URL}/mantenimiento/tarea/update/${id}`,
+      delete: (id: number) => `${BASE_URL}/mantenimiento/tarea/delete/${id}`,
+    },
+    // Relación mantenimiento-tarea
+    mantenimientoTareas: {
+      create: `${BASE_URL}/mantenimiento/mantenimiento-tarea/create`,
+      update: (id: number) => `${BASE_URL}/mantenimiento/mantenimiento-tarea/update/${id}`,
+      delete: (id: number) => `${BASE_URL}/mantenimiento/mantenimiento-tarea/delete/${id}`,
+    },
+    // Documentos
+    documentos: {
+      create: `${BASE_URL}/mantenimiento/documento/create`,
+      update: (id: number) => `${BASE_URL}/mantenimiento/documento/update/${id}`,
+      delete: (id: number) => `${BASE_URL}/mantenimiento/documento/delete/${id}`,
+    },
   },
   rutas: {
     findAll: (params?: RutaPaginationParams) =>

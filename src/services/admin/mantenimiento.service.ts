@@ -11,6 +11,10 @@ import {
   MantenimientoTareaUpdateDto,
   MantenimientoDocumentoCreateDto,
   MantenimientoDocumentoUpdateDto,
+  TareaResultDto,
+  TareaCreateDto,
+  TareaUpdateDto,
+  PaginatedTareaResultDto,
 } from '@interface/admin/mantenimiento.interface';
 import { generateOrdenServicioPdf } from '@template/orden-servicio.template';
 
@@ -21,6 +25,12 @@ export interface PaginationParams {
   fechaInicio?: string;
   fechaFin?: string;
   [key: string]: any;
+}
+
+export interface TareaPaginationParams {
+  page?: number;
+  limit?: number;
+  search?: string;
 }
 
 @Injectable({
@@ -52,54 +62,60 @@ export class MantenimientoService {
     return this.http.delete<MantenimientoResultDto>(API_URL.mantenimientos.delete(id));
   }
 
-  // Tareas
-  createTarea(tarea: MantenimientoTareaCreateDto): Observable<MantenimientoResultDto> {
-    return this.http.post<MantenimientoResultDto>(`${API_URL.mantenimientos.create}/tarea`, tarea);
+  // ========== CATÁLOGO DE TAREAS ==========
+  findAllTareas(params?: TareaPaginationParams): Observable<PaginatedTareaResultDto> {
+    return this.http.get<PaginatedTareaResultDto>(API_URL.mantenimientos.tareas.findAll(params));
   }
 
-  updateTarea(
-    mantenimientoId: number,
-    tareaId: number,
-    tarea: MantenimientoTareaUpdateDto
-  ): Observable<MantenimientoResultDto> {
-    return this.http.patch<MantenimientoResultDto>(
-      `${API_URL.mantenimientos.update(mantenimientoId)}/tarea/${tareaId}`,
-      tarea
-    );
+  findOneTarea(id: number): Observable<TareaResultDto> {
+    return this.http.get<TareaResultDto>(API_URL.mantenimientos.tareas.findOne(id));
   }
 
-  deleteTarea(mantenimientoId: number, tareaId: number): Observable<MantenimientoResultDto> {
-    return this.http.delete<MantenimientoResultDto>(
-      `${API_URL.mantenimientos.delete(mantenimientoId)}/tarea/${tareaId}`
-    );
+  createTareaCatalogo(tarea: TareaCreateDto): Observable<TareaResultDto> {
+    return this.http.post<TareaResultDto>(API_URL.mantenimientos.tareas.create, tarea);
   }
 
-  // Documentos
+  updateTareaCatalogo(id: number, tarea: TareaUpdateDto): Observable<TareaResultDto> {
+    return this.http.patch<TareaResultDto>(API_URL.mantenimientos.tareas.update(id), tarea);
+  }
+
+  deleteTareaCatalogo(id: number): Observable<TareaResultDto> {
+    return this.http.delete<TareaResultDto>(API_URL.mantenimientos.tareas.delete(id));
+  }
+
+  // ========== MANTENIMIENTO-TAREAS (relación) ==========
+  createMantenimientoTarea(tarea: MantenimientoTareaCreateDto): Observable<any> {
+    return this.http.post(API_URL.mantenimientos.mantenimientoTareas.create, tarea);
+  }
+
+  updateMantenimientoTarea(id: number, tarea: MantenimientoTareaUpdateDto): Observable<any> {
+    return this.http.patch(API_URL.mantenimientos.mantenimientoTareas.update(id), tarea);
+  }
+
+  deleteMantenimientoTarea(id: number): Observable<any> {
+    return this.http.delete(API_URL.mantenimientos.mantenimientoTareas.delete(id));
+  }
+
+  // ========== DOCUMENTOS ==========
   createDocumento(documento: MantenimientoDocumentoCreateDto): Observable<MantenimientoResultDto> {
     return this.http.post<MantenimientoResultDto>(
-      `${API_URL.mantenimientos.create}/documento`,
+      API_URL.mantenimientos.documentos.create,
       documento
     );
   }
 
   updateDocumento(
-    mantenimientoId: number,
-    documentoId: number,
+    id: number,
     documento: MantenimientoDocumentoUpdateDto
   ): Observable<MantenimientoResultDto> {
     return this.http.patch<MantenimientoResultDto>(
-      `${API_URL.mantenimientos.update(mantenimientoId)}/documento/${documentoId}`,
+      API_URL.mantenimientos.documentos.update(id),
       documento
     );
   }
 
-  deleteDocumento(
-    mantenimientoId: number,
-    documentoId: number
-  ): Observable<MantenimientoResultDto> {
-    return this.http.delete<MantenimientoResultDto>(
-      `${API_URL.mantenimientos.delete(mantenimientoId)}/documento/${documentoId}`
-    );
+  deleteDocumento(id: number): Observable<MantenimientoResultDto> {
+    return this.http.delete<MantenimientoResultDto>(API_URL.mantenimientos.documentos.delete(id));
   }
 
   generateOrdenServicio(mantenimiento: MantenimientoResultDto): void {

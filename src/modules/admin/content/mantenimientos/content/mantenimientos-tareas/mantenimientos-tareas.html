@@ -1,0 +1,200 @@
+<div class="space-y-6">
+  <!-- Header -->
+  <div class="flex flex-col gap-4">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div>
+        <h1 class="text-2xl font-anton text-text lowercase">Catálogo de Tareas</h1>
+        <p class="text-sm text-text/60 font-inter-regular mt-1">
+          Gestiona las tareas disponibles para los mantenimientos
+        </p>
+      </div>
+      <div class="flex items-center gap-2 w-full sm:w-auto">
+        <button
+          (click)="navigateBack()"
+          class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-text/10 text-text rounded-lg text-sm font-inter-semibold hover:bg-text/20 transition-all self-stretch"
+          title="Volver a Mantenimientos"
+        >
+          <i class="fas fa-arrow-left text-xs"></i>
+          <span class="hidden sm:inline">Mantenimientos</span>
+        </button>
+        <button
+          (click)="openCreateModal()"
+          class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-secondary text-background rounded-lg text-sm font-inter-semibold hover:bg-secondary/90 transition-all shadow-sm hover:shadow-md"
+        >
+          <i class="fas fa-plus text-xs"></i>
+          <span>Nuevo</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Search and Filters -->
+    <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+      <!-- Search -->
+      <div class="relative sm:col-span-4 lg:col-span-2">
+        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"></i>
+        <input
+          type="text"
+          [ngModel]="searchTerm()"
+          (ngModelChange)="onSearchChange($event)"
+          placeholder="Buscar por código o descripción..."
+          class="w-full pl-10 pr-4 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all"
+        />
+      </div>
+
+      <!-- Date Start -->
+      <div class="relative sm:col-span-2 lg:col-span-1">
+        <i
+          class="fas fa-calendar absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"
+        ></i>
+        <input
+          type="date"
+          [ngModel]="fechaInicio()"
+          (ngModelChange)="fechaInicio.set($event); onDateChange()"
+          placeholder="Fecha inicio"
+          class="w-full pl-10 pr-4 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all"
+        />
+      </div>
+
+      <!-- Date End -->
+      <div class="relative sm:col-span-2 lg:col-span-1">
+        <i
+          class="fas fa-calendar absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"
+        ></i>
+        <input
+          type="date"
+          [ngModel]="fechaFin()"
+          (ngModelChange)="fechaFin.set($event); onDateChange()"
+          placeholder="Fecha fin"
+          class="w-full pl-10 pr-4 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all"
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="bg-background border border-text/10 rounded-xl shadow-sm overflow-hidden">
+    @if (loading()) {
+    <div class="flex items-center justify-center py-12">
+      <div class="flex flex-col items-center gap-3">
+        <i class="fas fa-spinner fa-spin text-3xl text-secondary"></i>
+        <p class="text-text/60 font-inter-medium">Cargando tareas...</p>
+      </div>
+    </div>
+    } @else if (tareas().length === 0) {
+    <div class="flex flex-col items-center justify-center py-12 text-text/60">
+      <i class="fas fa-tasks text-5xl mb-4 text-text/20"></i>
+      <p class="font-inter-semibold text-lg">No hay tareas registradas</p>
+      <p class="font-inter-regular text-sm mt-1">Comienza agregando una nueva tarea</p>
+    </div>
+    } @else {
+    <div class="overflow-x-auto">
+      <table class="w-full">
+        <thead class="bg-text/5 border-b border-text/10">
+          <tr>
+            <th
+              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+            >
+              ID
+            </th>
+            <th
+              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+            >
+              Código
+            </th>
+            <th
+              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+            >
+              Descripción
+            </th>
+            <th
+              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+            >
+              Fecha Creación
+            </th>
+            <th
+              class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+            >
+              Acciones
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-text/10">
+          @for (tarea of tareas(); track tarea.id) {
+          <tr class="hover:bg-text/5 transition-colors">
+            <td class="px-4 py-3 whitespace-nowrap">
+              <span class="text-xs font-inter-semibold text-text">{{ tarea.id }}</span>
+            </td>
+            <td class="px-4 py-3 whitespace-nowrap">
+              <div class="flex items-center gap-2">
+                <div
+                  class="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center text-secondary text-xs font-inter-bold"
+                >
+                  <i class="fas fa-wrench"></i>
+                </div>
+                <div>
+                  <p class="text-sm font-inter-semibold text-text">{{ tarea.codigo }}</p>
+                </div>
+              </div>
+            </td>
+            <td class="px-4 py-3">
+              <p class="text-sm font-inter-regular text-text max-w-md truncate">
+                {{ tarea.descripcion }}
+              </p>
+            </td>
+            <td class="px-4 py-3 whitespace-nowrap">
+              <span class="text-xs font-inter-regular text-text/60">{{
+                tarea.creadoEn | date : 'short'
+              }}</span>
+            </td>
+            <td class="px-4 py-3 whitespace-nowrap text-right">
+              <div class="flex items-center justify-end gap-1">
+                <button
+                  (click)="openEditModal(tarea)"
+                  class="p-1.5 text-info hover:bg-info/10 rounded-lg transition-colors text-sm"
+                  title="Editar"
+                >
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button
+                  (click)="deleteTarea(tarea)"
+                  class="p-1.5 text-danger hover:bg-danger/10 rounded-lg transition-colors text-sm"
+                  title="Eliminar"
+                >
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <app-pagination
+      [meta]="meta()"
+      [currentPage]="currentPage()"
+      [pageSize]="pageSize()"
+      (pageChange)="onPageChange($event)"
+      (pageSizeChange)="onPageSizeChange($event)"
+    />
+    }
+  </div>
+</div>
+
+<!-- Modal Form -->
+@if (showModal()) {
+<app-modal-form
+  [title]="editingTarea() ? 'Editar Tarea' : 'Nueva Tarea'"
+  [submitText]="editingTarea() ? 'Guardar' : 'Crear'"
+  [loading]="loading()"
+  (onSubmit)="handleModalSubmit()"
+  (onClose)="closeModal()"
+>
+  <app-tarea-form
+    [tarea]="editingTarea()"
+    (onSubmit)="handleFormSubmit($event)"
+    (onCancel)="closeModal()"
+  />
+</app-modal-form>
+}

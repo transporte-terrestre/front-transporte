@@ -5,7 +5,7 @@ import { ConductorResultDto } from './conductor.interface';
 import { VehiculoResultDto } from './vehiculo.interface';
 
 export type ViajeEstado = 'programado' | 'en_progreso' | 'completado' | 'cancelado';
-export type ViajeModalidadServicio = 'regular' | 'expreso' | 'ejecutivo' | 'especial' | 'turismo';
+export type ViajeModalidadServicio = 'regular' | 'expreso' | 'ejecutivo' | 'especial' | 'turismo' | 'corporativo';
 export type ViajeTipoRuta = 'ocasional' | 'fija';
 
 export interface ViajeListDto {

@@ -5,20 +5,12 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { ViajeService } from '@service/admin/viaje.service';
-import { RutaService } from '@service/admin/ruta.service';
-import { VehiculoService } from '@service/admin/vehiculo.service';
-import { ConductorService } from '@service/admin/conductor.service';
-import { ClienteService } from '@service/admin/cliente.service';
 import {
   ViajeListDto,
   ViajeCreateDto,
   ViajeEstado,
   PaginationMeta,
 } from '@interface/admin/viaje.interface';
-import { RutaResultDto } from '@interface/admin/ruta.interface';
-import { VehiculoListDto } from '@interface/admin/vehiculo.interface';
-import { ConductorListDto } from '@interface/admin/conductor.interface';
-import { ClienteListDto } from '@interface/admin/cliente.interface';
 import { ToastService } from '@service/toast.service';
 import { AlertService } from '@service/alert.service';
 import { ModalForm } from '../../../../components/modal-form/modal-form';
@@ -44,7 +36,7 @@ export class ViajesList implements OnInit, OnDestroy {
   viajes = signal<ViajeListDto[]>([]);
   loading = signal(false);
   showModal = signal(false);
-  viewMode = signal<'grid' | 'table'>('grid');
+  viewMode = signal<'grid' | 'table'>('table');
 
   // Paginación
   currentPage = signal(1);

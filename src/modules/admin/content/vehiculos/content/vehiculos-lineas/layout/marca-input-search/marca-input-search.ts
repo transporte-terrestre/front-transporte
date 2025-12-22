@@ -69,8 +69,8 @@ export class MarcaInputSearch implements ControlValueAccessor {
   }
 
   writeValue(obj: any): void {
-    if (obj) {
-      this.loadInitialMarca(obj);
+    if (obj && typeof obj === 'object') {
+      this.selectedMarca.set(obj as MarcaResultDto);
     } else {
       this.selectedMarca.set(null);
     }

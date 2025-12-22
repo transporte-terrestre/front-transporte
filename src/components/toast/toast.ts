@@ -11,58 +11,78 @@ import { ToastService } from '@service/toast.service';
 export class Toast {
   toastService = inject(ToastService);
 
-  getIcon(type: string): string {
+  getOverlayClass(type: string): string {
     switch (type) {
       case 'success':
-        return 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z';
+        return 'bg-success/10';
       case 'error':
-        return 'M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z';
+        return 'bg-danger/10';
       case 'warning':
-        return 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z';
+        return 'bg-warning/10';
       case 'info':
-        return 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z';
+        return 'bg-info/10';
       default:
-        return '';
+        return 'bg-text/5';
     }
   }
 
-  getStyles(type: string) {
+  getIconBgClass(type: string): string {
     switch (type) {
       case 'success':
-        return {
-          bg: 'bg-success/10',
-          border: 'border-success',
-          icon: 'text-success',
-          text: 'text-text'
-        };
+        return 'bg-success/15';
       case 'error':
-        return {
-          bg: 'bg-danger/10',
-          border: 'border-danger',
-          icon: 'text-danger',
-          text: 'text-text'
-        };
+        return 'bg-danger/15';
       case 'warning':
-        return {
-          bg: 'bg-warning/10',
-          border: 'border-warning',
-          icon: 'text-warning',
-          text: 'text-text'
-        };
+        return 'bg-warning/15';
       case 'info':
-        return {
-          bg: 'bg-info/10',
-          border: 'border-info',
-          icon: 'text-info',
-          text: 'text-text'
-        };
+        return 'bg-info/15';
       default:
-        return {
-          bg: 'bg-text/10',
-          border: 'border-text/20',
-          icon: 'text-text/60',
-          text: 'text-text'
-        };
+        return 'bg-text/10';
+    }
+  }
+
+  getIconClass(type: string): string {
+    switch (type) {
+      case 'success':
+        return 'fa-check text-success';
+      case 'error':
+        return 'fa-xmark text-danger';
+      case 'warning':
+        return 'fa-exclamation text-warning';
+      case 'info':
+        return 'fa-info text-info';
+      default:
+        return 'fa-bell text-text/60';
+    }
+  }
+
+  getTitleClass(type: string): string {
+    switch (type) {
+      case 'success':
+        return 'text-success';
+      case 'error':
+        return 'text-danger';
+      case 'warning':
+        return 'text-warning';
+      case 'info':
+        return 'text-info';
+      default:
+        return 'text-text';
+    }
+  }
+
+  getTitle(type: string): string {
+    switch (type) {
+      case 'success':
+        return '¡Éxito!';
+      case 'error':
+        return 'Error';
+      case 'warning':
+        return 'Advertencia';
+      case 'info':
+        return 'Información';
+      default:
+        return 'Notificación';
     }
   }
 
@@ -70,4 +90,3 @@ export class Toast {
     this.toastService.remove(id);
   }
 }
-

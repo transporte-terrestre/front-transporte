@@ -33,7 +33,7 @@ export class RutasList implements OnInit, OnDestroy {
   rutas = signal<RutaResultDto[]>([]);
   loading = signal(false);
   showModal = signal(false);
-  viewMode = signal<'grid' | 'table'>('grid');
+  viewMode = signal<'grid' | 'table'>('table');
 
   // Paginación
   currentPage = signal(1);

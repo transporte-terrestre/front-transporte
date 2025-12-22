@@ -51,7 +51,7 @@ export class VehiculoForm implements OnInit {
 
   vehiculoForm: FormGroup = this.fb.group({
     placa: ['', [Validators.required, Validators.pattern(/^[A-Z0-9]{6,7}$/)]],
-    codigoInterno: ['', [Validators.required, Validators.maxLength(20)]],
+    codigoInterno: [{ value: '', disabled: true }],
     marca: [null, []],
     modelo: [null, [Validators.required]],
     anio: ['', [Validators.required, Validators.min(1900), Validators.max(2100)]],
@@ -97,7 +97,6 @@ export class VehiculoForm implements OnInit {
           this.vehiculoForm.patchValue({
             placa: vehiculoData.placa,
             codigoInterno: vehiculoData.codigoInterno,
-            modeloId: vehiculoData.modeloId,
             anio: vehiculoData.anio,
             kilometraje: vehiculoData.kilometraje,
             estado: vehiculoData.estado,
@@ -105,12 +104,16 @@ export class VehiculoForm implements OnInit {
           this.imagenes.set(vehiculoData.imagenes || []);
           this.localDocuments.set(JSON.parse(JSON.stringify(vehiculoData.documentos)));
 
-          // Load marca from modelo if available
+          // Cargar marca y modelo desde el modeloId
           if (vehiculoData.modeloId) {
             this.vehiculoService.findOneModelo(vehiculoData.modeloId).subscribe({
               next: (modelo) => {
+                // Setear marca primero
                 this.selectedMarcaId.set(modelo.marcaId);
-                this.vehiculoForm.patchValue({ marcaId: modelo.marcaId });
+                this.vehiculoForm.patchValue({
+                  marca: { id: modelo.marcaId, nombre: vehiculoData.marca },
+                  modelo: { id: modelo.id, nombre: modelo.nombre, marcaId: modelo.marcaId },
+                });
               },
               error: () => {},
             });
@@ -151,7 +154,6 @@ export class VehiculoForm implements OnInit {
     const formValue = this.vehiculoForm.value;
     const formData: VehiculoCreateDto = {
       placa: formValue.placa,
-      codigoInterno: formValue.codigoInterno,
       modeloId: formValue.modelo?.id ? Number(formValue.modelo.id) : Number(formValue.modelo),
       anio: formValue.anio,
       kilometraje: formValue.kilometraje,

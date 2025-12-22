@@ -49,15 +49,17 @@ export class ModeloInputSearch implements ControlValueAccessor {
   constructor() {
     // React to marcaId changes - clear selection and reload models when marca changes
     effect(() => {
+
       const currentMarcaId = this.marcaId();
-      // Reset selection when marca changes
-      if (currentMarcaId !== null && this.selectedModelo()?.marcaId !== currentMarcaId) {
+      const currentModelo = this.selectedModelo();
+      // Solo limpiar si hay un modelo seleccionado Y no pertenece a la marca actual
+      if (currentModelo && currentMarcaId !== null && currentModelo.marcaId !== currentMarcaId) {
         this.selectedModelo.set(null);
         this.onChange(null);
         this.modelos.set([]);
       }
-      // Trigger a new search to load models for the new marca
-      // Using { emitEvent: false } first to reset, then emit to trigger valueChanges
+
+      // Cargar modelos para la marca actual
       if (currentMarcaId) {
         this.loadModelsForMarca(currentMarcaId);
       }
@@ -88,9 +90,9 @@ export class ModeloInputSearch implements ControlValueAccessor {
       });
   }
 
-  writeValue(obj: any): void {
+  writeValue(obj: ModeloResultDto | null): void {
     if (obj) {
-      this.loadInitialModelo(obj);
+      this.selectedModelo.set(obj);
     } else {
       this.selectedModelo.set(null);
     }

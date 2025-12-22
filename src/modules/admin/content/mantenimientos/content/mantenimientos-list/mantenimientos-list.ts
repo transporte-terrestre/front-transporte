@@ -298,6 +298,10 @@ export class MantenimientosList implements OnInit {
     this.router.navigate([path]);
   }
 
+  navigateToTareas() {
+    this.router.navigate([buildPath(PATH.admin.mantenimientos.tareas)]);
+  }
+
   closeModal() {
     this.showModal.set(false);
     this.selectedDate.set(null);

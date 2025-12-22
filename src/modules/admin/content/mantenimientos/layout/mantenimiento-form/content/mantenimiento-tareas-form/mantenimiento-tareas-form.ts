@@ -1,20 +1,22 @@
-import { Component, inject, input, output, signal } from '@angular/core';
+import { Component, inject, input, output, signal, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import {
   MantenimientoResultDto,
   MantenimientoTareaCreateDto,
   MantenimientoTareaUpdateDto,
   MantenimientoTareaResultDto,
+  TareaResultDto,
 } from '@interface/admin/mantenimiento.interface';
 import { MantenimientoService } from '@service/admin/mantenimiento.service';
 import { ToastService } from '@service/toast.service';
 import { AlertService } from '@service/alert.service';
+import { TareaInputSearch } from '@module/admin/content/mantenimientos/content/mantenimientos-tareas/layout/tarea-input-search/tarea-input-search';
 
 @Component({
   selector: 'app-mantenimiento-tareas-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, TareaInputSearch],
   templateUrl: './mantenimiento-tareas-form.html',
   styleUrl: './mantenimiento-tareas-form.css',
 })
@@ -30,28 +32,42 @@ export class MantenimientoTareasForm {
   showTareaModal = signal(false);
   editingTareaId = signal<number | null>(null);
 
+  // Tarea seleccionada del catálogo
+  selectedTarea = signal<TareaResultDto | null>(null);
+
+  // ViewChild para el input-search
+  tareaInputSearch = viewChild<TareaInputSearch>(TareaInputSearch);
+
   addTareaForm = this.fb.group({
-    descripcion: ['', Validators.required],
-    costoEstimado: [''],
-    costoReal: [''],
     responsable: [''],
+    horaInicio: [''],
+    horaFin: [''],
     completada: [false],
+    observaciones: [''],
   });
 
   openAddTarea() {
     this.editingTareaId.set(null);
+    this.selectedTarea.set(null);
     this.addTareaForm.reset({ completada: false });
     this.showTareaModal.set(true);
   }
 
   editTarea(tarea: MantenimientoTareaResultDto) {
     this.editingTareaId.set(tarea.id);
+    this.selectedTarea.set(tarea.tarea);
+
+    // Setear la tarea en el input-search cuando el modal se abra
+    setTimeout(() => {
+      this.tareaInputSearch()?.setTarea(tarea.tarea);
+    });
+
     this.addTareaForm.patchValue({
-      descripcion: tarea.descripcion,
-      costoEstimado: tarea.costoEstimado,
-      costoReal: tarea.costoReal,
-      responsable: tarea.responsable,
+      responsable: tarea.responsable || '',
+      horaInicio: tarea.horaInicio || '',
+      horaFin: tarea.horaFin || '',
       completada: tarea.completada,
+      observaciones: tarea.observaciones || '',
     });
     this.showTareaModal.set(true);
   }
@@ -59,28 +75,35 @@ export class MantenimientoTareasForm {
   closeAddTarea() {
     this.showTareaModal.set(false);
     this.editingTareaId.set(null);
+    this.selectedTarea.set(null);
     this.addTareaForm.reset();
   }
 
+  onTareaSelected(tarea: TareaResultDto | null) {
+    this.selectedTarea.set(tarea);
+  }
+
   saveTarea() {
-    if (this.addTareaForm.invalid) {
-      this.addTareaForm.markAllAsTouched();
+    if (!this.selectedTarea()) {
+      this.toastService.warning('Debes seleccionar una tarea del catálogo');
       return;
     }
+
     const val = this.addTareaForm.value;
 
     if (this.editingTareaId()) {
       // Update
       const updateDto: MantenimientoTareaUpdateDto = {
-        descripcion: val.descripcion!,
-        costoEstimado: val.costoEstimado ? String(val.costoEstimado) : undefined,
-        costoReal: val.costoReal ? String(val.costoReal) : undefined,
+        tareaId: this.selectedTarea()!.id,
         responsable: val.responsable || undefined,
+        horaInicio: val.horaInicio || undefined,
+        horaFin: val.horaFin || undefined,
         completada: val.completada || false,
+        observaciones: val.observaciones || undefined,
       };
 
       this.mantenimientoService
-        .updateTarea(this.mantenimiento().id, this.editingTareaId()!, updateDto)
+        .updateMantenimientoTarea(this.editingTareaId()!, updateDto)
         .subscribe({
           next: () => {
             this.toastService.success('Tarea actualizada');
@@ -93,14 +116,15 @@ export class MantenimientoTareasForm {
       // Create
       const tareaDto: MantenimientoTareaCreateDto = {
         mantenimientoId: this.mantenimiento().id,
-        descripcion: val.descripcion!,
-        costoEstimado: val.costoEstimado ? String(val.costoEstimado) : undefined,
-        costoReal: val.costoReal ? String(val.costoReal) : undefined,
+        tareaId: this.selectedTarea()!.id,
         responsable: val.responsable || undefined,
+        horaInicio: val.horaInicio || undefined,
+        horaFin: val.horaFin || undefined,
         completada: val.completada || false,
+        observaciones: val.observaciones || undefined,
       };
 
-      this.mantenimientoService.createTarea(tareaDto).subscribe({
+      this.mantenimientoService.createMantenimientoTarea(tareaDto).subscribe({
         next: () => {
           this.toastService.success('Tarea agregada');
           this.closeAddTarea();
@@ -113,7 +137,7 @@ export class MantenimientoTareasForm {
 
   removeTarea(tareaId: number) {
     this.alertService.delete('Eliminar Tarea', '¿Estás seguro de eliminar esta tarea?', () => {
-      this.mantenimientoService.deleteTarea(this.mantenimiento().id, tareaId).subscribe({
+      this.mantenimientoService.deleteMantenimientoTarea(tareaId).subscribe({
         next: () => {
           this.toastService.success('Tarea eliminada');
           this.onDataChange.emit();
