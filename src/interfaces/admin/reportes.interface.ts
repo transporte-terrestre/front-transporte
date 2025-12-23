@@ -3,28 +3,6 @@ export interface ReporteQueryDto {
   fechaFin?: string;
 }
 
-export interface ReporteViajesVehiculoDto {
-  vehiculoId: number;
-  placa: string;
-  marca: string;
-  modelo: string;
-  totalViajes: number;
-}
-
-export interface ReporteViajesConductorDto {
-  conductorId: number;
-  nombreCompleto: string;
-  dni: string;
-  totalViajes: number;
-}
-
-export interface ReporteKilometrajeVehiculoDto {
-  vehiculoId: number;
-  placa: string;
-  totalKilometros: number;
-  totalViajes: number;
-}
-
 export interface ViajeDetalladoDto {
   id: number;
   tipoRuta: string;
@@ -38,4 +16,33 @@ export interface ViajeDetalladoDto {
   modalidadServicio: string;
   fechaSalida: string;
   fechaLlegada: string | null;
+}
+
+export interface MantenimientoDetalladoVehiculoDto {
+  id: number;
+  codigoOrden: string | null;
+  tipo: string;
+  estado: string;
+  descripcion: string;
+  kilometraje: number;
+  costoTotal: string;
+  fechaIngreso: string;
+  fechaSalida: string | null;
+  tallerNombre: string;
+  tallerTipo: string;
+}
+
+export interface MantenimientoDetalladoTallerDto {
+  id: number;
+  codigoOrden: string | null;
+  tipo: string;
+  estado: string;
+  descripcion: string;
+  kilometraje: number;
+  costoTotal: string;
+  fechaIngreso: string;
+  fechaSalida: string | null;
+  vehiculoPlaca: string;
+  vehiculoMarca: string;
+  vehiculoModelo: string;
 }

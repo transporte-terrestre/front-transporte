@@ -170,9 +170,9 @@ export class ViajeForm implements OnInit {
         modalidadServicio: viajeData.modalidadServicio,
         vehiculo: viajeData.vehiculoPrincipal?.id,
         conductor: viajeData.conductorPrincipal?.id,
-        fechaSalida: this.formatDateTimeLocal(viajeData.fechaSalida),
+        fechaSalida: this.formatDateTimeForInput(viajeData.fechaSalida),
         fechaLlegada: viajeData.fechaLlegada
-          ? this.formatDateTimeLocal(viajeData.fechaLlegada)
+          ? this.formatDateTimeForInput(viajeData.fechaLlegada)
           : '',
         estado: viajeData.estado,
       });
@@ -197,9 +197,19 @@ export class ViajeForm implements OnInit {
     }
   }
 
-  formatDateTimeLocal(dateString: string): string {
-    const date = new Date(dateString);
-    return date.toISOString().slice(0, 16);
+  formatDateTimeForInput(date: Date | string): string {
+    // Si es string y parece formato ISO, cortar para preservar la hora "tal cual" del JSON/Backend
+    if (typeof date === 'string' && date.indexOf('T') > -1) {
+      return date.substring(0, 16);
+    }
+
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const hours = String(d.getHours()).padStart(2, '0');
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
   }
 
   submitForm() {
@@ -215,8 +225,8 @@ export class ViajeForm implements OnInit {
       vehiculoId: formValue.vehiculo?.id ? Number(formValue.vehiculo.id) : undefined,
       conductorId: formValue.conductor?.id ? Number(formValue.conductor.id) : undefined,
       clienteId: formValue.cliente?.id ? Number(formValue.cliente.id) : undefined,
-      fechaSalida: new Date(formValue.fechaSalida).toISOString(),
-      fechaLlegada: formValue.fechaLlegada ? new Date(formValue.fechaLlegada).toISOString() : null,
+      fechaSalida: formValue.fechaSalida ? `${formValue.fechaSalida}:00.000Z` : '',
+      fechaLlegada: formValue.fechaLlegada ? `${formValue.fechaLlegada}:00.000Z` : null,
       tripulantes: formValue.tripulantes, // Already an array of strings
       // Eliminar campos con nombres de objeto
       ruta: undefined,

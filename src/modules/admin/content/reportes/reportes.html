@@ -9,11 +9,44 @@
 
   <!-- Mode Selection -->
   <div class="bg-background border border-text/10 rounded-2xl p-6 shadow-sm">
-    <h2 class="text-sm font-inter-bold text-text mb-4 flex items-center gap-2">
-      <i class="fas fa-sliders-h text-secondary"></i>
-      Tipo de Reporte
-    </h2>
+    <!-- Category Toggle -->
+    <div class="flex items-center justify-between mb-5">
+      <h2 class="text-sm font-inter-bold text-text flex items-center gap-2">
+        <i class="fas fa-sliders-h text-secondary"></i>
+        Tipo de Reporte
+      </h2>
 
+      <!-- Toggle Switch -->
+      <div class="flex items-center bg-text/5 rounded-full p-1">
+        <button
+          (click)="onCategoryChange('viajes')"
+          class="px-4 py-1.5 rounded-full text-xs font-inter-bold transition-all duration-300"
+          [class]="
+            reportCategory() === 'viajes'
+              ? 'bg-secondary text-background shadow-md'
+              : 'text-text/60 hover:text-text'
+          "
+        >
+          <i class="fas fa-route mr-1.5"></i>
+          Viajes
+        </button>
+        <button
+          (click)="onCategoryChange('mantenimientos')"
+          class="px-4 py-1.5 rounded-full text-xs font-inter-bold transition-all duration-300"
+          [class]="
+            reportCategory() === 'mantenimientos'
+              ? 'bg-warning text-background shadow-md'
+              : 'text-text/60 hover:text-text'
+          "
+        >
+          <i class="fas fa-tools mr-1.5"></i>
+          Mantenimientos
+        </button>
+      </div>
+    </div>
+
+    <!-- Viajes Options -->
+    @if (reportCategory() === 'viajes') {
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <!-- Vehículo Card -->
       <button
@@ -105,284 +138,81 @@
         </div>
       </button>
     </div>
-  </div>
+    }
 
-  <!-- Filters & Entity Selection -->
-  <div class="bg-background border border-text/10 rounded-2xl p-6 shadow-sm">
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
-      <!-- Entity Search Input (2 cols) -->
-      <div class="lg:col-span-2">
-        <label
-          class="text-xs font-inter-bold text-text/60 uppercase tracking-wider mb-2 flex items-center gap-1"
-        >
-          @if (activeMode() === 'vehiculo') {
-          <i class="fas fa-truck text-info"></i> Seleccionar Vehículo } @else if (activeMode() ===
-          'conductor') { <i class="fas fa-user-tie text-accent"></i> Seleccionar Conductor } @else {
-          <i class="fas fa-building text-success"></i> Seleccionar Cliente }
-        </label>
-
-        @if (activeMode() === 'vehiculo') {
-        <app-vehiculo-input-search
-          [ngModel]="selectedVehiculo()"
-          (ngModelChange)="onVehiculoSelected($event)"
-        >
-        </app-vehiculo-input-search>
-        } @else if (activeMode() === 'conductor') {
-        <app-conductor-input-search
-          [ngModel]="selectedConductor()"
-          (ngModelChange)="onConductorSelected($event)"
-        >
-        </app-conductor-input-search>
-        } @else {
-        <app-cliente-input-search
-          [ngModel]="selectedCliente()"
-          (ngModelChange)="onClienteSelected($event)"
-        >
-        </app-cliente-input-search>
-        }
-      </div>
-
-      <!-- Fecha Desde -->
-      <div class="flex flex-col gap-2">
-        <label
-          class="text-xs font-inter-bold text-text/60 uppercase tracking-wider flex items-center gap-1"
-        >
-          <i class="fas fa-calendar-alt"></i> Desde
-        </label>
-        <input
-          type="date"
-          [ngModel]="fechaInicio()"
-          (ngModelChange)="fechaInicio.set($event)"
-          class="w-full bg-text/5 border-2 border-transparent rounded-xl px-4 py-2.5 text-sm font-inter-medium text-text focus:outline-none focus:border-secondary transition-all"
-        />
-      </div>
-
-      <!-- Fecha Hasta -->
-      <div class="flex flex-col gap-2">
-        <label
-          class="text-xs font-inter-bold text-text/60 uppercase tracking-wider flex items-center gap-1"
-        >
-          <i class="fas fa-calendar-check"></i> Hasta
-        </label>
-        <input
-          type="date"
-          [ngModel]="fechaFin()"
-          (ngModelChange)="fechaFin.set($event)"
-          class="w-full bg-text/5 border-2 border-transparent rounded-xl px-4 py-2.5 text-sm font-inter-medium text-text focus:outline-none focus:border-secondary transition-all"
-        />
-      </div>
-
-      <!-- Buscar Button -->
-      <div class="flex flex-col gap-2">
-        <label
-          class="text-xs font-inter-bold text-transparent uppercase tracking-wider hidden lg:block"
-        >
-          Action
-        </label>
-        <button
-          (click)="generarReporte()"
-          [disabled]="loading()"
-          class="w-full py-2.5 bg-secondary text-background rounded-xl text-sm font-inter-bold shadow-lg shadow-secondary/20 hover:shadow-secondary/40 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          @if (loading()) {
-          <i class="fas fa-spinner fa-spin"></i>
-          } @else {
-          <i class="fas fa-search"></i>
-          }
-          <span>Buscar</span>
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Results -->
-  <div
-    class="bg-background border border-text/5 rounded-2xl shadow-sm overflow-hidden min-h-[300px]"
-  >
-    @if (loading()) {
-    <div class="flex flex-col items-center justify-center py-16 gap-4">
-      <div
-        class="w-12 h-12 rounded-full border-4 border-secondary/20 border-t-secondary animate-spin"
-      ></div>
-      <p class="text-text/40 font-inter-medium">Generando reporte...</p>
-    </div>
-    } @else if (viajes().length === 0) {
-    <div class="flex flex-col items-center justify-center py-16 gap-4">
-      <div class="w-20 h-20 rounded-full bg-text/5 flex items-center justify-center">
-        <i class="fas fa-file-alt text-text/20 text-3xl"></i>
-      </div>
-      <div class="text-center">
-        <p class="text-text/60 font-inter-semibold">Sin resultados</p>
-        <p class="text-text/40 text-sm font-inter-regular">
-          Selecciona una entidad y haz clic en "Buscar" para generar el reporte
-        </p>
-      </div>
-    </div>
-    } @else {
-    <!-- Results Header -->
-    <div class="px-6 py-4 border-b border-text/5 bg-text/2 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <span class="text-sm font-inter-bold text-text"
-          >{{ viajes().length }} viajes encontrados</span
-        >
-      </div>
-    </div>
-
-    <!-- Table -->
-    <div class="overflow-x-auto">
-      <table class="w-full">
-        <thead class="bg-text/5 border-b border-text/10">
-          <tr>
-            <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
-            >
-              ID
-            </th>
-            <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
-            >
-              Ruta
-            </th>
-            <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
-            >
-              Modalidad
-            </th>
-            <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
-            >
-              Estado
-            </th>
-            <th
-              class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase tracking-wider"
-            >
-              Km Est.
-            </th>
-            <th
-              class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase tracking-wider"
-            >
-              Km Final
-            </th>
-            <th
-              class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase tracking-wider"
-            >
-              Dif.
-            </th>
-            <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
-            >
-              Fecha Salida
-            </th>
-            <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
-            >
-              Fecha Llegada
-            </th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-text/5">
-          @for (viaje of viajes(); track viaje.id) {
-          <tr class="group hover:bg-text/5 transition-colors">
-            <td class="px-4 py-3 whitespace-nowrap">
-              <span class="text-xs font-inter-bold text-text">#{{ viaje.id }}</span>
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap">
-              <div class="flex items-center gap-2">
-                <i class="fas fa-route text-text/30 text-xs"></i>
-                <span class="text-xs font-inter-medium text-text">{{ getRutaDisplay(viaje) }}</span>
-              </div>
-            </td>
-            <td
-              class="px-4 py-3 whitespace-nowrap text-xs font-inter-regular text-text/70 capitalize"
-            >
-              {{ viaje.modalidadServicio }}
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap">
-              <span
-                class="px-2 py-0.5 rounded-full text-xs font-inter-semibold"
-                [class]="getEstadoClass(viaje.estado)"
-              >
-                {{ getEstadoLabel(viaje.estado) }}
-              </span>
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap text-right">
-              @if (viaje.distanciaEstimada) {
-              <span class="text-xs font-inter-semibold text-text">{{
-                viaje.distanciaEstimada | number : '1.0-0'
-              }}</span>
-              <span class="text-[10px] text-text/40"> km</span>
-              } @else {
-              <span class="text-xs text-text/30">—</span>
-              }
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap text-right">
-              @if (viaje.distanciaFinal) {
-              <span class="text-xs font-inter-semibold text-text">{{
-                viaje.distanciaFinal | number : '1.0-0'
-              }}</span>
-              <span class="text-[10px] text-text/40"> km</span>
-              } @else {
-              <span class="text-xs text-text/30">—</span>
-              }
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap text-right">
-              @if (viaje.diferencia !== 0) {
-              <span
-                class="text-xs font-inter-bold"
-                [class.text-success]="viaje.diferencia < 0"
-                [class.text-danger]="viaje.diferencia > 0"
-              >
-                @if (viaje.diferencia > 0) {
-                <i class="fas fa-arrow-up text-[10px]"></i>
-                } @else {
-                <i class="fas fa-arrow-down text-[10px]"></i>
-                }
-                {{
-                  viaje.diferencia > 0 ? viaje.diferencia : (-viaje.diferencia | number : '1.0-0')
-                }}
-              </span>
-              <span
-                class="text-[10px]"
-                [class.text-success]="viaje.diferencia < 0"
-                [class.text-danger]="viaje.diferencia > 0"
-              >
-                km</span
-              >
-              } @else {
-              <span class="text-xs text-text/30">0</span>
-              <span class="text-[10px] text-text/30"> km</span>
-              }
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap text-xs font-inter-regular text-text/60">
-              {{ viaje.fechaSalida | date : 'dd/MM/yyyy HH:mm' }}
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap text-xs font-inter-regular text-text/60">
-              {{ viaje.fechaLlegada ? (viaje.fechaLlegada | date : 'dd/MM/yyyy HH:mm') : '—' }}
-            </td>
-          </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Summary Footer -->
-    <div class="px-4 py-3 border-t border-text/10 bg-secondary/5 flex items-center justify-between">
-      <div class="flex items-center gap-2">
-        <i class="fas fa-road text-secondary text-xs"></i>
-        <span class="text-xs font-inter-medium text-text">Total Recorrido:</span>
-        <span class="text-sm font-inter-bold text-secondary">
-          {{ getTotalKilometrosFinales() | number : '1.0-0' }} km
-        </span>
-      </div>
+    <!-- Mantenimientos Options -->
+    @if (reportCategory() === 'mantenimientos') {
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <!-- Mantenimientos Vehiculo Card -->
       <button
-        (click)="descargarPdf()"
-        class="flex items-center gap-1.5 px-3 py-1.5 bg-danger/10 text-danger rounded-lg text-xs font-inter-bold hover:bg-danger/20 transition-all border border-danger/20"
-        title="Descargar PDF"
+        (click)="onModeChange('mantenimientos-vehiculo')"
+        class="p-5 rounded-xl border-2 transition-all duration-300 text-left group"
+        [class]="
+          activeMode() === 'mantenimientos-vehiculo'
+            ? 'bg-warning/5 border-warning'
+            : 'bg-text/5 border-transparent hover:border-text/20'
+        "
       >
-        <i class="fas fa-file-pdf text-xs"></i>
-        <span>Descargar PDF</span>
+        <div class="flex items-start gap-4">
+          <div
+            class="w-12 h-12 rounded-xl flex items-center justify-center transition-all"
+            [class]="
+              activeMode() === 'mantenimientos-vehiculo'
+                ? 'bg-warning text-background'
+                : 'bg-text/10 text-text/60 group-hover:bg-text/20'
+            "
+          >
+            <i class="fas fa-tools text-xl"></i>
+          </div>
+          <div>
+            <h3 class="font-inter-bold text-text text-sm mb-1">Por Vehículo</h3>
+            <p class="text-xs text-text/50 font-inter-regular">
+              Historial de mantenimientos de un vehículo
+            </p>
+          </div>
+        </div>
+      </button>
+
+      <!-- Mantenimientos Taller Card -->
+      <button
+        (click)="onModeChange('mantenimientos-taller')"
+        class="p-5 rounded-xl border-2 transition-all duration-300 text-left group"
+        [class]="
+          activeMode() === 'mantenimientos-taller'
+            ? 'bg-danger/5 border-danger'
+            : 'bg-text/5 border-transparent hover:border-text/20'
+        "
+      >
+        <div class="flex items-start gap-4">
+          <div
+            class="w-12 h-12 rounded-xl flex items-center justify-center transition-all"
+            [class]="
+              activeMode() === 'mantenimientos-taller'
+                ? 'bg-danger text-background'
+                : 'bg-text/10 text-text/60 group-hover:bg-text/20'
+            "
+          >
+            <i class="fas fa-warehouse text-xl"></i>
+          </div>
+          <div>
+            <h3 class="font-inter-bold text-text text-sm mb-1">Por Taller</h3>
+            <p class="text-xs text-text/50 font-inter-regular">
+              Historial de mantenimientos de un taller
+            </p>
+          </div>
+        </div>
       </button>
     </div>
     }
   </div>
+
+  <!-- Child Component: Viajes -->
+  @if (reportCategory() === 'viajes') {
+  <app-reportes-viaje [activeMode]="getViajeMode()"></app-reportes-viaje>
+  }
+
+  <!-- Child Component: Mantenimientos -->
+  @if (reportCategory() === 'mantenimientos') {
+  <app-reportes-mantenimiento [activeMode]="getMantenimientoMode()"></app-reportes-mantenimiento>
+  }
 </div>

@@ -183,7 +183,7 @@ export const generateReportePdf = (data: ReportePdfData) => {
   const tableData = data.viajes.map((viaje) => {
     const ruta =
       viaje.tipoRuta === 'fija' && viaje.rutaOrigen && viaje.rutaDestino
-        ? `${viaje.rutaOrigen} → ${viaje.rutaDestino}`
+        ? `${viaje.rutaOrigen} - ${viaje.rutaDestino}`
         : viaje.rutaOcasional || 'Sin ruta';
 
     const kmEstimado = viaje.distanciaEstimada || '—';
@@ -336,7 +336,7 @@ export const generateReportePdf = (data: ReportePdfData) => {
   doc.setTextColor(100);
   doc.setFontSize(8);
   doc.setFont('helvetica', 'normal');
-  doc.text('TRANSPORTES LINEA S.A. - Sistema de Gestión de Flota', margin, y + 5);
+  doc.text('TRANSPORTES LINEA S.A. - Sistema de Gestion de Flota', margin, y + badgeHeight + 8);
 
   // Save
   const filename = `Reporte_${data.tipoReporte}_${new Date().toISOString().split('T')[0]}.pdf`;

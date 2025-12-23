@@ -4,12 +4,15 @@ import { Observable } from 'rxjs';
 import { API_URL } from '@route/api.route';
 import {
   ReporteQueryDto,
-  ReporteViajesVehiculoDto,
-  ReporteViajesConductorDto,
-  ReporteKilometrajeVehiculoDto,
   ViajeDetalladoDto,
+  MantenimientoDetalladoVehiculoDto,
+  MantenimientoDetalladoTallerDto,
 } from '@interface/admin/reportes.interface';
 import { generateReportePdf, ReportePdfData } from '../../templates/reporte-viajes.template';
+import {
+  generateReporteMantenimientoPdf,
+  ReporteMantenimientoPdfData,
+} from '../../templates/reporte-mantenimientos.template';
 
 @Injectable({
   providedIn: 'root',
@@ -17,22 +20,8 @@ import { generateReportePdf, ReportePdfData } from '../../templates/reporte-viaj
 export class ReportesService {
   private http = inject(HttpClient);
 
-  // Resumen estadístico
-  getViajesPorVehiculo(params?: ReporteQueryDto): Observable<ReporteViajesVehiculoDto[]> {
-    return this.http.get<ReporteViajesVehiculoDto[]>(API_URL.reportes.viajesVehiculo(params));
-  }
+  // ========== VIAJES DETALLADOS ==========
 
-  getViajesPorConductor(params?: ReporteQueryDto): Observable<ReporteViajesConductorDto[]> {
-    return this.http.get<ReporteViajesConductorDto[]>(API_URL.reportes.viajesConductor(params));
-  }
-
-  getKilometrajePorVehiculo(params?: ReporteQueryDto): Observable<ReporteKilometrajeVehiculoDto[]> {
-    return this.http.get<ReporteKilometrajeVehiculoDto[]>(
-      API_URL.reportes.kilometrajeVehiculo(params)
-    );
-  }
-
-  // Reportes detallados
   getViajesDetalladosPorVehiculo(
     id: number,
     params?: ReporteQueryDto
@@ -58,8 +47,33 @@ export class ReportesService {
     return this.http.get<ViajeDetalladoDto[]>(API_URL.reportes.viajesDetalladosCliente(id, params));
   }
 
-  // PDF Generation
+  // ========== MANTENIMIENTOS DETALLADOS ==========
+
+  getMantenimientosDetalladosPorVehiculo(
+    id: number,
+    params?: ReporteQueryDto
+  ): Observable<MantenimientoDetalladoVehiculoDto[]> {
+    return this.http.get<MantenimientoDetalladoVehiculoDto[]>(
+      API_URL.reportes.mantenimientosDetalladosVehiculo(id, params)
+    );
+  }
+
+  getMantenimientosDetalladosPorTaller(
+    id: number,
+    params?: ReporteQueryDto
+  ): Observable<MantenimientoDetalladoTallerDto[]> {
+    return this.http.get<MantenimientoDetalladoTallerDto[]>(
+      API_URL.reportes.mantenimientosDetalladosTaller(id, params)
+    );
+  }
+
+  // ========== PDF GENERATION ==========
+
   generateReportePdf(data: ReportePdfData): void {
     generateReportePdf(data);
+  }
+
+  generateReporteMantenimientoPdf(data: ReporteMantenimientoPdfData): void {
+    generateReporteMantenimientoPdf(data);
   }
 }

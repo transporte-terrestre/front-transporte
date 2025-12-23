@@ -72,7 +72,8 @@ export class MantenimientosEdit implements OnInit {
       .subscribe({
         next: () => {
           this.toastService.success('Mantenimiento actualizado exitosamente');
-          this.router.navigate([buildPath(PATH.admin.mantenimientos.list)]);
+          this.loading.set(false);
+          this.loadMantenimiento(this.mantenimiento()!.id);
         },
         error: (error) => {
           console.error('Error al actualizar mantenimiento:', error);

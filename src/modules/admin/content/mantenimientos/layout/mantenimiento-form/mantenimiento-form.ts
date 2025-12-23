@@ -114,8 +114,8 @@ export class MantenimientoForm implements OnInit {
       tipo: formValue.tipo,
       costoTotal: String(formValue.costoTotal),
       descripcion: formValue.descripcion,
-      fechaIngreso: new Date(formValue.fechaIngreso).toISOString(),
-      fechaSalida: new Date(formValue.fechaSalida).toISOString(),
+      fechaIngreso: formValue.fechaIngreso ? `${formValue.fechaIngreso}:00.000Z` : '',
+      fechaSalida: formValue.fechaSalida ? `${formValue.fechaSalida}:00.000Z` : '',
       kilometraje: Number(formValue.kilometraje),
       estado: formValue.estado,
     };
@@ -125,7 +125,12 @@ export class MantenimientoForm implements OnInit {
 
   // Formatea una fecha al formato YYYY-MM-DDTHH:mm para el input type="datetime-local"
   formatDateTimeForInput(date: Date | string): string {
-    const d = typeof date === 'string' ? new Date(date) : date;
+    // Si es string y parece formato ISO, cortar para preservar la hora "tal cual" del JSON/Backend
+    if (typeof date === 'string' && date.indexOf('T') > -1) {
+      return date.substring(0, 16);
+    }
+
+    const d = new Date(date);
     const year = d.getFullYear();
     const month = String(d.getMonth() + 1).padStart(2, '0');
     const day = String(d.getDate()).padStart(2, '0');

@@ -209,18 +209,17 @@ export const API_URL = {
     delete: (publicId: string) => `${BASE_URL}/storage/${encodeURIComponent(publicId)}`,
   },
   reportes: {
-    viajesVehiculo: (params?: ReporteQueryDto) =>
-      `${BASE_URL}/reportes/viajes-vehiculo${buildQueryString(params)}`,
-    viajesConductor: (params?: ReporteQueryDto) =>
-      `${BASE_URL}/reportes/viajes-conductor${buildQueryString(params)}`,
-    kilometrajeVehiculo: (params?: ReporteQueryDto) =>
-      `${BASE_URL}/reportes/kilometraje-vehiculo${buildQueryString(params)}`,
-    // Detailed reports
+    // Viajes detallados
     viajesDetalladosVehiculo: (id: number, params?: ReporteQueryDto) =>
       `${BASE_URL}/reportes/viajes-detallados/vehiculo/${id}${buildQueryString(params)}`,
     viajesDetalladosConductor: (id: number, params?: ReporteQueryDto) =>
       `${BASE_URL}/reportes/viajes-detallados/conductor/${id}${buildQueryString(params)}`,
     viajesDetalladosCliente: (id: number, params?: ReporteQueryDto) =>
       `${BASE_URL}/reportes/viajes-detallados/cliente/${id}${buildQueryString(params)}`,
+    // Mantenimientos detallados
+    mantenimientosDetalladosVehiculo: (id: number, params?: ReporteQueryDto) =>
+      `${BASE_URL}/reportes/mantenimientos-detallados/vehiculo/${id}${buildQueryString(params)}`,
+    mantenimientosDetalladosTaller: (id: number, params?: ReporteQueryDto) =>
+      `${BASE_URL}/reportes/mantenimientos-detallados/taller/${id}${buildQueryString(params)}`,
   },
 };

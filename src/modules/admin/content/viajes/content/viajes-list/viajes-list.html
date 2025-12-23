@@ -14,10 +14,11 @@
           class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-text/10 text-text rounded-lg text-sm font-inter-semibold hover:bg-text/20 transition-all self-stretch"
           title="Cambiar vista"
         >
-          <i
-            [class]="viewMode() === 'grid' ? 'fas fa-list' : 'fas fa-th-large'"
-            class="text-xs"
-          ></i>
+          @if (viewMode() === 'calendar') {
+            <i class="fas fa-calendar-alt text-xs"></i>
+          } @else {
+            <i class="fas fa-list text-xs"></i>
+          }
         </button>
         <button
           (click)="openCreateModal()"
@@ -29,7 +30,8 @@
       </div>
     </div>
 
-    <!-- Buscador y Filtros -->
+    <!-- Buscador y Filtros (Solo para grid/table) -->
+    @if (viewMode() !== 'calendar') {
     <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
       <!-- Búsqueda -->
       <div class="relative sm:col-span-4 lg:col-span-2">
@@ -71,6 +73,7 @@
         />
       </div>
     </div>
+    }
   </div>
 
   <!-- Vista Grid/Table Selector -->
@@ -84,7 +87,7 @@
   }
 
   <!-- Empty State -->
-  @else if (viajes().length === 0) {
+  @else if (viajes().length === 0 && viewMode() !== 'calendar') {
   <div
     class="flex flex-col items-center justify-center py-12 text-text/60 bg-background border border-text/10 rounded-xl"
   >
@@ -94,132 +97,164 @@
   </div>
   }
 
-  <!-- Grid View -->
-  @else if (viewMode() === 'grid') {
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-    @for (viaje of viajes(); track viaje.id) {
-    <div
-      class="viaje-card bg-background border border-text/10 rounded-xl shadow-sm hover:shadow-md transition-all overflow-hidden group"
-    >
-      <!-- Header with Gradient -->
-      <div class="relative bg-linear-to-br from-info/20 to-primary/10 p-6">
-        <div class="flex items-start justify-between mb-4">
-          <div class="flex items-center gap-2">
-            <div
-              class="w-12 h-12 bg-background/90 rounded-lg flex items-center justify-center shadow-md"
-            >
-              <i class="fas fa-route text-2xl text-info"></i>
-            </div>
-            <div>
-              <h3 class="text-lg font-inter-bold text-text">Viaje #{{ viaje.id }}</h3>
-              <p class="text-xs font-inter-medium text-text/60">
-                {{ formatDate(viaje.fechaSalida) }}
-              </p>
-            </div>
-          </div>
-          <span
-            class="px-2.5 py-1 text-xs font-inter-bold rounded-full flex items-center gap-1.5"
-            [ngClass]="getEstadoBadgeClass(viaje.estado)"
-          >
-            <i [class]="'fas ' + getEstadoIcon(viaje.estado)" class="text-xs"></i>
-            <span>{{ getEstadoLabel(viaje.estado) }}</span>
-          </span>
-        </div>
-
-        <!-- Route Display -->
-        <div class="flex items-center justify-center py-2">
-          <div class="flex items-center gap-2 text-text/60">
-            <i class="fas fa-map-marker-alt text-success"></i>
-            <span class="text-sm font-inter-medium">{{ getRutaDisplay(viaje) }}</span>
-          </div>
-        </div>
+  <!-- Calendar View -->
+  @else if (viewMode() === 'calendar') {
+  <div class="bg-background border border-text/10 rounded-xl shadow-sm overflow-hidden">
+    <!-- Calendar Header -->
+    <div class="flex items-center justify-between px-3 py-2 border-b border-text/10 bg-text/5">
+      <div class="flex items-center gap-1">
+        <button
+          (click)="previousWeek()"
+          class="p-1.5 hover:bg-text/10 rounded-lg transition-colors"
+          title="Semana anterior"
+        >
+          <i class="fas fa-chevron-left text-text/60 text-sm"></i>
+        </button>
+        <button
+          (click)="nextWeek()"
+          class="p-1.5 hover:bg-text/10 rounded-lg transition-colors"
+          title="Semana siguiente"
+        >
+          <i class="fas fa-chevron-right text-text/60 text-sm"></i>
+        </button>
+        <button
+          (click)="goToToday()"
+          class="px-2 py-1 bg-secondary/10 text-secondary rounded-lg text-xs font-inter-semibold hover:bg-secondary/20 transition-colors"
+        >
+          Hoy
+        </button>
       </div>
+      <span class="text-xs font-inter-bold text-text">{{ getWeekRange() }}</span>
+      <div class="flex items-center gap-1">
+        <input
+          type="date"
+          [value]="getSelectedDateForInput()"
+          (change)="onDateInputChange($event)"
+          class="px-2 py-1 bg-background border border-text/10 rounded-lg text-xs text-text font-inter-medium outline-none focus:border-secondary transition-all cursor-pointer"
+        />
+      </div>
+    </div>
 
-      <!-- Details -->
-      <div class="p-4 space-y-3">
-        <!-- Cliente -->
-        <div class="flex items-center gap-2 text-text">
-          <i class="fas fa-user-tie text-secondary/70 text-sm w-5"></i>
-          <div class="flex-1">
-            <p class="text-xs font-inter-medium text-text/60">Cliente</p>
-            <p class="text-sm font-inter-bold">{{ getClienteDisplay(viaje) }}</p>
-          </div>
-        </div>
-
-        <!-- Vehículo -->
-        <div class="flex items-center gap-2 text-text">
-          <i class="fas fa-car text-secondary/70 text-sm w-5"></i>
-          <div class="flex-1">
-            <p class="text-xs font-inter-medium text-text/60">Vehículo</p>
-            <p class="text-sm font-inter-bold">{{ getVehiculoDisplay(viaje) }}</p>
-          </div>
-        </div>
-
-        <!-- Conductor -->
-        <div class="flex items-center gap-2 text-text">
-          <i class="fas fa-user text-primary/70 text-sm w-5"></i>
-          <div class="flex-1">
-            <p class="text-xs font-inter-medium text-text/60">Conductor</p>
-            <p class="text-sm font-inter-bold">{{ getConductorDisplay(viaje) }}</p>
-          </div>
-        </div>
-
-        <!-- Fecha Salida -->
-        <div class="flex items-center gap-2 text-text">
-          <i class="fas fa-calendar-plus text-success/70 text-sm w-5"></i>
-          <div class="flex-1">
-            <p class="text-xs font-inter-medium text-text/60">Fecha de Salida</p>
-            <p class="text-sm font-inter-bold">{{ formatDate(viaje.fechaSalida) }}</p>
-          </div>
-        </div>
-
-        <!-- Fecha Llegada -->
-        <div class="flex items-center gap-2 text-text">
-          <i class="fas fa-calendar-check text-warning/70 text-sm w-5"></i>
-          <div class="flex-1">
-            <p class="text-xs font-inter-medium text-text/60">Fecha de Llegada</p>
-            <p class="text-sm font-inter-bold">
-              @if (viaje.fechaLlegada) {
-              {{ formatDate(viaje.fechaLlegada) }}
-              } @else {
-              <span class="text-text/40">Pendiente</span>
-              }
+    <!-- Calendar Grid -->
+    <div class="overflow-x-auto">
+      <div class="min-w-[900px]">
+        <!-- Days Header -->
+        <div class="grid border-b border-text/10 grid-cols-[70px_repeat(7,1fr)]">
+          <!-- Time column header -->
+          <div class="p-2 border-r border-text/10 bg-text/5"></div>
+          <!-- Day headers -->
+          @for (day of weekDays(); track day.date.getTime(); let i = $index) {
+          <div
+            class="p-2 text-center border-r border-text/10 last:border-r-0"
+            [class.bg-secondary/5]="day.isToday"
+          >
+            <p
+              class="text-xs font-inter-semibold uppercase"
+              [class.text-secondary]="day.isToday"
+              [class.text-text/60]="!day.isToday"
+            >
+              {{ day.dayName }}
+            </p>
+            <p
+              class="text-lg font-inter-bold"
+              [class.text-secondary]="day.isToday"
+              [class.text-text]="!day.isToday"
+            >
+              {{ day.dayNumber }}
             </p>
           </div>
+          }
         </div>
 
-        <!-- Actions -->
-        <div class="pt-3 border-t border-text/10 flex items-center justify-end gap-2">
-          <button
-            (click)="navigateToEdit(viaje)"
-            class="flex items-center gap-1.5 px-3 py-1.5 text-info hover:bg-info/10 rounded-lg transition-colors text-xs font-inter-semibold"
-            title="Editar"
-          >
-            <i class="fas fa-edit"></i>
-            <span>Editar</span>
-          </button>
-          <button
-            (click)="deleteViaje(viaje.id)"
-            class="flex items-center gap-1.5 px-3 py-1.5 text-danger hover:bg-danger/10 rounded-lg transition-colors text-xs font-inter-semibold"
-            title="Eliminar"
-          >
-            <i class="fas fa-trash"></i>
-            <span>Eliminar</span>
-          </button>
+        <!-- Time rows -->
+        <div class="relative">
+          @for (hour of calendarHours; track hour) {
+          <div class="grid border-b border-text/10 last:border-b-0 grid-cols-[70px_repeat(7,1fr)]">
+            <!-- Time label -->
+            <div class="px-2 py-1 border-r border-text/10 bg-text/5 h-[40px] flex items-center justify-end">
+              <span class="text-[10px] font-inter-medium text-text/40">{{ formatHour(hour) }}</span>
+            </div>
+            <!-- Day cells -->
+            @for (day of weekDays(); track day.date.getTime(); let dayIndex = $index) {
+            <div
+              class="border-r border-text/10 last:border-r-0 h-[40px] relative"
+              [class.bg-secondary/5]="day.isToday"
+            ></div>
+            }
+          </div>
+          }
+
+          <!-- Events overlay -->
+          <div class="absolute inset-0 grid pointer-events-none grid-cols-[70px_repeat(7,1fr)]">
+            <!-- Empty time column -->
+            <div class="border-r border-text/10"></div>
+            <!-- Day columns with events -->
+            @for (day of weekDays(); track day.date.getTime(); let dayIndex = $index) {
+            <div class="border-r border-text/10 last:border-r-0 relative">
+              @for (event of getEventsForDay(dayIndex); track event.viaje.id) {
+              <div
+                class="absolute left-0.5 right-0.5 rounded-md px-1.5 py-1 overflow-hidden cursor-pointer pointer-events-auto shadow-sm hover:shadow-md transition-shadow"
+                [class]="getEventColor(event.viaje.estado)"
+                [style.top.px]="event.top"
+                [style.height.px]="event.height"
+                [style.min-height.px]="24"
+                (click)="navigateToEdit(event.viaje)"
+                [title]="getRutaDisplay(event.viaje)"
+              >
+                <div class="flex flex-col h-full overflow-hidden">
+                  <span class="text-[10px] font-inter-bold truncate">
+                    {{ formatTimeShort(event.viaje.fechaSalida) }}
+                  </span>
+                  <span class="text-xs font-inter-semibold truncate flex-1">
+                    {{ getRutaDisplay(event.viaje) }}
+                  </span>
+                  @if (event.height > 40) {
+                  <span class="text-[10px] font-inter-medium truncate opacity-80">
+                    {{ getClienteDisplay(event.viaje) }}
+                  </span>
+                  }
+                </div>
+              </div>
+              }
+            </div>
+            }
+          </div>
         </div>
       </div>
     </div>
+
+    <!-- Legend -->
+    <div class="p-4 border-t border-text/10 bg-text/5">
+      <div class="flex flex-wrap items-center gap-4">
+        <span class="text-xs font-inter-semibold text-text/60">Estados:</span>
+        <div class="flex items-center gap-2">
+          <span class="w-3 h-3 rounded-full bg-info"></span>
+          <span class="text-xs font-inter-medium text-text/70">Programado</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="w-3 h-3 rounded-full bg-warning"></span>
+          <span class="text-xs font-inter-medium text-text/70">En Progreso</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="w-3 h-3 rounded-full bg-success"></span>
+          <span class="text-xs font-inter-medium text-text/70">Completado</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="w-3 h-3 rounded-full bg-danger"></span>
+          <span class="text-xs font-inter-medium text-text/70">Cancelado</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty state for calendar -->
+    @if (viajes().length === 0) {
+    <div class="p-8 text-center">
+      <i class="fas fa-calendar-times text-4xl text-text/20 mb-3"></i>
+      <p class="text-text/60 font-inter-medium">No hay viajes programados para esta semana</p>
+      <p class="text-text/40 text-sm font-inter-regular mt-1">Usa las flechas para navegar a otra semana</p>
+    </div>
     }
   </div>
-
-  <!-- Paginación Grid -->
-  <app-pagination
-    [meta]="meta()"
-    [currentPage]="currentPage()"
-    [pageSize]="pageSize()"
-    (pageChange)="onPageChange($event)"
-    (pageSizeChange)="onPageSizeChange($event)"
-  />
   }
 
   <!-- Table View -->

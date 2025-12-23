@@ -1,0 +1,312 @@
+<div class="space-y-6">
+  <!-- Filters & Entity Selection -->
+  <div class="bg-background border border-text/10 rounded-2xl p-6 shadow-sm">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
+      <!-- Entity Search Input (2 cols) -->
+      <div class="lg:col-span-2">
+        <label
+          class="text-xs font-inter-bold text-text/60 uppercase tracking-wider mb-2 flex items-center gap-1"
+        >
+          @if (activeMode() === 'mantenimientos-vehiculo') {
+          <i class="fas fa-tools text-warning"></i> Seleccionar Vehículo } @else if (activeMode()
+          === 'mantenimientos-taller') { <i class="fas fa-warehouse text-danger"></i> Seleccionar
+          Taller }
+        </label>
+
+        @if (activeMode() === 'mantenimientos-vehiculo') {
+        <app-vehiculo-input-search
+          [ngModel]="selectedVehiculo()"
+          (ngModelChange)="onVehiculoSelected($event)"
+        ></app-vehiculo-input-search>
+        } @else if (activeMode() === 'mantenimientos-taller') {
+        <app-taller-input-search
+          [ngModel]="selectedTaller()"
+          (ngModelChange)="onTallerSelected($event)"
+        ></app-taller-input-search>
+        }
+      </div>
+
+      <!-- Fecha Desde -->
+      <div class="flex flex-col gap-2">
+        <label
+          class="text-xs font-inter-bold text-text/60 uppercase tracking-wider flex items-center gap-1"
+        >
+          <i class="fas fa-calendar-alt"></i> Desde
+        </label>
+        <input
+          type="date"
+          [ngModel]="fechaInicio()"
+          (ngModelChange)="fechaInicio.set($event)"
+          class="w-full bg-text/5 border-2 border-transparent rounded-xl px-4 py-2.5 text-sm font-inter-medium text-text focus:outline-none focus:border-secondary transition-all"
+        />
+      </div>
+
+      <!-- Fecha Hasta -->
+      <div class="flex flex-col gap-2">
+        <label
+          class="text-xs font-inter-bold text-text/60 uppercase tracking-wider flex items-center gap-1"
+        >
+          <i class="fas fa-calendar-check"></i> Hasta
+        </label>
+        <input
+          type="date"
+          [ngModel]="fechaFin()"
+          (ngModelChange)="fechaFin.set($event)"
+          class="w-full bg-text/5 border-2 border-transparent rounded-xl px-4 py-2.5 text-sm font-inter-medium text-text focus:outline-none focus:border-secondary transition-all"
+        />
+      </div>
+
+      <!-- Buscar Button -->
+      <div class="flex flex-col gap-2">
+        <label
+          class="text-xs font-inter-bold text-transparent uppercase tracking-wider hidden lg:block"
+        >
+          Action
+        </label>
+        <button
+          (click)="generarReporte()"
+          [disabled]="loading()"
+          class="w-full py-2.5 bg-warning text-background rounded-xl text-sm font-inter-bold shadow-lg shadow-warning/20 hover:shadow-warning/40 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          @if (loading()) {
+          <i class="fas fa-spinner fa-spin"></i>
+          } @else {
+          <i class="fas fa-search"></i>
+          }
+          <span>Buscar</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div
+    class="bg-background border border-text/5 rounded-2xl shadow-sm overflow-hidden min-h-[300px]"
+  >
+    @if (loading()) {
+    <div class="flex flex-col items-center justify-center py-16 gap-4">
+      <div
+        class="w-12 h-12 rounded-full border-4 border-warning/20 border-t-warning animate-spin"
+      ></div>
+      <p class="text-text/40 font-inter-medium">Generando reporte...</p>
+    </div>
+    } @else if (!hasResults()) {
+    <div class="flex flex-col items-center justify-center py-16 gap-4">
+      <div class="w-20 h-20 rounded-full bg-text/5 flex items-center justify-center">
+        <i class="fas fa-tools text-text/20 text-3xl"></i>
+      </div>
+      <div class="text-center">
+        <p class="text-text/60 font-inter-semibold">Sin resultados</p>
+        <p class="text-text/40 text-sm font-inter-regular">
+          Selecciona una entidad y haz clic en "Buscar" para generar el reporte
+        </p>
+      </div>
+    </div>
+    } @else {
+    <!-- TABLA MANTENIMIENTOS POR VEHICULO -->
+    @if (mantenimientosVehiculos().length > 0) {
+    <div class="px-6 py-4 border-b border-text/5 bg-text/2 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <span class="text-sm font-inter-bold text-text">
+          {{ mantenimientosVehiculos().length }} mantenimientos encontrados
+        </span>
+      </div>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full">
+        <thead class="bg-text/5 border-b border-text/10">
+          <tr>
+            <th class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase">
+              Orden
+            </th>
+            <th class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase">Tipo</th>
+            <th class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase">
+              Estado
+            </th>
+            <th class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase">
+              Taller
+            </th>
+            <th class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase">Km</th>
+            <th class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase">
+              Costo
+            </th>
+            <th class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase">
+              Fecha Ingreso
+            </th>
+            <th class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase">
+              Fecha Salida
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-text/5">
+          @for (item of mantenimientosVehiculos(); track item.id) {
+          <tr class="group hover:bg-text/5 transition-colors">
+            <td class="px-4 py-3 whitespace-nowrap">
+              <span class="text-xs font-inter-bold text-text">{{
+                item.codigoOrden || '#' + item.id
+              }}</span>
+            </td>
+            <td class="px-4 py-3 whitespace-nowrap">
+              <span
+                class="px-2 py-0.5 rounded-full text-xs font-inter-medium capitalize"
+                [class]="getTipoClass(item.tipo)"
+                >{{ item.tipo }}</span
+              >
+            </td>
+            <td class="px-4 py-3 whitespace-nowrap">
+              <span
+                class="px-2 py-0.5 rounded-full text-xs font-inter-medium capitalize"
+                [class]="getEstadoClass(item.estado)"
+                >{{ getEstadoLabel(item.estado) }}</span
+              >
+            </td>
+            <td class="px-4 py-3 whitespace-nowrap">
+              <div class="flex flex-col">
+                <span class="text-xs font-inter-medium text-text">{{ item.tallerNombre }}</span>
+                <span class="text-[10px] text-text/40 capitalize">{{ item.tallerTipo }}</span>
+              </div>
+            </td>
+            <td class="px-4 py-3 whitespace-nowrap text-right">
+              <span class="text-xs font-inter-semibold text-text">{{
+                item.kilometraje | number
+              }}</span>
+              <span class="text-[10px] text-text/40"> km</span>
+            </td>
+            <td class="px-4 py-3 whitespace-nowrap text-right">
+              <span class="text-sm font-inter-bold text-success"
+                >S/ {{ item.costoTotal | number : '1.2-2' }}</span
+              >
+            </td>
+            <td class="px-4 py-3 whitespace-nowrap text-xs text-text/60">
+              {{ item.fechaIngreso | date : 'dd/MM/yyyy' }}
+            </td>
+            <td class="px-4 py-3 whitespace-nowrap text-xs text-text/60">
+              {{ item.fechaSalida ? (item.fechaSalida | date : 'dd/MM/yyyy') : '—' }}
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    }
+
+    <!-- TABLA MANTENIMIENTOS POR TALLER -->
+    @if (mantenimientosTaller().length > 0) {
+    <div class="px-6 py-4 border-b border-text/5 bg-text/2 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <span class="text-sm font-inter-bold text-text">
+          {{ mantenimientosTaller().length }} mantenimientos encontrados
+        </span>
+      </div>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full">
+        <thead class="bg-text/5 border-b border-text/10">
+          <tr>
+            <th class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase">
+              Orden
+            </th>
+            <th class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase">
+              Vehículo
+            </th>
+            <th class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase">Tipo</th>
+            <th class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase">
+              Estado
+            </th>
+            <th class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase">Km</th>
+            <th class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase">
+              Costo
+            </th>
+            <th class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase">
+              Fecha Ingreso
+            </th>
+            <th class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase">
+              Fecha Salida
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-text/5">
+          @for (item of mantenimientosTaller(); track item.id) {
+          <tr class="group hover:bg-text/5 transition-colors">
+            <td class="px-4 py-3 whitespace-nowrap">
+              <span class="text-xs font-inter-bold text-text">{{
+                item.codigoOrden || '#' + item.id
+              }}</span>
+            </td>
+            <td class="px-4 py-3 whitespace-nowrap">
+              <div class="flex flex-col">
+                <span class="text-xs font-inter-medium text-text">{{ item.vehiculoPlaca }}</span>
+                <span class="text-[10px] text-text/40"
+                  >{{ item.vehiculoMarca }} {{ item.vehiculoModelo }}</span
+                >
+              </div>
+            </td>
+            <td class="px-4 py-3 whitespace-nowrap">
+              <span
+                class="px-2 py-0.5 rounded-full text-xs font-inter-medium capitalize"
+                [class]="getTipoClass(item.tipo)"
+                >{{ item.tipo }}</span
+              >
+            </td>
+            <td class="px-4 py-3 whitespace-nowrap">
+              <span
+                class="px-2 py-0.5 rounded-full text-xs font-inter-medium capitalize"
+                [class]="getEstadoClass(item.estado)"
+                >{{ getEstadoLabel(item.estado) }}</span
+              >
+            </td>
+            <td class="px-4 py-3 whitespace-nowrap text-right">
+              <span class="text-xs font-inter-semibold text-text">{{
+                item.kilometraje | number
+              }}</span>
+              <span class="text-[10px] text-text/40"> km</span>
+            </td>
+            <td class="px-4 py-3 whitespace-nowrap text-right">
+              <span class="text-sm font-inter-bold text-success"
+                >S/ {{ item.costoTotal | number : '1.2-2' }}</span
+              >
+            </td>
+            <td class="px-4 py-3 whitespace-nowrap text-xs text-text/60">
+              {{ item.fechaIngreso | date : 'dd/MM/yyyy' }}
+            </td>
+            <td class="px-4 py-3 whitespace-nowrap text-xs text-text/60">
+              {{ item.fechaSalida ? (item.fechaSalida | date : 'dd/MM/yyyy') : '—' }}
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    }
+
+    <!-- Summary Footer -->
+    @if (hasResults()) {
+    <div class="px-4 py-3 border-t border-text/10 bg-warning/5 flex items-center justify-between">
+      <div class="flex items-center gap-4">
+        <div class="flex items-center gap-2">
+          <i class="fas fa-tools text-warning text-xs"></i>
+          <span class="text-xs font-inter-medium text-text">Total:</span>
+          <span class="text-sm font-inter-bold text-warning">
+            {{ mantenimientosVehiculos().length || mantenimientosTaller().length }} mantenimientos
+          </span>
+        </div>
+        <div class="flex items-center gap-2">
+          <i class="fas fa-dollar-sign text-success text-xs"></i>
+          <span class="text-xs font-inter-medium text-text">Costo Total:</span>
+          <span class="text-sm font-inter-bold text-success">
+            S/ {{ getTotalCosto() | number : '1.2-2' }}
+          </span>
+        </div>
+      </div>
+      <button
+        (click)="descargarPdf()"
+        class="flex items-center gap-1.5 px-3 py-1.5 bg-danger/10 text-danger rounded-lg text-xs font-inter-bold hover:bg-danger/20 transition-all border border-danger/20"
+        title="Descargar PDF"
+      >
+        <i class="fas fa-file-pdf text-xs"></i>
+        <span>Descargar PDF</span>
+      </button>
+    </div>
+    } }
+  </div>
+</div>
