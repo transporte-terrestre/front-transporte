@@ -39,7 +39,7 @@
     <div class="flex-1 overflow-y-auto p-4 space-y-3 scroll-smooth">
       @for (notif of notificaciones(); track notif.id) {
       <div
-        class="group relative p-4 rounded-xl border transition-all duration-200 hover:shadow-md cursor-pointer"
+        class="group relative p-4 rounded-xl border transition-all duration-200 hover:shadow-md"
         [class.bg-text/5]="!notif.leido"
         [class.bg-background]="notif.leido"
         [class.border-transparent]="!notif.leido"
@@ -74,23 +74,49 @@
                 <h4 class="text-sm font-inter-bold text-text truncate pr-4">
                     {{ notif.titulo }}
                 </h4>
-                <p class="text-xs text-text/70 font-inter-regular mt-1 line-clamp-2 leading-relaxed">
+                <!-- Collapsed message (line-clamp-2) -->
+                <p
+                  *ngIf="!isExpanded(notif.id)"
+                  class="text-xs text-text/70 font-inter-regular mt-1 line-clamp-2 leading-relaxed"
+                >
                     {{ notif.mensaje }}
                 </p>
-                <span class="text-[10px] text-text/40 font-inter-medium mt-2 block">
-                    {{ notif.creadoEn | date:'short':'':'es-PE' }}
-                </span>
+                <!-- Expanded message (full text) -->
+                <p
+                  *ngIf="isExpanded(notif.id)"
+                  class="text-xs text-text/70 font-inter-regular mt-1 leading-relaxed"
+                >
+                    {{ notif.mensaje }}
+                </p>
+
+                <div class="flex items-center justify-between mt-2 gap-2">
+                  <span class="text-[10px] text-text/40 font-inter-medium">
+                      {{ notif.creadoEn | date:'short':'':'es-PE' }}
+                  </span>
+                  <div class="flex items-center gap-3">
+                    <!-- Mark as read button -->
+                    <button
+                      *ngIf="!notif.leido"
+                      (click)="markAsRead(notif.id, $event)"
+                      class="text-[10px] text-text/40 hover:text-secondary transition-colors font-inter-medium"
+                    >
+                      Marcar leída
+                    </button>
+                    <!-- Expand/Collapse button -->
+                    <button
+                      (click)="toggleExpand(notif.id, $event)"
+                      class="text-[10px] text-text/50 hover:text-secondary transition-colors flex items-center gap-1 font-inter-medium"
+                    >
+                      <span>{{ isExpanded(notif.id) ? 'Ver menos' : 'Ver más' }}</span>
+                      <i
+                        class="fas fa-chevron-down text-[8px] transition-transform duration-200"
+                        [class.rotate-180]="isExpanded(notif.id)"
+                      ></i>
+                    </button>
+                  </div>
+                </div>
             </div>
         </div>
-
-        <!-- Hover Action: Mark read -->
-        <button
-            *ngIf="!notif.leido"
-            (click)="markAsRead(notif.id, $event)"
-            class="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 text-xs text-text/40 hover:text-secondary transition-all font-inter-medium"
-        >
-            Marcar leída
-        </button>
       </div>
       } @empty {
         <div class="flex flex-col items-center justify-center h-64 text-center opacity-40">
