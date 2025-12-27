@@ -1,30 +1,18 @@
 import { Injectable, inject, signal, computed, effect } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
-import { API_URL } from '@route/api.route';
-import {
-  NotificacionCreateDto,
-  NotificacionResultDto,
-  PaginatedNotificacionResultDto,
-  NotificacionPaginationParams,
-  NotificacionResultDto as NotificacionDto,
-} from '@interface/admin/notificacion.interface';
+import { Api, ApiQuery, ApiBody, ApiParam, ApiResponse } from 'api/backend.api';
 import { AuthService } from '@service/auth/auth.service';
-
+type NotificacionDto = ApiResponse<'notificaciones', 'findAll'>['data'][0];
 @Injectable({
   providedIn: 'root',
 })
 export class NotificacionService {
-  private http = inject(HttpClient);
+  private api = inject(Api);
   private authService = inject(AuthService);
   private initialized = false;
-
   // State
   isOpen = signal(false);
   notificaciones = signal<NotificacionDto[]>([]);
-
   unreadCount = computed(() => this.notificaciones().filter((n) => !n.leido).length);
-
   constructor() {
     // Auto-load notifications when user is authenticated
     effect(() => {
@@ -40,7 +28,6 @@ export class NotificacionService {
       }
     });
   }
-
   toggle() {
     this.isOpen.update((v) => !v);
     if (this.isOpen()) {
@@ -48,50 +35,45 @@ export class NotificacionService {
     }
   }
 
-  loadNotificaciones() {
+  async loadNotificaciones() {
     const user = this.authService.user();
     if (!user || user.id === undefined) return;
-
-    this.findAll({ userId: user.id, page: 1, limit: 50 }).subscribe({
-      next: (res) => {
-        this.notificaciones.set(res.data);
-      },
-    });
+    try {
+      const res = await this.findAll({ userId: user.id, page: 1, limit: 50 });
+      this.notificaciones.set(res.data);
+    } catch (error) {
+      console.error('Error loading notifications:', error);
+    }
   }
-
-  findAll(params: NotificacionPaginationParams): Observable<PaginatedNotificacionResultDto> {
-    return this.http.get<PaginatedNotificacionResultDto>(API_URL.notificaciones.findAll(params));
+  async findAll(query: ApiQuery<'notificaciones', 'findAll'>) {
+    return await this.api.notificaciones.findAll(query).then((response) => response.data);
   }
-
-  create(data: NotificacionCreateDto): Observable<NotificacionResultDto> {
-    return this.http.post<NotificacionResultDto>(API_URL.notificaciones.create, data);
+  async create(data: ApiBody<'notificaciones', 'create'>) {
+    return await this.api.notificaciones.create(data).then((response) => response.data);
   }
-
-  markAsRead(id: number): Observable<any> {
+  async markAsRead(
+    id: ApiParam<'notificaciones', 'markAsRead', 'id'>
+  ) {
     const user = this.authService.user();
     if (!user || user.id === undefined) throw new Error('User not authenticated');
-
-    return this.http.post<any>(API_URL.notificaciones.leido(id, user.id), {}).pipe(
-      tap(() => {
-        this.notificaciones.update((list) =>
-          list.map((n) => (n.id === id ? { ...n, leido: true } : n))
-        );
-      })
+    const result = await this.api.notificaciones
+      .markAsRead({ id, userId: user.id }, {})
+      .then((response) => response.data);
+    this.notificaciones.update((list) =>
+      list.map((n) => (n.id === id ? { ...n, leido: true } : n))
     );
+    return result;
   }
-
-  markAllAsRead() {
+  async markAllAsRead() {
     const unread = this.notificaciones().filter((n) => !n.leido);
     // Simple implementation: mark each as read individually for now since we don't have bulk endpoint
     // In a real app we would want a bulk endpoint
-    unread.forEach((n) => this.markAsRead(n.id).subscribe());
+    unread.forEach((n) => this.markAsRead(n.id));
   }
-
   open() {
     this.isOpen.set(true);
     this.loadNotificaciones();
   }
-
   close() {
     this.isOpen.set(false);
   }

@@ -1,8 +1,8 @@
+import { ApiResponse } from 'api/backend.api';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { MantenimientoResultDto } from '@interface/admin/mantenimiento.interface';
 
-export const generateOrdenServicioPdf = (mantenimiento: MantenimientoResultDto) => {
+export const generateOrdenServicioPdf = (mantenimiento: ApiResponse<'mantenimientos', 'findOne'>) => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.width;
   const margin = 14;

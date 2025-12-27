@@ -1,130 +1,81 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { API_URL } from '@route/api.route';
-import {
-  VehiculoCreateDto,
-  VehiculoResultDto,
-  VehiculoUpdateDto,
-  PaginatedVehiculoResultDto,
-  VehiculoDocumentoResultDto,
-  VehiculoDocumentoCreateDto,
-  VehiculoDocumentoUpdateDto,
-  // Marca
-  MarcaResultDto,
-  MarcaCreateDto,
-  MarcaUpdateDto,
-  PaginatedMarcaResultDto,
-  MarcaPaginationParams,
-  // Modelo
-  ModeloResultDto,
-  ModeloCreateDto,
-  ModeloUpdateDto,
-  PaginatedModeloResultDto,
-  ModeloPaginationParams,
-} from '@interface/admin/vehiculo.interface';
-
-export interface PaginationParams {
-  page?: number;
-  limit?: number;
-  search?: string;
-  fechaInicio?: string;
-  fechaFin?: string;
-  [key: string]: any;
-}
+import { Api, ApiQuery, ApiBody, ApiParam } from 'api/backend.api';
 
 @Injectable({
   providedIn: 'root',
 })
 export class VehiculoService {
-  private http = inject(HttpClient);
-
+  private api = inject(Api);
   // ========== VEHICULOS ==========
-  findAll(params?: PaginationParams): Observable<PaginatedVehiculoResultDto> {
-    return this.http.get<PaginatedVehiculoResultDto>(API_URL.vehiculos.findAll(params));
+  async findAll(query: ApiQuery<'vehiculos', 'findAll'>) {
+    return await this.api.vehiculos.findAll(query).then((response) => response.data);
   }
-
-  findOne(id: number): Observable<VehiculoResultDto> {
-    return this.http.get<VehiculoResultDto>(API_URL.vehiculos.findOne(id));
+  async findOne(id: ApiParam<'vehiculos', 'findOne', 'id'>) {
+    return await this.api.vehiculos.findOne({ id }).then((response) => response.data);
   }
-
-  create(vehiculo: VehiculoCreateDto): Observable<VehiculoResultDto> {
-    return this.http.post<VehiculoResultDto>(API_URL.vehiculos.create, vehiculo);
+  async create(vehiculo: ApiBody<'vehiculos', 'create'>) {
+    return await this.api.vehiculos.create(vehiculo).then((response) => response.data);
   }
-
-  update(id: number, vehiculo: VehiculoUpdateDto): Observable<VehiculoResultDto> {
-    return this.http.patch<VehiculoResultDto>(API_URL.vehiculos.update(id), vehiculo);
+  async update(
+    id: ApiParam<'vehiculos', 'update', 'id'>,
+    vehiculo: ApiBody<'vehiculos', 'update'>
+  ) {
+    return await this.api.vehiculos.update({ id }, vehiculo).then((response) => response.data);
   }
-
-  delete(id: number): Observable<VehiculoResultDto> {
-    return this.http.delete<VehiculoResultDto>(API_URL.vehiculos.delete(id));
+  async delete(id: ApiParam<'vehiculos', 'remove', 'id'>) {
+    return await this.api.vehiculos.remove({ id }).then((response) => response.data);
   }
-
   // ========== DOCUMENTOS ==========
-  findDocumento(id: number): Observable<VehiculoDocumentoResultDto> {
-    return this.http.get<VehiculoDocumentoResultDto>(API_URL.vehiculos.documentos.find(id));
+  async findDocumento(id: ApiParam<'vehiculos', 'findDocumento', 'id'>) {
+    return await this.api.vehiculos.findDocumento({ id }).then((response) => response.data);
   }
-
-  createDocumento(documento: VehiculoDocumentoCreateDto): Observable<VehiculoDocumentoResultDto> {
-    return this.http.post<VehiculoDocumentoResultDto>(
-      API_URL.vehiculos.documentos.create,
-      documento
-    );
+  async createDocumento(documento: ApiBody<'vehiculos', 'createDocumento'>) {
+    return await this.api.vehiculos.createDocumento(documento).then((response) => response.data);
   }
-
-  updateDocumento(
-    id: number,
-    documento: VehiculoDocumentoUpdateDto
-  ): Observable<VehiculoDocumentoResultDto> {
-    return this.http.patch<VehiculoDocumentoResultDto>(
-      API_URL.vehiculos.documentos.update(id),
-      documento
-    );
+  async updateDocumento(
+    id: ApiParam<'vehiculos', 'updateDocumento', 'id'>,
+    documento: ApiBody<'vehiculos', 'updateDocumento'>
+  ) {
+    return await this.api.vehiculos
+      .updateDocumento({ id }, documento)
+      .then((response) => response.data);
   }
-
-  deleteDocumento(id: number): Observable<VehiculoDocumentoResultDto> {
-    return this.http.delete<VehiculoDocumentoResultDto>(API_URL.vehiculos.documentos.delete(id));
+  async deleteDocumento(id: ApiParam<'vehiculos', 'deleteDocumento', 'id'>) {
+    return await this.api.vehiculos.deleteDocumento({ id }).then((response) => response.data);
   }
-
   // ========== MARCAS ==========
-  findAllMarcas(params?: MarcaPaginationParams): Observable<PaginatedMarcaResultDto> {
-    return this.http.get<PaginatedMarcaResultDto>(API_URL.vehiculos.marcas.findAll(params));
+  async findAllMarcas(query: ApiQuery<'vehiculos', 'findAllMarcas'>) {
+    return await this.api.vehiculos.findAllMarcas(query).then((response) => response.data);
   }
-
-  findOneMarca(id: number): Observable<MarcaResultDto> {
-    return this.http.get<MarcaResultDto>(API_URL.vehiculos.marcas.findOne(id));
+  async findOneMarca(id: ApiParam<'vehiculos', 'findOneMarca', 'id'>) {
+    return await this.api.vehiculos.findOneMarca({ id }).then((response) => response.data);
   }
-
-  createMarca(marca: MarcaCreateDto): Observable<MarcaResultDto> {
-    return this.http.post<MarcaResultDto>(API_URL.vehiculos.marcas.create, marca);
+  async createMarca(marca: ApiBody<'vehiculos', 'createMarca'>) {
+    return await this.api.vehiculos.createMarca(marca).then((response) => response.data);
   }
-
-  updateMarca(id: number, marca: MarcaUpdateDto): Observable<MarcaResultDto> {
-    return this.http.patch<MarcaResultDto>(API_URL.vehiculos.marcas.update(id), marca);
+  async updateMarca(id: ApiParam<'vehiculos', 'updateMarca', 'id'>, marca: ApiBody<'vehiculos', 'updateMarca'>) {
+    return await this.api.vehiculos.updateMarca({ id }, marca).then((response) => response.data);
   }
-
-  deleteMarca(id: number): Observable<MarcaResultDto> {
-    return this.http.delete<MarcaResultDto>(API_URL.vehiculos.marcas.delete(id));
+  async deleteMarca(id: ApiParam<'vehiculos', 'deleteMarca', 'id'>) {
+    return await this.api.vehiculos.deleteMarca({ id }).then((response) => response.data);
   }
-
   // ========== MODELOS ==========
-  findAllModelos(params?: ModeloPaginationParams): Observable<PaginatedModeloResultDto> {
-    return this.http.get<PaginatedModeloResultDto>(API_URL.vehiculos.modelos.findAll(params));
+  async findAllModelos(query: ApiQuery<'vehiculos', 'findAllModelos'>) {
+    return await this.api.vehiculos.findAllModelos(query).then((response) => response.data);
   }
-
-  findOneModelo(id: number): Observable<ModeloResultDto> {
-    return this.http.get<ModeloResultDto>(API_URL.vehiculos.modelos.findOne(id));
+  async findOneModelo(id: ApiParam<'vehiculos', 'findOneModelo', 'id'>) {
+    return await this.api.vehiculos.findOneModelo({ id }).then((response) => response.data);
   }
-
-  createModelo(modelo: ModeloCreateDto): Observable<ModeloResultDto> {
-    return this.http.post<ModeloResultDto>(API_URL.vehiculos.modelos.create, modelo);
+  async createModelo(modelo: ApiBody<'vehiculos', 'createModelo'>) {
+    return await this.api.vehiculos.createModelo(modelo).then((response) => response.data);
   }
-
-  updateModelo(id: number, modelo: ModeloUpdateDto): Observable<ModeloResultDto> {
-    return this.http.patch<ModeloResultDto>(API_URL.vehiculos.modelos.update(id), modelo);
+  async updateModelo(
+    id: ApiParam<'vehiculos', 'updateModelo', 'id'>,
+    modelo: ApiBody<'vehiculos', 'updateModelo'>
+  ) {
+    return await this.api.vehiculos.updateModelo({ id }, modelo).then((response) => response.data);
   }
-
-  deleteModelo(id: number): Observable<ModeloResultDto> {
-    return this.http.delete<ModeloResultDto>(API_URL.vehiculos.modelos.delete(id));
+  async deleteModelo(id: ApiParam<'vehiculos', 'deleteModelo', 'id'>) {
+    return await this.api.vehiculos.deleteModelo({ id }).then((response) => response.data);
   }
 }

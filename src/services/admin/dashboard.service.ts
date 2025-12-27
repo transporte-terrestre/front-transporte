@@ -1,43 +1,27 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { API_URL } from '@route/api.route';
-import {
-  DashboardStats,
-  VehiculosPorEstado,
-  ViajesRecientes,
-  MantenimientosProximos,
-  RutasPopulares,
-  IngresosMensuales,
-} from '@interface/admin/dashboard.interface';
+import { Api } from 'api/backend.api';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DashboardService {
-  private http = inject(HttpClient);
-
-  getStats(): Observable<DashboardStats> {
-    return this.http.get<DashboardStats>(API_URL.dashboard.stats);
+  private api = inject(Api);
+  async getStats() {
+    return await this.api.dashboard.getStats().then((response) => response.data);
   }
-
-  getVehiculosPorEstado(): Observable<VehiculosPorEstado> {
-    return this.http.get<VehiculosPorEstado>(API_URL.dashboard.vehiculosEstado);
+  async getVehiculosPorEstado() {
+    return await this.api.dashboard.getVehiculosPorEstado().then((response) => response.data);
   }
-
-  getViajesRecientes(): Observable<ViajesRecientes> {
-    return this.http.get<ViajesRecientes>(API_URL.dashboard.viajesRecientes);
+  async getViajesRecientes() {
+    return await this.api.dashboard.getViajesRecientes().then((response) => response.data);
   }
-
-  getMantenimientosProximos(): Observable<MantenimientosProximos> {
-    return this.http.get<MantenimientosProximos>(API_URL.dashboard.mantenimientosProximos);
+  async getMantenimientosProximos() {
+    return await this.api.dashboard.getMantenimientosProximos().then((response) => response.data);
   }
-
-  getRutasPopulares(): Observable<RutasPopulares> {
-    return this.http.get<RutasPopulares>(API_URL.dashboard.rutasPopulares);
+  async getRutasPopulares() {
+    return await this.api.dashboard.getRutasPopulares().then((response) => response.data);
   }
-
-  getIngresosMensuales(): Observable<IngresosMensuales> {
-    return this.http.get<IngresosMensuales>(API_URL.dashboard.ingresosMensuales);
+  async getIngresosMensuales() {
+    return await this.api.dashboard.getIngresosMensuales().then((response) => response.data);
   }
 }

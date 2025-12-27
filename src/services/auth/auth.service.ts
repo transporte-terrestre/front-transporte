@@ -1,42 +1,30 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
-import { API_URL } from '@route/api.route';
-import { LoginDto, LoginResultDto } from '@interface/auth/auth.interface';
-import { Rol, UsuarioResultDto } from '@interface/admin/usuario.interface';
-
+import { Api, ApiBody, ApiResponse, ApiField } from 'api/backend.api';
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private http = inject(HttpClient);
-
-  private userSignal = signal<Partial<UsuarioResultDto> | null>(null);
+  private api = inject(Api);
+  private userSignal = signal<ApiResponse<'auth', 'login'>["user"] | null>(null);
   private tokenSignal = signal<string | null>(null);
-
   user = this.userSignal.asReadonly();
   token = this.tokenSignal.asReadonly();
   isAuthenticated = computed(() => this.userSignal() !== null && this.tokenSignal() !== null);
-
   constructor() {
     this.restoreSession();
   }
-
-  login(credentials: LoginDto): Observable<LoginResultDto> {
-    return this.http.post<LoginResultDto>(API_URL.auth.login, credentials).pipe(
-      tap((response) => {
-        this.userSignal.set(response.user);
-        this.tokenSignal.set(response.accessToken);
-        this.saveToStorage(response);
-      })
-    );
+ 
+  async login(credentials: ApiBody<'auth', 'login'>) {
+    const response = await this.api.auth.login(credentials).then((r) => r.data);
+    this.userSignal.set(response.user);
+    this.tokenSignal.set(response.accessToken);
+    this.saveToStorage(response);
+    return response;
   }
-
   logout(): void {
     this.clearSession();
   }
-
-  private saveToStorage(response: LoginResultDto): void {
+  private saveToStorage(response: ApiResponse<'auth', 'login'>): void {
     if (typeof window !== 'undefined') {
       localStorage.setItem('accessToken', response.accessToken);
       localStorage.setItem('user', JSON.stringify(response.user));
@@ -65,11 +53,10 @@ export class AuthService {
     }
   }
 
-  hasRol(role: Rol): boolean {
+  hasRol(role: ApiField<'usuarios', 'findOne', 'roles'>[number]): boolean {
     const user = this.userSignal();
     return user?.roles?.includes(role) ?? false;
   }
-
   getToken(): string | null {
     return this.tokenSignal();
   }

@@ -1,13 +1,13 @@
+import { ApiResponse } from 'api/backend.api';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { ViajeDetalladoDto } from '@interface/admin/reportes.interface';
 
 export interface ReportePdfData {
   tipoReporte: 'vehiculo' | 'conductor' | 'cliente';
   entidadNombre: string;
   fechaInicio: string;
   fechaFin: string;
-  viajes: ViajeDetalladoDto[];
+  viajes: ApiResponse<"reportes","getViajesDetalladosPorCliente">[];
   totalKilometrosFinales: number;
   totalKilometrosEstimados?: number;
   totalDiferencia?: number;

@@ -1,63 +1,36 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { API_URL } from '@route/api.route';
-import {
-  UsuarioCreateDto,
-  UsuarioResultDto,
-  UsuarioUpdateDto,
-  PaginatedUsuarioResultDto,
-  UsuarioDocumentoResultDto,
-  UsuarioDocumentoCreateDto,
-  UsuarioDocumentoUpdateDto,
-  UsuarioPaginationParams,
-} from '@interface/admin/usuario.interface';
+import { Api, ApiQuery, ApiBody, ApiParam } from 'api/backend.api';
 
 @Injectable({
   providedIn: 'root',
 })
 export class UsuarioService {
-  private http = inject(HttpClient);
-
-  findAll(params?: UsuarioPaginationParams): Observable<PaginatedUsuarioResultDto> {
-    return this.http.get<PaginatedUsuarioResultDto>(API_URL.usuarios.findAll(params));
+  private api = inject(Api);
+  async findAll(query: ApiQuery<'usuarios', 'findAll'>) {
+    return await this.api.usuarios.findAll(query).then((response) => response.data);
   }
-
-  findOne(id: number): Observable<UsuarioResultDto> {
-    return this.http.get<UsuarioResultDto>(API_URL.usuarios.findOne(id));
+  async findOne(id: ApiParam<'usuarios', 'findOne', 'id'>) {
+    return await this.api.usuarios.findOne({ id }).then((response) => response.data);
   }
-
-  create(usuario: UsuarioCreateDto): Observable<UsuarioResultDto> {
-    return this.http.post<UsuarioResultDto>(API_URL.usuarios.create, usuario);
+  async create(usuario: ApiBody<'usuarios', 'create'>) {
+    return await this.api.usuarios.create(usuario).then((response) => response.data);
   }
-
-  update(id: number, usuario: UsuarioUpdateDto): Observable<UsuarioResultDto> {
-    return this.http.patch<UsuarioResultDto>(API_URL.usuarios.update(id), usuario);
+  async update(id: ApiParam<'usuarios', 'update', 'id'>, usuario: ApiBody<'usuarios', 'update'>) {
+    return await this.api.usuarios.update({ id }, usuario).then((response) => response.data);
   }
-
-  delete(id: number): Observable<UsuarioResultDto> {
-    return this.http.delete<UsuarioResultDto>(API_URL.usuarios.delete(id));
+  async delete(id: ApiParam<'usuarios', 'remove', 'id'>) {
+    return await this.api.usuarios.remove({ id }).then((response) => response.data);
   }
-
-  findDocumento(id: number): Observable<UsuarioDocumentoResultDto> {
-    return this.http.get<UsuarioDocumentoResultDto>(API_URL.usuarios.documentos.find(id));
+  async findDocumento(id: ApiParam<'usuarios', 'findDocumento', 'id'>) {
+    return await this.api.usuarios.findDocumento({ id }).then((response) => response.data);
   }
-
-  createDocumento(documento: UsuarioDocumentoCreateDto): Observable<UsuarioDocumentoResultDto> {
-    return this.http.post<UsuarioDocumentoResultDto>(API_URL.usuarios.documentos.create, documento);
+  async createDocumento(documento: ApiBody<'usuarios', 'createDocumento'>) {
+    return await this.api.usuarios.createDocumento(documento).then((response) => response.data);
   }
-
-  updateDocumento(
-    id: number,
-    documento: UsuarioDocumentoUpdateDto
-  ): Observable<UsuarioDocumentoResultDto> {
-    return this.http.patch<UsuarioDocumentoResultDto>(
-      API_URL.usuarios.documentos.update(id),
-      documento
-    );
+  async updateDocumento(id: ApiParam<'usuarios', 'updateDocumento', 'id'>, documento: ApiBody<'usuarios', 'updateDocumento'>) {
+    return await this.api.usuarios.updateDocumento({ id }, documento).then((response) => response.data);
   }
-
-  deleteDocumento(id: number): Observable<UsuarioDocumentoResultDto> {
-    return this.http.delete<UsuarioDocumentoResultDto>(API_URL.usuarios.documentos.delete(id));
+  async deleteDocumento(id: ApiParam<'usuarios', 'deleteDocumento', 'id'>) {
+    return await this.api.usuarios.deleteDocumento({ id }).then((response) => response.data);
   }
 }

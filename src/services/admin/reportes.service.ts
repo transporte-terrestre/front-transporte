@@ -1,78 +1,34 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { API_URL } from '@route/api.route';
-import {
-  ReporteQueryDto,
-  ViajeDetalladoDto,
-  MantenimientoDetalladoVehiculoDto,
-  MantenimientoDetalladoTallerDto,
-} from '@interface/admin/reportes.interface';
+import { Api, ApiQuery, ApiParam } from 'api/backend.api';
 import { generateReportePdf, ReportePdfData } from '../../templates/reporte-viajes.template';
-import {
-  generateReporteMantenimientoPdf,
-  ReporteMantenimientoPdfData,
-} from '../../templates/reporte-mantenimientos.template';
+import { generateReporteMantenimientoPdf, ReporteMantenimientoPdfData } from '../../templates/reporte-mantenimientos.template';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ReportesService {
-  private http = inject(HttpClient);
-
+  private api = inject(Api);
   // ========== VIAJES DETALLADOS ==========
-
-  getViajesDetalladosPorVehiculo(
-    id: number,
-    params?: ReporteQueryDto
-  ): Observable<ViajeDetalladoDto[]> {
-    return this.http.get<ViajeDetalladoDto[]>(
-      API_URL.reportes.viajesDetalladosVehiculo(id, params)
-    );
+  async getViajesDetalladosPorVehiculo(id: ApiParam<'reportes', 'getViajesDetalladosPorVehiculo', 'id'>, query?: ApiQuery<'reportes', 'getViajesDetalladosPorVehiculo'>) {
+    return await this.api.reportes.getViajesDetalladosPorVehiculo({ id, ...query }).then((response) => response.data);
   }
-
-  getViajesDetalladosPorConductor(
-    id: number,
-    params?: ReporteQueryDto
-  ): Observable<ViajeDetalladoDto[]> {
-    return this.http.get<ViajeDetalladoDto[]>(
-      API_URL.reportes.viajesDetalladosConductor(id, params)
-    );
+  async getViajesDetalladosPorConductor(id: ApiParam<'reportes', 'getViajesDetalladosPorConductor', 'id'>, query?: ApiQuery<'reportes', 'getViajesDetalladosPorConductor'>) {
+    return await this.api.reportes.getViajesDetalladosPorConductor({ id, ...query }).then((response) => response.data);
   }
-
-  getViajesDetalladosPorCliente(
-    id: number,
-    params?: ReporteQueryDto
-  ): Observable<ViajeDetalladoDto[]> {
-    return this.http.get<ViajeDetalladoDto[]>(API_URL.reportes.viajesDetalladosCliente(id, params));
+  async getViajesDetalladosPorCliente(id: ApiParam<'reportes', 'getViajesDetalladosPorCliente', 'id'>, query?: ApiQuery<'reportes', 'getViajesDetalladosPorCliente'>) {
+    return await this.api.reportes.getViajesDetalladosPorCliente({ id, ...query }).then((response) => response.data);
   }
-
   // ========== MANTENIMIENTOS DETALLADOS ==========
-
-  getMantenimientosDetalladosPorVehiculo(
-    id: number,
-    params?: ReporteQueryDto
-  ): Observable<MantenimientoDetalladoVehiculoDto[]> {
-    return this.http.get<MantenimientoDetalladoVehiculoDto[]>(
-      API_URL.reportes.mantenimientosDetalladosVehiculo(id, params)
-    );
+  async getMantenimientosDetalladosPorVehiculo(id: ApiParam<'reportes', 'getMantenimientosDetalladosPorVehiculo', 'id'>, query?: ApiQuery<'reportes', 'getMantenimientosDetalladosPorVehiculo'>) {
+    return await this.api.reportes.getMantenimientosDetalladosPorVehiculo({ id, ...query }).then((response) => response.data);
   }
-
-  getMantenimientosDetalladosPorTaller(
-    id: number,
-    params?: ReporteQueryDto
-  ): Observable<MantenimientoDetalladoTallerDto[]> {
-    return this.http.get<MantenimientoDetalladoTallerDto[]>(
-      API_URL.reportes.mantenimientosDetalladosTaller(id, params)
-    );
+  async getMantenimientosDetalladosPorTaller(id: ApiParam<'reportes', 'getMantenimientosDetalladosPorTaller', 'id'>, query?: ApiQuery<'reportes', 'getMantenimientosDetalladosPorTaller'>) {
+    return await this.api.reportes.getMantenimientosDetalladosPorTaller({ id, ...query }).then((response) => response.data);
   }
-
   // ========== PDF GENERATION ==========
-
   generateReportePdf(data: ReportePdfData): void {
     generateReportePdf(data);
   }
-
   generateReporteMantenimientoPdf(data: ReporteMantenimientoPdfData): void {
     generateReporteMantenimientoPdf(data);
   }

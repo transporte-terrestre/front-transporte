@@ -1,22 +1,14 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { API_URL } from '@route/api.route';
-import { StorageResultDto, StorageDeleteResultDto } from '@interface/admin/storage.interface';
-
+import { Api, ApiParam } from 'api/backend.api';
 @Injectable({
   providedIn: 'root',
 })
 export class StorageService {
-  private http = inject(HttpClient);
-
-  upload(file: File, folder?: string): Observable<StorageResultDto> {
-    const formData = new FormData();
-    formData.append('file', file);
-    return this.http.post<StorageResultDto>(API_URL.storage.upload({ folder }), formData);
+  private api = inject(Api);
+  async upload(file: File, folder: string) {
+    return await this.api.storage.upload({ folder }, { file }).then((response) => response.data);
   }
-
-  delete(publicId: string): Observable<StorageDeleteResultDto> {
-    return this.http.delete<StorageDeleteResultDto>(API_URL.storage.delete(publicId));
+  async delete(publicId: ApiParam<'storage', 'delete', 'publicId'>) {
+    return await this.api.storage.delete({ publicId }).then((response) => response.data);
   }
 }

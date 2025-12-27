@@ -1,17 +1,14 @@
+import { ApiResponse } from 'api/backend.api';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import {
-  MantenimientoDetalladoVehiculoDto,
-  MantenimientoDetalladoTallerDto,
-} from '@interface/admin/reportes.interface';
 
 export interface ReporteMantenimientoPdfData {
   tipoReporte: 'mantenimientos-vehiculo' | 'mantenimientos-taller';
   entidadNombre: string;
   fechaInicio: string;
   fechaFin: string;
-  mantenimientosVehiculo?: MantenimientoDetalladoVehiculoDto[];
-  mantenimientosTaller?: MantenimientoDetalladoTallerDto[];
+  mantenimientosVehiculo?: ApiResponse<"reportes","getViajesDetalladosPorVehiculo">[];
+  mantenimientosTaller?: ApiResponse<"reportes","getMantenimientosDetalladosPorTaller">[];
   totalCosto: number;
 }
 

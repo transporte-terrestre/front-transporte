@@ -1,4 +1,6 @@
-import { Rol } from '@interface/admin/usuario.interface';
+import { ApiField } from "api/backend.api";
+
+type Rol = ApiField<'usuarios', 'findOne', 'roles'>[number];
 
 export type PathNode = {
   _path: string;

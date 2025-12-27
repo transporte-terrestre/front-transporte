@@ -1,46 +1,24 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { API_URL } from '@route/api.route';
-import {
-  RutaCreateDto,
-  RutaResultDto,
-  RutaUpdateDto,
-  PaginatedRutaResultDto,
-} from '@interface/admin/ruta.interface';
-
-export interface PaginationParams {
-  page?: number;
-  limit?: number;
-  search?: string;
-  fechaInicio?: string;
-  fechaFin?: string;
-  [key: string]: any;
-}
+import { Api, ApiQuery, ApiBody, ApiParam } from 'api/backend.api';
 
 @Injectable({
   providedIn: 'root',
 })
 export class RutaService {
-  private http = inject(HttpClient);
-
-  findAll(params?: PaginationParams): Observable<PaginatedRutaResultDto> {
-    return this.http.get<PaginatedRutaResultDto>(API_URL.rutas.findAll(params));
+  private api = inject(Api);
+  async findAll(query: ApiQuery<'rutas', 'findAll'>) {
+    return await this.api.rutas.findAll(query).then((response) => response.data);
   }
-
-  findOne(id: number): Observable<RutaResultDto> {
-    return this.http.get<RutaResultDto>(API_URL.rutas.findOne(id));
+  async findOne(id: ApiParam<'rutas', 'findOne', 'id'>) {
+    return await this.api.rutas.findOne({ id }).then((response) => response.data);
   }
-
-  create(ruta: RutaCreateDto): Observable<RutaResultDto> {
-    return this.http.post<RutaResultDto>(API_URL.rutas.create, ruta);
+  async create(ruta: ApiBody<'rutas', 'create'>) {
+    return await this.api.rutas.create(ruta).then((response) => response.data);
   }
-
-  update(id: number, ruta: RutaUpdateDto): Observable<RutaResultDto> {
-    return this.http.patch<RutaResultDto>(API_URL.rutas.update(id), ruta);
+  async update(id: ApiParam<'rutas', 'update', 'id'>, ruta: ApiBody<'rutas', 'update'>) {
+    return await this.api.rutas.update({ id }, ruta).then((response) => response.data);
   }
-
-  delete(id: number): Observable<RutaResultDto> {
-    return this.http.delete<RutaResultDto>(API_URL.rutas.delete(id));
+  async delete(id: ApiParam<'rutas', 'remove', 'id'>) {
+    return await this.api.rutas.remove({ id }).then((response) => response.data);
   }
 }

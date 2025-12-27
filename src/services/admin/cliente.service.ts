@@ -1,63 +1,38 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { API_URL } from '@route/api.route';
-import {
-  ClienteCreateDto,
-  ClienteResultDto,
-  ClienteUpdateDto,
-  PaginatedClienteResultDto,
-  ClienteDocumentoResultDto,
-  ClienteDocumentoCreateDto,
-  ClienteDocumentoUpdateDto,
-  ClientePaginationParams,
-} from '@interface/admin/cliente.interface';
+import { Api, ApiBody, ApiParam, ApiQuery } from 'api/backend.api';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ClienteService {
-  private http = inject(HttpClient);
-
-  findAll(params?: ClientePaginationParams): Observable<PaginatedClienteResultDto> {
-    return this.http.get<PaginatedClienteResultDto>(API_URL.clientes.findAll(params));
+  private api = inject(Api);async findAll(query: ApiQuery<'clientes', 'findAll'>) {
+    return await this.api.clientes.findAll(query).then((response) => response.data);
   }
-
-  findOne(id: number): Observable<ClienteResultDto> {
-    return this.http.get<ClienteResultDto>(API_URL.clientes.findOne(id));
+  async findOne(id: ApiParam<'clientes', 'findOne', 'id'>) {
+    return await this.api.clientes.findOne({ id }).then((response) => response.data);
   }
-
-  create(cliente: ClienteCreateDto): Observable<ClienteResultDto> {
-    return this.http.post<ClienteResultDto>(API_URL.clientes.create, cliente);
+  async create(cliente: ApiBody<'clientes', 'create'>) {
+    return await this.api.clientes.create(cliente).then((response) => response.data);
   }
-
-  update(id: number, cliente: ClienteUpdateDto): Observable<ClienteResultDto> {
-    return this.http.patch<ClienteResultDto>(API_URL.clientes.update(id), cliente);
+  async update(id: ApiParam<'clientes', 'update', 'id'>, cliente: ApiBody<'clientes', 'update'>) {
+    return await this.api.clientes.update({ id }, cliente).then((response) => response.data);
   }
-
-  delete(id: number): Observable<ClienteResultDto> {
-    return this.http.delete<ClienteResultDto>(API_URL.clientes.delete(id));
+  async delete(id: ApiParam<'clientes', 'remove', 'id'>) {
+    return await this.api.clientes.remove({ id }).then((response) => response.data);
   }
-
-  findDocumento(id: number): Observable<ClienteDocumentoResultDto> {
-    return this.http.get<ClienteDocumentoResultDto>(API_URL.clientes.documentos.find(id));
+  async findDocumento(id: ApiParam<'clientes', 'findDocumento', 'id'>) {
+    return await this.api.clientes.findDocumento({ id }).then((response) => response.data);
   }
-
-  createDocumento(documento: ClienteDocumentoCreateDto): Observable<ClienteDocumentoResultDto> {
-    return this.http.post<ClienteDocumentoResultDto>(API_URL.clientes.documentos.create, documento);
+  async createDocumento(documento: ApiBody<'clientes', 'createDocumento'>) {
+    return await this.api.clientes.createDocumento(documento).then((response) => response.data);
   }
-
-  updateDocumento(
-    id: number,
-    documento: ClienteDocumentoUpdateDto
-  ): Observable<ClienteDocumentoResultDto> {
-    return this.http.patch<ClienteDocumentoResultDto>(
-      API_URL.clientes.documentos.update(id),
-      documento
-    );
+  async updateDocumento(
+    id: ApiParam<'clientes', 'updateDocumento', 'id'>,
+    documento: ApiBody<'clientes', 'updateDocumento'>
+  ) {
+    return await this.api.clientes.updateDocumento({ id }, documento).then((response) => response.data);
   }
-
-  deleteDocumento(id: number): Observable<ClienteDocumentoResultDto> {
-    return this.http.delete<ClienteDocumentoResultDto>(API_URL.clientes.documentos.delete(id));
+  async deleteDocumento(id: ApiParam<'clientes', 'deleteDocumento', 'id'>) {
+    return await this.api.clientes.deleteDocumento({ id }).then((response) => response.data);
   }
 }

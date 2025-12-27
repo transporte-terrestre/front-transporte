@@ -1,74 +1,36 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { API_URL } from '@route/api.route';
-import {
-  ConductorCreateDto,
-  ConductorResultDto,
-  ConductorUpdateDto,
-  PaginatedConductorResultDto,
-  ConductorDocumentoResultDto,
-  ConductorDocumentoCreateDto,
-  ConductorDocumentoUpdateDto,
-} from '@interface/admin/conductor.interface';
-
-export interface PaginationParams {
-  page?: number;
-  limit?: number;
-  search?: string;
-  fechaInicio?: string;
-  fechaFin?: string;
-  [key: string]: any;
-}
+import { Api, ApiQuery, ApiBody, ApiParam } from 'api/backend.api';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ConductorService {
-  private http = inject(HttpClient);
-
-  findAll(params?: PaginationParams): Observable<PaginatedConductorResultDto> {
-    return this.http.get<PaginatedConductorResultDto>(API_URL.conductores.findAll(params));
+  private api = inject(Api);
+  async findAll(query: ApiQuery<'conductores', 'findAll'>) {
+    return await this.api.conductores.findAll(query).then((response) => response.data);
   }
-
-  findOne(id: number): Observable<ConductorResultDto> {
-    return this.http.get<ConductorResultDto>(API_URL.conductores.findOne(id));
+  async findOne(id: ApiParam<'conductores', 'findOne', 'id'>) {
+    return await this.api.conductores.findOne({ id }).then((response) => response.data);
   }
-
-  create(conductor: ConductorCreateDto): Observable<ConductorResultDto> {
-    return this.http.post<ConductorResultDto>(API_URL.conductores.create, conductor);
+  async create(conductor: ApiBody<'conductores', 'create'>) {
+    return await this.api.conductores.create(conductor).then((response) => response.data);
   }
-
-  update(id: number, conductor: ConductorUpdateDto): Observable<ConductorResultDto> {
-    return this.http.patch<ConductorResultDto>(API_URL.conductores.update(id), conductor);
+  async update(id: ApiParam<'conductores', 'update', 'id'>, conductor: ApiBody<'conductores', 'update'>) {
+    return await this.api.conductores.update({ id }, conductor).then((response) => response.data);
   }
-
-  delete(id: number): Observable<ConductorResultDto> {
-    return this.http.delete<ConductorResultDto>(API_URL.conductores.delete(id));
+  async delete(id: ApiParam<'conductores', 'remove', 'id'>) {
+    return await this.api.conductores.remove({ id }).then((response) => response.data);
   }
-
-  findDocumento(id: number): Observable<ConductorDocumentoResultDto> {
-    return this.http.get<ConductorDocumentoResultDto>(API_URL.conductores.documentos.find(id));
+  async findDocumento(id: ApiParam<'conductores', 'findDocumento', 'id'>) {
+    return await this.api.conductores.findDocumento({ id }).then((response) => response.data);
   }
-
-  createDocumento(documento: ConductorDocumentoCreateDto): Observable<ConductorDocumentoResultDto> {
-    return this.http.post<ConductorDocumentoResultDto>(
-      API_URL.conductores.documentos.create,
-      documento
-    );
+  async createDocumento(documento: ApiBody<'conductores', 'createDocumento'>) {
+    return await this.api.conductores.createDocumento(documento).then((response) => response.data);
   }
-
-  updateDocumento(
-    id: number,
-    documento: ConductorDocumentoUpdateDto
-  ): Observable<ConductorDocumentoResultDto> {
-    return this.http.patch<ConductorDocumentoResultDto>(
-      API_URL.conductores.documentos.update(id),
-      documento
-    );
+  async updateDocumento(id: ApiParam<'conductores', 'updateDocumento', 'id'>, documento: ApiBody<'conductores', 'updateDocumento'>) {
+    return await this.api.conductores.updateDocumento({ id }, documento).then((response) => response.data);
   }
-
-  deleteDocumento(id: number): Observable<ConductorDocumentoResultDto> {
-    return this.http.delete<ConductorDocumentoResultDto>(API_URL.conductores.documentos.delete(id));
+  async deleteDocumento(id: ApiParam<'conductores', 'deleteDocumento', 'id'>) {
+    return await this.api.conductores.deleteDocumento({ id }).then((response) => response.data);
   }
 }

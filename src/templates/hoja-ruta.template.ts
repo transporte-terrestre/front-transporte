@@ -1,8 +1,8 @@
+import { ApiResponse } from 'api/backend.api';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { ViajeResultDto } from '@interface/admin/viaje.interface';
 
-export const generateHojaRutaPdf = (viaje: ViajeResultDto) => {
+export const generateHojaRutaPdf = (viaje: ApiResponse<'viajes', 'findOne'>) => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.width;
   const margin = 14;

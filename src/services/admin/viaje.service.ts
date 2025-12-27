@@ -1,134 +1,73 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { API_URL } from '@route/api.route';
-import {
-  ViajeCreateDto,
-  ViajeResultDto,
-  ViajeUpdateDto,
-  PaginatedViajeResultDto,
-  ViajeConductorResultDto,
-  ViajeConductorCreateDto,
-  ViajeConductorUpdateDto,
-  ViajeVehiculoResultDto,
-  ViajeVehiculoCreateDto,
-  ViajeVehiculoUpdateDto,
-  ViajeComentarioResultDto,
-  ViajeComentarioCreateDto,
-  ViajeComentarioUpdateDto,
-  ViajePaginationParams,
-} from '@interface/admin/viaje.interface';
+import { Api, ApiQuery, ApiBody, ApiParam, ApiResponse } from 'api/backend.api';
 import { generateHojaRutaPdf } from '@template/hoja-ruta.template';
-
+type ViajeResultDto = ApiResponse<'viajes', 'findOne'>;
 @Injectable({
   providedIn: 'root',
 })
 export class ViajeService {
-  private http = inject(HttpClient);
-
-  findAll(params?: ViajePaginationParams): Observable<PaginatedViajeResultDto> {
-    return this.http.get<PaginatedViajeResultDto>(API_URL.viajes.findAll(params));
+  private api = inject(Api);
+  async findAll(query: ApiQuery<'viajes', 'findAll'>) {
+    return await this.api.viajes.findAll(query).then((response) => response.data);
   }
-
-  findOne(id: number): Observable<ViajeResultDto> {
-    return this.http.get<ViajeResultDto>(API_URL.viajes.findOne(id)).pipe(
-      map((viaje) => {
-        const conductorPrincipal = viaje.conductores?.find((c) => c.esPrincipal);
-        const vehiculoPrincipal = viaje.vehiculos?.find((v) => v.esPrincipal);
-        return {
-          ...viaje,
-          conductorPrincipal,
-          vehiculoPrincipal,
-        };
-      })
-    );
+  async findOne(id: ApiParam<'viajes', 'findOne', 'id'>) {
+    const viaje = await this.api.viajes.findOne({ id }).then((response) => response.data);
+    const conductorPrincipal = viaje.conductores?.find((c) => c.esPrincipal);
+    const vehiculoPrincipal = viaje.vehiculos?.find((v) => v.esPrincipal);
+    return {
+      ...viaje,
+      conductorPrincipal,
+      vehiculoPrincipal,
+    };
   }
-
-  create(viaje: ViajeCreateDto): Observable<ViajeResultDto> {
-    return this.http.post<ViajeResultDto>(API_URL.viajes.create, viaje);
+  async create(viaje: ApiBody<'viajes', 'create'>) {
+    return await this.api.viajes.create(viaje).then((response) => response.data);
   }
-
-  update(id: number, viaje: ViajeUpdateDto): Observable<ViajeResultDto> {
-    return this.http.patch<ViajeResultDto>(API_URL.viajes.update(id), viaje);
+  async update(id: ApiParam<'viajes', 'update', 'id'>, viaje: ApiBody<'viajes', 'update'>) {
+    return await this.api.viajes.update({ id }, viaje).then((response) => response.data);
   }
-
-  delete(id: number): Observable<ViajeResultDto> {
-    return this.http.delete<ViajeResultDto>(API_URL.viajes.delete(id));
+  async delete(id: ApiParam<'viajes', 'remove', 'id'>) {
+    return await this.api.viajes.remove({ id }).then((response) => response.data);
   }
-
   // Conductores
-  getConductores(viajeId: number): Observable<ViajeConductorResultDto[]> {
-    return this.http.get<ViajeConductorResultDto[]>(API_URL.viajes.conductores.findAll(viajeId));
+  async getConductores(viajeId: ApiParam<'viajes', 'findConductores', 'viajeId'>) {
+    return await this.api.viajes.findConductores({ viajeId }).then((response) => response.data);
   }
-
-  assignConductor(data: ViajeConductorCreateDto): Observable<ViajeConductorResultDto> {
-    return this.http.post<ViajeConductorResultDto>(API_URL.viajes.conductores.assign, data);
+  async assignConductor(data: ApiBody<'viajes', 'assignConductor'>) {
+    return await this.api.viajes.assignConductor(data).then((response) => response.data);
   }
-
-  updateConductor(
-    viajeId: number,
-    conductorId: number,
-    data: ViajeConductorUpdateDto
-  ): Observable<ViajeConductorResultDto> {
-    return this.http.patch<ViajeConductorResultDto>(
-      API_URL.viajes.conductores.update(viajeId, conductorId),
-      data
-    );
+  async updateConductor(viajeId: ApiParam<'viajes', 'updateConductor', 'viajeId'>, conductorId: ApiParam<'viajes', 'updateConductor', 'conductorId'>, data: ApiBody<'viajes', 'updateConductor'>) {
+    return await this.api.viajes.updateConductor({ viajeId, conductorId }, data).then((response) => response.data);
   }
-
-  removeConductor(viajeId: number, conductorId: number): Observable<ViajeConductorResultDto> {
-    return this.http.delete<ViajeConductorResultDto>(
-      API_URL.viajes.conductores.delete(viajeId, conductorId)
-    );
+  async removeConductor(viajeId: ApiParam<'viajes', 'removeConductor', 'viajeId'>, conductorId: ApiParam<'viajes', 'removeConductor', 'conductorId'>) {
+    return await this.api.viajes.removeConductor({ viajeId, conductorId }).then((response) => response.data);
   }
-
   // Vehiculos
-  getVehiculos(viajeId: number): Observable<ViajeVehiculoResultDto[]> {
-    return this.http.get<ViajeVehiculoResultDto[]>(API_URL.viajes.vehiculos.findAll(viajeId));
+  async getVehiculos(viajeId: ApiParam<'viajes', 'findVehiculos', 'viajeId'>) {
+    return await this.api.viajes.findVehiculos({ viajeId }).then((response) => response.data);
   }
-
-  assignVehiculo(data: ViajeVehiculoCreateDto): Observable<ViajeVehiculoResultDto> {
-    return this.http.post<ViajeVehiculoResultDto>(API_URL.viajes.vehiculos.assign, data);
+  async assignVehiculo(data: ApiBody<'viajes', 'assignVehiculo'>) {
+    return await this.api.viajes.assignVehiculo(data).then((response) => response.data);
   }
-
-  updateVehiculo(
-    viajeId: number,
-    vehiculoId: number,
-    data: ViajeVehiculoUpdateDto
-  ): Observable<ViajeVehiculoResultDto> {
-    return this.http.patch<ViajeVehiculoResultDto>(
-      API_URL.viajes.vehiculos.update(viajeId, vehiculoId),
-      data
-    );
+  async updateVehiculo(viajeId: ApiParam<'viajes', 'updateVehiculo', 'viajeId'>, vehiculoId: ApiParam<'viajes', 'updateVehiculo', 'vehiculoId'>, data: ApiBody<'viajes', 'updateVehiculo'>) {
+    return await this.api.viajes.updateVehiculo({ viajeId, vehiculoId }, data).then((response) => response.data);
   }
-
-  removeVehiculo(viajeId: number, vehiculoId: number): Observable<ViajeVehiculoResultDto> {
-    return this.http.delete<ViajeVehiculoResultDto>(
-      API_URL.viajes.vehiculos.delete(viajeId, vehiculoId)
-    );
+  async removeVehiculo(viajeId: ApiParam<'viajes', 'removeVehiculo', 'viajeId'>, vehiculoId: ApiParam<'viajes', 'removeVehiculo', 'vehiculoId'>) {
+    return await this.api.viajes.removeVehiculo({ viajeId, vehiculoId }).then((response) => response.data);
   }
-
   // Comentarios
-  getComentarios(viajeId: number): Observable<ViajeComentarioResultDto[]> {
-    return this.http.get<ViajeComentarioResultDto[]>(API_URL.viajes.comentarios.findAll(viajeId));
+  async getComentarios(viajeId: ApiParam<'viajes', 'findComentarios', 'viajeId'>) {
+    return await this.api.viajes.findComentarios({ viajeId }).then((response) => response.data);
   }
-
-  createComentario(data: ViajeComentarioCreateDto): Observable<ViajeComentarioResultDto> {
-    return this.http.post<ViajeComentarioResultDto>(API_URL.viajes.comentarios.create, data);
+  async createComentario(data: ApiBody<'viajes', 'createComentario'>) {
+    return await this.api.viajes.createComentario(data).then((response) => response.data);
   }
-
-  updateComentario(
-    id: number,
-    data: ViajeComentarioUpdateDto
-  ): Observable<ViajeComentarioResultDto> {
-    return this.http.patch<ViajeComentarioResultDto>(API_URL.viajes.comentarios.update(id), data);
+  async updateComentario(id: ApiParam<'viajes', 'updateComentario', 'id'>, data: ApiBody<'viajes', 'updateComentario'>) {
+    return await this.api.viajes.updateComentario({ id }, data).then((response) => response.data);
   }
-
-  deleteComentario(id: number): Observable<ViajeComentarioResultDto> {
-    return this.http.delete<ViajeComentarioResultDto>(API_URL.viajes.comentarios.delete(id));
+  async deleteComentario(id: ApiParam<'viajes', 'deleteComentario', 'id'>) {
+    return await this.api.viajes.deleteComentario({ id }).then((response) => response.data);
   }
-
   generateHojaRuta(viaje: ViajeResultDto): void {
     generateHojaRutaPdf(viaje);
   }
