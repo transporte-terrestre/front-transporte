@@ -1,6 +1,14 @@
 import { Component, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { PaginationMeta } from '@interface/admin/cliente.interface';
+
+export interface PaginationMeta {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+}
 
 @Component({
   selector: 'app-pagination',

@@ -1,7 +1,7 @@
 import { Component, inject, input, output, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { StorageService } from '@service/admin/storage.service';
-import { StorageResultDto } from '@interface/admin/storage.interface';
+import { ApiResponse } from 'api/backend.api';
 
 @Component({
   selector: 'app-images-upload',
@@ -61,7 +61,7 @@ export class ImagesUpload {
     this.dragOver.set(false);
 
     if (event.dataTransfer?.files && event.dataTransfer.files.length > 0) {
-      const files = Array.from(event.dataTransfer.files).filter(file =>
+      const files = Array.from(event.dataTransfer.files).filter((file) =>
         file.type.startsWith('image/')
       );
       if (files.length > 0) {
@@ -70,7 +70,7 @@ export class ImagesUpload {
     }
   }
 
-  private uploadFiles(files: File[]) {
+  private async uploadFiles(files: File[]) {
     const currentCount = this.imagesList().length;
     const availableSlots = this.maxImages() - currentCount;
 
@@ -79,64 +79,51 @@ export class ImagesUpload {
     const filesToUpload = files.slice(0, availableSlots);
     this.uploading.set(true);
 
-    let completed = 0;
     const newImages: string[] = [];
-
-    filesToUpload.forEach(file => {
-      this.storageService.upload(file, this.folder()).subscribe({
-        next: (result: StorageResultDto) => {
+    const uploadPromises = filesToUpload.map((file) =>
+      this.storageService
+        .upload(file, this.folder())
+        .then((result: ApiResponse<'storage', 'upload'>) => {
           newImages.push(result.secureUrl);
-          completed++;
-
-          if (completed === filesToUpload.length) {
-            const updatedList = [...this.imagesList(), ...newImages];
-            this.imagesList.set(updatedList);
-            this.imagesChange.emit(updatedList);
-            this.uploading.set(false);
-          }
-        },
-        error: (err) => {
+        })
+        .catch((err) => {
           console.error('Error uploading image:', err);
-          completed++;
-          if (completed === filesToUpload.length) {
-            if (newImages.length > 0) {
-              const updatedList = [...this.imagesList(), ...newImages];
-              this.imagesList.set(updatedList);
-              this.imagesChange.emit(updatedList);
-            }
-            this.uploading.set(false);
-          }
-        }
-      });
-    });
+        })
+    );
+
+    await Promise.all(uploadPromises);
+
+    if (newImages.length > 0) {
+      const updatedList = [...this.imagesList(), ...newImages];
+      this.imagesList.set(updatedList);
+      this.imagesChange.emit(updatedList);
+    }
+    this.uploading.set(false);
   }
 
   removeImage(index: number) {
     const currentImages = this.imagesList();
     const imageUrl = currentImages[index];
-
-    // Extraer publicId de la URL de Cloudinary
     const publicId = this.extractPublicId(imageUrl);
 
-    if (publicId) {
-      this.storageService.delete(publicId).subscribe({
-        next: () => {
-          const updatedList = currentImages.filter((_, i) => i !== index);
-          this.imagesList.set(updatedList);
-          this.imagesChange.emit(updatedList);
-        },
-        error: (err) => {
-          console.error('Error deleting image:', err);
-          // Aún así removemos de la lista local
-          const updatedList = currentImages.filter((_, i) => i !== index);
-          this.imagesList.set(updatedList);
-          this.imagesChange.emit(updatedList);
-        }
-      });
-    } else {
+    const updateState = () => {
       const updatedList = currentImages.filter((_, i) => i !== index);
       this.imagesList.set(updatedList);
       this.imagesChange.emit(updatedList);
+    };
+
+    if (publicId) {
+      this.storageService
+        .delete(publicId)
+        .then(() => {
+          updateState();
+        })
+        .catch((err) => {
+          console.error('Error deleting image:', err);
+          updateState();
+        });
+    } else {
+      updateState();
     }
   }
 

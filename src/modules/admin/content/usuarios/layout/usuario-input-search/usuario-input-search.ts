@@ -51,7 +51,18 @@ export class UsuarioInputSearch implements ControlValueAccessor {
         distinctUntilChanged(),
         tap(() => this.loading.set(true)),
         switchMap((term) => {
-          if (!term && term !== '') return of({ data: [], meta: { total: 0 } } as any);
+          if (!term && term !== '')
+            return of<ApiResponse<'usuarios', 'findAll'>>({
+              data: [],
+              meta: {
+                total: 0,
+                page: 1,
+                limit: 10,
+                totalPages: 1,
+                hasPreviousPage: false,
+                hasNextPage: false,
+              },
+            });
           return from(this.usuarioService.findAll({ search: term || '', limit: 10 })).pipe(
             finalize(() => this.loading.set(false))
           );
@@ -114,9 +125,7 @@ export class UsuarioInputSearch implements ControlValueAccessor {
     this.usuarioService
       .findOne(id)
       .then((usuario) => {
-        this.selectedUsuario.set(
-          usuario as unknown as ApiResponse<'usuarios', 'findAll'>['data'][number]
-        );
+        this.selectedUsuario.set(usuario);
       })
       .catch(() => {
         console.error('Could not load initial usuario');

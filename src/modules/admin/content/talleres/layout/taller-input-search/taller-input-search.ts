@@ -53,7 +53,18 @@ export class TallerInputSearch implements ControlValueAccessor {
         distinctUntilChanged(),
         tap(() => this.loading.set(true)),
         switchMap((term) => {
-          if (!term && term !== '') return of({ data: [], meta: { total: 0 } } as any);
+          if (!term && term !== '')
+            return of<ApiResponse<'talleres', 'findAll'>>({
+              data: [],
+              meta: {
+                total: 0,
+                page: 1,
+                limit: 10,
+                totalPages: 1,
+                hasPreviousPage: false,
+                hasNextPage: false,
+              },
+            });
           return from(this.tallerService.findAll({ search: term || '', limit: 10 })).pipe(
             finalize(() => this.loading.set(false))
           );
@@ -116,7 +127,7 @@ export class TallerInputSearch implements ControlValueAccessor {
     this.tallerService
       .findOne(id)
       .then((taller) => {
-        this.selectedTaller.set(taller as any);
+        this.selectedTaller.set(taller);
       })
       .catch(() => {
         console.error('Could not load initial taller');

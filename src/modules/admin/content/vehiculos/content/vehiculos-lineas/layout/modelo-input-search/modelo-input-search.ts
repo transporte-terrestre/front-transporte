@@ -79,7 +79,7 @@ export class ModeloInputSearch implements ControlValueAccessor {
                 total: 0,
                 page: 1,
                 limit: 10,
-                lastPage: 1,
+                totalPages: 1,
                 hasPreviousPage: false,
                 hasNextPage: false,
               },
@@ -159,13 +159,15 @@ export class ModeloInputSearch implements ControlValueAccessor {
     this.isOpen.set(false);
   }
 
-  async loadInitialModelo(id: number) {
-    try {
-      const modelo = await this.vehiculoService.findOneModelo(id);
-      this.selectedModelo.set(modelo);
-    } catch (error) {
-      console.error('Could not load initial modelo');
-    }
+  loadInitialModelo(id: number) {
+    this.vehiculoService
+      .findOneModelo(id)
+      .then((modelo) => {
+        this.selectedModelo.set(modelo);
+      })
+      .catch(() => {
+        console.error('Could not load initial modelo');
+      });
   }
 
   async loadModelsForMarca(marcaId: number) {

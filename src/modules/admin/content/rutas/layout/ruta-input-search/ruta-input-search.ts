@@ -51,7 +51,18 @@ export class RutaInputSearch implements ControlValueAccessor {
         distinctUntilChanged(),
         tap(() => this.loading.set(true)),
         switchMap((term) => {
-          if (!term && term !== '') return of({ data: [], meta: { total: 0 } } as any);
+          if (!term && term !== '')
+            return of<ApiResponse<'rutas', 'findAll'>>({
+              data: [],
+              meta: {
+                total: 0,
+                page: 1,
+                limit: 10,
+                totalPages: 1,
+                hasPreviousPage: false,
+                hasNextPage: false,
+              },
+            });
           return from(this.rutaService.findAll({ search: term || '', limit: 10 })).pipe(
             finalize(() => this.loading.set(false))
           );
@@ -114,8 +125,8 @@ export class RutaInputSearch implements ControlValueAccessor {
     this.rutaService
       .findOne(id)
       .then((ruta) => {
-        this.selectedRuta.set(ruta as any);
-        this.onChange(ruta as any);
+        this.selectedRuta.set(ruta);
+        this.onChange(ruta);
       })
       .catch(() => {
         console.error('Could not load initial ruta');

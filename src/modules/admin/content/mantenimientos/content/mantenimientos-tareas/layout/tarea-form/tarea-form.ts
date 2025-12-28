@@ -1,7 +1,7 @@
 import { Component, input, output, effect, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { TareaResultDto } from '@interface/admin/mantenimiento.interface';
+import { ApiResponse, ApiBody } from 'api/backend.api';
 
 @Component({
   selector: 'app-tarea-form',
@@ -13,8 +13,8 @@ import { TareaResultDto } from '@interface/admin/mantenimiento.interface';
 export class TareaForm {
   private fb = inject(FormBuilder);
 
-  tarea = input<TareaResultDto | null>(null);
-  onSubmit = output<{ codigo: string; descripcion: string }>();
+  tarea = input<ApiResponse<'mantenimientos', 'findAllTareas'>['data'][number] | null>(null);
+  onSubmit = output<ApiBody<'mantenimientos', 'createTarea'>>();
   onCancel = output<void>();
 
   tareaForm: FormGroup = this.fb.group({

@@ -2,10 +2,7 @@ import { Component, inject, signal, OnInit, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MantenimientoService } from '@service/admin/mantenimiento.service';
-import {
-  MantenimientoResultDto,
-  MantenimientoUpdateDto,
-} from '@interface/admin/mantenimiento.interface';
+import { ApiResponse, ApiBody } from 'api/backend.api';
 import { ToastService } from '@service/toast.service';
 import { MantenimientoForm } from '../../layout/mantenimiento-form/mantenimiento-form';
 import { PATH, buildPath } from '@route/path.route';
@@ -22,7 +19,7 @@ export class MantenimientosEdit implements OnInit {
   private mantenimientoService = inject(MantenimientoService);
   private toastService = inject(ToastService);
 
-  mantenimiento = signal<MantenimientoResultDto | null>(null);
+  mantenimiento = signal<ApiResponse<'mantenimientos', 'findOne'> | null>(null);
 
   downloadOrdenServicio() {
     if (this.mantenimiento()) {
@@ -34,8 +31,9 @@ export class MantenimientosEdit implements OnInit {
   mantenimientoFormComponent = viewChild<MantenimientoForm>(MantenimientoForm);
 
   handleDataChange() {
-    if (this.mantenimiento()) {
-      this.loadMantenimiento(this.mantenimiento()!.id);
+    const m = this.mantenimiento();
+    if (m) {
+      this.loadMantenimiento(m.id);
     }
   }
 
@@ -50,36 +48,35 @@ export class MantenimientosEdit implements OnInit {
 
   loadMantenimiento(id: number) {
     this.loading.set(true);
-    this.mantenimientoService.findOne(id).subscribe({
-      next: (mantenimiento) => {
+    this.mantenimientoService
+      .findOne(id)
+      .then((mantenimiento) => {
         this.mantenimiento.set(mantenimiento);
         this.loading.set(false);
-      },
-      error: (error) => {
+      })
+      .catch((error) => {
         console.error('Error al cargar mantenimiento:', error);
         this.toastService.error('Error al cargar mantenimiento');
         this.router.navigate([buildPath(PATH.admin.mantenimientos.list)]);
-      },
-    });
+      });
   }
 
-  handleFormSubmit(data: any) {
-    if (!this.mantenimiento()) return;
+  handleFormSubmit(data: ApiBody<'mantenimientos', 'update'>) {
+    const m = this.mantenimiento();
+    if (!m) return;
 
     this.loading.set(true);
     this.mantenimientoService
-      .update(this.mantenimiento()!.id, data as MantenimientoUpdateDto)
-      .subscribe({
-        next: () => {
-          this.toastService.success('Mantenimiento actualizado exitosamente');
-          this.loading.set(false);
-          this.loadMantenimiento(this.mantenimiento()!.id);
-        },
-        error: (error) => {
-          console.error('Error al actualizar mantenimiento:', error);
-          this.toastService.error('Error al actualizar mantenimiento');
-          this.loading.set(false);
-        },
+      .update(m.id, data)
+      .then(() => {
+        this.toastService.success('Mantenimiento actualizado exitosamente');
+        this.loading.set(false);
+        this.loadMantenimiento(m.id);
+      })
+      .catch((error) => {
+        console.error('Error al actualizar mantenimiento:', error);
+        this.toastService.error('Error al actualizar mantenimiento');
+        this.loading.set(false);
       });
   }
 

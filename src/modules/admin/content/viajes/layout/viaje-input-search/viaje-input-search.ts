@@ -35,13 +35,13 @@ export class ViajeInputSearch implements ControlValueAccessor {
   isOpen = signal(false);
   loading = signal(false);
   viajes = signal<ApiResponse<'viajes', 'findAll'>['data']>([]);
-  selectedViaje = signal<ApiResponse<'viajes', 'findOne'> | null>(null);
+  selectedViaje = signal<ApiResponse<'viajes', 'findAll'>['data'][number] | null>(null);
 
   // Search Control
   searchControl = new FormControl('');
 
   // Value Accessor callbacks
-  onChange: (value: ApiResponse<'viajes', 'findOne'> | null) => void = () => {};
+  onChange: (value: ApiResponse<'viajes', 'findAll'>['data'][number] | null) => void = () => {};
   onTouched: () => void = () => {};
 
   constructor() {
@@ -58,7 +58,7 @@ export class ViajeInputSearch implements ControlValueAccessor {
                 total: 0,
                 page: 1,
                 limit: 10,
-                lastPage: 1,
+                totalPages: 1,
                 hasPreviousPage: false,
                 hasNextPage: false,
               },
@@ -93,7 +93,7 @@ export class ViajeInputSearch implements ControlValueAccessor {
     }
   }
 
-  registerOnChange(fn: (value: ApiResponse<'viajes', 'findOne'> | null) => void): void {
+  registerOnChange(fn: (value: ApiResponse<'viajes', 'findAll'>['data'][number] | null) => void): void {
     this.onChange = fn;
   }
 
@@ -115,7 +115,7 @@ export class ViajeInputSearch implements ControlValueAccessor {
     }
   }
 
-  selectViaje(viaje: ApiResponse<'viajes', 'findOne'>) {
+  selectViaje(viaje: ApiResponse<'viajes', 'findAll'>['data'][number]) {
     this.selectedViaje.set(viaje);
     this.onChange(viaje);
     this.isOpen.set(false);
@@ -125,7 +125,7 @@ export class ViajeInputSearch implements ControlValueAccessor {
     this.viajeService
       .findOne(id)
       .then((viaje) => {
-        this.selectedViaje.set(viaje as any);
+        this.selectedViaje.set(viaje);
       })
       .catch(() => {
         console.error('Could not load initial viaje');

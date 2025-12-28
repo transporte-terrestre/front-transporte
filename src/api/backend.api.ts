@@ -134,6 +134,12 @@ export interface PartialTypeClass {
    * @example "2023-01-01T00:00:00.000Z"
    */
   actualizadoEn?: string;
+  /**
+   * Deletion date (if applicable)
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  eliminadoEn?: string | null;
   /** User documents grouped by type */
   documentos?: DocumentosAgrupadosDto;
 }
@@ -193,16 +199,52 @@ export interface UsuarioListDto {
    * @example "2023-01-01T00:00:00.000Z"
    */
   actualizadoEn: string;
+  /**
+   * Deletion date (if applicable)
+   * @format date-time
+   * @example null
+   */
+  eliminadoEn: string | null;
+}
+
+export interface PaginationMetaDto {
+  /**
+   * Total de elementos encontrados
+   * @example 50
+   */
+  total: number;
+  /**
+   * Página actual
+   * @example 1
+   */
+  page: number;
+  /**
+   * Cantidad de elementos por página
+   * @example 10
+   */
+  limit: number;
+  /**
+   * Total de páginas disponibles
+   * @example 5
+   */
+  totalPages: number;
+  /**
+   * Indica si existe una página siguiente
+   * @example true
+   */
+  hasNextPage: boolean;
+  /**
+   * Indica si existe una página anterior
+   * @example false
+   */
+  hasPreviousPage: boolean;
 }
 
 export interface PaginatedUsuarioResultDto {
   /** Lista de usuarios en la página actual */
   data: UsuarioListDto[];
-  /**
-   * Metadatos de la paginación
-   * @example {"total":50,"page":1,"limit":10,"totalPages":5,"hasNextPage":true,"hasPreviousPage":false}
-   */
-  meta: object;
+  /** Metadatos de la paginación */
+  meta: PaginationMetaDto;
 }
 
 export interface UsuarioResultDto {
@@ -253,6 +295,12 @@ export interface UsuarioResultDto {
    * @example "2023-01-01T00:00:00.000Z"
    */
   actualizadoEn: string;
+  /**
+   * Deletion date (if applicable)
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  eliminadoEn: string | null;
   /** User documents grouped by type */
   documentos: DocumentosAgrupadosDto;
 }
@@ -565,6 +613,11 @@ export interface VehiculoListDto {
    */
   placa: string;
   /**
+   * Internal vehicle code
+   * @example "00012"
+   */
+  codigoInterno?: string;
+  /**
    * Vehicle brand
    * @example "Toyota"
    */
@@ -607,6 +660,12 @@ export interface VehiculoListDto {
    */
   actualizadoEn: string;
   /**
+   * Deletion date
+   * @format date-time
+   * @example null
+   */
+  eliminadoEn?: string | null;
+  /**
    * Lista de URLs de imágenes del vehículo
    * @example ["https://res.cloudinary.com/xxx/image.jpg"]
    */
@@ -616,11 +675,8 @@ export interface VehiculoListDto {
 export interface PaginatedVehiculoResultDto {
   /** Lista de vehículos en la página actual */
   data: VehiculoListDto[];
-  /**
-   * Metadatos de la paginación
-   * @example {"total":50,"page":1,"limit":10,"totalPages":5,"hasNextPage":true,"hasPreviousPage":false}
-   */
-  meta: object;
+  /** Metadatos de la paginación */
+  meta: PaginationMetaDto;
 }
 
 export interface VehiculoDocumentoResultDto {
@@ -980,11 +1036,8 @@ export interface MarcaListDto {
 export interface PaginatedMarcaResultDto {
   /** Lista de marcas en la página actual */
   data: MarcaListDto[];
-  /**
-   * Metadatos de la paginación
-   * @example {"total":50,"page":1,"limit":10,"totalPages":5,"hasNextPage":true,"hasPreviousPage":false}
-   */
-  meta: object;
+  /** Metadatos de la paginación */
+  meta: PaginationMetaDto;
 }
 
 export interface MarcaResultDto {
@@ -1066,11 +1119,8 @@ export interface ModeloListDto {
 export interface PaginatedModeloResultDto {
   /** Lista de modelos en la página actual */
   data: ModeloListDto[];
-  /**
-   * Metadatos de la paginación
-   * @example {"total":50,"page":1,"limit":10,"totalPages":5,"hasNextPage":true,"hasPreviousPage":false}
-   */
-  meta: object;
+  /** Metadatos de la paginación */
+  meta: PaginationMetaDto;
 }
 
 export interface ModeloResultDto {
@@ -1187,11 +1237,8 @@ export interface ConductorListDto {
 export interface PaginatedConductorResultDto {
   /** Lista de conductores en la página actual */
   data: ConductorListDto[];
-  /**
-   * Metadatos de la paginación
-   * @example {"total":50,"page":1,"limit":10,"totalPages":5,"hasNextPage":true,"hasPreviousPage":false}
-   */
-  meta: object;
+  /** Metadatos de la paginación */
+  meta: PaginationMetaDto;
 }
 
 export interface ConductorDocumentoResultDto {
@@ -1542,6 +1589,67 @@ export interface VehiculoMantenimientoListDto {
   actualizadoEn: string;
 }
 
+export interface TallerResultDto {
+  /**
+   * ID del taller
+   * @example 1
+   */
+  id: number;
+  /**
+   * RUC del taller
+   * @example "12345678901"
+   */
+  ruc: string;
+  /**
+   * Razón Social
+   * @example "Taller Mecánico SAC"
+   */
+  razonSocial: string;
+  /**
+   * Nombre Comercial
+   * @example "Taller Express"
+   */
+  nombreComercial: string | null;
+  /**
+   * Tipo de taller (interno/externo)
+   * @example "externo"
+   */
+  tipo: "interno" | "externo";
+  /**
+   * Teléfono
+   * @example "999888777"
+   */
+  telefono: string | null;
+  /**
+   * Email
+   * @example "contacto@taller.com"
+   */
+  email: string | null;
+  /**
+   * Dirección
+   * @example "Av. Principal 123"
+   */
+  direccion: string | null;
+  /**
+   * Fecha de creación
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  creadoEn: string;
+  /**
+   * Fecha de última actualización
+   * @format date-time
+   * @example "2023-01-02T00:00:00.000Z"
+   */
+  actualizadoEn: string;
+  /**
+   * Fecha de eliminación (si aplica)
+   * @format date-time
+   * @example null
+   */
+  eliminadoEn: string | null;
+}
+
 export interface MantenimientoListDto {
   /**
    * Maintenance ID
@@ -1560,6 +1668,8 @@ export interface MantenimientoListDto {
    * @example 1
    */
   tallerId: number;
+  /** Workshop details */
+  taller: TallerResultDto;
   /**
    * Service Order Code
    * @example "ORD-001"
@@ -1608,16 +1718,25 @@ export interface MantenimientoListDto {
    * @example "2023-01-01T00:00:00.000Z"
    */
   creadoEn: string;
+  /**
+   * Update date
+   * @format date-time
+   * @example "2023-01-02T00:00:00.000Z"
+   */
+  actualizadoEn: string;
+  /**
+   * Deletion date (if applicable)
+   * @format date-time
+   * @example null
+   */
+  eliminadoEn: string | null;
 }
 
 export interface PaginatedMantenimientoResultDto {
   /** Lista de mantenimientos en la página actual */
   data: MantenimientoListDto[];
-  /**
-   * Metadatos de la paginación
-   * @example {"total":50,"page":1,"limit":10,"totalPages":5,"hasNextPage":true,"hasPreviousPage":false}
-   */
-  meta: object;
+  /** Metadatos de la paginación */
+  meta: PaginationMetaDto;
 }
 
 export interface VehiculoMantenimientoResultDto {
@@ -1685,49 +1804,6 @@ export interface VehiculoMantenimientoResultDto {
   actualizadoEn: string;
 }
 
-export interface TallerSimpleDto {
-  /**
-   * Workshop ID
-   * @example 1
-   */
-  id: number;
-  /**
-   * RUC
-   * @example "12345678901"
-   */
-  ruc: string | null;
-  /**
-   * Business name
-   * @example "Taller SAC"
-   */
-  razonSocial: string;
-  /**
-   * Trade name
-   * @example "El Buen Mecánico"
-   */
-  nombreComercial: string | null;
-  /**
-   * Workshop type
-   * @example "externo"
-   */
-  tipo: string;
-  /**
-   * Phone
-   * @example "999888777"
-   */
-  telefono: string | null;
-  /**
-   * Email
-   * @example "contacto@taller.com"
-   */
-  email: string | null;
-  /**
-   * Address
-   * @example "Av. Principal 123"
-   */
-  direccion: string | null;
-}
-
 export interface TareaResultDto {
   /**
    * ID de la tarea
@@ -1778,14 +1854,30 @@ export interface MantenimientoTareaResultDto {
 export interface MantenimientoDocumentoResultDto {
   id: number;
   mantenimientoId: number;
-  tipo: string;
+  tipo:
+    | "factura"
+    | "guia_remision"
+    | "informe_tecnico"
+    | "cotizacion"
+    | "fotos"
+    | "otros";
   nombre: string;
   url: string;
-  descripcion: string | null;
+  fechaEmision: string | null;
+  fechaExpiracion: string | null;
   /** @format date-time */
   creadoEn: string;
   /** @format date-time */
   actualizadoEn: string;
+}
+
+export interface DocumentosAgrupadosMantenimientoDto {
+  factura: MantenimientoDocumentoResultDto[];
+  guia_remision: MantenimientoDocumentoResultDto[];
+  informe_tecnico: MantenimientoDocumentoResultDto[];
+  cotizacion: MantenimientoDocumentoResultDto[];
+  fotos: MantenimientoDocumentoResultDto[];
+  otros: MantenimientoDocumentoResultDto[];
 }
 
 export interface MantenimientoResultDto {
@@ -1807,7 +1899,7 @@ export interface MantenimientoResultDto {
    */
   tallerId: number;
   /** Workshop details */
-  taller?: TallerSimpleDto;
+  taller: TallerResultDto;
   /**
    * Service Order Code
    * @example "ORD-001"
@@ -1862,10 +1954,16 @@ export interface MantenimientoResultDto {
    * @example "2023-01-01T00:00:00.000Z"
    */
   actualizadoEn: string;
+  /**
+   * Deletion date (if applicable)
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  eliminadoEn: string | null;
   /** List of maintenance tasks */
-  tareas?: MantenimientoTareaResultDto[];
-  /** List of maintenance documents */
-  documentos?: MantenimientoDocumentoResultDto[];
+  tareas: MantenimientoTareaResultDto[];
+  /** Maintenance documents grouped by type */
+  documentos: DocumentosAgrupadosMantenimientoDto;
 }
 
 export interface MantenimientoCreateDto {
@@ -2077,11 +2175,8 @@ export interface TareaListDto {
 export interface PaginatedTareaResultDto {
   /** Lista de tareas en la página actual */
   data: TareaListDto[];
-  /**
-   * Metadatos de la paginación
-   * @example {"total":50,"page":1,"limit":10,"totalPages":5,"hasNextPage":true,"hasPreviousPage":false}
-   */
-  meta: object;
+  /** Metadatos de la paginación */
+  meta: PaginationMetaDto;
 }
 
 export interface TareaCreateDto {
@@ -2108,6 +2203,84 @@ export interface TareaUpdateDto {
    * @example "Cambio de aceite"
    */
   descripcion?: string;
+}
+
+export interface MantenimientoDocumentoCreateDto {
+  /**
+   * ID del mantenimiento
+   * @example 1
+   */
+  mantenimientoId: number;
+  /**
+   * Tipo de documento
+   * @example "factura"
+   */
+  tipo:
+    | "factura"
+    | "guia_remision"
+    | "informe_tecnico"
+    | "cotizacion"
+    | "fotos"
+    | "otros";
+  /**
+   * Nombre del documento
+   * @example "Factura 001"
+   */
+  nombre: string;
+  /**
+   * URL del documento
+   * @example "https://example.com/doc.pdf"
+   */
+  url: string;
+  /**
+   * Fecha de emisión del documento
+   * @example "2023-01-15"
+   */
+  fechaEmision?: string;
+  /**
+   * Fecha de expiración del documento
+   * @example "2025-12-31"
+   */
+  fechaExpiracion?: string;
+}
+
+export interface MantenimientoDocumentoUpdateDto {
+  /**
+   * ID del mantenimiento
+   * @example 1
+   */
+  mantenimientoId?: number;
+  /**
+   * Tipo de documento
+   * @example "factura"
+   */
+  tipo?:
+    | "factura"
+    | "guia_remision"
+    | "informe_tecnico"
+    | "cotizacion"
+    | "fotos"
+    | "otros";
+  /**
+   * Nombre del documento
+   * @example "Factura 001"
+   */
+  nombre?: string;
+  /**
+   * URL del documento
+   * @example "https://example.com/doc.pdf"
+   */
+  url?: string;
+  /**
+   * Fecha de emisión del documento
+   * @example "2023-01-15"
+   */
+  fechaEmision?: string;
+  /**
+   * Fecha de expiración del documento
+   * @example "2025-12-31"
+   */
+  fechaExpiracion?: string;
 }
 
 export interface RutaResultDto {
@@ -2173,11 +2346,8 @@ export interface RutaResultDto {
 export interface PaginatedRutaResultDto {
   /** Lista de rutas en la página actual */
   data: RutaResultDto[];
-  /**
-   * Metadatos de la paginación
-   * @example {"total":50,"page":1,"limit":10,"totalPages":5,"hasNextPage":true,"hasPreviousPage":false}
-   */
-  meta: object;
+  /** Metadatos de la paginación */
+  meta: PaginationMetaDto;
 }
 
 export interface RutaCreateDto {
@@ -2556,11 +2726,8 @@ export interface ViajeListDto {
 export interface PaginatedViajeResultDto {
   /** Lista de viajes en la página actual */
   data: ViajeListDto[];
-  /**
-   * Metadatos de la paginación
-   * @example {"total":50,"page":1,"limit":10,"totalPages":5,"hasNextPage":true,"hasPreviousPage":false}
-   */
-  meta: object;
+  /** Metadatos de la paginación */
+  meta: PaginationMetaDto;
 }
 
 export interface ViajeConductorDetalleDto {
@@ -3372,11 +3539,8 @@ export interface ClienteListDto {
 export interface PaginatedClienteResultDto {
   /** Lista de clientes en la página actual */
   data: ClienteListDto[];
-  /**
-   * Metadatos de la paginación
-   * @example {"total":50,"page":1,"limit":10,"totalPages":5,"hasNextPage":true,"hasPreviousPage":false}
-   */
-  meta: object;
+  /** Metadatos de la paginación */
+  meta: PaginationMetaDto;
 }
 
 export interface ClienteDocumentoResultDto {
@@ -3773,72 +3937,8 @@ export interface TallerListDto {
 export interface PaginatedTallerResultDto {
   /** Lista de talleres en la página actual */
   data: TallerListDto[];
-  /**
-   * Metadatos de la paginación
-   * @example {"total":50,"page":1,"limit":10,"totalPages":5,"hasNextPage":true,"hasPreviousPage":false}
-   */
-  meta: object;
-}
-
-export interface TallerResultDto {
-  /**
-   * ID del taller
-   * @example 1
-   */
-  id: number;
-  /**
-   * RUC del taller
-   * @example "12345678901"
-   */
-  ruc: string;
-  /**
-   * Razón Social
-   * @example "Taller Mecánico SAC"
-   */
-  razonSocial: string;
-  /**
-   * Nombre Comercial
-   * @example "Taller Express"
-   */
-  nombreComercial: string | null;
-  /**
-   * Tipo de taller (interno/externo)
-   * @example "externo"
-   */
-  tipo: "interno" | "externo";
-  /**
-   * Teléfono
-   * @example "999888777"
-   */
-  telefono: string | null;
-  /**
-   * Email
-   * @example "contacto@taller.com"
-   */
-  email: string | null;
-  /**
-   * Dirección
-   * @example "Av. Principal 123"
-   */
-  direccion: string | null;
-  /**
-   * Fecha de creación
-   * @format date-time
-   * @example "2023-01-01T00:00:00.000Z"
-   */
-  creadoEn: string;
-  /**
-   * Fecha de última actualización
-   * @format date-time
-   * @example "2023-01-02T00:00:00.000Z"
-   */
-  actualizadoEn: string;
-  /**
-   * Fecha de eliminación (si aplica)
-   * @format date-time
-   * @example null
-   */
-  eliminadoEn: string | null;
+  /** Metadatos de la paginación */
+  meta: PaginationMetaDto;
 }
 
 export interface TallerUpdateDto {
@@ -3893,11 +3993,8 @@ export interface NotificacionListDto {
 export interface PaginatedNotificacionResultDto {
   /** Lista de notificaciones */
   data: NotificacionListDto[];
-  /**
-   * Metadatos de la paginación
-   * @example {"total":50,"page":1,"limit":10,"totalPages":5,"hasNextPage":true,"hasPreviousPage":false}
-   */
-  meta: object;
+  /** Metadatos de la paginación */
+  meta: PaginationMetaDto;
 }
 
 export interface NotificacionCreateDto {
@@ -4462,21 +4559,28 @@ export interface MantenimientosDeleteTareaParams {
 
 export type MantenimientosDeleteTareaData = TareaResultDto;
 
-export type MantenimientosCreateDocumentoData = any;
+export interface MantenimientosFindDocumentoParams {
+  /** ID del documento */
+  id: number;
+}
+
+export type MantenimientosFindDocumentoData = MantenimientoDocumentoResultDto;
+
+export type MantenimientosCreateDocumentoData = MantenimientoDocumentoResultDto;
 
 export interface MantenimientosUpdateDocumentoParams {
   /** ID del documento */
   id: number;
 }
 
-export type MantenimientosUpdateDocumentoData = any;
+export type MantenimientosUpdateDocumentoData = MantenimientoDocumentoResultDto;
 
 export interface MantenimientosDeleteDocumentoParams {
   /** ID del documento */
   id: number;
 }
 
-export type MantenimientosDeleteDocumentoData = any;
+export type MantenimientosDeleteDocumentoData = MantenimientoDocumentoResultDto;
 
 export interface RutasFindAllParams {
   /**
@@ -6207,6 +6311,26 @@ export namespace Mantenimientos {
   /**
    * No description
    * @tags mantenimientos
+   * @name MantenimientosFindDocumento
+   * @summary Obtener un documento por ID
+   * @request GET:/mantenimiento/documento/{id}
+   * @secure
+   * @response `200` `MantenimientosFindDocumentoData`
+   */
+  export namespace MantenimientosFindDocumento {
+    export type RequestParams = {
+      /** ID del documento */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = MantenimientosFindDocumentoData;
+  }
+
+  /**
+   * No description
+   * @tags mantenimientos
    * @name MantenimientosCreateDocumento
    * @summary Agregar un documento a un mantenimiento
    * @request POST:/mantenimiento/documento/create
@@ -6216,7 +6340,7 @@ export namespace Mantenimientos {
   export namespace MantenimientosCreateDocumento {
     export type RequestParams = {};
     export type RequestQuery = {};
-    export type RequestBody = never;
+    export type RequestBody = MantenimientoDocumentoCreateDto;
     export type RequestHeaders = {};
     export type ResponseBody = MantenimientosCreateDocumentoData;
   }
@@ -6236,7 +6360,7 @@ export namespace Mantenimientos {
       id: number;
     };
     export type RequestQuery = {};
-    export type RequestBody = never;
+    export type RequestBody = MantenimientoDocumentoUpdateDto;
     export type RequestHeaders = {};
     export type ResponseBody = MantenimientosUpdateDocumentoData;
   }
@@ -9002,17 +9126,45 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags mantenimientos
+     * @name MantenimientosFindDocumento
+     * @summary Obtener un documento por ID
+     * @request GET:/mantenimiento/documento/{id}
+     * @secure
+     * @response `200` `MantenimientosFindDocumentoData`
+     */
+    findDocumento: (
+      { id, ...query }: MantenimientosFindDocumentoParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<MantenimientosFindDocumentoData, any>({
+        path: `/mantenimiento/documento/${id}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags mantenimientos
      * @name MantenimientosCreateDocumento
      * @summary Agregar un documento a un mantenimiento
      * @request POST:/mantenimiento/documento/create
      * @secure
      * @response `201` `MantenimientosCreateDocumentoData`
      */
-    createDocumento: (params: RequestParams = {}) =>
+    createDocumento: (
+      data: MantenimientoDocumentoCreateDto,
+      params: RequestParams = {},
+    ) =>
       this.http.request<MantenimientosCreateDocumentoData, any>({
         path: `/mantenimiento/documento/create`,
         method: "POST",
+        body: data,
         secure: true,
+        type: ContentType.Json,
+        format: "json",
         ...params,
       }),
 
@@ -9028,12 +9180,16 @@ export class Api<SecurityDataType extends unknown> {
      */
     updateDocumento: (
       { id, ...query }: MantenimientosUpdateDocumentoParams,
+      data: MantenimientoDocumentoUpdateDto,
       params: RequestParams = {},
     ) =>
       this.http.request<MantenimientosUpdateDocumentoData, any>({
         path: `/mantenimiento/documento/update/${id}`,
         method: "PATCH",
+        body: data,
         secure: true,
+        type: ContentType.Json,
+        format: "json",
         ...params,
       }),
 
@@ -9055,6 +9211,7 @@ export class Api<SecurityDataType extends unknown> {
         path: `/mantenimiento/documento/delete/${id}`,
         method: "DELETE",
         secure: true,
+        format: "json",
         ...params,
       }),
   };

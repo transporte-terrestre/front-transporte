@@ -3,16 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MantenimientoService } from '@service/admin/mantenimiento.service';
-import { VehiculoService } from '@service/admin/vehiculo.service';
-import { TallerService } from '@service/admin/taller.service';
-import {
-  MantenimientoResultDto,
-  MantenimientoCreateDto,
-  TipoMantenimiento,
-  PaginationMeta,
-} from '@interface/admin/mantenimiento.interface';
-import { VehiculoListDto } from '@interface/admin/vehiculo.interface';
-import { TallerResultDto } from '@interface/admin/taller.interface';
+import { ApiResponse, ApiBody, ApiField } from 'api/backend.api';
 import { ToastService } from '@service/toast.service';
 import { AlertService } from '@service/alert.service';
 import { ModalForm } from '../../../../components/modal-form/modal-form';
@@ -24,7 +15,7 @@ interface CalendarDay {
   day: number;
   isCurrentMonth: boolean;
   isToday: boolean;
-  mantenimientos: MantenimientoResultDto[];
+  mantenimientos: ApiResponse<'mantenimientos', 'findAll'>['data'];
 }
 
 @Component({
@@ -40,7 +31,7 @@ export class MantenimientosList implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
-  mantenimientos = signal<MantenimientoResultDto[]>([]);
+  mantenimientos = signal<ApiResponse<'mantenimientos', 'findAll'>['data']>([]);
   loading = signal(false);
   showModal = signal(false);
   selectedDate = signal<Date | null>(null);
@@ -48,7 +39,7 @@ export class MantenimientosList implements OnInit {
   // Paginación
   currentPage = signal(1);
   pageSize = signal(10);
-  meta = signal<PaginationMeta | null>(null);
+  meta = signal<ApiResponse<'mantenimientos', 'findAll'>['meta'] | null>(null);
 
   // Filtros
   searchTerm = signal('');
@@ -100,18 +91,16 @@ export class MantenimientosList implements OnInit {
         fechaInicio: this.fechaInicio() || undefined,
         fechaFin: this.fechaFin() || undefined,
       })
-      .subscribe({
-        next: (response) => {
-          this.mantenimientos.set(response.data);
-          this.meta.set(response.meta);
-          this.generateCalendar();
-          this.loading.set(false);
-        },
-        error: (error) => {
-          console.error('Error al cargar mantenimientos:', error);
-          this.toastService.error('Error al cargar mantenimientos');
-          this.loading.set(false);
-        },
+      .then((response) => {
+        this.mantenimientos.set(response.data);
+        this.meta.set(response.meta);
+        this.generateCalendar();
+        this.loading.set(false);
+      })
+      .catch((error) => {
+        console.error('Error al cargar mantenimientos:', error);
+        this.toastService.error('Error al cargar mantenimientos');
+        this.loading.set(false);
       });
   }
 
@@ -199,7 +188,7 @@ export class MantenimientosList implements OnInit {
     this.calendarDays.set(days);
   }
 
-  getMantenimientosByDate(date: Date): MantenimientoResultDto[] {
+  getMantenimientosByDate(date: Date): ApiResponse<'mantenimientos', 'findAll'>['data'] {
     const dateStr = this.formatDateToCompare(date);
     return this.mantenimientos().filter((m) => {
       // Crear fecha sin considerar zona horaria
@@ -290,7 +279,7 @@ export class MantenimientosList implements OnInit {
     this.openCreateModal();
   }
 
-  navigateToEdit(mantenimiento: MantenimientoResultDto) {
+  navigateToEdit(mantenimiento: ApiResponse<'mantenimientos', 'findAll'>['data'][number]) {
     const path = buildPath(PATH.admin.mantenimientos.edit).replace(
       ':id',
       mantenimiento.id.toString()
@@ -308,28 +297,28 @@ export class MantenimientosList implements OnInit {
   }
 
   handleFormSubmit(data: any) {
-    this.createMantenimiento(data as MantenimientoCreateDto);
+    this.createMantenimiento(data as ApiBody<'mantenimientos', 'create'>);
   }
 
   handleModalSubmit() {
     this.mantenimientoFormComponent()?.submitForm();
   }
 
-  createMantenimiento(data: MantenimientoCreateDto) {
+  createMantenimiento(data: ApiBody<'mantenimientos', 'create'>) {
     this.loading.set(true);
-    this.mantenimientoService.create(data).subscribe({
-      next: () => {
+    this.mantenimientoService
+      .create(data)
+      .then(() => {
         this.toastService.success('Mantenimiento registrado exitosamente');
         this.loadMantenimientos();
         this.closeModal();
         this.closeDayDetails();
-      },
-      error: (error) => {
+      })
+      .catch((error) => {
         console.error('Error al crear mantenimiento:', error);
         this.toastService.error('Error al registrar mantenimiento');
         this.loading.set(false);
-      },
-    });
+      });
   }
 
   deleteMantenimiento(id: number) {
@@ -338,44 +327,53 @@ export class MantenimientosList implements OnInit {
       '¿Estás seguro de que deseas eliminar este registro de mantenimiento? Esta acción no se puede deshacer.',
       () => {
         this.loading.set(true);
-        this.mantenimientoService.delete(id).subscribe({
-          next: () => {
+        this.mantenimientoService
+          .delete(id)
+          .then(() => {
             this.toastService.success('Mantenimiento eliminado exitosamente');
             this.loadMantenimientos();
             this.closeDayDetails();
-          },
-          error: (error) => {
+          })
+          .catch((error) => {
             console.error('Error al eliminar mantenimiento:', error);
             this.toastService.error('Error al eliminar mantenimiento');
             this.loading.set(false);
-          },
-        });
+          });
       }
     );
   }
 
-  getTallerDisplay(tallerId: number, mantenimiento?: MantenimientoResultDto): string {
-    if (mantenimiento?.taller) {
+  getTallerDisplay(
+    tallerId: number,
+    mantenimiento?: ApiResponse<'mantenimientos', 'findAll'>['data'][number]
+  ): string {
+    if (mantenimiento && mantenimiento.taller) {
       return mantenimiento.taller.nombreComercial || mantenimiento.taller.razonSocial;
     }
     return `Taller #${tallerId}`;
   }
 
-  getVehiculoDisplay(vehiculoId: number, mantenimiento?: MantenimientoResultDto): string {
-    if (mantenimiento?.vehiculo) {
+  getVehiculoDisplay(
+    vehiculoId: number,
+    mantenimiento?: ApiResponse<'mantenimientos', 'findAll'>['data'][number]
+  ): string {
+    if (mantenimiento && mantenimiento.vehiculo) {
       return `${mantenimiento.vehiculo.marca} ${mantenimiento.vehiculo.modelo}`;
     }
     return `Vehículo #${vehiculoId}`;
   }
 
-  getVehiculoPlaca(vehiculoId: number, mantenimiento?: MantenimientoResultDto): string {
-    if (mantenimiento?.vehiculo) {
+  getVehiculoPlaca(
+    vehiculoId: number,
+    mantenimiento?: ApiResponse<'mantenimientos', 'findAll'>['data'][number]
+  ): string {
+    if (mantenimiento && mantenimiento.vehiculo) {
       return mantenimiento.vehiculo.placa;
     }
     return `#${vehiculoId}`;
   }
 
-  getTipoBadgeClass(tipo: TipoMantenimiento): string {
+  getTipoBadgeClass(tipo: ApiField<'mantenimientos', 'findOne', 'tipo'>): string {
     switch (tipo) {
       case 'preventivo':
         return 'bg-info/10 text-info';
@@ -386,7 +384,7 @@ export class MantenimientosList implements OnInit {
     }
   }
 
-  getTipoIcon(tipo: TipoMantenimiento): string {
+  getTipoIcon(tipo: ApiField<'mantenimientos', 'findOne', 'tipo'>): string {
     switch (tipo) {
       case 'preventivo':
         return 'fa-shield-alt';
@@ -397,7 +395,7 @@ export class MantenimientosList implements OnInit {
     }
   }
 
-  getTipoLabel(tipo: TipoMantenimiento): string {
+  getTipoLabel(tipo: ApiField<'mantenimientos', 'findOne', 'tipo'>): string {
     switch (tipo) {
       case 'preventivo':
         return 'Preventivo';

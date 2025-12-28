@@ -60,7 +60,7 @@ export class MarcaInputSearch implements ControlValueAccessor {
                 total: 0,
                 page: 1,
                 limit: 10,
-                lastPage: 1,
+                totalPages: 1,
                 hasPreviousPage: false,
                 hasNextPage: false,
               },
@@ -136,13 +136,15 @@ export class MarcaInputSearch implements ControlValueAccessor {
     this.isOpen.set(false);
   }
 
-  async loadInitialMarca(id: number) {
-    try {
-      const marca = await this.vehiculoService.findOneMarca(id);
-      this.selectedMarca.set(marca);
-    } catch (error) {
-      console.error('Could not load initial marca');
-    }
+  loadInitialMarca(id: number) {
+    this.vehiculoService
+      .findOneMarca(id)
+      .then((marca) => {
+        this.selectedMarca.set(marca);
+      })
+      .catch(() => {
+        console.error('Could not load initial marca');
+      });
   }
 
   getDisplayText(): string {

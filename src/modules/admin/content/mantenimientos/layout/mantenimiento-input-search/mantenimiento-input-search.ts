@@ -7,9 +7,9 @@ import {
   ReactiveFormsModule,
 } from '@angular/forms';
 import { MantenimientoService } from '@service/admin/mantenimiento.service';
-import { MantenimientoResultDto } from '@interface/admin/mantenimiento.interface';
+import { ApiResponse } from 'api/backend.api';
 import { debounceTime, distinctUntilChanged, switchMap, tap, finalize } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { of, from } from 'rxjs';
 
 @Component({
   selector: 'app-mantenimiento-input-search',
@@ -31,14 +31,17 @@ export class MantenimientoInputSearch implements ControlValueAccessor {
   // State
   isOpen = signal(false);
   loading = signal(false);
-  mantenimientos = signal<MantenimientoResultDto[]>([]);
-  selectedMantenimiento = signal<MantenimientoResultDto | null>(null);
+  mantenimientos = signal<ApiResponse<'mantenimientos', 'findAll'>['data']>([]);
+  selectedMantenimiento = signal<ApiResponse<'mantenimientos', 'findAll'>['data'][number] | null>(
+    null
+  );
 
   // Search Control
   searchControl = new FormControl('');
 
   // Value Accessor callbacks
-  onChange: (value: MantenimientoResultDto | null) => void = () => {};
+  onChange: (value: ApiResponse<'mantenimientos', 'findAll'>['data'][number] | null) => void =
+    () => {};
   onTouched: () => void = () => {};
 
   constructor() {
@@ -48,10 +51,21 @@ export class MantenimientoInputSearch implements ControlValueAccessor {
         distinctUntilChanged(),
         tap(() => this.loading.set(true)),
         switchMap((term) => {
-          if (!term && term !== '') return of({ data: [], meta: { total: 0 } } as any);
-          return this.mantenimientoService
-            .findAll({ search: term || '', limit: 10 })
-            .pipe(finalize(() => this.loading.set(false)));
+          if (!term && term !== '')
+            return of<ApiResponse<'mantenimientos', 'findAll'>>({
+              data: [],
+              meta: {
+                total: 0,
+                page: 1,
+                limit: 10,
+                totalPages: 1,
+                hasPreviousPage: false,
+                hasNextPage: false,
+              },
+            });
+          return from(this.mantenimientoService.findAll({ search: term || '', limit: 10 })).pipe(
+            finalize(() => this.loading.set(false))
+          );
         })
       )
       .subscribe({
@@ -96,21 +110,21 @@ export class MantenimientoInputSearch implements ControlValueAccessor {
     }
   }
 
-  selectMantenimiento(mantenimiento: MantenimientoResultDto) {
+  selectMantenimiento(mantenimiento: ApiResponse<'mantenimientos', 'findAll'>['data'][number]) {
     this.selectedMantenimiento.set(mantenimiento);
     this.onChange(mantenimiento);
     this.isOpen.set(false);
   }
 
   loadInitialMantenimiento(id: number) {
-    this.mantenimientoService.findOne(id).subscribe({
-      next: (mantenimiento) => {
+    this.mantenimientoService
+      .findOne(id)
+      .then((mantenimiento) => {
         this.selectedMantenimiento.set(mantenimiento);
-      },
-      error: () => {
+      })
+      .catch(() => {
         console.error('Could not load initial mantenimiento');
-      },
-    });
+      });
   }
 
   getDisplayText(): string {

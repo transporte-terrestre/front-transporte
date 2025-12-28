@@ -3,15 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ReportesService } from '@service/admin/reportes.service';
 import { ToastService } from '@service/toast.service';
-import {
-  ReporteQueryDto,
-  MantenimientoDetalladoVehiculoDto,
-  MantenimientoDetalladoTallerDto,
-} from '@interface/admin/reportes.interface';
+import { ApiResponse } from 'api/backend.api';
 import { VehiculoInputSearch } from '../../../vehiculos/layout/vehiculo-input-search/vehiculo-input-search';
 import { TallerInputSearch } from '../../../talleres/layout/taller-input-search/taller-input-search';
-import { VehiculoResultDto } from '@interface/admin/vehiculo.interface';
-import { TallerResultDto } from '@interface/admin/taller.interface';
 
 export type MantenimientoReportMode = 'mantenimientos-vehiculo' | 'mantenimientos-taller';
 
@@ -39,13 +33,17 @@ export class ReportesMantenimiento implements OnInit {
   selectedEntityName = signal<string>('');
 
   // Selected entity data
-  selectedVehiculo = signal<VehiculoResultDto | null>(null);
-  selectedTaller = signal<TallerResultDto | null>(null);
+  selectedVehiculo = signal<ApiResponse<'vehiculos', 'findAll'>['data'][number] | null>(null);
+  selectedTaller = signal<ApiResponse<'talleres', 'findAll'>['data'][number] | null>(null);
 
   // Results
   loading = signal(false);
-  mantenimientosVehiculos = signal<MantenimientoDetalladoVehiculoDto[]>([]);
-  mantenimientosTaller = signal<MantenimientoDetalladoTallerDto[]>([]);
+  mantenimientosVehiculos = signal<
+    ApiResponse<'reportes', 'getMantenimientosDetalladosPorVehiculo'>
+  >([]);
+  mantenimientosTaller = signal<ApiResponse<'reportes', 'getMantenimientosDetalladosPorTaller'>>(
+    []
+  );
 
   ngOnInit() {
     const today = new Date();
@@ -58,7 +56,7 @@ export class ReportesMantenimiento implements OnInit {
     return date.toISOString().split('T')[0];
   }
 
-  onVehiculoSelected(vehiculo: VehiculoResultDto | null) {
+  onVehiculoSelected(vehiculo: ApiResponse<'vehiculos', 'findAll'>['data'][number] | null) {
     this.selectedVehiculo.set(vehiculo);
     this.selectedVehiculoId.set(vehiculo?.id ?? null);
     if (vehiculo) {
@@ -68,7 +66,7 @@ export class ReportesMantenimiento implements OnInit {
     }
   }
 
-  onTallerSelected(taller: TallerResultDto | null) {
+  onTallerSelected(taller: ApiResponse<'talleres', 'findAll'>['data'][number] | null) {
     this.selectedTaller.set(taller);
     this.selectedTallerId.set(taller?.id ?? null);
     if (taller) {
@@ -79,7 +77,7 @@ export class ReportesMantenimiento implements OnInit {
   }
 
   generarReporte() {
-    const params: ReporteQueryDto = {
+    const params = {
       fechaInicio: this.fechaInicio(),
       fechaFin: this.fechaFin(),
     };
@@ -97,17 +95,17 @@ export class ReportesMantenimiento implements OnInit {
         this.loading.set(false);
         return;
       }
-      this.reportesService.getMantenimientosDetalladosPorVehiculo(id, params).subscribe({
-        next: (data) => {
+      this.reportesService
+        .getMantenimientosDetalladosPorVehiculo(id, { ...params, id })
+        .then((data) => {
           this.mantenimientosVehiculos.set(data);
           this.loading.set(false);
-        },
-        error: (err) => {
+        })
+        .catch((err) => {
           console.error('Error', err);
           this.toastService.error('Error al cargar reporte de mantenimientos');
           this.loading.set(false);
-        },
-      });
+        });
     } else if (mode === 'mantenimientos-taller') {
       const id = this.selectedTallerId();
       if (!id) {
@@ -115,17 +113,17 @@ export class ReportesMantenimiento implements OnInit {
         this.loading.set(false);
         return;
       }
-      this.reportesService.getMantenimientosDetalladosPorTaller(id, params).subscribe({
-        next: (data) => {
+      this.reportesService
+        .getMantenimientosDetalladosPorTaller(id, { ...params, id })
+        .then((data) => {
           this.mantenimientosTaller.set(data);
           this.loading.set(false);
-        },
-        error: (err) => {
+        })
+        .catch((err) => {
           console.error('Error', err);
           this.toastService.error('Error al cargar reporte de talleres');
           this.loading.set(false);
-        },
-      });
+        });
     }
   }
 
@@ -165,12 +163,18 @@ export class ReportesMantenimiento implements OnInit {
     const mode = this.activeMode();
     if (mode === 'mantenimientos-vehiculo') {
       return this.mantenimientosVehiculos().reduce(
-        (total, m) => total + parseFloat(m.costoTotal || '0'),
+        (
+          total: number,
+          m: ApiResponse<'reportes', 'getMantenimientosDetalladosPorVehiculo'>[number]
+        ) => total + parseFloat(m.costoTotal || '0'),
         0
       );
     } else {
       return this.mantenimientosTaller().reduce(
-        (total, m) => total + parseFloat(m.costoTotal || '0'),
+        (
+          total: number,
+          m: ApiResponse<'reportes', 'getMantenimientosDetalladosPorTaller'>[number]
+        ) => total + parseFloat(m.costoTotal || '0'),
         0
       );
     }

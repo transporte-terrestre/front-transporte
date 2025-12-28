@@ -1,12 +1,7 @@
-import { Component, inject, input, output, signal } from '@angular/core';
+import { Component, computed, inject, input, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import {
-  MantenimientoResultDto,
-  MantenimientoDocumentoCreateDto,
-  MantenimientoDocumentoResultDto,
-  MantenimientoDocumentoUpdateDto,
-} from '@interface/admin/mantenimiento.interface';
+import { ApiResponse, ApiBody, ApiField } from 'api/backend.api';
 import { MantenimientoService } from '@service/admin/mantenimiento.service';
 import { StorageService } from '@service/admin/storage.service';
 import { ToastService } from '@service/toast.service';
@@ -27,8 +22,14 @@ export class MantenimientoDocumentosForm {
   private toastService = inject(ToastService);
   private alertService = inject(AlertService);
 
-  mantenimiento = input.required<MantenimientoResultDto>();
+  mantenimiento = input.required<ApiResponse<'mantenimientos', 'findOne'>>();
   onDataChange = output<void>();
+
+  allDocumentos = computed(() => {
+    const docs = this.mantenimiento().documentos;
+    if (!docs) return [];
+    return Object.values(docs).flat();
+  });
 
   showDocumentoModal = signal(false);
   uploading = signal(false);
@@ -38,7 +39,6 @@ export class MantenimientoDocumentosForm {
 
   addDocumentoForm = this.fb.group({
     nombre: ['', Validators.required],
-    // url: ['', Validators.required], // URL is now handled by file upload or existing doc
     tipo: ['otros', Validators.required],
     descripcion: [''],
   });
@@ -71,7 +71,7 @@ export class MantenimientoDocumentosForm {
     event.target.value = '';
   }
 
-  editDocument(doc: MantenimientoDocumentoResultDto) {
+  editDocument(doc: ApiField<'mantenimientos', 'findOne', 'documentos'>['otros'][number]) {
     this.editingDocId.set(doc.id);
     this.editingDocUrl = doc.url;
     this.pendingFile = null;
@@ -79,7 +79,6 @@ export class MantenimientoDocumentosForm {
     this.addDocumentoForm.patchValue({
       nombre: doc.nombre,
       tipo: doc.tipo,
-      descripcion: doc.descripcion,
     });
     this.showDocumentoModal.set(true);
   }
@@ -98,8 +97,6 @@ export class MantenimientoDocumentosForm {
       return;
     }
 
-    // Validation: Require file if creating new, or if editing but replacing file?
-    // Actually, if editing, file is optional (keep existing). If creating, file is required.
     if (!this.editingDocId() && !this.pendingFile) {
       this.toastService.error('Debes seleccionar un archivo');
       return;
@@ -110,61 +107,59 @@ export class MantenimientoDocumentosForm {
     // Helper to process the save after getting URL
     const processSave = (url: string) => {
       const val = this.addDocumentoForm.value;
+      const tipo = val.tipo as
+        | 'otros'
+        | 'factura'
+        | 'guia_remision'
+        | 'informe_tecnico'
+        | 'cotizacion'
+        | 'fotos';
 
       if (this.editingDocId()) {
-        const updateDto: MantenimientoDocumentoUpdateDto = {
+        const updateDto: ApiBody<'mantenimientos', 'updateDocumento'> = {
           nombre: val.nombre!,
-          tipo: val.tipo!,
-          descripcion: val.descripcion || undefined,
+          tipo: tipo,
           url: url,
         };
         this.mantenimientoService
           .updateDocumento(this.editingDocId()!, updateDto)
-          .pipe(finalize(() => this.uploading.set(false)))
-          .subscribe({
-            next: () => {
-              this.toastService.success('Documento actualizado');
-              this.closeAddDocumento();
-              this.onDataChange.emit();
-            },
-            error: () => this.toastService.error('Error al actualizar documento'),
-          });
+          .then(() => {
+            this.toastService.success('Documento actualizado');
+            this.closeAddDocumento();
+            this.onDataChange.emit();
+          })
+          .catch(() => this.toastService.error('Error al actualizar documento'))
+          .finally(() => this.uploading.set(false));
       } else {
-        const createDto: MantenimientoDocumentoCreateDto = {
+        const createDto: ApiBody<'mantenimientos', 'createDocumento'> = {
           mantenimientoId: this.mantenimiento().id,
           nombre: val.nombre!,
           url: url,
-          tipo: val.tipo!,
-          descripcion: val.descripcion || undefined,
+          tipo: tipo,
         };
         this.mantenimientoService
           .createDocumento(createDto)
-          .pipe(finalize(() => this.uploading.set(false)))
-          .subscribe({
-            next: () => {
-              this.toastService.success('Documento agregado');
-              this.closeAddDocumento();
-              this.onDataChange.emit();
-            },
-            error: () => this.toastService.error('Error al guardar documento'),
-          });
+          .then(() => {
+            this.toastService.success('Documento agregado');
+            this.closeAddDocumento();
+            this.onDataChange.emit();
+          })
+          .catch(() => this.toastService.error('Error al guardar documento'))
+          .finally(() => this.uploading.set(false));
       }
     };
 
     if (this.pendingFile) {
-      // New file selected -> Upload first
-      this.storageService.upload(this.pendingFile, 'mantenimientos').subscribe({
-        next: (res) => processSave(res.secureUrl),
-        error: () => {
+      this.storageService
+        .upload(this.pendingFile, 'mantenimientos')
+        .then((res) => processSave(res.secureUrl))
+        .catch(() => {
           this.uploading.set(false);
           this.toastService.error('Error al subir archivo');
-        },
-      });
+        });
     } else if (this.editingDocUrl) {
-      // Editing metadata only -> Use existing URL
       processSave(this.editingDocUrl);
     } else {
-      // Should not happen based on validation
       this.uploading.set(false);
     }
   }
@@ -174,13 +169,13 @@ export class MantenimientoDocumentosForm {
       'Eliminar Documento',
       '¿Estás seguro de eliminar este documento?',
       () => {
-        this.mantenimientoService.deleteDocumento(documentoId).subscribe({
-          next: () => {
+        this.mantenimientoService
+          .deleteDocumento(documentoId)
+          .then(() => {
             this.toastService.success('Documento eliminado');
             this.onDataChange.emit();
-          },
-          error: () => this.toastService.error('Error al eliminar documento'),
-        });
+          })
+          .catch(() => this.toastService.error('Error al eliminar documento'));
       }
     );
   }

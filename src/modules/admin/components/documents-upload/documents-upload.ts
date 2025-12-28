@@ -1,7 +1,7 @@
 import { Component, inject, input, output, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { StorageService } from '@service/admin/storage.service';
-import { StorageResultDto } from '@interface/admin/storage.interface';
+import { ApiResponse } from 'api/backend.api';
 
 export interface DocumentItem {
   url: string;
@@ -36,7 +36,7 @@ export class DocumentsUpload {
     effect(() => {
       const inputDocs = this.documents();
       if (inputDocs && inputDocs.length > 0) {
-        const items = inputDocs.map(url => this.urlToDocumentItem(url));
+        const items = inputDocs.map((url) => this.urlToDocumentItem(url));
         this.documentsList.set(items);
       }
     });
@@ -73,28 +73,40 @@ export class DocumentsUpload {
 
   getDocumentIcon(type: string): string {
     switch (type) {
-      case 'pdf': return 'fa-file-pdf';
-      case 'word': return 'fa-file-word';
-      case 'excel': return 'fa-file-excel';
-      default: return 'fa-file-alt';
+      case 'pdf':
+        return 'fa-file-pdf';
+      case 'word':
+        return 'fa-file-word';
+      case 'excel':
+        return 'fa-file-excel';
+      default:
+        return 'fa-file-alt';
     }
   }
 
   getDocumentColor(type: string): string {
     switch (type) {
-      case 'pdf': return 'text-red-500';
-      case 'word': return 'text-blue-500';
-      case 'excel': return 'text-green-500';
-      default: return 'text-gray-500';
+      case 'pdf':
+        return 'text-red-500';
+      case 'word':
+        return 'text-blue-500';
+      case 'excel':
+        return 'text-green-500';
+      default:
+        return 'text-gray-500';
     }
   }
 
   getDocumentBgColor(type: string): string {
     switch (type) {
-      case 'pdf': return 'bg-red-50';
-      case 'word': return 'bg-blue-50';
-      case 'excel': return 'bg-green-50';
-      default: return 'bg-gray-50';
+      case 'pdf':
+        return 'bg-red-50';
+      case 'word':
+        return 'bg-blue-50';
+      case 'excel':
+        return 'bg-green-50';
+      default:
+        return 'bg-gray-50';
     }
   }
 
@@ -128,7 +140,7 @@ export class DocumentsUpload {
     }
   }
 
-  private uploadFiles(files: File[]) {
+  private async uploadFiles(files: File[]) {
     const currentCount = this.documentsList().length;
     const availableSlots = this.maxDocuments() - currentCount;
 
@@ -137,64 +149,53 @@ export class DocumentsUpload {
     const filesToUpload = files.slice(0, availableSlots);
     this.uploading.set(true);
 
-    let completed = 0;
     const newDocs: DocumentItem[] = [];
-
-    filesToUpload.forEach(file => {
-      this.storageService.upload(file, this.folder()).subscribe({
-        next: (result: StorageResultDto) => {
+    const uploadPromises = filesToUpload.map((file) =>
+      this.storageService
+        .upload(file, this.folder())
+        .then((result: ApiResponse<'storage', 'upload'>) => {
           const docItem = this.urlToDocumentItem(result.secureUrl);
           docItem.name = file.name.replace(/\.[^/.]+$/, ''); // Usar nombre original
           newDocs.push(docItem);
-          completed++;
-
-          if (completed === filesToUpload.length) {
-            const updatedList = [...this.documentsList(), ...newDocs];
-            this.documentsList.set(updatedList);
-            this.emitUrls(updatedList);
-            this.uploading.set(false);
-          }
-        },
-        error: (err) => {
+        })
+        .catch((err) => {
           console.error('Error uploading document:', err);
-          completed++;
-          if (completed === filesToUpload.length) {
-            if (newDocs.length > 0) {
-              const updatedList = [...this.documentsList(), ...newDocs];
-              this.documentsList.set(updatedList);
-              this.emitUrls(updatedList);
-            }
-            this.uploading.set(false);
-          }
-        }
-      });
-    });
+        })
+    );
+
+    await Promise.all(uploadPromises);
+
+    if (newDocs.length > 0) {
+      const updatedList = [...this.documentsList(), ...newDocs];
+      this.documentsList.set(updatedList);
+      this.emitUrls(updatedList);
+    }
+    this.uploading.set(false);
   }
 
   removeDocument(index: number) {
     const currentDocs = this.documentsList();
     const doc = currentDocs[index];
-
     const publicId = this.extractPublicId(doc.url);
 
-    if (publicId) {
-      this.storageService.delete(publicId).subscribe({
-        next: () => {
-          const updatedList = currentDocs.filter((_, i) => i !== index);
-          this.documentsList.set(updatedList);
-          this.emitUrls(updatedList);
-        },
-        error: (err) => {
-          console.error('Error deleting document:', err);
-          const updatedList = currentDocs.filter((_, i) => i !== index);
-          this.documentsList.set(updatedList);
-          this.emitUrls(updatedList);
-        }
-      });
-    } else {
+    const updateState = () => {
       const updatedList = currentDocs.filter((_, i) => i !== index);
       this.documentsList.set(updatedList);
       this.emitUrls(updatedList);
+    };
+
+    if (publicId) {
+      this.storageService
+        .delete(publicId)
+        .then(() => {
+          updateState();
+        })
+        .catch((err) => {
+          console.error('Error deleting document:', err);
+          updateState();
+        });
+    } else {
+      updateState();
     }
   }
 
@@ -208,7 +209,7 @@ export class DocumentsUpload {
   }
 
   private emitUrls(docs: DocumentItem[]) {
-    this.documentsChange.emit(docs.map(d => d.url));
+    this.documentsChange.emit(docs.map((d) => d.url));
   }
 
   openDocument(url: string) {

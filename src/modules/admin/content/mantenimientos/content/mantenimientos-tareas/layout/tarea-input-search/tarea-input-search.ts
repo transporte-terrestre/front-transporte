@@ -1,9 +1,15 @@
 import { Component, inject, signal, ElementRef, HostListener, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import {
+  ControlValueAccessor,
+  FormControl,
+  NG_VALUE_ACCESSOR,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { MantenimientoService } from '@service/admin/mantenimiento.service';
-import { TareaResultDto } from '@interface/admin/mantenimiento.interface';
+import { ApiResponse } from 'api/backend.api';
 import { debounceTime, distinctUntilChanged, switchMap, tap, finalize } from 'rxjs/operators';
+import { of, from } from 'rxjs';
 
 @Component({
   selector: 'app-tarea-input-search',
@@ -11,26 +17,39 @@ import { debounceTime, distinctUntilChanged, switchMap, tap, finalize } from 'rx
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './tarea-input-search.html',
   styleUrl: './tarea-input-search.css',
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: TareaInputSearch,
+      multi: true,
+    },
+  ],
 })
-export class TareaInputSearch {
+export class TareaInputSearch implements ControlValueAccessor {
   private mantenimientoService = inject(MantenimientoService);
   private elementRef = inject(ElementRef);
 
   // Inputs
   placeholder = input<string>('Seleccionar tarea...');
-  disabled = input<boolean>(false);
-
-  // Outputs
-  tareaSelected = output<TareaResultDto | null>();
+  initialData = input<ApiResponse<'mantenimientos', 'findAllTareas'>['data'][number] | null>(null);
+  tareaSelected = output<ApiResponse<'mantenimientos', 'findAllTareas'>['data'][number] | null>();
 
   // State
   isOpen = signal(false);
   loading = signal(false);
-  tareas = signal<TareaResultDto[]>([]);
-  selectedTarea = signal<TareaResultDto | null>(null);
+  tareas = signal<ApiResponse<'mantenimientos', 'findAllTareas'>['data']>([]);
+  selectedTarea = signal<ApiResponse<'mantenimientos', 'findAllTareas'>['data'][number] | null>(
+    null
+  );
+  disabled = signal(false);
 
   // Search Control
   searchControl = new FormControl('');
+
+  // Value Accessor callbacks
+  onChange: (value: ApiResponse<'mantenimientos', 'findAllTareas'>['data'][number] | null) => void =
+    () => {};
+  onTouched: () => void = () => {};
 
   constructor() {
     this.searchControl.valueChanges
@@ -39,9 +58,21 @@ export class TareaInputSearch {
         distinctUntilChanged(),
         tap(() => this.loading.set(true)),
         switchMap((term) => {
-          return this.mantenimientoService
-            .findAllTareas({ search: term || '', limit: 10 })
-            .pipe(finalize(() => this.loading.set(false)));
+          if (!term && term !== '')
+            return of<ApiResponse<'mantenimientos', 'findAllTareas'>>({
+              data: [],
+              meta: {
+                total: 0,
+                page: 1,
+                limit: 10,
+                totalPages: 1,
+                hasPreviousPage: false,
+                hasNextPage: false,
+              },
+            });
+          return from(
+            this.mantenimientoService.findAllTareas({ search: term || '', limit: 10 })
+          ).pipe(finalize(() => this.loading.set(false)));
         })
       )
       .subscribe({
@@ -56,9 +87,33 @@ export class TareaInputSearch {
       });
   }
 
-  // Set value programmatically
-  setTarea(tarea: TareaResultDto | null) {
-    this.selectedTarea.set(tarea);
+  writeValue(obj: any): void {
+    if (obj) {
+      if (typeof obj === 'object') {
+        this.selectedTarea.set(obj);
+      } else {
+        const initial = this.initialData();
+        if (initial && initial.id === obj) {
+          this.selectedTarea.set(initial);
+        } else {
+          this.loadInitialTarea(obj);
+        }
+      }
+    } else {
+      this.selectedTarea.set(null);
+    }
+  }
+
+  registerOnChange(fn: any): void {
+    this.onChange = fn;
+  }
+
+  registerOnTouched(fn: any): void {
+    this.onTouched = fn;
+  }
+
+  setDisabledState?(isDisabled: boolean): void {
+    this.disabled.set(isDisabled);
   }
 
   // UI Actions
@@ -69,19 +124,40 @@ export class TareaInputSearch {
       if (this.tareas().length === 0) {
         this.searchControl.setValue('');
       }
+    } else {
+      this.onTouched();
     }
   }
 
-  selectTarea(tarea: TareaResultDto) {
+  selectTarea(tarea: ApiResponse<'mantenimientos', 'findAllTareas'>['data'][number]) {
     this.selectedTarea.set(tarea);
+    this.onChange(tarea);
     this.tareaSelected.emit(tarea);
     this.isOpen.set(false);
   }
 
   clearSelection() {
     this.selectedTarea.set(null);
+    this.onChange(null);
     this.tareaSelected.emit(null);
     this.isOpen.set(false);
+  }
+
+  setTarea(tarea: ApiResponse<'mantenimientos', 'findAllTareas'>['data'][number] | null) {
+    this.selectedTarea.set(tarea);
+    this.onChange(tarea);
+    this.tareaSelected.emit(tarea);
+  }
+
+  loadInitialTarea(id: number) {
+    this.mantenimientoService
+      .findOneTarea(id)
+      .then((tarea) => {
+        this.selectedTarea.set(tarea);
+      })
+      .catch(() => {
+        console.error('Could not load initial tarea');
+      });
   }
 
   getDisplayText(): string {
@@ -94,6 +170,7 @@ export class TareaInputSearch {
   onClickOutside(event: MouseEvent) {
     if (!this.elementRef.nativeElement.contains(event.target)) {
       this.isOpen.set(false);
+      this.onTouched();
     }
   }
 }

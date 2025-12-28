@@ -1,11 +1,12 @@
 import { Component, inject, input, output, OnInit, effect, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ApiResponse, ApiBody } from 'api/backend.api';
+import { ApiResponse, ApiBody, ApiField, VehiculoDocumentoResultDto } from 'api/backend.api';
 import { ImagesUpload } from '@module/admin/components/images-upload/images-upload';
 import {
   DocumentsDateUpload,
   DocumentWithDate,
+  DocumentItem,
 } from '../../../../components/documents-date-upload/documents-date-upload';
 import { VehiculoService } from '@service/admin/vehiculo.service';
 import { ToastService } from '@service/toast.service';
@@ -60,8 +61,10 @@ export class VehiculoForm implements OnInit {
     { value: 'retirado', label: 'Retirado', icon: 'fa-times-circle' },
   ];
 
-  documentTypes = [
-    // ... same
+  documentTypes: {
+    value: keyof ApiField<'vehiculos', 'findOne', 'documentos'>;
+    label: string;
+  }[] = [
     { value: 'tarjeta_propiedad', label: 'Tarjeta de Propiedad' },
     { value: 'tarjeta_unica_circulacion', label: 'Tarjeta Única de Circulación' },
     { value: 'citv', label: 'CITV' },
@@ -150,7 +153,7 @@ export class VehiculoForm implements OnInit {
   // Document Management
   async handleDocumentUpload(
     event: DocumentWithDate,
-    tipo: ApiBody<'vehiculos', 'createDocumento'>['tipo']
+    tipo: keyof ApiField<'vehiculos', 'findOne', 'documentos'>
   ) {
     if (!this.vehiculo()) return;
 
@@ -187,7 +190,7 @@ export class VehiculoForm implements OnInit {
     }
   }
 
-  async deleteDocument(id: number, tipo: ApiBody<'vehiculos', 'createDocumento'>['tipo']) {
+  async deleteDocument(id: number, tipo: keyof ApiField<'vehiculos', 'findOne', 'documentos'>) {
     try {
       await this.vehiculoService.deleteDocumento(id);
       this.toastService.success('Documento eliminado exitosamente');
@@ -198,25 +201,26 @@ export class VehiculoForm implements OnInit {
     }
   }
 
-  private addDocumentToLocalList(doc: ApiResponse<'vehiculos', 'createDocumento'>) {
+  private addDocumentToLocalList(doc: VehiculoDocumentoResultDto) {
     const docs = this.localDocuments();
     if (docs) {
-      const tipoKey = doc.tipo;
+      const tipo = doc.tipo;
       const newDocs = { ...docs };
-      const currentList = newDocs[tipoKey] || [];
-      newDocs[tipoKey] = [...currentList, doc];
+      if (!newDocs[tipo]) {
+        newDocs[tipo] = [];
+      }
+      newDocs[tipo] = [...newDocs[tipo], doc];
       this.localDocuments.set(newDocs);
     }
   }
 
-  private updateDocumentInLocalList(doc: ApiResponse<'vehiculos', 'createDocumento'>) {
+  private updateDocumentInLocalList(doc: VehiculoDocumentoResultDto) {
     const docs = this.localDocuments();
     if (docs) {
-      const tipoKey = doc.tipo;
-      if (tipoKey in docs) {
+      const tipo = doc.tipo;
+      if (docs[tipo]) {
         const newDocs = { ...docs };
-        const currentList = newDocs[tipoKey] || [];
-        newDocs[tipoKey] = currentList.map((d) => (d.id === doc.id ? doc : d));
+        newDocs[tipo] = newDocs[tipo].map((d) => (d.id === doc.id ? doc : d));
         this.localDocuments.set(newDocs);
       }
     }
@@ -224,26 +228,21 @@ export class VehiculoForm implements OnInit {
 
   private removeDocumentFromLocalList(
     id: number,
-    tipo: ApiBody<'vehiculos', 'createDocumento'>['tipo']
+    tipo: keyof ApiField<'vehiculos', 'findOne', 'documentos'>
   ) {
     const docs = this.localDocuments();
     if (docs) {
-      const tipoKey = tipo;
-      if (tipoKey in docs) {
+      if (docs[tipo]) {
         const newDocs = { ...docs };
-        const currentList = newDocs[tipoKey] || [];
-        newDocs[tipoKey] = currentList.filter((d) => d.id !== id);
+        newDocs[tipo] = newDocs[tipo].filter((d) => d.id !== id);
         this.localDocuments.set(newDocs);
       }
     }
   }
 
-  getDocuments(
-    tipo: ApiBody<'vehiculos', 'createDocumento'>['tipo']
-  ): ApiResponse<'vehiculos', 'createDocumento'>[] {
+  getDocuments(tipo: keyof ApiField<'vehiculos', 'findOne', 'documentos'>): DocumentItem[] {
     const docs = this.localDocuments();
     if (!docs) return [];
-    const tipoKey = tipo;
-    return docs[tipoKey] || [];
+    return (docs[tipo] || []) as DocumentItem[];
   }
 }

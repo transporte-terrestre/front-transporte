@@ -35,13 +35,13 @@ export class VehiculoInputSearch implements ControlValueAccessor {
   isOpen = signal(false);
   loading = signal(false);
   vehiculos = signal<ApiResponse<'vehiculos', 'findAll'>['data']>([]);
-  selectedVehiculo = signal<ApiResponse<'vehiculos', 'findOne'> | null>(null);
+  selectedVehiculo = signal<ApiResponse<'vehiculos', 'findAll'>['data'][number] | null>(null);
 
   // Search Control
   searchControl = new FormControl('');
 
   // Value Accessor callbacks
-  onChange: (value: ApiResponse<'vehiculos', 'findOne'> | null) => void = () => {};
+  onChange: (value: ApiResponse<'vehiculos', 'findAll'>['data'][number] | null) => void = () => {};
   onTouched: () => void = () => {};
 
   constructor() {
@@ -58,7 +58,7 @@ export class VehiculoInputSearch implements ControlValueAccessor {
                 total: 0,
                 page: 1,
                 limit: 10,
-                lastPage: 1,
+                totalPages: 1,
                 hasPreviousPage: false,
                 hasNextPage: false,
               },
@@ -93,7 +93,9 @@ export class VehiculoInputSearch implements ControlValueAccessor {
     }
   }
 
-  registerOnChange(fn: (value: ApiResponse<'vehiculos', 'findOne'> | null) => void): void {
+  registerOnChange(
+    fn: (value: ApiResponse<'vehiculos', 'findAll'>['data'][number] | null) => void
+  ): void {
     this.onChange = fn;
   }
 
@@ -115,19 +117,21 @@ export class VehiculoInputSearch implements ControlValueAccessor {
     }
   }
 
-  selectVehiculo(vehiculo: ApiResponse<'vehiculos', 'findOne'>) {
+  selectVehiculo(vehiculo: ApiResponse<'vehiculos', 'findAll'>['data'][number]) {
     this.selectedVehiculo.set(vehiculo);
     this.onChange(vehiculo);
     this.isOpen.set(false);
   }
 
-  async loadInitialVehiculo(id: number) {
-    try {
-      const vehiculo = await this.vehiculoService.findOne(id);
-      this.selectedVehiculo.set(vehiculo);
-    } catch (e) {
-      console.error('Could not load initial vehiculo');
-    }
+  loadInitialVehiculo(id: number) {
+    this.vehiculoService
+      .findOne(id)
+      .then((vehiculo) => {
+        this.selectedVehiculo.set(vehiculo);
+      })
+      .catch(() => {
+        console.error('Could not load initial vehiculo');
+      });
   }
 
   getDisplayText(): string {

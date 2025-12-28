@@ -3,13 +3,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ReportesService } from '@service/admin/reportes.service';
 import { ToastService } from '@service/toast.service';
-import { ReporteQueryDto, ViajeDetalladoDto } from '@interface/admin/reportes.interface';
+import { ApiResponse, ApiQuery } from 'api/backend.api';
 import { VehiculoInputSearch } from '../../../vehiculos/layout/vehiculo-input-search/vehiculo-input-search';
 import { ConductorInputSearch } from '../../../conductores/layout/conductor-input-search/conductor-input-search';
 import { ClienteInputSearch } from '../../../clientes/layout/cliente-input-search/cliente-input-search';
-import { VehiculoResultDto } from '@interface/admin/vehiculo.interface';
-import { ConductorListDto } from '@interface/admin/conductor.interface';
-import { ClienteListDto } from '@interface/admin/cliente.interface';
 
 export type ViajeReportMode = 'vehiculo' | 'conductor' | 'cliente';
 
@@ -44,13 +41,13 @@ export class ReportesViaje implements OnInit {
   selectedEntityName = signal<string>('');
 
   // Selected entity data
-  selectedVehiculo = signal<VehiculoResultDto | null>(null);
-  selectedConductor = signal<ConductorListDto | null>(null);
-  selectedCliente = signal<ClienteListDto | null>(null);
+  selectedVehiculo = signal<ApiResponse<'vehiculos', 'findAll'>['data'][number] | null>(null);
+  selectedConductor = signal<ApiResponse<'conductores', 'findAll'>['data'][number] | null>(null);
+  selectedCliente = signal<ApiResponse<'clientes', 'findAll'>['data'][number] | null>(null);
 
   // Results
   loading = signal(false);
-  viajes = signal<ViajeDetalladoDto[]>([]);
+  viajes = signal<ApiResponse<'reportes', 'getViajesDetalladosPorVehiculo'>>([]);
 
   ngOnInit() {
     const today = new Date();
@@ -63,7 +60,7 @@ export class ReportesViaje implements OnInit {
     return date.toISOString().split('T')[0];
   }
 
-  onVehiculoSelected(vehiculo: VehiculoResultDto | null) {
+  onVehiculoSelected(vehiculo: ApiResponse<'vehiculos', 'findAll'>['data'][number] | null) {
     this.selectedVehiculo.set(vehiculo);
     this.selectedVehiculoId.set(vehiculo?.id ?? null);
     if (vehiculo) {
@@ -73,7 +70,7 @@ export class ReportesViaje implements OnInit {
     }
   }
 
-  onConductorSelected(conductor: ConductorListDto | null) {
+  onConductorSelected(conductor: ApiResponse<'conductores', 'findAll'>['data'][number] | null) {
     this.selectedConductor.set(conductor);
     this.selectedConductorId.set(conductor?.id ?? null);
     if (conductor) {
@@ -83,7 +80,7 @@ export class ReportesViaje implements OnInit {
     }
   }
 
-  onClienteSelected(cliente: ClienteListDto | null) {
+  onClienteSelected(cliente: ApiResponse<'clientes', 'findAll'>['data'][number] | null) {
     this.selectedCliente.set(cliente);
     this.selectedClienteId.set(cliente?.id ?? null);
     if (cliente) {
@@ -97,7 +94,7 @@ export class ReportesViaje implements OnInit {
   }
 
   generarReporte() {
-    const params: ReporteQueryDto = {
+    const params = {
       fechaInicio: this.fechaInicio(),
       fechaFin: this.fechaFin(),
     };
@@ -114,17 +111,17 @@ export class ReportesViaje implements OnInit {
         this.loading.set(false);
         return;
       }
-      this.reportesService.getViajesDetalladosPorVehiculo(id, params).subscribe({
-        next: (data) => {
+      this.reportesService
+        .getViajesDetalladosPorVehiculo(id, { ...params, id })
+        .then((data) => {
           this.viajes.set(data);
           this.loading.set(false);
-        },
-        error: (err) => {
+        })
+        .catch((err) => {
           console.error('Error', err);
           this.toastService.error('Error al cargar reporte');
           this.loading.set(false);
-        },
-      });
+        });
     } else if (mode === 'conductor') {
       const id = this.selectedConductorId();
       if (!id) {
@@ -132,17 +129,17 @@ export class ReportesViaje implements OnInit {
         this.loading.set(false);
         return;
       }
-      this.reportesService.getViajesDetalladosPorConductor(id, params).subscribe({
-        next: (data) => {
+      this.reportesService
+        .getViajesDetalladosPorConductor(id, { ...params, id })
+        .then((data) => {
           this.viajes.set(data);
           this.loading.set(false);
-        },
-        error: (err) => {
+        })
+        .catch((err) => {
           console.error('Error', err);
           this.toastService.error('Error al cargar reporte');
           this.loading.set(false);
-        },
-      });
+        });
     } else if (mode === 'cliente') {
       const id = this.selectedClienteId();
       if (!id) {
@@ -150,17 +147,17 @@ export class ReportesViaje implements OnInit {
         this.loading.set(false);
         return;
       }
-      this.reportesService.getViajesDetalladosPorCliente(id, params).subscribe({
-        next: (data) => {
+      this.reportesService
+        .getViajesDetalladosPorCliente(id, { ...params, id })
+        .then((data) => {
           this.viajes.set(data);
           this.loading.set(false);
-        },
-        error: (err) => {
+        })
+        .catch((err) => {
           console.error('Error', err);
           this.toastService.error('Error al cargar reporte');
           this.loading.set(false);
-        },
-      });
+        });
     }
   }
 
@@ -184,7 +181,7 @@ export class ReportesViaje implements OnInit {
     return labels[estado] || estado;
   }
 
-  getRutaDisplay(viaje: ViajeDetalladoDto): string {
+  getRutaDisplay(viaje: ApiResponse<'reportes', 'getViajesDetalladosPorVehiculo'>[number]): string {
     if (viaje.tipoRuta === 'fija' && viaje.rutaOrigen && viaje.rutaDestino) {
       return `${viaje.rutaOrigen} → ${viaje.rutaDestino}`;
     }
@@ -192,21 +189,31 @@ export class ReportesViaje implements OnInit {
   }
 
   getTotalKilometrosFinales(): number {
-    return this.viajes().reduce((total, viaje) => {
-      const distancia = viaje.distanciaFinal ? parseFloat(viaje.distanciaFinal) : 0;
-      return total + distancia;
-    }, 0);
+    return this.viajes().reduce(
+      (total: number, viaje: ApiResponse<'reportes', 'getViajesDetalladosPorVehiculo'>[number]) => {
+        const distancia = viaje.distanciaFinal ? parseFloat(viaje.distanciaFinal) : 0;
+        return total + distancia;
+      },
+      0
+    );
   }
 
   getTotalKilometrosEstimados(): number {
-    return this.viajes().reduce((total, viaje) => {
-      const distancia = viaje.distanciaEstimada ? parseFloat(viaje.distanciaEstimada) : 0;
-      return total + distancia;
-    }, 0);
+    return this.viajes().reduce(
+      (total: number, viaje: ApiResponse<'reportes', 'getViajesDetalladosPorVehiculo'>[number]) => {
+        const distancia = viaje.distanciaEstimada ? parseFloat(viaje.distanciaEstimada) : 0;
+        return total + distancia;
+      },
+      0
+    );
   }
 
   getTotalDiferencia(): number {
-    return this.viajes().reduce((total, viaje) => total + viaje.diferencia, 0);
+    return this.viajes().reduce(
+      (total: number, viaje: ApiResponse<'reportes', 'getViajesDetalladosPorVehiculo'>[number]) =>
+        total + viaje.diferencia,
+      0
+    );
   }
 
   descargarPdf() {

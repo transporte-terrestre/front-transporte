@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { MantenimientoService } from '@service/admin/mantenimiento.service';
-import { TareaResultDto, PaginationMeta } from '@interface/admin/mantenimiento.interface';
+import { ApiResponse, ApiBody } from 'api/backend.api';
 import { ToastService } from '@service/toast.service';
 import { AlertService } from '@service/alert.service';
 import { ModalForm } from '../../../../components/modal-form/modal-form';
@@ -27,17 +27,19 @@ export class MantenimientosTareas implements OnInit, OnDestroy {
   private router = inject(Router);
   private searchSubject = new Subject<string>();
 
-  tareas = signal<TareaResultDto[]>([]);
+  tareas = signal<ApiResponse<'mantenimientos', 'findAllTareas'>['data']>([]);
   loading = signal(false);
   showModal = signal(false);
 
   // Edit mode
-  editingTarea = signal<TareaResultDto | null>(null);
+  editingTarea = signal<ApiResponse<'mantenimientos', 'findAllTareas'>['data'][number] | null>(
+    null
+  );
 
   // Pagination
   currentPage = signal(1);
   pageSize = signal(10);
-  meta = signal<PaginationMeta | null>(null);
+  meta = signal<ApiResponse<'mantenimientos', 'findAllTareas'>['meta'] | null>(null);
 
   // Filters
   searchTerm = signal('');
@@ -67,17 +69,15 @@ export class MantenimientosTareas implements OnInit, OnDestroy {
         limit: this.pageSize(),
         search: this.searchTerm() || undefined,
       })
-      .subscribe({
-        next: (response) => {
-          this.tareas.set(response.data);
-          this.meta.set(response.meta);
-          this.loading.set(false);
-        },
-        error: (error) => {
-          console.error('Error al cargar tareas:', error);
-          this.toastService.error('Error al cargar tareas');
-          this.loading.set(false);
-        },
+      .then((response) => {
+        this.tareas.set(response.data);
+        this.meta.set(response.meta);
+        this.loading.set(false);
+      })
+      .catch((error) => {
+        console.error('Error al cargar tareas:', error);
+        this.toastService.error('Error al cargar tareas');
+        this.loading.set(false);
       });
   }
 
@@ -111,7 +111,7 @@ export class MantenimientosTareas implements OnInit, OnDestroy {
     this.showModal.set(true);
   }
 
-  openEditModal(tarea: TareaResultDto) {
+  openEditModal(tarea: ApiResponse<'mantenimientos', 'findAllTareas'>['data'][number]) {
     this.editingTarea.set(tarea);
     this.showModal.set(true);
   }
@@ -125,55 +125,55 @@ export class MantenimientosTareas implements OnInit, OnDestroy {
     this.tareaFormComponent()?.submit();
   }
 
-  handleFormSubmit(data: { codigo: string; descripcion: string }) {
+  handleFormSubmit(data: ApiBody<'mantenimientos', 'createTarea'>) {
     this.loading.set(true);
 
     if (this.editingTarea()) {
       // Update
-      this.mantenimientoService.updateTareaCatalogo(this.editingTarea()!.id, data).subscribe({
-        next: () => {
+      this.mantenimientoService
+        .updateTareaCatalogo(this.editingTarea()!.id, data)
+        .then(() => {
           this.toastService.success('Tarea actualizada correctamente');
           this.loadTareas();
           this.closeModal();
-        },
-        error: () => {
+        })
+        .catch(() => {
           this.toastService.error('Error al actualizar la tarea');
           this.loading.set(false);
-        },
-      });
+        });
     } else {
       // Create
-      this.mantenimientoService.createTareaCatalogo(data).subscribe({
-        next: () => {
+      this.mantenimientoService
+        .createTareaCatalogo(data)
+        .then(() => {
           this.toastService.success('Tarea creada correctamente');
           this.loadTareas();
           this.closeModal();
-        },
-        error: () => {
+        })
+        .catch(() => {
           this.toastService.error('Error al crear la tarea');
           this.loading.set(false);
-        },
-      });
+        });
     }
   }
 
-  deleteTarea(tarea: TareaResultDto) {
+  deleteTarea(tarea: ApiResponse<'mantenimientos', 'findAllTareas'>['data'][number]) {
     this.alertService.delete(
       'Eliminar Tarea',
       `¿Estás seguro de que deseas eliminar la tarea "${tarea.codigo}"?`,
       () => {
         this.loading.set(true);
-        this.mantenimientoService.deleteTareaCatalogo(tarea.id).subscribe({
-          next: () => {
+        this.mantenimientoService
+          .deleteTareaCatalogo(tarea.id)
+          .then(() => {
             this.toastService.success('Tarea eliminada exitosamente');
             this.loadTareas();
-          },
-          error: (error) => {
+          })
+          .catch((error) => {
             console.error('Error al eliminar tarea:', error);
             this.toastService.error('Error al eliminar tarea');
             this.loading.set(false);
-          },
-        });
+          });
       }
     );
   }

@@ -31,7 +31,7 @@ export class ClienteInputSearch implements ControlValueAccessor {
 
   // Inputs
   initialData = input<ApiResponse<'clientes', 'findAll'>['data'][number] | null>(null);
-  
+
   // State
   isOpen = signal(false);
   loading = signal(false);
@@ -52,7 +52,18 @@ export class ClienteInputSearch implements ControlValueAccessor {
         distinctUntilChanged(),
         tap(() => this.loading.set(true)),
         switchMap((term) => {
-          if (!term && term !== '') return of({ data: [], meta: { total: 0 } } as any);
+          if (!term && term !== '')
+            return of<ApiResponse<'clientes', 'findAll'>>({
+              data: [],
+              meta: {
+                total: 0,
+                page: 1,
+                limit: 10,
+                totalPages: 1,
+                hasPreviousPage: false,
+                hasNextPage: false,
+              },
+            });
           return from(this.clienteService.findAll({ search: term || '', limit: 10 })).pipe(
             finalize(() => this.loading.set(false))
           );
@@ -115,9 +126,7 @@ export class ClienteInputSearch implements ControlValueAccessor {
     this.clienteService
       .findOne(id)
       .then((cliente) => {
-        this.selectedCliente.set(
-          cliente as unknown as ApiResponse<'clientes', 'findAll'>['data'][number]
-        );
+        this.selectedCliente.set(cliente);
       })
       .catch(() => {
         console.error('Could not load initial cliente');

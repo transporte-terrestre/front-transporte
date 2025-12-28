@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { StorageService } from '@service/admin/storage.service';
 import { ToastService } from '@service/toast.service';
-import { finalize } from 'rxjs/operators';
 
 export interface DocumentWithDate {
   url: string;
@@ -113,23 +112,24 @@ export class DocumentsDateUpload {
       // Upload new document to Cloudinary first
       this.uploading.set(true);
 
-      this.storageService
+      const promise = this.storageService
         .upload(this.pendingFile, this.folder())
-        .pipe(finalize(() => this.uploading.set(false)))
-        .subscribe({
-          next: (res) => {
-            this.onUpload.emit({
-              url: res.secureUrl,
-              nombre: this.pendingFile!.name,
-              fechaEmision: new Date(fechaEmision).toISOString(),
-              fechaExpiracion: new Date(fechaExpiracion).toISOString(),
-            });
-            this.toastService.success('Documento subido correctamente');
-            this.cancelUpload();
-          },
-          error: () => {
-            this.toastService.error('Error al subir el documento');
-          },
+        .then((res) => {
+          if (!res) throw new Error('No response from upload');
+          this.onUpload.emit({
+            url: res.secureUrl,
+            nombre: this.pendingFile!.name,
+            fechaEmision: new Date(fechaEmision).toISOString(),
+            fechaExpiracion: new Date(fechaExpiracion).toISOString(),
+          });
+          this.toastService.success('Documento subido correctamente');
+          this.cancelUpload();
+        })
+        .catch(() => {
+          this.toastService.error('Error al subir el documento');
+        })
+        .finally(() => {
+          this.uploading.set(false);
         });
     }
   }

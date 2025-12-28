@@ -8,9 +8,8 @@ import {
 } from '@angular/forms';
 import { ConductorService } from '@service/admin/conductor.service';
 import { ApiResponse } from 'api/backend.api';
-import { from } from 'rxjs';
+import { of, from } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap, tap, finalize } from 'rxjs/operators';
-import { of } from 'rxjs';
 
 @Component({
   selector: 'app-conductor-input-search',
@@ -53,7 +52,18 @@ export class ConductorInputSearch implements ControlValueAccessor {
         distinctUntilChanged(),
         tap(() => this.loading.set(true)),
         switchMap((term) => {
-          if (!term && term !== '') return of({ data: [], meta: { total: 0 } } as any);
+          if (!term && term !== '')
+            return of<ApiResponse<'conductores', 'findAll'>>({
+              data: [],
+              meta: {
+                total: 0,
+                page: 1,
+                limit: 10,
+                totalPages: 1,
+                hasPreviousPage: false,
+                hasNextPage: false,
+              },
+            });
           return from(this.conductorService.findAll({ search: term || '', limit: 10 })).pipe(
             finalize(() => this.loading.set(false))
           );

@@ -92,8 +92,6 @@ export class VehiculoLineaForm {
     }
   }
 
-  // ... (addModelo same)
-
   async removeModelo(index: number) {
     const modelo = this.modelosArray.at(index).value;
     if (modelo.id && !modelo.isNew) {
@@ -111,7 +109,21 @@ export class VehiculoLineaForm {
     }
   }
 
-  // ... (markAsEdited same)
+  addModelo() {
+    this.modelosArray.push(
+      this.fb.group({
+        id: [null],
+        nombre: ['', [Validators.required, Validators.minLength(1)]],
+        isNew: [true],
+        isEdited: [false],
+      })
+    );
+  }
+
+  markAsEdited(index: number) {
+    const control = this.modelosArray.at(index);
+    control.patchValue({ isEdited: true });
+  }
 
   async submitForm() {
     if (this.marcaForm.invalid) {
