@@ -2,7 +2,7 @@ import { Component, inject, OnInit, signal, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TallerService } from '@service/admin/taller.service';
-import { TallerResultDto, TallerUpdateDto } from '@interface/admin/taller.interface';
+import { ApiResponse, ApiBody } from 'api/backend.api';
 import { ToastService } from '@service/toast.service';
 import { TallerForm } from '../../layout/taller-form/taller-form';
 import { PATH, buildPath } from '@route/path.route';
@@ -19,7 +19,7 @@ export class TalleresEdit implements OnInit {
   private tallerService = inject(TallerService);
   private toastService = inject(ToastService);
 
-  taller = signal<TallerResultDto | null>(null);
+  taller = signal<ApiResponse<'talleres', 'findOne'> | null>(null);
   loading = signal(false);
 
   tallerFormComponent = viewChild<TallerForm>(TallerForm);
@@ -35,34 +35,38 @@ export class TalleresEdit implements OnInit {
 
   loadTaller(id: number) {
     this.loading.set(true);
-    this.tallerService.findOne(id).subscribe({
-      next: (taller) => {
+    this.tallerService
+      .findOne(id)
+      .then((taller) => {
         this.taller.set(taller);
-        this.loading.set(false);
-      },
-      error: (error) => {
+      })
+      .catch((error) => {
         console.error('Error al cargar taller:', error);
         this.toastService.error('Error al cargar información del taller');
         this.router.navigate([buildPath(PATH.admin.talleres.list)]);
-      },
-    });
+      })
+      .finally(() => {
+        this.loading.set(false);
+      });
   }
 
-  handleFormSubmit(data: any) {
+  handleFormSubmit(data: ApiBody<'talleres', 'create'> | ApiBody<'talleres', 'update'>) {
     if (!this.taller()) return;
 
     this.loading.set(true);
-    this.tallerService.update(this.taller()!.id, data as TallerUpdateDto).subscribe({
-      next: () => {
+    this.tallerService
+      .update(this.taller()!.id, data as ApiBody<'talleres', 'update'>)
+      .then(() => {
         this.toastService.success('Taller actualizado exitosamente');
         this.router.navigate([buildPath(PATH.admin.talleres.list)]);
-      },
-      error: (error) => {
+      })
+      .catch((error) => {
         console.error('Error al actualizar taller:', error);
         this.toastService.error('Error al actualizar taller');
+      })
+      .finally(() => {
         this.loading.set(false);
-      },
-    });
+      });
   }
 
   onCancel() {

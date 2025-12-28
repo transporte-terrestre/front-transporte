@@ -4,7 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ViajeService } from '@service/admin/viaje.service';
 import { ToastService } from '@service/toast.service';
 import { AlertService } from '@service/alert.service';
-import { ViajeResultDto } from '@interface/admin/viaje.interface';
+import { ApiResponse, ApiBody } from 'api/backend.api';
 import { ConductorInputSearch } from '@module/admin/content/conductores/layout/conductor-input-search/conductor-input-search';
 
 @Component({
@@ -19,7 +19,7 @@ export class ViajeConductoresForm {
   private toastService = inject(ToastService);
   private alertService = inject(AlertService);
 
-  viaje = input.required<ViajeResultDto>();
+  viaje = input.required<ApiResponse<'viajes', 'findOne'>>();
   onDataChange = output<void>();
 
   showConductorModal = signal(false);
@@ -39,28 +39,33 @@ export class ViajeConductoresForm {
     this.showConductorModal.set(false);
   }
 
-  saveConductor() {
+  async saveConductor() {
     if (this.addConductorForm.invalid) {
       this.addConductorForm.markAllAsTouched();
       return;
     }
-    const val = this.addConductorForm.value as any;
-    const conductorId = val.conductor?.id ? Number(val.conductor.id) : Number(val.conductor);
-    this.viajeService
-      .assignConductor({
+    const val = this.addConductorForm.value;
+    const conductor = val.conductor as { id: number } | number | null;
+    const conductorId =
+      conductor && typeof conductor === 'object' && 'id' in conductor
+        ? Number(conductor.id)
+        : Number(conductor);
+
+    if (!conductorId) return;
+
+    try {
+      await this.viajeService.assignConductor({
         viajeId: this.viaje().id,
         conductorId: conductorId,
-        rol: val.rol as any,
+        rol: (val.rol || 'conductor') as ApiBody<'viajes', 'assignConductor'>['rol'],
         esPrincipal: val.esPrincipal || false,
-      })
-      .subscribe({
-        next: () => {
-          this.toastService.success('Conductor agregado');
-          this.closeAddConductor();
-          this.onDataChange.emit();
-        },
-        error: () => this.toastService.error('Error al agregar conductor'),
       });
+      this.toastService.success('Conductor agregado');
+      this.closeAddConductor();
+      this.onDataChange.emit();
+    } catch (e) {
+      this.toastService.error('Error al agregar conductor');
+    }
   }
 
   removeConductor(conductorId: number) {
@@ -68,13 +73,13 @@ export class ViajeConductoresForm {
       'Quitar Conductor',
       '¿Estás seguro de que deseas quitar este conductor del viaje?',
       () => {
-        this.viajeService.removeConductor(this.viaje().id, conductorId).subscribe({
-          next: () => {
+        this.viajeService.removeConductor(this.viaje().id, conductorId).then(
+          () => {
             this.toastService.success('Conductor eliminado');
             this.onDataChange.emit();
           },
-          error: () => this.toastService.error('Error al eliminar conductor'),
-        });
+          () => this.toastService.error('Error al eliminar conductor')
+        );
       }
     );
   }

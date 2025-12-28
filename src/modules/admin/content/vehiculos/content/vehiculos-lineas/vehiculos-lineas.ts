@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { VehiculoService } from '@service/admin/vehiculo.service';
-import { MarcaResultDto, PaginationMeta } from '@interface/admin/vehiculo.interface';
+import { ApiResponse } from 'api/backend.api';
 import { ToastService } from '@service/toast.service';
 import { AlertService } from '@service/alert.service';
 import { ModalForm } from '../../../../components/modal-form/modal-form';
@@ -27,18 +27,18 @@ export class VehiculosLineas implements OnInit, OnDestroy {
   private router = inject(Router);
   private searchSubject = new Subject<string>();
 
-  marcas = signal<MarcaResultDto[]>([]);
+  marcas = signal<ApiResponse<'vehiculos', 'findAllMarcas'>['data']>([]);
   loading = signal(false);
   showModal = signal(false);
 
   // Edit mode
-  selectedMarca = signal<MarcaResultDto | null>(null);
+  selectedMarca = signal<ApiResponse<'vehiculos', 'findOneMarca'> | null>(null);
   editMode = signal(false);
 
   // Pagination
   currentPage = signal(1);
   pageSize = signal(10);
-  meta = signal<PaginationMeta | null>(null);
+  meta = signal<ApiResponse<'vehiculos', 'findAllMarcas'>['meta'] | null>(null);
 
   // Filters
   searchTerm = signal('');
@@ -60,28 +60,24 @@ export class VehiculosLineas implements OnInit, OnDestroy {
     this.searchSubject.complete();
   }
 
-  loadMarcas() {
+  async loadMarcas() {
     this.loading.set(true);
-    this.vehiculoService
-      .findAllMarcas({
+    try {
+      const response = await this.vehiculoService.findAllMarcas({
         page: this.currentPage(),
         limit: this.pageSize(),
         search: this.searchTerm() || undefined,
         fechaInicio: this.fechaInicio() || undefined,
         fechaFin: this.fechaFin() || undefined,
-      })
-      .subscribe({
-        next: (response) => {
-          this.marcas.set(response.data);
-          this.meta.set(response.meta);
-          this.loading.set(false);
-        },
-        error: (error) => {
-          console.error('Error al cargar marcas:', error);
-          this.toastService.error('Error al cargar marcas');
-          this.loading.set(false);
-        },
       });
+      this.marcas.set(response.data);
+      this.meta.set(response.meta);
+      this.loading.set(false);
+    } catch (error) {
+      console.error('Error al cargar marcas:', error);
+      this.toastService.error('Error al cargar marcas');
+      this.loading.set(false);
+    }
   }
 
   onSearchChange(value: string) {
@@ -119,12 +115,6 @@ export class VehiculosLineas implements OnInit, OnDestroy {
     this.showModal.set(true);
   }
 
-  openEditModal(marca: MarcaResultDto) {
-    this.selectedMarca.set(marca);
-    this.editMode.set(true);
-    this.showModal.set(true);
-  }
-
   closeModal() {
     this.showModal.set(false);
     this.selectedMarca.set(null);
@@ -140,23 +130,29 @@ export class VehiculosLineas implements OnInit, OnDestroy {
     this.closeModal();
   }
 
+  openEditModal(marca: ApiResponse<'vehiculos', 'findAllMarcas'>['data'][number]) {
+    this.selectedMarca.set(marca);
+    this.editMode.set(true);
+    this.showModal.set(true);
+  }
+
+  // ...
+
   deleteMarca(id: number) {
     this.alertService.delete(
       'Eliminar Marca',
       '¿Estás seguro de que deseas eliminar esta marca? Se eliminarán también todos los modelos asociados.',
-      () => {
+      async () => {
         this.loading.set(true);
-        this.vehiculoService.deleteMarca(id).subscribe({
-          next: () => {
-            this.toastService.success('Marca eliminada exitosamente');
-            this.loadMarcas();
-          },
-          error: (error) => {
-            console.error('Error al eliminar marca:', error);
-            this.toastService.error('Error al eliminar marca');
-            this.loading.set(false);
-          },
-        });
+        try {
+          await this.vehiculoService.deleteMarca(id);
+          this.toastService.success('Marca eliminada exitosamente');
+          this.loadMarcas();
+        } catch (error) {
+          console.error('Error al eliminar marca:', error);
+          this.toastService.error('Error al eliminar marca');
+          this.loading.set(false);
+        }
       }
     );
   }

@@ -1,16 +1,7 @@
 import { Component, inject, input, output, OnInit, effect, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import {
-  ConductorResultDto,
-  ConductorCreateDto,
-  ConductorUpdateDto,
-  ClaseLicencia,
-  CategoriaLicencia,
-  ConductorDocumentoCreateDto,
-  ConductorDocumentoResultDto,
-  DocumentosAgrupadosConductorDto,
-} from '@interface/admin/conductor.interface';
+import { ApiResponse, ApiBody, ApiField } from 'api/backend.api';
 import { ImagesUpload } from '@module/admin/components/images-upload/images-upload';
 import {
   DocumentsDateUpload,
@@ -31,15 +22,15 @@ export class ConductorForm implements OnInit {
   private toastService = inject(ToastService);
 
   // Inputs
-  conductor = input<ConductorResultDto | null>(null);
+  conductor = input<ApiResponse<'conductores', 'findOne'> | null>(null);
   editMode = input<boolean>(false);
 
   // Outputs
-  onSubmitForm = output<ConductorCreateDto | ConductorUpdateDto>();
+  onSubmitForm = output<ApiBody<'conductores', 'create'> | ApiBody<'conductores', 'update'>>();
 
   // State
   imagenes = signal<string[]>([]);
-  localDocuments = signal<DocumentosAgrupadosConductorDto | null>(null);
+  localDocuments = signal<ApiResponse<'conductores', 'findOne'>['documentos'] | null>(null);
 
   conductorForm: FormGroup = this.fb.group({
     dni: ['', [Validators.required, Validators.pattern(/^\d{8}$/)]],
@@ -50,10 +41,13 @@ export class ConductorForm implements OnInit {
     categoriaLicencia: ['', [Validators.required]],
   });
 
-  clases: ClaseLicencia[] = ['A', 'B'];
-  categorias: CategoriaLicencia[] = ['Uno', 'Dos', 'Tres'];
+  clases: ApiField<'conductores', 'findOne', 'claseLicencia'>[] = ['Uno', 'Dos', 'Tres'];
+  categorias: ApiField<'conductores', 'findOne', 'categoriaLicencia'>[] = ['A', 'B'];
 
-  documentTypes = [
+  documentTypes: {
+    value: keyof ApiField<'conductores', 'findOne', 'documentos'>;
+    label: string;
+  }[] = [
     { value: 'dni', label: 'DNI' },
     { value: 'licencia_mtc', label: 'Licencia MTC' },
     { value: 'seguro_vida_ley', label: 'Seguro Vida Ley' },
@@ -106,33 +100,41 @@ export class ConductorForm implements OnInit {
       ...this.conductorForm.value,
       fotocheck: this.imagenes(),
     };
-    this.onSubmitForm.emit(formData);
+
+    if (this.editMode()) {
+      this.onSubmitForm.emit(formData as ApiBody<'conductores', 'update'>);
+    } else {
+      this.onSubmitForm.emit(formData as ApiBody<'conductores', 'create'>);
+    }
   }
 
   // Document Management
-  handleDocumentUpload(event: DocumentWithDate, tipo: string) {
+  handleDocumentUpload(
+    event: DocumentWithDate,
+    tipo: keyof ApiField<'conductores', 'findOne', 'documentos'>
+  ) {
     if (!this.conductor()) return;
 
     // URL now comes directly from the event (already uploaded to Cloudinary)
-    const documento: ConductorDocumentoCreateDto = {
+    const documento: ApiBody<'conductores', 'createDocumento'> = {
       conductorId: this.conductor()!.id,
-      tipo: tipo as any,
+      tipo: tipo,
       nombre: event.nombre,
       url: event.url,
       fechaEmision: event.fechaEmision,
       fechaExpiracion: event.fechaExpiracion,
     };
 
-    this.conductorService.createDocumento(documento).subscribe({
-      next: (doc) => {
+    this.conductorService
+      .createDocumento(documento)
+      .then((doc) => {
         this.toastService.success('Documento guardado exitosamente');
         this.addDocumentToLocalList(doc);
-      },
-      error: (err) => {
+      })
+      .catch((err) => {
         console.error('Error al guardar documento:', err);
         this.toastService.error('Error al guardar documento');
-      },
-    });
+      });
   }
 
   handleDocumentUpdate(event: { id: number; fechaEmision: string; fechaExpiracion: string }) {
@@ -141,35 +143,35 @@ export class ConductorForm implements OnInit {
         fechaEmision: event.fechaEmision,
         fechaExpiracion: event.fechaExpiracion,
       })
-      .subscribe({
-        next: (doc) => {
-          this.toastService.success('Documento actualizado exitosamente');
-          this.updateDocumentInLocalList(doc);
-        },
-        error: (err) => {
-          console.error('Error al actualizar documento:', err);
-          this.toastService.error('Error al actualizar documento');
-        },
+      .then((doc) => {
+        this.toastService.success('Documento actualizado exitosamente');
+        this.updateDocumentInLocalList(doc);
+      })
+      .catch((err) => {
+        console.error('Error al actualizar documento:', err);
+        this.toastService.error('Error al actualizar documento');
       });
   }
 
-  deleteDocument(id: number, tipo: string) {
-    this.conductorService.deleteDocumento(id).subscribe({
-      next: () => {
+  deleteDocument(id: number, tipo: keyof ApiField<'conductores', 'findOne', 'documentos'>) {
+    this.conductorService
+      .deleteDocumento(id)
+      .then(() => {
         this.toastService.success('Documento eliminado exitosamente');
         this.removeDocumentFromLocalList(id, tipo);
-      },
-      error: (err) => {
+      })
+      .catch((err) => {
         console.error('Error al eliminar documento:', err);
         this.toastService.error('Error al eliminar documento');
-      },
-    });
+      });
   }
 
-  private addDocumentToLocalList(doc: ConductorDocumentoResultDto) {
+  private addDocumentToLocalList(
+    doc: ApiField<'conductores', 'findOne', 'documentos'>['dni'][number]
+  ) {
     const docs = this.localDocuments();
     if (docs) {
-      const tipo = doc.tipo as keyof DocumentosAgrupadosConductorDto;
+      const tipo = doc.tipo;
       const newDocs = { ...docs };
       if (!newDocs[tipo]) {
         newDocs[tipo] = [];
@@ -179,10 +181,12 @@ export class ConductorForm implements OnInit {
     }
   }
 
-  private updateDocumentInLocalList(doc: ConductorDocumentoResultDto) {
+  private updateDocumentInLocalList(
+    doc: ApiField<'conductores', 'findOne', 'documentos'>['dni'][number]
+  ) {
     const docs = this.localDocuments();
     if (docs) {
-      const tipo = doc.tipo as keyof DocumentosAgrupadosConductorDto;
+      const tipo = doc.tipo;
       if (docs[tipo]) {
         const newDocs = { ...docs };
         newDocs[tipo] = newDocs[tipo].map((d) => (d.id === doc.id ? doc : d));
@@ -191,22 +195,25 @@ export class ConductorForm implements OnInit {
     }
   }
 
-  private removeDocumentFromLocalList(id: number, tipo: string) {
+  private removeDocumentFromLocalList(
+    id: number,
+    tipo: keyof ApiField<'conductores', 'findOne', 'documentos'>
+  ) {
     const docs = this.localDocuments();
     if (docs) {
-      const tipoKey = tipo as keyof DocumentosAgrupadosConductorDto;
-      if (docs[tipoKey]) {
+      if (docs[tipo]) {
         const newDocs = { ...docs };
-        newDocs[tipoKey] = newDocs[tipoKey].filter((d) => d.id !== id);
+        newDocs[tipo] = newDocs[tipo].filter((d) => d.id !== id);
         this.localDocuments.set(newDocs);
       }
     }
   }
 
-  getDocuments(tipo: string): ConductorDocumentoResultDto[] {
+  getDocuments(
+    tipo: keyof ApiField<'conductores', 'findOne', 'documentos'>
+  ): ApiField<'conductores', 'findOne', 'documentos'>['dni'] {
     const docs = this.localDocuments();
     if (!docs) return [];
-    const tipoKey = tipo as keyof DocumentosAgrupadosConductorDto;
-    return docs[tipoKey] || [];
+    return docs[tipo] || [];
   }
 }

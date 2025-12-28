@@ -1,12 +1,7 @@
 import { Component, inject, input, output, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormArray } from '@angular/forms';
-import {
-  ViajeResultDto,
-  ViajeEstado,
-  ViajeModalidadServicio,
-} from '@interface/admin/viaje.interface';
-import { RutaResultDto } from '@interface/admin/ruta.interface';
+import { FormBuilder, ReactiveFormsModule, Validators, FormControl } from '@angular/forms';
+import { ApiResponse, ApiBody } from 'api/backend.api';
 import { ClienteInputSearch } from '@module/admin/content/clientes/layout/cliente-input-search/cliente-input-search';
 import { RutaInputSearch } from '@module/admin/content/rutas/layout/ruta-input-search/ruta-input-search';
 import { VehiculoInputSearch } from '@module/admin/content/vehiculos/layout/vehiculo-input-search/vehiculo-input-search';
@@ -35,33 +30,56 @@ export class ViajeForm implements OnInit {
   private fb = inject(FormBuilder);
 
   // Inputs
-  viaje = input<ViajeResultDto | null>(null);
+  viaje = input<
+    | (ApiResponse<'viajes', 'findOne'> & {
+        conductorPrincipal?: NonNullable<ApiResponse<'viajes', 'findOne'>['conductores']>[number];
+        vehiculoPrincipal?: NonNullable<ApiResponse<'viajes', 'findOne'>['vehiculos']>[number];
+      })
+    | null
+  >(null);
   editMode = input<boolean>(false);
 
   // Outputs
-  onSubmitForm = output<any>();
+  onSubmitForm = output<ApiBody<'viajes', 'create'> | ApiBody<'viajes', 'update'>>();
   onDataChange = output<void>();
 
   // Catálogos
   loadingCatalogos = signal(false);
 
-  viajeForm: FormGroup = this.fb.group({
-    cliente: [null, [Validators.required]],
-    tipoRuta: ['fija', [Validators.required]],
-    ruta: [null, [Validators.required]],
+  viajeForm = this.fb.group({
+    cliente: [
+      null as ApiResponse<'clientes', 'findAll'>['data'][number] | null,
+      [Validators.required],
+    ],
+    tipoRuta: ['fija' as ApiResponse<'viajes', 'findOne'>['tipoRuta'], [Validators.required]],
+    ruta: [null as ApiResponse<'rutas', 'findAll'>['data'][number] | null, [Validators.required]],
     rutaOcasional: [''],
     distanciaEstimada: ['', [Validators.required]],
     distanciaFinal: [{ value: '', disabled: true }],
-    modalidadServicio: ['regular', [Validators.required]],
-    vehiculo: [null, [Validators.required]],
-    conductor: [null, [Validators.required]],
-    tripulantes: this.fb.array([]),
+    modalidadServicio: [
+      'regular' as ApiResponse<'viajes', 'findOne'>['modalidadServicio'],
+      [Validators.required],
+    ],
+    vehiculo: [
+      null as ApiResponse<'vehiculos', 'findAll'>['data'][number] | null,
+      [Validators.required],
+    ],
+    conductor: [
+      null as ApiResponse<'conductores', 'findAll'>['data'][number] | null,
+      [Validators.required],
+    ],
+    tripulantes: this.fb.array<FormControl<string | null>>([]),
     fechaSalida: ['', [Validators.required]],
     fechaLlegada: ['', [Validators.required]],
-    estado: ['programado', [Validators.required]],
+    estado: ['programado' as ApiResponse<'viajes', 'findOne'>['estado'], [Validators.required]],
   });
 
-  estados: Array<{ value: ViajeEstado; label: string; icon: string; color: string }> = [
+  estados: Array<{
+    value: ApiResponse<'viajes', 'findOne'>['estado'];
+    label: string;
+    icon: string;
+    color: string;
+  }> = [
     { value: 'programado', label: 'Programado', icon: 'fa-calendar', color: 'text-primary' },
     { value: 'en_progreso', label: 'En Progreso', icon: 'fa-truck', color: 'text-warning' },
     { value: 'completado', label: 'Completado', icon: 'fa-check-circle', color: 'text-success' },
@@ -74,7 +92,7 @@ export class ViajeForm implements OnInit {
   ];
 
   modalidades: Array<{
-    value: ViajeModalidadServicio;
+    value: ApiResponse<'viajes', 'findOne'>['modalidadServicio'];
     label: string;
     icon: string;
     color: string;
@@ -88,7 +106,7 @@ export class ViajeForm implements OnInit {
   ];
 
   get tripulantesArray() {
-    return this.viajeForm.get('tripulantes') as FormArray;
+    return this.viajeForm.controls.tripulantes;
   }
 
   addTripulante(nombre: string = '') {
@@ -125,13 +143,15 @@ export class ViajeForm implements OnInit {
     });
 
     // Escuchar cambios en ruta para setear la distancia automáticamente (cuando es ruta fija)
-    this.viajeForm.get('ruta')?.valueChanges.subscribe((ruta: RutaResultDto | null) => {
-      if (ruta && this.viajeForm.get('tipoRuta')?.value === 'fija') {
-        this.viajeForm.patchValue({
-          distanciaEstimada: ruta.distancia || '',
-        });
-      }
-    });
+    this.viajeForm
+      .get('ruta')
+      ?.valueChanges.subscribe((ruta: ApiResponse<'rutas', 'findAll'>['data'][number] | null) => {
+        if (ruta && this.viajeForm.get('tipoRuta')?.value === 'fija') {
+          this.viajeForm.patchValue({
+            distanciaEstimada: (ruta as ApiResponse<'rutas', 'findOne'>).distancia || '',
+          });
+        }
+      });
 
     // Control de distanciaFinal basado en estado
     this.viajeForm.get('estado')?.valueChanges.subscribe((estado) => {
@@ -142,7 +162,7 @@ export class ViajeForm implements OnInit {
     this.updateDistanciaFinalState(this.viajeForm.get('estado')?.value);
   }
 
-  updateDistanciaFinalState(estado: string) {
+  updateDistanciaFinalState(estado: string | null | undefined) {
     const distanciaFinalControl = this.viajeForm.get('distanciaFinal');
 
     if (estado === 'completado') {
@@ -161,15 +181,15 @@ export class ViajeForm implements OnInit {
     const viajeData = this.viaje();
     if (this.editMode() && viajeData) {
       this.viajeForm.patchValue({
-        cliente: viajeData.clienteId,
+        cliente: viajeData.cliente,
         tipoRuta: viajeData.tipoRuta,
-        ruta: viajeData.rutaId,
+        ruta: viajeData.ruta,
         rutaOcasional: viajeData.rutaOcasional,
         distanciaEstimada: viajeData.distanciaEstimada || '',
         distanciaFinal: viajeData.distanciaFinal || '',
         modalidadServicio: viajeData.modalidadServicio,
-        vehiculo: viajeData.vehiculoPrincipal?.id,
-        conductor: viajeData.conductorPrincipal?.id,
+        vehiculo: viajeData.vehiculoPrincipal,
+        conductor: viajeData.conductorPrincipal,
         fechaSalida: this.formatDateTimeForInput(viajeData.fechaSalida),
         fechaLlegada: viajeData.fechaLlegada
           ? this.formatDateTimeForInput(viajeData.fechaLlegada)
@@ -218,16 +238,29 @@ export class ViajeForm implements OnInit {
       return;
     }
 
-    const formValue = this.viajeForm.value;
+    const formValue = this.viajeForm.getRawValue(); // use getRawValue to get disabled fields too if any
+    const extractId = (val: { id: number } | null | undefined): number | undefined => {
+      return val?.id;
+    };
+
     const formData = {
       ...formValue,
-      rutaId: formValue.ruta?.id ? Number(formValue.ruta.id) : undefined,
-      vehiculoId: formValue.vehiculo?.id ? Number(formValue.vehiculo.id) : undefined,
-      conductorId: formValue.conductor?.id ? Number(formValue.conductor.id) : undefined,
-      clienteId: formValue.cliente?.id ? Number(formValue.cliente.id) : undefined,
+      // Fix types by mapping null/empty to undefined or defaults
+      rutaOcasional: formValue.rutaOcasional || undefined,
+      distanciaEstimada: formValue.distanciaEstimada || undefined,
+      distanciaFinal: formValue.distanciaFinal || undefined,
+      tipoRuta: formValue.tipoRuta || 'fija', // Required, fallback
+      modalidadServicio: formValue.modalidadServicio || 'regular', // Required, fallback
+      estado: formValue.estado || 'programado', // Required, fallback
+
+      rutaId: extractId(formValue.ruta),
+      vehiculoId: extractId(formValue.vehiculo),
+      conductorId: extractId(formValue.conductor),
+      clienteId: extractId(formValue.cliente),
       fechaSalida: formValue.fechaSalida ? `${formValue.fechaSalida}:00.000Z` : '',
-      fechaLlegada: formValue.fechaLlegada ? `${formValue.fechaLlegada}:00.000Z` : null,
-      tripulantes: formValue.tripulantes, // Already an array of strings
+      fechaLlegada: formValue.fechaLlegada ? `${formValue.fechaLlegada}:00.000Z` : undefined,
+      tripulantes: (formValue.tripulantes || []).filter((t): t is string => !!t),
+
       // Eliminar campos con nombres de objeto
       ruta: undefined,
       vehiculo: undefined,

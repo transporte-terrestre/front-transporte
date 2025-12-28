@@ -1,4 +1,4 @@
-import { Component, inject, signal, ElementRef, HostListener } from '@angular/core';
+import { Component, inject, signal, ElementRef, HostListener, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   ControlValueAccessor,
@@ -7,9 +7,9 @@ import {
   ReactiveFormsModule,
 } from '@angular/forms';
 import { VehiculoService } from '@service/admin/vehiculo.service';
-import { MarcaResultDto } from '@interface/admin/vehiculo.interface';
+import { ApiResponse } from 'api/backend.api';
 import { debounceTime, distinctUntilChanged, switchMap, tap, finalize } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { of, from } from 'rxjs';
 
 @Component({
   selector: 'app-marca-input-search',
@@ -29,18 +29,21 @@ export class MarcaInputSearch implements ControlValueAccessor {
   private vehiculoService = inject(VehiculoService);
   private elementRef = inject(ElementRef);
 
+  // Inputs
+  initialData = input<ApiResponse<'vehiculos', 'findAllMarcas'>['data'][number] | null>(null);
+
   // State
   isOpen = signal(false);
   loading = signal(false);
-  marcas = signal<MarcaResultDto[]>([]);
-  selectedMarca = signal<MarcaResultDto | null>(null);
+  marcas = signal<ApiResponse<'vehiculos', 'findAllMarcas'>['data']>([]);
+  selectedMarca = signal<ApiResponse<'vehiculos', 'findOneMarca'> | null>(null);
   disabled = signal(false);
 
   // Search Control
   searchControl = new FormControl('');
 
   // Value Accessor callbacks
-  onChange: (value: MarcaResultDto | null) => void = () => {};
+  onChange: (value: ApiResponse<'vehiculos', 'findOneMarca'> | null) => void = () => {};
   onTouched: () => void = () => {};
 
   constructor() {
@@ -50,10 +53,21 @@ export class MarcaInputSearch implements ControlValueAccessor {
         distinctUntilChanged(),
         tap(() => this.loading.set(true)),
         switchMap((term) => {
-          if (!term && term !== '') return of({ data: [], meta: { total: 0 } } as any);
-          return this.vehiculoService
-            .findAllMarcas({ search: term || '', limit: 10 })
-            .pipe(finalize(() => this.loading.set(false)));
+          if (!term && term !== '')
+            return of<ApiResponse<'vehiculos', 'findAllMarcas'>>({
+              data: [],
+              meta: {
+                total: 0,
+                page: 1,
+                limit: 10,
+                lastPage: 1,
+                hasPreviousPage: false,
+                hasNextPage: false,
+              },
+            });
+          return from(this.vehiculoService.findAllMarcas({ search: term || '', limit: 10 })).pipe(
+            finalize(() => this.loading.set(false))
+          );
         })
       )
       .subscribe({
@@ -69,18 +83,27 @@ export class MarcaInputSearch implements ControlValueAccessor {
   }
 
   writeValue(obj: any): void {
-    if (obj && typeof obj === 'object') {
-      this.selectedMarca.set(obj as MarcaResultDto);
+    if (obj) {
+      if (typeof obj === 'object') {
+        this.selectedMarca.set(obj);
+      } else {
+        const initial = this.initialData();
+        if (initial && initial.id === obj) {
+          this.selectedMarca.set(initial as any);
+        } else {
+          this.loadInitialMarca(obj);
+        }
+      }
     } else {
       this.selectedMarca.set(null);
     }
   }
 
-  registerOnChange(fn: any): void {
+  registerOnChange(fn: (value: ApiResponse<'vehiculos', 'findOneMarca'> | null) => void): void {
     this.onChange = fn;
   }
 
-  registerOnTouched(fn: any): void {
+  registerOnTouched(fn: () => void): void {
     this.onTouched = fn;
   }
 
@@ -101,7 +124,7 @@ export class MarcaInputSearch implements ControlValueAccessor {
     }
   }
 
-  selectMarca(marca: MarcaResultDto) {
+  selectMarca(marca: ApiResponse<'vehiculos', 'findOneMarca'>) {
     this.selectedMarca.set(marca);
     this.onChange(marca);
     this.isOpen.set(false);
@@ -113,15 +136,13 @@ export class MarcaInputSearch implements ControlValueAccessor {
     this.isOpen.set(false);
   }
 
-  loadInitialMarca(id: number) {
-    this.vehiculoService.findOneMarca(id).subscribe({
-      next: (marca) => {
-        this.selectedMarca.set(marca);
-      },
-      error: () => {
-        console.error('Could not load initial marca');
-      },
-    });
+  async loadInitialMarca(id: number) {
+    try {
+      const marca = await this.vehiculoService.findOneMarca(id);
+      this.selectedMarca.set(marca);
+    } catch (error) {
+      console.error('Could not load initial marca');
+    }
   }
 
   getDisplayText(): string {

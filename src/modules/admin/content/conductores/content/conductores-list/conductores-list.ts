@@ -5,11 +5,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { ConductorService } from '@service/admin/conductor.service';
-import {
-  ConductorListDto,
-  ConductorCreateDto,
-  PaginationMeta,
-} from '@interface/admin/conductor.interface';
+import { ApiResponse, ApiBody } from 'api/backend.api';
 import { ToastService } from '@service/toast.service';
 import { AlertService } from '@service/alert.service';
 import { ModalForm } from '../../../../components/modal-form/modal-form';
@@ -32,14 +28,14 @@ export class ConductoresList implements OnInit, OnDestroy {
 
   private searchSubject = new Subject<string>();
 
-  conductores = signal<ConductorListDto[]>([]);
+  conductores = signal<ApiResponse<'conductores', 'findAll'>['data']>([]);
   loading = signal(false);
   showModal = signal(false);
 
   // Paginación
   currentPage = signal(1);
   pageSize = signal(10);
-  meta = signal<PaginationMeta | null>(null);
+  meta = signal<ApiResponse<'conductores', 'findAll'>['meta'] | null>(null);
 
   // Filtros
   searchTerm = signal('');
@@ -71,17 +67,15 @@ export class ConductoresList implements OnInit, OnDestroy {
         fechaInicio: this.fechaInicio() || undefined,
         fechaFin: this.fechaFin() || undefined,
       })
-      .subscribe({
-        next: (response) => {
-          this.conductores.set(response.data);
-          this.meta.set(response.meta);
-          this.loading.set(false);
-        },
-        error: (error) => {
-          console.error('Error al cargar conductores:', error);
-          this.toastService.error('Error al cargar conductores');
-          this.loading.set(false);
-        },
+      .then((response) => {
+        this.conductores.set(response.data);
+        this.meta.set(response.meta);
+        this.loading.set(false);
+      })
+      .catch((error) => {
+        console.error('Error al cargar conductores:', error);
+        this.toastService.error('Error al cargar conductores');
+        this.loading.set(false);
       });
   }
 
@@ -122,7 +116,7 @@ export class ConductoresList implements OnInit, OnDestroy {
     this.showModal.set(true);
   }
 
-  navigateToEdit(conductor: ConductorListDto) {
+  navigateToEdit(conductor: ApiResponse<'conductores', 'findAll'>['data'][number]) {
     const path = buildPath(PATH.admin.conductores.edit).replace(':id', conductor.id.toString());
     this.router.navigate([path]);
   }
@@ -131,28 +125,28 @@ export class ConductoresList implements OnInit, OnDestroy {
     this.showModal.set(false);
   }
 
-  handleFormSubmit(data: any) {
-    this.createConductor(data as ConductorCreateDto);
+  handleFormSubmit(data: ApiBody<'conductores', 'create'> | ApiBody<'conductores', 'update'>) {
+    this.createConductor(data as ApiBody<'conductores', 'create'>);
   }
 
   handleModalSubmit() {
     this.conductorFormComponent()?.submitForm();
   }
 
-  createConductor(data: ConductorCreateDto) {
+  createConductor(data: ApiBody<'conductores', 'create'>) {
     this.loading.set(true);
-    this.conductorService.create(data).subscribe({
-      next: () => {
+    this.conductorService
+      .create(data)
+      .then(() => {
         this.toastService.success('Conductor creado exitosamente');
         this.loadConductores();
         this.closeModal();
-      },
-      error: (error) => {
+      })
+      .catch((error) => {
         console.error('Error al crear conductor:', error);
         this.toastService.error('Error al crear conductor');
         this.loading.set(false);
-      },
-    });
+      });
   }
 
   deleteConductor(id: number) {
@@ -161,17 +155,17 @@ export class ConductoresList implements OnInit, OnDestroy {
       '¿Estás seguro de que deseas eliminar este conductor? Esta acción no se puede deshacer.',
       () => {
         this.loading.set(true);
-        this.conductorService.delete(id).subscribe({
-          next: () => {
+        this.conductorService
+          .delete(id)
+          .then(() => {
             this.toastService.success('Conductor eliminado exitosamente');
             this.loadConductores();
-          },
-          error: (error) => {
+          })
+          .catch((error) => {
             console.error('Error al eliminar conductor:', error);
             this.toastService.error('Error al eliminar conductor');
             this.loading.set(false);
-          },
-        });
+          });
       }
     );
   }

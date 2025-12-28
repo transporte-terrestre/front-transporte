@@ -7,9 +7,9 @@ import {
   ReactiveFormsModule,
 } from '@angular/forms';
 import { VehiculoService } from '@service/admin/vehiculo.service';
-import { ModeloResultDto } from '@interface/admin/vehiculo.interface';
+import { ApiResponse } from 'api/backend.api';
 import { debounceTime, distinctUntilChanged, switchMap, tap, finalize } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { of, from } from 'rxjs';
 
 @Component({
   selector: 'app-modelo-input-search',
@@ -31,25 +31,25 @@ export class ModeloInputSearch implements ControlValueAccessor {
 
   // Input: marcaId required to filter models
   marcaId = input<number | null>(null);
+  initialData = input<ApiResponse<'vehiculos', 'findAllModelos'>['data'][number] | null>(null);
 
   // State
   isOpen = signal(false);
   loading = signal(false);
-  modelos = signal<ModeloResultDto[]>([]);
-  selectedModelo = signal<ModeloResultDto | null>(null);
+  modelos = signal<ApiResponse<'vehiculos', 'findAllModelos'>['data']>([]);
+  selectedModelo = signal<ApiResponse<'vehiculos', 'findOneModelo'> | null>(null);
   disabled = signal(false);
 
   // Search Control
   searchControl = new FormControl('');
 
   // Value Accessor callbacks
-  onChange: (value: ModeloResultDto | null) => void = () => {};
+  onChange: (value: ApiResponse<'vehiculos', 'findOneModelo'> | null) => void = () => {};
   onTouched: () => void = () => {};
 
   constructor() {
     // React to marcaId changes - clear selection and reload models when marca changes
     effect(() => {
-
       const currentMarcaId = this.marcaId();
       const currentModelo = this.selectedModelo();
       // Solo limpiar si hay un modelo seleccionado Y no pertenece a la marca actual
@@ -72,10 +72,21 @@ export class ModeloInputSearch implements ControlValueAccessor {
         tap(() => this.loading.set(true)),
         switchMap((term) => {
           const marca = this.marcaId();
-          if (!marca) return of({ data: [], meta: { total: 0 } } as any);
-          return this.vehiculoService
-            .findAllModelos({ search: term || '', marcaId: marca, limit: 10 })
-            .pipe(finalize(() => this.loading.set(false)));
+          if (!marca)
+            return of<ApiResponse<'vehiculos', 'findAllModelos'>>({
+              data: [],
+              meta: {
+                total: 0,
+                page: 1,
+                limit: 10,
+                lastPage: 1,
+                hasPreviousPage: false,
+                hasNextPage: false,
+              },
+            });
+          return from(
+            this.vehiculoService.findAllModelos({ search: term || '', marcaId: marca, limit: 10 })
+          ).pipe(finalize(() => this.loading.set(false)));
         })
       )
       .subscribe({
@@ -90,19 +101,28 @@ export class ModeloInputSearch implements ControlValueAccessor {
       });
   }
 
-  writeValue(obj: ModeloResultDto | null): void {
+  writeValue(obj: any): void {
     if (obj) {
-      this.selectedModelo.set(obj);
+      if (typeof obj === 'object') {
+        this.selectedModelo.set(obj);
+      } else {
+        const initial = this.initialData();
+        if (initial && initial.id === obj) {
+          this.selectedModelo.set(initial as any);
+        } else {
+          this.loadInitialModelo(obj);
+        }
+      }
     } else {
       this.selectedModelo.set(null);
     }
   }
 
-  registerOnChange(fn: any): void {
+  registerOnChange(fn: (value: ApiResponse<'vehiculos', 'findOneModelo'> | null) => void): void {
     this.onChange = fn;
   }
 
-  registerOnTouched(fn: any): void {
+  registerOnTouched(fn: () => void): void {
     this.onTouched = fn;
   }
 
@@ -127,7 +147,7 @@ export class ModeloInputSearch implements ControlValueAccessor {
     }
   }
 
-  selectModelo(modelo: ModeloResultDto) {
+  selectModelo(modelo: ApiResponse<'vehiculos', 'findOneModelo'>) {
     this.selectedModelo.set(modelo);
     this.onChange(modelo);
     this.isOpen.set(false);
@@ -139,31 +159,30 @@ export class ModeloInputSearch implements ControlValueAccessor {
     this.isOpen.set(false);
   }
 
-  loadInitialModelo(id: number) {
-    this.vehiculoService.findOneModelo(id).subscribe({
-      next: (modelo) => {
-        this.selectedModelo.set(modelo);
-      },
-      error: () => {
-        console.error('Could not load initial modelo');
-      },
-    });
+  async loadInitialModelo(id: number) {
+    try {
+      const modelo = await this.vehiculoService.findOneModelo(id);
+      this.selectedModelo.set(modelo);
+    } catch (error) {
+      console.error('Could not load initial modelo');
+    }
   }
 
-  loadModelsForMarca(marcaId: number) {
+  async loadModelsForMarca(marcaId: number) {
     this.loading.set(true);
-    this.vehiculoService
-      .findAllModelos({ search: '', marcaId, limit: 10 })
-      .pipe(finalize(() => this.loading.set(false)))
-      .subscribe({
-        next: (response) => {
-          this.modelos.set(response.data);
-        },
-        error: (err) => {
-          console.error('Error loading modelos for marca:', err);
-          this.modelos.set([]);
-        },
+    try {
+      const response = await this.vehiculoService.findAllModelos({
+        search: '',
+        marcaId,
+        limit: 10,
       });
+      this.modelos.set(response.data);
+    } catch (err) {
+      console.error('Error loading modelos for marca:', err);
+      this.modelos.set([]);
+    } finally {
+      this.loading.set(false);
+    }
   }
 
   getDisplayText(): string {

@@ -1,16 +1,7 @@
 import { Component, inject, input, output, OnInit, effect, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import {
-  UsuarioResultDto,
-  UsuarioListDto,
-  UsuarioCreateDto,
-  UsuarioUpdateDto,
-  Rol,
-  UsuarioDocumentoCreateDto,
-  UsuarioDocumentoResultDto,
-  DocumentosAgrupadosDto,
-} from '@interface/admin/usuario.interface';
+import { ApiResponse, ApiBody, ApiField } from 'api/backend.api';
 import { UsuarioService } from '@service/admin/usuario.service';
 import { ToastService } from '@service/toast.service';
 
@@ -32,14 +23,14 @@ export class UsuarioForm implements OnInit {
   private toastService = inject(ToastService);
 
   // Inputs
-  usuario = input<UsuarioResultDto | null>(null);
+  usuario = input<ApiResponse<'usuarios', 'findOne'> | null>(null);
   editMode = input<boolean>(false);
 
   // Local state for documents
-  localDocuments = signal<DocumentosAgrupadosDto | null>(null);
+  localDocuments = signal<ApiField<'usuarios', 'findOne', 'documentos'> | null>(null);
 
   // Outputs
-  onSubmitForm = output<UsuarioCreateDto | UsuarioUpdateDto>();
+  onSubmitForm = output<ApiBody<'usuarios', 'create'> | ApiBody<'usuarios', 'update'>>();
 
   usuarioForm: FormGroup = this.fb.group({
     nombres: ['', [Validators.required, Validators.minLength(2)]],
@@ -49,7 +40,7 @@ export class UsuarioForm implements OnInit {
     roles: [['empleado'], [Validators.required]],
   });
 
-  roles: Rol[] = ['admin', 'empleado'];
+  roles: NonNullable<ApiField<'usuarios', 'findOne', 'roles'>>[number][] = ['admin', 'empleado'];
 
   documentTypes = [
     { value: 'dni', label: 'DNI' },
@@ -99,18 +90,18 @@ export class UsuarioForm implements OnInit {
     const formData = this.usuarioForm.value;
 
     if (this.editMode()) {
-      const updateData: UsuarioUpdateDto = { ...formData };
+      const updateData: ApiBody<'usuarios', 'update'> = { ...formData };
       if (!updateData.contrasenia) {
         delete updateData.contrasenia;
       }
       this.onSubmitForm.emit(updateData);
     } else {
-      const createData: UsuarioCreateDto = formData;
+      const createData: ApiBody<'usuarios', 'create'> = formData;
       this.onSubmitForm.emit(createData);
     }
   }
 
-  toggleRole(role: Rol) {
+  toggleRole(role: NonNullable<ApiField<'usuarios', 'findOne', 'roles'>>[number]) {
     const currentRoles = this.usuarioForm.get('roles')?.value || [];
     const index = currentRoles.indexOf(role);
 
@@ -123,7 +114,7 @@ export class UsuarioForm implements OnInit {
     this.usuarioForm.patchValue({ roles: currentRoles });
   }
 
-  hasRole(role: Rol): boolean {
+  hasRole(role: NonNullable<ApiField<'usuarios', 'findOne', 'roles'>>[number]): boolean {
     const currentRoles = this.usuarioForm.get('roles')?.value || [];
     return currentRoles.includes(role);
   }
@@ -133,7 +124,7 @@ export class UsuarioForm implements OnInit {
     if (!this.usuario()) return;
 
     // URL now comes directly from the event (already uploaded to Cloudinary)
-    const documento: UsuarioDocumentoCreateDto = {
+    const documento: ApiBody<'usuarios', 'createDocumento'> = {
       usuarioId: this.usuario()!.id,
       tipo: tipo as any,
       nombre: event.nombre,
@@ -142,16 +133,16 @@ export class UsuarioForm implements OnInit {
       fechaExpiracion: event.fechaExpiracion,
     };
 
-    this.usuarioService.createDocumento(documento).subscribe({
-      next: (doc) => {
+    this.usuarioService
+      .createDocumento(documento)
+      .then((doc) => {
         this.toastService.success('Documento guardado exitosamente');
         this.addDocumentToLocalList(doc);
-      },
-      error: (err) => {
+      })
+      .catch((err) => {
         console.error('Error al guardar documento:', err);
         this.toastService.error('Error al guardar documento');
-      },
-    });
+      });
   }
 
   handleDocumentUpdate(event: { id: number; fechaEmision: string; fechaExpiracion: string }) {
@@ -160,39 +151,33 @@ export class UsuarioForm implements OnInit {
         fechaEmision: event.fechaEmision,
         fechaExpiracion: event.fechaExpiracion,
       })
-      .subscribe({
-        next: (doc) => {
-          this.toastService.success('Documento actualizado exitosamente');
-          this.updateDocumentInLocalList(doc);
-        },
-        error: (err) => {
-          console.error('Error al actualizar documento:', err);
-          this.toastService.error('Error al actualizar documento');
-        },
+      .then((doc) => {
+        this.toastService.success('Documento actualizado exitosamente');
+        this.updateDocumentInLocalList(doc);
+      })
+      .catch((err) => {
+        console.error('Error al actualizar documento:', err);
+        this.toastService.error('Error al actualizar documento');
       });
   }
 
   deleteDocument(id: number, tipo: string) {
-    this.usuarioService.deleteDocumento(id).subscribe({
-      next: () => {
+    this.usuarioService
+      .deleteDocumento(id)
+      .then(() => {
         this.toastService.success('Documento eliminado exitosamente');
         this.removeDocumentFromLocalList(id, tipo);
-      },
-      error: (err) => {
+      })
+      .catch((err) => {
         console.error('Error al eliminar documento:', err);
         this.toastService.error('Error al eliminar documento');
-      },
-    });
+      });
   }
 
-  // Helper para actualizar la vista sin recargar todo el usuario
-  // Nota: Esto modifica el objeto usuario() que es un signal.
-  // Idealmente deberíamos tener un signal local para el usuario.
-  // Helper para actualizar la vista sin recargar todo el usuario
-  private addDocumentToLocalList(doc: UsuarioDocumentoResultDto) {
+  private addDocumentToLocalList(doc: ApiResponse<'usuarios', 'findDocumento'>) {
     const docs = this.localDocuments();
     if (docs) {
-      const tipo = doc.tipo as keyof DocumentosAgrupadosDto;
+      const tipo = doc.tipo as keyof ApiField<'usuarios', 'findOne', 'documentos'>;
       const newDocs = { ...docs };
       if (!newDocs[tipo]) {
         newDocs[tipo] = [];
@@ -202,10 +187,10 @@ export class UsuarioForm implements OnInit {
     }
   }
 
-  private updateDocumentInLocalList(doc: UsuarioDocumentoResultDto) {
+  private updateDocumentInLocalList(doc: ApiResponse<'usuarios', 'findDocumento'>) {
     const docs = this.localDocuments();
     if (docs) {
-      const tipo = doc.tipo as keyof DocumentosAgrupadosDto;
+      const tipo = doc.tipo as keyof ApiField<'usuarios', 'findOne', 'documentos'>;
       if (docs[tipo]) {
         const newDocs = { ...docs };
         newDocs[tipo] = newDocs[tipo].map((d) => (d.id === doc.id ? doc : d));
@@ -217,7 +202,7 @@ export class UsuarioForm implements OnInit {
   private removeDocumentFromLocalList(id: number, tipo: string) {
     const docs = this.localDocuments();
     if (docs) {
-      const tipoKey = tipo as keyof DocumentosAgrupadosDto;
+      const tipoKey = tipo as keyof ApiField<'usuarios', 'findOne', 'documentos'>;
       if (docs[tipoKey]) {
         const newDocs = { ...docs };
         newDocs[tipoKey] = newDocs[tipoKey].filter((d) => d.id !== id);
@@ -229,14 +214,14 @@ export class UsuarioForm implements OnInit {
   getDocumentCount(tipo: string): number {
     const docs = this.localDocuments();
     if (!docs) return 0;
-    const tipoKey = tipo as keyof DocumentosAgrupadosDto;
+    const tipoKey = tipo as keyof ApiField<'usuarios', 'findOne', 'documentos'>;
     return docs[tipoKey] ? docs[tipoKey].length : 0;
   }
 
-  getDocuments(tipo: string): UsuarioDocumentoResultDto[] {
+  getDocuments(tipo: string): ApiResponse<'usuarios', 'findDocumento'>[] {
     const docs = this.localDocuments();
     if (!docs) return [];
-    const tipoKey = tipo as keyof DocumentosAgrupadosDto;
+    const tipoKey = tipo as keyof ApiField<'usuarios', 'findOne', 'documentos'>;
     return docs[tipoKey] || [];
   }
 }

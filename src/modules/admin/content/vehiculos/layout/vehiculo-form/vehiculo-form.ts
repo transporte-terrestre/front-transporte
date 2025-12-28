@@ -1,14 +1,7 @@
 import { Component, inject, input, output, OnInit, effect, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import {
-  VehiculoResultDto,
-  VehiculoCreateDto,
-  VehiculoUpdateDto,
-  VehiculoDocumentoCreateDto,
-  VehiculoDocumentoResultDto,
-  DocumentosAgrupadosVehiculoDto,
-} from '@interface/admin/vehiculo.interface';
+import { ApiResponse, ApiBody } from 'api/backend.api';
 import { ImagesUpload } from '@module/admin/components/images-upload/images-upload';
 import {
   DocumentsDateUpload,
@@ -38,16 +31,18 @@ export class VehiculoForm implements OnInit {
   private toastService = inject(ToastService);
 
   // Inputs
-  vehiculo = input<VehiculoResultDto | null>(null);
+  vehiculo = input<ApiResponse<'vehiculos', 'findOne'> | null>(null);
   editMode = input<boolean>(false);
 
   // Outputs
-  onSubmitForm = output<VehiculoCreateDto | VehiculoUpdateDto>();
+  onSubmitForm = output<ApiBody<'vehiculos', 'create'> | ApiBody<'vehiculos', 'update'>>();
 
   // State
   imagenes = signal<string[]>([]);
-  localDocuments = signal<DocumentosAgrupadosVehiculoDto | null>(null);
+  localDocuments = signal<ApiResponse<'vehiculos', 'findOne'>['documentos'] | null>(null);
   selectedMarcaId = signal<number | null>(null);
+
+  // ... (rest properties same)
 
   vehiculoForm: FormGroup = this.fb.group({
     placa: ['', [Validators.required, Validators.pattern(/^[A-Z0-9]{6,7}$/)]],
@@ -66,6 +61,7 @@ export class VehiculoForm implements OnInit {
   ];
 
   documentTypes = [
+    // ... same
     { value: 'tarjeta_propiedad', label: 'Tarjeta de Propiedad' },
     { value: 'tarjeta_unica_circulacion', label: 'Tarjeta Única de Circulación' },
     { value: 'citv', label: 'CITV' },
@@ -86,10 +82,14 @@ export class VehiculoForm implements OnInit {
     { value: 'otros', label: 'Otros' },
   ];
 
+  ngOnInit() {}
+
+  onImagesChange(images: string[]) {
+    this.imagenes.set(images);
+  }
   constructor() {
-    // Effect para actualizar formulario cuando cambia el vehículo
     effect(
-      () => {
+      async () => {
         const vehiculoData = this.vehiculo();
         const isEditMode = this.editMode();
 
@@ -106,17 +106,17 @@ export class VehiculoForm implements OnInit {
 
           // Cargar marca y modelo desde el modeloId
           if (vehiculoData.modeloId) {
-            this.vehiculoService.findOneModelo(vehiculoData.modeloId).subscribe({
-              next: (modelo) => {
-                // Setear marca primero
-                this.selectedMarcaId.set(modelo.marcaId);
-                this.vehiculoForm.patchValue({
-                  marca: { id: modelo.marcaId, nombre: vehiculoData.marca },
-                  modelo: { id: modelo.id, nombre: modelo.nombre, marcaId: modelo.marcaId },
-                });
-              },
-              error: () => {},
-            });
+            try {
+              const modelo = await this.vehiculoService.findOneModelo(vehiculoData.modeloId);
+              // Setear marca primero
+              this.selectedMarcaId.set(modelo.marcaId);
+              this.vehiculoForm.patchValue({
+                marca: { id: modelo.marcaId, nombre: vehiculoData.marca },
+                modelo: { id: modelo.id, nombre: modelo.nombre, marcaId: modelo.marcaId },
+              });
+            } catch (e) {
+              // ignore
+            }
           }
         } else {
           this.vehiculoForm.reset({ estado: 'activo' });
@@ -127,22 +127,6 @@ export class VehiculoForm implements OnInit {
       },
       { allowSignalWrites: true }
     );
-
-    // Watch for marca changes to update selectedMarcaId signal
-    this.vehiculoForm.get('marca')?.valueChanges.subscribe((value) => {
-      const marcaId = value?.id ?? value;
-      this.selectedMarcaId.set(marcaId);
-      // Clear modelo when marca changes
-      if (marcaId !== this.selectedMarcaId()) {
-        this.vehiculoForm.patchValue({ modelo: null });
-      }
-    });
-  }
-
-  ngOnInit() {}
-
-  onImagesChange(images: string[]) {
-    this.imagenes.set(images);
   }
 
   submitForm() {
@@ -152,7 +136,7 @@ export class VehiculoForm implements OnInit {
     }
 
     const formValue = this.vehiculoForm.value;
-    const formData: VehiculoCreateDto = {
+    const formData: ApiBody<'vehiculos', 'create'> = {
       placa: formValue.placa,
       modeloId: formValue.modelo?.id ? Number(formValue.modelo.id) : Number(formValue.modelo),
       anio: formValue.anio,
@@ -164,103 +148,102 @@ export class VehiculoForm implements OnInit {
   }
 
   // Document Management
-  handleDocumentUpload(event: DocumentWithDate, tipo: string) {
+  async handleDocumentUpload(
+    event: DocumentWithDate,
+    tipo: ApiBody<'vehiculos', 'createDocumento'>['tipo']
+  ) {
     if (!this.vehiculo()) return;
 
-    // URL now comes directly from the event (already uploaded to Cloudinary)
-    const documento: VehiculoDocumentoCreateDto = {
+    const documento: ApiBody<'vehiculos', 'createDocumento'> = {
       vehiculoId: this.vehiculo()!.id,
-      tipo: tipo as any,
+      tipo: tipo,
       nombre: event.nombre,
       url: event.url,
       fechaEmision: event.fechaEmision,
       fechaExpiracion: event.fechaExpiracion,
     };
 
-    this.vehiculoService.createDocumento(documento).subscribe({
-      next: (doc) => {
-        this.toastService.success('Documento guardado exitosamente');
-        this.addDocumentToLocalList(doc);
-      },
-      error: (err) => {
-        console.error('Error al guardar documento:', err);
-        this.toastService.error('Error al guardar documento');
-      },
-    });
+    try {
+      const doc = await this.vehiculoService.createDocumento(documento);
+      this.toastService.success('Documento guardado exitosamente');
+      this.addDocumentToLocalList(doc);
+    } catch (err) {
+      console.error('Error al guardar documento:', err);
+      this.toastService.error('Error al guardar documento');
+    }
   }
 
-  handleDocumentUpdate(event: { id: number; fechaEmision: string; fechaExpiracion: string }) {
-    this.vehiculoService
-      .updateDocumento(event.id, {
+  async handleDocumentUpdate(event: { id: number; fechaEmision: string; fechaExpiracion: string }) {
+    try {
+      const doc = await this.vehiculoService.updateDocumento(event.id, {
         fechaEmision: event.fechaEmision,
         fechaExpiracion: event.fechaExpiracion,
-      })
-      .subscribe({
-        next: (doc) => {
-          this.toastService.success('Documento actualizado exitosamente');
-          this.updateDocumentInLocalList(doc);
-        },
-        error: (err) => {
-          console.error('Error al actualizar documento:', err);
-          this.toastService.error('Error al actualizar documento');
-        },
       });
+      this.toastService.success('Documento actualizado exitosamente');
+      this.updateDocumentInLocalList(doc);
+    } catch (err) {
+      console.error('Error al actualizar documento:', err);
+      this.toastService.error('Error al actualizar documento');
+    }
   }
 
-  deleteDocument(id: number, tipo: string) {
-    this.vehiculoService.deleteDocumento(id).subscribe({
-      next: () => {
-        this.toastService.success('Documento eliminado exitosamente');
-        this.removeDocumentFromLocalList(id, tipo);
-      },
-      error: (err) => {
-        console.error('Error al eliminar documento:', err);
-        this.toastService.error('Error al eliminar documento');
-      },
-    });
+  async deleteDocument(id: number, tipo: ApiBody<'vehiculos', 'createDocumento'>['tipo']) {
+    try {
+      await this.vehiculoService.deleteDocumento(id);
+      this.toastService.success('Documento eliminado exitosamente');
+      this.removeDocumentFromLocalList(id, tipo);
+    } catch (err) {
+      console.error('Error al eliminar documento:', err);
+      this.toastService.error('Error al eliminar documento');
+    }
   }
 
-  private addDocumentToLocalList(doc: VehiculoDocumentoResultDto) {
+  private addDocumentToLocalList(doc: ApiResponse<'vehiculos', 'createDocumento'>) {
     const docs = this.localDocuments();
     if (docs) {
-      const tipo = doc.tipo as keyof DocumentosAgrupadosVehiculoDto;
+      const tipoKey = doc.tipo;
       const newDocs = { ...docs };
-      if (!newDocs[tipo]) {
-        newDocs[tipo] = [];
-      }
-      newDocs[tipo] = [...newDocs[tipo], doc];
+      const currentList = newDocs[tipoKey] || [];
+      newDocs[tipoKey] = [...currentList, doc];
       this.localDocuments.set(newDocs);
     }
   }
 
-  private updateDocumentInLocalList(doc: VehiculoDocumentoResultDto) {
+  private updateDocumentInLocalList(doc: ApiResponse<'vehiculos', 'createDocumento'>) {
     const docs = this.localDocuments();
     if (docs) {
-      const tipo = doc.tipo as keyof DocumentosAgrupadosVehiculoDto;
-      if (docs[tipo]) {
+      const tipoKey = doc.tipo;
+      if (tipoKey in docs) {
         const newDocs = { ...docs };
-        newDocs[tipo] = newDocs[tipo].map((d) => (d.id === doc.id ? doc : d));
+        const currentList = newDocs[tipoKey] || [];
+        newDocs[tipoKey] = currentList.map((d) => (d.id === doc.id ? doc : d));
         this.localDocuments.set(newDocs);
       }
     }
   }
 
-  private removeDocumentFromLocalList(id: number, tipo: string) {
+  private removeDocumentFromLocalList(
+    id: number,
+    tipo: ApiBody<'vehiculos', 'createDocumento'>['tipo']
+  ) {
     const docs = this.localDocuments();
     if (docs) {
-      const tipoKey = tipo as keyof DocumentosAgrupadosVehiculoDto;
-      if (docs[tipoKey]) {
+      const tipoKey = tipo;
+      if (tipoKey in docs) {
         const newDocs = { ...docs };
-        newDocs[tipoKey] = newDocs[tipoKey].filter((d) => d.id !== id);
+        const currentList = newDocs[tipoKey] || [];
+        newDocs[tipoKey] = currentList.filter((d) => d.id !== id);
         this.localDocuments.set(newDocs);
       }
     }
   }
 
-  getDocuments(tipo: string): VehiculoDocumentoResultDto[] {
+  getDocuments(
+    tipo: ApiBody<'vehiculos', 'createDocumento'>['tipo']
+  ): ApiResponse<'vehiculos', 'createDocumento'>[] {
     const docs = this.localDocuments();
     if (!docs) return [];
-    const tipoKey = tipo as keyof DocumentosAgrupadosVehiculoDto;
+    const tipoKey = tipo;
     return docs[tipoKey] || [];
   }
 }

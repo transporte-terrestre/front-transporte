@@ -1,4 +1,4 @@
-import { Component, inject, signal, ElementRef, HostListener } from '@angular/core';
+import { Component, inject, signal, ElementRef, HostListener, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   ControlValueAccessor,
@@ -7,9 +7,9 @@ import {
   ReactiveFormsModule,
 } from '@angular/forms';
 import { RutaService } from '@service/admin/ruta.service';
-import { RutaResultDto } from '@interface/admin/ruta.interface';
+import { ApiResponse } from 'api/backend.api';
 import { debounceTime, distinctUntilChanged, switchMap, tap, finalize } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { of, from } from 'rxjs';
 
 @Component({
   selector: 'app-ruta-input-search',
@@ -28,17 +28,20 @@ export class RutaInputSearch implements ControlValueAccessor {
   private rutaService = inject(RutaService);
   private elementRef = inject(ElementRef);
 
+  // Inputs
+  initialData = input<ApiResponse<'rutas', 'findAll'>['data'][number] | null>(null);
+
   // State
   isOpen = signal(false);
   loading = signal(false);
-  rutas = signal<RutaResultDto[]>([]);
-  selectedRuta = signal<RutaResultDto | null>(null);
+  rutas = signal<ApiResponse<'rutas', 'findAll'>['data']>([]);
+  selectedRuta = signal<ApiResponse<'rutas', 'findAll'>['data'][number] | null>(null);
 
   // Search Control
   searchControl = new FormControl('');
 
   // Value Accessor callbacks
-  onChange: (value: RutaResultDto | null) => void = () => {};
+  onChange: (value: ApiResponse<'rutas', 'findAll'>['data'][number] | null) => void = () => {};
   onTouched: () => void = () => {};
 
   constructor() {
@@ -49,9 +52,9 @@ export class RutaInputSearch implements ControlValueAccessor {
         tap(() => this.loading.set(true)),
         switchMap((term) => {
           if (!term && term !== '') return of({ data: [], meta: { total: 0 } } as any);
-          return this.rutaService
-            .findAll({ search: term || '', limit: 10 })
-            .pipe(finalize(() => this.loading.set(false)));
+          return from(this.rutaService.findAll({ search: term || '', limit: 10 })).pipe(
+            finalize(() => this.loading.set(false))
+          );
         })
       )
       .subscribe({
@@ -68,7 +71,12 @@ export class RutaInputSearch implements ControlValueAccessor {
 
   writeValue(obj: any): void {
     if (obj) {
-      this.loadInitialRuta(obj);
+      const initial = this.initialData();
+      if (initial && initial.id === obj) {
+        this.selectedRuta.set(initial);
+      } else {
+        this.loadInitialRuta(obj);
+      }
     } else {
       this.selectedRuta.set(null);
     }
@@ -96,22 +104,22 @@ export class RutaInputSearch implements ControlValueAccessor {
     }
   }
 
-  selectRuta(ruta: RutaResultDto) {
+  selectRuta(ruta: ApiResponse<'rutas', 'findAll'>['data'][number]) {
     this.selectedRuta.set(ruta);
     this.onChange(ruta);
     this.isOpen.set(false);
   }
 
   loadInitialRuta(id: number) {
-    this.rutaService.findOne(id).subscribe({
-      next: (ruta) => {
-        this.selectedRuta.set(ruta);
-        this.onChange(ruta);
-      },
-      error: () => {
+    this.rutaService
+      .findOne(id)
+      .then((ruta) => {
+        this.selectedRuta.set(ruta as any);
+        this.onChange(ruta as any);
+      })
+      .catch(() => {
         console.error('Could not load initial ruta');
-      },
-    });
+      });
   }
 
   getDisplayText(): string {

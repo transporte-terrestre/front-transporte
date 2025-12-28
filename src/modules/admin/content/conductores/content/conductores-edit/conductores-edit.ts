@@ -2,7 +2,7 @@ import { Component, inject, signal, OnInit, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ConductorService } from '@service/admin/conductor.service';
-import { ConductorResultDto, ConductorUpdateDto } from '@interface/admin/conductor.interface';
+import { ApiResponse, ApiBody } from 'api/backend.api';
 import { ToastService } from '@service/toast.service';
 import { ConductorForm } from '../../layout/conductor-form/conductor-form';
 import { PATH, buildPath } from '@route/path.route';
@@ -19,7 +19,7 @@ export class ConductoresEdit implements OnInit {
   private conductorService = inject(ConductorService);
   private toastService = inject(ToastService);
 
-  conductor = signal<ConductorResultDto | null>(null);
+  conductor = signal<ApiResponse<'conductores', 'findOne'> | null>(null);
   loading = signal(false);
 
   conductorFormComponent = viewChild<ConductorForm>(ConductorForm);
@@ -35,34 +35,38 @@ export class ConductoresEdit implements OnInit {
 
   loadConductor(id: number) {
     this.loading.set(true);
-    this.conductorService.findOne(id).subscribe({
-      next: (conductor) => {
+    this.conductorService
+      .findOne(id)
+      .then((conductor) => {
         this.conductor.set(conductor);
-        this.loading.set(false);
-      },
-      error: (error) => {
+      })
+      .catch((error) => {
         console.error('Error al cargar conductor:', error);
         this.toastService.error('Error al cargar conductor');
         this.router.navigate([buildPath(PATH.admin.conductores.list)]);
-      },
-    });
+      })
+      .finally(() => {
+        this.loading.set(false);
+      });
   }
 
-  handleFormSubmit(data: any) {
+  handleFormSubmit(data: ApiBody<'conductores', 'create'> | ApiBody<'conductores', 'update'>) {
     if (!this.conductor()) return;
 
     this.loading.set(true);
-    this.conductorService.update(this.conductor()!.id, data as ConductorUpdateDto).subscribe({
-      next: () => {
+    this.conductorService
+      .update(this.conductor()!.id, data as ApiBody<'conductores', 'update'>)
+      .then(() => {
         this.toastService.success('Conductor actualizado exitosamente');
         this.router.navigate([buildPath(PATH.admin.conductores.list)]);
-      },
-      error: (error) => {
+      })
+      .catch((error) => {
         console.error('Error al actualizar conductor:', error);
         this.toastService.error('Error al actualizar conductor');
+      })
+      .finally(() => {
         this.loading.set(false);
-      },
-    });
+      });
   }
 
   onCancel() {

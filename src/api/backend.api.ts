@@ -1477,7 +1477,7 @@ export interface ConductorDocumentoUpdateDto {
   fechaEmision?: string;
 }
 
-export interface OmitTypeClass {
+export interface VehiculoMantenimientoListDto {
   /**
    * Vehicle ID
    * @example 1
@@ -1554,7 +1554,7 @@ export interface MantenimientoListDto {
    */
   vehiculoId: number;
   /** Vehicle details */
-  vehiculo: OmitTypeClass;
+  vehiculo: VehiculoMantenimientoListDto;
   /**
    * Workshop ID
    * @example 1
@@ -1618,6 +1618,71 @@ export interface PaginatedMantenimientoResultDto {
    * @example {"total":50,"page":1,"limit":10,"totalPages":5,"hasNextPage":true,"hasPreviousPage":false}
    */
   meta: object;
+}
+
+export interface VehiculoMantenimientoResultDto {
+  /**
+   * Vehicle ID
+   * @example 1
+   */
+  id: number;
+  /**
+   * Vehicle license plate
+   * @example "ABC-123"
+   */
+  placa: string;
+  /**
+   * Internal vehicle code
+   * @example "0582"
+   */
+  codigoInterno?: string;
+  /**
+   * Vehicle model ID
+   * @example 1
+   */
+  modeloId: number;
+  /**
+   * Vehicle brand
+   * @example "Toyota"
+   */
+  marca: string;
+  /**
+   * Vehicle model
+   * @example "Corolla"
+   */
+  modelo: string;
+  /**
+   * Manufacturing year
+   * @example 2020
+   */
+  anio: number;
+  /**
+   * Current mileage
+   * @example 50000
+   */
+  kilometraje: number;
+  /**
+   * Vehicle status
+   * @example "activo"
+   */
+  estado: "activo" | "taller" | "retirado";
+  /**
+   * Lista de URLs de imágenes del vehículo
+   * @example ["https://res.cloudinary.com/xxx/image.jpg"]
+   */
+  imagenes?: string[];
+  /**
+   * Creation date
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  creadoEn: string;
+  /**
+   * Update date
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  actualizadoEn: string;
 }
 
 export interface TallerSimpleDto {
@@ -1735,7 +1800,7 @@ export interface MantenimientoResultDto {
    */
   vehiculoId: number;
   /** Vehicle details */
-  vehiculo: OmitTypeClass;
+  vehiculo: VehiculoMantenimientoResultDto;
   /**
    * Workshop ID
    * @example 1
@@ -2201,6 +2266,206 @@ export interface RutaUpdateDto {
   costoBase?: string;
 }
 
+export interface ConductorViajeDto {
+  /**
+   * Driver ID
+   * @example 1
+   */
+  id: number;
+  /**
+   * Driver DNI
+   * @example "12345678"
+   */
+  dni: string;
+  /**
+   * Driver first names
+   * @example "Juan Carlos"
+   */
+  nombres: string;
+  /**
+   * Driver last names
+   * @example "Perez Garcia"
+   */
+  apellidos: string;
+  /**
+   * Driver full name
+   * @example "Juan Carlos Perez Garcia"
+   */
+  nombreCompleto: string;
+  /**
+   * Driver license number
+   * @example "Q07864165"
+   */
+  numeroLicencia: string;
+  /**
+   * Driver license class
+   * @example "Uno"
+   */
+  claseLicencia: "Uno" | "Dos" | "Tres";
+  /**
+   * Driver license category
+   * @example "A"
+   */
+  categoriaLicencia: "A" | "B";
+  /**
+   * Lista de URLs de fotochecks del conductor
+   * @example ["https://res.cloudinary.com/xxx/fotocheck.jpg"]
+   */
+  fotocheck?: string[];
+  /**
+   * Creation date
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  creadoEn: string;
+  /**
+   * Update date
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  actualizadoEn: string;
+}
+
+export interface VehiculoViajeDto {
+  /**
+   * Vehicle ID
+   * @example 1
+   */
+  id: number;
+  /**
+   * Vehicle license plate
+   * @example "ABC-123"
+   */
+  placa: string;
+  /**
+   * Internal vehicle code
+   * @example "0582"
+   */
+  codigoInterno?: string;
+  /**
+   * Vehicle model ID
+   * @example 1
+   */
+  modeloId: number;
+  /**
+   * Vehicle brand
+   * @example "Toyota"
+   */
+  marca: string;
+  /**
+   * Vehicle model
+   * @example "Corolla"
+   */
+  modelo: string;
+  /**
+   * Manufacturing year
+   * @example 2020
+   */
+  anio: number;
+  /**
+   * Current mileage
+   * @example 50000
+   */
+  kilometraje: number;
+  /**
+   * Vehicle status
+   * @example "activo"
+   */
+  estado: "activo" | "taller" | "retirado";
+  /**
+   * Lista de URLs de imágenes del vehículo
+   * @example ["https://res.cloudinary.com/xxx/image.jpg"]
+   */
+  imagenes?: string[];
+  /**
+   * Creation date
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  creadoEn: string;
+  /**
+   * Update date
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  actualizadoEn: string;
+}
+
+export interface ClienteViajeDto {
+  /**
+   * ID del cliente
+   * @example 1
+   */
+  id: number;
+  /**
+   * Tipo de documento
+   * @example "DNI"
+   */
+  tipoDocumento: "DNI" | "RUC";
+  /**
+   * DNI del cliente
+   * @example "12345678"
+   */
+  dni: string;
+  /**
+   * RUC del cliente
+   * @example "20123456789"
+   */
+  ruc: string;
+  /**
+   * Nombres del cliente
+   * @example "Juan Carlos"
+   */
+  nombres: string;
+  /**
+   * Apellidos del cliente
+   * @example "Pérez García"
+   */
+  apellidos: string;
+  /**
+   * Razón Social del cliente
+   * @example "Empresa SAC"
+   */
+  razonSocial: string;
+  /**
+   * Nombre completo del cliente
+   * @example "Juan Carlos Pérez García"
+   */
+  nombreCompleto: string;
+  /**
+   * Email del cliente
+   * @example "juan.perez@example.com"
+   */
+  email?: string;
+  /**
+   * Teléfono del cliente
+   * @example "987654321"
+   */
+  telefono?: string;
+  /**
+   * Dirección del cliente
+   * @example "Av. Principal 123"
+   */
+  direccion?: string;
+  /**
+   * Lista de URLs de imágenes del cliente
+   * @example ["https://res.cloudinary.com/xxx/image.jpg"]
+   */
+  imagenes: string[];
+  /**
+   * Fecha de creación
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  creadoEn: string;
+  /**
+   * Fecha de actualización
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  actualizadoEn: string;
+}
+
 export interface ViajeListDto {
   /**
    * Trip ID
@@ -2222,6 +2487,16 @@ export interface ViajeListDto {
    * @example "ocasional"
    */
   tipoRuta: "ocasional" | "fija";
+  /**
+   * Distancia estimada del viaje en km
+   * @example "450.00"
+   */
+  distanciaEstimada?: string;
+  /**
+   * Distancia real al final del viaje en km
+   * @example "455.50"
+   */
+  distanciaFinal?: string;
   /**
    * ID del cliente
    * @example 1
@@ -2272,9 +2547,9 @@ export interface ViajeListDto {
    * @example "2023-01-01T00:00:00.000Z"
    */
   actualizadoEn: string;
-  conductorPrincipal?: OmitTypeClass;
-  vehiculoPrincipal?: OmitTypeClass;
-  cliente?: OmitTypeClass;
+  conductorPrincipal?: ConductorViajeDto;
+  vehiculoPrincipal?: VehiculoViajeDto;
+  cliente?: ClienteViajeDto;
   ruta?: RutaResultDto;
 }
 
@@ -2478,6 +2753,81 @@ export interface ViajeComentarioDetalleDto {
   usuarioNombreCompleto: string;
 }
 
+export interface ClienteViajeResultDto {
+  /**
+   * ID del cliente
+   * @example 1
+   */
+  id: number;
+  /**
+   * Tipo de documento
+   * @example "DNI"
+   */
+  tipoDocumento: "DNI" | "RUC";
+  /**
+   * DNI del cliente
+   * @example "12345678"
+   */
+  dni: string;
+  /**
+   * RUC del cliente
+   * @example "20123456789"
+   */
+  ruc: string;
+  /**
+   * Nombres del cliente
+   * @example "Juan Carlos"
+   */
+  nombres: string;
+  /**
+   * Apellidos del cliente
+   * @example "Pérez García"
+   */
+  apellidos: string;
+  /**
+   * Razón Social del cliente
+   * @example "Empresa SAC"
+   */
+  razonSocial: string;
+  /**
+   * Nombre completo del cliente
+   * @example "Juan Carlos Pérez García"
+   */
+  nombreCompleto: string;
+  /**
+   * Email del cliente
+   * @example "juan.perez@example.com"
+   */
+  email?: string;
+  /**
+   * Teléfono del cliente
+   * @example "987654321"
+   */
+  telefono?: string;
+  /**
+   * Dirección del cliente
+   * @example "Av. Principal 123"
+   */
+  direccion?: string;
+  /**
+   * Lista de URLs de imágenes del cliente
+   * @example ["https://res.cloudinary.com/xxx/image.jpg"]
+   */
+  imagenes: string[];
+  /**
+   * Fecha de creación
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  creadoEn: string;
+  /**
+   * Fecha de actualización
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  actualizadoEn: string;
+}
+
 export interface ViajeResultDto {
   /**
    * Trip ID
@@ -2562,7 +2912,7 @@ export interface ViajeResultDto {
   conductores?: ViajeConductorDetalleDto[];
   vehiculos?: ViajeVehiculoDetalleDto[];
   comentarios?: ViajeComentarioDetalleDto[];
-  cliente?: OmitTypeClass;
+  cliente?: ClienteViajeResultDto;
   ruta?: RutaResultDto;
 }
 
@@ -2950,6 +3300,21 @@ export interface ClienteListDto {
    */
   dni: string;
   /**
+   * Tipo de documento
+   * @example "DNI"
+   */
+  tipoDocumento: "DNI" | "RUC";
+  /**
+   * RUC del cliente
+   * @example "20123456789"
+   */
+  ruc?: string;
+  /**
+   * Razón Social del cliente
+   * @example "Empresa SAC"
+   */
+  razonSocial?: string;
+  /**
    * Nombres del cliente
    * @example "Juan Carlos"
    */
@@ -2996,6 +3361,12 @@ export interface ClienteListDto {
    * @example "2023-01-01T00:00:00.000Z"
    */
   actualizadoEn: string;
+  /**
+   * Fecha de eliminación
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  eliminadoEn?: string;
 }
 
 export interface PaginatedClienteResultDto {
@@ -9876,9 +10247,11 @@ type ApiArgs<
 export type ApiBody<
   Module extends keyof Api<unknown>,
   Method extends keyof Api<unknown>[Module]
-> = ApiArgs<Module, Method> extends [any, infer Body, ...any[]]
-  ? Body
-  : never;
+> = Required<ApiArgs<Module, Method>> extends [any, any, any, ...any[]]
+  ? ApiArgs<Module, Method>[1]
+  : Required<ApiArgs<Module, Method>> extends [any, any, ...any[]]
+    ? ApiArgs<Module, Method>[0]
+    : never;
 
 /**
  * Extrae el tipo de los query params de un método de la API

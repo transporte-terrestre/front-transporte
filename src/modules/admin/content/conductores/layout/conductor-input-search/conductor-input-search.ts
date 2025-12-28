@@ -1,4 +1,4 @@
-import { Component, inject, signal, ElementRef, HostListener } from '@angular/core';
+import { Component, inject, signal, ElementRef, HostListener, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   ControlValueAccessor,
@@ -7,7 +7,8 @@ import {
   ReactiveFormsModule,
 } from '@angular/forms';
 import { ConductorService } from '@service/admin/conductor.service';
-import { ConductorListDto } from '@interface/admin/conductor.interface';
+import { ApiResponse } from 'api/backend.api';
+import { from } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap, tap, finalize } from 'rxjs/operators';
 import { of } from 'rxjs';
 
@@ -28,20 +29,21 @@ export class ConductorInputSearch implements ControlValueAccessor {
   private conductorService = inject(ConductorService);
   private elementRef = inject(ElementRef);
 
+  // Inputs
+  initialData = input<ApiResponse<'conductores', 'findAll'>['data'][number] | null>(null);
+
   // State
   isOpen = signal(false);
   loading = signal(false);
-  conductores = signal<ConductorListDto[]>([]);
-  selectedConductor = signal<ConductorListDto | null>(null);
-
-  // Output to emit the full entity - REMOVED: Ahora se usa onChange
-  // onEntitySelected = output<ConductorListDto | null>();
+  conductores = signal<ApiResponse<'conductores', 'findAll'>['data']>([]);
+  selectedConductor = signal<ApiResponse<'conductores', 'findAll'>['data'][number] | null>(null);
 
   // Search Control
   searchControl = new FormControl('');
 
   // Value Accessor callbacks
-  onChange: (value: ConductorListDto | null) => void = () => {};
+  onChange: (value: ApiResponse<'conductores', 'findAll'>['data'][number] | null) => void =
+    () => {};
   onTouched: () => void = () => {};
 
   constructor() {
@@ -52,9 +54,9 @@ export class ConductorInputSearch implements ControlValueAccessor {
         tap(() => this.loading.set(true)),
         switchMap((term) => {
           if (!term && term !== '') return of({ data: [], meta: { total: 0 } } as any);
-          return this.conductorService
-            .findAll({ search: term || '', limit: 10 })
-            .pipe(finalize(() => this.loading.set(false)));
+          return from(this.conductorService.findAll({ search: term || '', limit: 10 })).pipe(
+            finalize(() => this.loading.set(false))
+          );
         })
       )
       .subscribe({
@@ -71,7 +73,12 @@ export class ConductorInputSearch implements ControlValueAccessor {
 
   writeValue(obj: any): void {
     if (obj) {
-      this.loadInitialConductor(obj);
+      const initial = this.initialData();
+      if (initial && initial.id === obj) {
+        this.selectedConductor.set(initial);
+      } else {
+        this.loadInitialConductor(obj);
+      }
     } else {
       this.selectedConductor.set(null);
     }
@@ -99,21 +106,21 @@ export class ConductorInputSearch implements ControlValueAccessor {
     }
   }
 
-  selectConductor(conductor: ConductorListDto) {
+  selectConductor(conductor: ApiResponse<'conductores', 'findAll'>['data'][number]) {
     this.selectedConductor.set(conductor);
     this.onChange(conductor);
     this.isOpen.set(false);
   }
 
   loadInitialConductor(id: number) {
-    this.conductorService.findOne(id).subscribe({
-      next: (conductor) => {
-        this.selectedConductor.set(conductor as unknown as ConductorListDto);
-      },
-      error: () => {
+    this.conductorService
+      .findOne(id)
+      .then((conductor) => {
+        this.selectedConductor.set(conductor as any);
+      })
+      .catch(() => {
         console.error('Could not load initial conductor');
-      },
-    });
+      });
   }
 
   getDisplayText(): string {

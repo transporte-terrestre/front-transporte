@@ -42,7 +42,10 @@
         <i class="fas fa-route text-secondary"></i>
         Ruta
       </label>
-      <app-ruta-input-search formControlName="ruta"></app-ruta-input-search>
+      <app-ruta-input-search
+        formControlName="ruta"
+        [initialData]="viaje()?.ruta || null">
+      </app-ruta-input-search>
       @if (viajeForm.get('ruta')?.touched && viajeForm.get('ruta')?.errors) {
         <p class="text-danger text-xs font-inter-medium mt-1">La ruta es requerida</p>
       }
@@ -117,7 +120,10 @@
       <i class="fas fa-user-tie text-secondary"></i>
       Cliente
     </label>
-    <app-cliente-input-search formControlName="cliente"></app-cliente-input-search>
+    <app-cliente-input-search
+      formControlName="cliente"
+      [initialData]="viaje()?.cliente || null">
+    </app-cliente-input-search>
     @if (viajeForm.get('cliente')?.touched && viajeForm.get('cliente')?.errors) {
       <p class="text-danger text-xs font-inter-medium mt-1">El cliente es requerido</p>
     }

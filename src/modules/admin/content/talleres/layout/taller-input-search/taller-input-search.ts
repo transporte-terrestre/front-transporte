@@ -7,9 +7,9 @@ import {
   ReactiveFormsModule,
 } from '@angular/forms';
 import { TallerService } from '@service/admin/taller.service';
-import { TallerResultDto } from '@interface/admin/taller.interface';
+import { ApiResponse } from 'api/backend.api';
 import { debounceTime, distinctUntilChanged, switchMap, tap, finalize } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { of, from } from 'rxjs';
 
 @Component({
   selector: 'app-taller-input-search',
@@ -31,18 +31,19 @@ export class TallerInputSearch implements ControlValueAccessor {
 
   // Inputs
   placeholder = input<string>('Seleccionar taller...');
+  initialData = input<ApiResponse<'talleres', 'findAll'>['data'][number] | null>(null);
 
   // State
   isOpen = signal(false);
   loading = signal(false);
-  talleres = signal<TallerResultDto[]>([]);
-  selectedTaller = signal<TallerResultDto | null>(null);
+  talleres = signal<ApiResponse<'talleres', 'findAll'>['data']>([]);
+  selectedTaller = signal<ApiResponse<'talleres', 'findAll'>['data'][number] | null>(null);
 
   // Search Control
   searchControl = new FormControl('');
 
   // Value Accessor callbacks
-  onChange: (value: TallerResultDto | null) => void = () => {};
+  onChange: (value: ApiResponse<'talleres', 'findAll'>['data'][number] | null) => void = () => {};
   onTouched: () => void = () => {};
 
   constructor() {
@@ -53,9 +54,9 @@ export class TallerInputSearch implements ControlValueAccessor {
         tap(() => this.loading.set(true)),
         switchMap((term) => {
           if (!term && term !== '') return of({ data: [], meta: { total: 0 } } as any);
-          return this.tallerService
-            .findAll({ search: term || '', limit: 10 })
-            .pipe(finalize(() => this.loading.set(false)));
+          return from(this.tallerService.findAll({ search: term || '', limit: 10 })).pipe(
+            finalize(() => this.loading.set(false))
+          );
         })
       )
       .subscribe({
@@ -72,7 +73,12 @@ export class TallerInputSearch implements ControlValueAccessor {
 
   writeValue(obj: any): void {
     if (obj) {
-      this.loadInitialTaller(obj);
+      const initial = this.initialData();
+      if (initial && initial.id === obj) {
+        this.selectedTaller.set(initial);
+      } else {
+        this.loadInitialTaller(obj);
+      }
     } else {
       this.selectedTaller.set(null);
     }
@@ -100,21 +106,21 @@ export class TallerInputSearch implements ControlValueAccessor {
     }
   }
 
-  selectTaller(taller: TallerResultDto) {
+  selectTaller(taller: ApiResponse<'talleres', 'findAll'>['data'][number]) {
     this.selectedTaller.set(taller);
     this.onChange(taller);
     this.isOpen.set(false);
   }
 
   loadInitialTaller(id: number) {
-    this.tallerService.findOne(id).subscribe({
-      next: (taller) => {
-        this.selectedTaller.set(taller);
-      },
-      error: () => {
+    this.tallerService
+      .findOne(id)
+      .then((taller) => {
+        this.selectedTaller.set(taller as any);
+      })
+      .catch(() => {
         console.error('Could not load initial taller');
-      },
-    });
+      });
   }
 
   getDisplayText(): string {

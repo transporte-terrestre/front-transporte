@@ -4,7 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ViajeService } from '@service/admin/viaje.service';
 import { ToastService } from '@service/toast.service';
 import { AlertService } from '@service/alert.service';
-import { ViajeResultDto } from '@interface/admin/viaje.interface';
+import { ApiResponse, ApiBody } from 'api/backend.api';
 import { VehiculoInputSearch } from '@module/admin/content/vehiculos/layout/vehiculo-input-search/vehiculo-input-search';
 
 @Component({
@@ -19,7 +19,7 @@ export class ViajeVehiculosForm {
   private toastService = inject(ToastService);
   private alertService = inject(AlertService);
 
-  viaje = input.required<ViajeResultDto>();
+  viaje = input.required<ApiResponse<'viajes', 'findOne'>>();
   onDataChange = output<void>();
 
   showVehiculoModal = signal(false);
@@ -39,28 +39,33 @@ export class ViajeVehiculosForm {
     this.showVehiculoModal.set(false);
   }
 
-  saveVehiculo() {
+  async saveVehiculo() {
     if (this.addVehiculoForm.invalid) {
       this.addVehiculoForm.markAllAsTouched();
       return;
     }
-    const val = this.addVehiculoForm.value as any;
-    const vehiculoId = val.vehiculo?.id ? Number(val.vehiculo.id) : Number(val.vehiculo);
-    this.viajeService
-      .assignVehiculo({
+    const val = this.addVehiculoForm.value;
+    const vehiculo = val.vehiculo as { id: number } | number | null;
+    const vehiculoId =
+      vehiculo && typeof vehiculo === 'object' && 'id' in vehiculo
+        ? Number(vehiculo.id)
+        : Number(vehiculo);
+
+    if (!vehiculoId) return;
+
+    try {
+      await this.viajeService.assignVehiculo({
         viajeId: this.viaje().id,
         vehiculoId: vehiculoId,
-        rol: val.rol as any,
+        rol: (val.rol || 'apoyo') as ApiBody<'viajes', 'assignVehiculo'>['rol'],
         esPrincipal: val.esPrincipal || false,
-      })
-      .subscribe({
-        next: () => {
-          this.toastService.success('Vehículo agregado');
-          this.closeAddVehiculo();
-          this.onDataChange.emit();
-        },
-        error: () => this.toastService.error('Error al agregar vehículo'),
       });
+      this.toastService.success('Vehículo agregado');
+      this.closeAddVehiculo();
+      this.onDataChange.emit();
+    } catch (e) {
+      this.toastService.error('Error al agregar vehículo');
+    }
   }
 
   removeVehiculo(vehiculoId: number) {
@@ -68,13 +73,13 @@ export class ViajeVehiculosForm {
       'Quitar Vehículo',
       '¿Estás seguro de que deseas quitar este vehículo del viaje?',
       () => {
-        this.viajeService.removeVehiculo(this.viaje().id, vehiculoId).subscribe({
-          next: () => {
+        this.viajeService.removeVehiculo(this.viaje().id, vehiculoId).then(
+          () => {
             this.toastService.success('Vehículo eliminado');
             this.onDataChange.emit();
           },
-          error: () => this.toastService.error('Error al eliminar vehículo'),
-        });
+          () => this.toastService.error('Error al eliminar vehículo')
+        );
       }
     );
   }

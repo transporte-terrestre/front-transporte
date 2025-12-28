@@ -5,12 +5,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { TallerService } from '@service/admin/taller.service';
-import {
-  TallerResultDto,
-  TallerCreateDto,
-  PaginationMeta,
-  TallerTipo,
-} from '@interface/admin/taller.interface';
+import { ApiResponse, ApiBody, ApiField } from 'api/backend.api';
 import { ToastService } from '@service/toast.service';
 import { AlertService } from '@service/alert.service';
 import { ModalForm } from '../../../../components/modal-form/modal-form';
@@ -33,7 +28,7 @@ export class TalleresList implements OnInit, OnDestroy {
 
   private searchSubject = new Subject<string>();
 
-  talleres = signal<TallerResultDto[]>([]);
+  talleres = signal<ApiResponse<'talleres', 'findAll'>['data']>([]);
   loading = signal(false);
   showModal = signal(false);
   viewMode = signal<'grid' | 'table'>('table');
@@ -41,13 +36,13 @@ export class TalleresList implements OnInit, OnDestroy {
   // Paginación
   currentPage = signal(1);
   pageSize = signal(10);
-  meta = signal<PaginationMeta | null>(null);
+  meta = signal<ApiResponse<'talleres', 'findAll'>['meta'] | null>(null);
 
   // Filtros
   searchTerm = signal('');
   fechaInicio = signal('');
   fechaFin = signal('');
-  tipo = signal<TallerTipo | ''>('');
+  tipo = signal<ApiField<'talleres', 'findAll', 'data'>[number]['tipo'] | ''>('');
 
   tallerFormComponent = viewChild<TallerForm>(TallerForm);
 
@@ -72,19 +67,18 @@ export class TalleresList implements OnInit, OnDestroy {
         search: this.searchTerm() || undefined,
         fechaInicio: this.fechaInicio() || undefined,
         fechaFin: this.fechaFin() || undefined,
-        tipo: this.tipo() || undefined,
+        tipo: (this.tipo() as any) || undefined,
       })
-      .subscribe({
-        next: (response) => {
-          this.talleres.set(response.data);
-          this.meta.set(response.meta);
-          this.loading.set(false);
-        },
-        error: (error) => {
-          console.error('Error al cargar talleres:', error);
-          this.toastService.error('Error al cargar talleres');
-          this.loading.set(false);
-        },
+      .then((response) => {
+        this.talleres.set(response.data);
+        this.meta.set(response.meta);
+      })
+      .catch((error) => {
+        console.error('Error al cargar talleres:', error);
+        this.toastService.error('Error al cargar talleres');
+      })
+      .finally(() => {
+        this.loading.set(false);
       });
   }
 
@@ -103,7 +97,7 @@ export class TalleresList implements OnInit, OnDestroy {
   }
 
   onTipoChange(value: string) {
-    this.tipo.set(value as TallerTipo);
+    this.tipo.set(value as any);
     this.onSearch();
   }
 
@@ -135,7 +129,7 @@ export class TalleresList implements OnInit, OnDestroy {
     this.showModal.set(true);
   }
 
-  navigateToEdit(taller: TallerResultDto) {
+  navigateToEdit(taller: ApiResponse<'talleres', 'findAll'>['data'][number]) {
     const path = buildPath(PATH.admin.talleres.edit).replace(':id', taller.id.toString());
     this.router.navigate([path]);
   }
@@ -144,28 +138,30 @@ export class TalleresList implements OnInit, OnDestroy {
     this.showModal.set(false);
   }
 
-  handleFormSubmit(data: any) {
-    this.createTaller(data as TallerCreateDto);
+  handleFormSubmit(data: ApiBody<'talleres', 'create'> | ApiBody<'talleres', 'update'>) {
+    this.createTaller(data as ApiBody<'talleres', 'create'>);
   }
 
   handleModalSubmit() {
     this.tallerFormComponent()?.submitForm();
   }
 
-  createTaller(data: TallerCreateDto) {
+  createTaller(data: ApiBody<'talleres', 'create'>) {
     this.loading.set(true);
-    this.tallerService.create(data).subscribe({
-      next: () => {
+    this.tallerService
+      .create(data)
+      .then(() => {
         this.toastService.success('Taller creado exitosamente');
         this.loadTalleres();
         this.closeModal();
-      },
-      error: (error) => {
+      })
+      .catch((error) => {
         console.error('Error al crear taller:', error);
         this.toastService.error('Error al crear taller');
+      })
+      .finally(() => {
         this.loading.set(false);
-      },
-    });
+      });
   }
 
   deleteTaller(id: number) {
@@ -174,17 +170,19 @@ export class TalleresList implements OnInit, OnDestroy {
       '¿Estás seguro de que deseas eliminar este taller? Esta acción no se puede deshacer.',
       () => {
         this.loading.set(true);
-        this.tallerService.delete(id).subscribe({
-          next: () => {
+        this.tallerService
+          .delete(id)
+          .then(() => {
             this.toastService.success('Taller eliminado exitosamente');
             this.loadTalleres();
-          },
-          error: (error) => {
+          })
+          .catch((error) => {
             console.error('Error al eliminar taller:', error);
             this.toastService.error('Error al eliminar taller');
+          })
+          .finally(() => {
             this.loading.set(false);
-          },
-        });
+          });
       }
     );
   }

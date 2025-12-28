@@ -5,11 +5,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { ClienteService } from '@service/admin/cliente.service';
-import {
-  ClienteListDto,
-  ClienteCreateDto,
-  PaginationMeta,
-} from '@interface/admin/cliente.interface';
+import { ApiResponse, ApiBody } from 'api/backend.api';
 import { ToastService } from '@service/toast.service';
 import { AlertService } from '@service/alert.service';
 import { ModalForm } from '../../../../components/modal-form/modal-form';
@@ -31,14 +27,14 @@ export class ClientesList implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private searchSubject = new Subject<string>();
 
-  clientes = signal<ClienteListDto[]>([]);
+  clientes = signal<ApiResponse<'clientes', 'findAll'>['data']>([]);
   loading = signal(false);
   showModal = signal(false);
 
   // Paginación
   currentPage = signal(1);
   pageSize = signal(10);
-  meta = signal<PaginationMeta | null>(null);
+  meta = signal<ApiResponse<'clientes', 'findAll'>['meta'] | null>(null);
 
   // Filtros
   searchTerm = signal('');
@@ -71,17 +67,15 @@ export class ClientesList implements OnInit, OnDestroy {
         fechaInicio: this.fechaInicio() || undefined,
         fechaFin: this.fechaFin() || undefined,
       })
-      .subscribe({
-        next: (response) => {
-          this.clientes.set(response.data);
-          this.meta.set(response.meta);
-          this.loading.set(false);
-        },
-        error: (error) => {
-          console.error('Error al cargar clientes:', error);
-          this.toastService.error('Error al cargar clientes');
-          this.loading.set(false);
-        },
+      .then((response) => {
+        this.clientes.set(response.data);
+        this.meta.set(response.meta);
+        this.loading.set(false);
+      })
+      .catch((error) => {
+        console.error('Error al cargar clientes:', error);
+        this.toastService.error('Error al cargar clientes');
+        this.loading.set(false);
       });
   }
 
@@ -117,7 +111,7 @@ export class ClientesList implements OnInit, OnDestroy {
     this.showModal.set(true);
   }
 
-  navigateToEdit(cliente: ClienteListDto) {
+  navigateToEdit(cliente: ApiResponse<'clientes', 'findAll'>['data'][number]) {
     const path = buildPath(PATH.admin.clientes.edit).replace(':id', cliente.id.toString());
     this.router.navigate([path]);
   }
@@ -126,28 +120,28 @@ export class ClientesList implements OnInit, OnDestroy {
     this.showModal.set(false);
   }
 
-  handleFormSubmit(data: any) {
-    this.createCliente(data as ClienteCreateDto);
+  handleFormSubmit(data: ApiBody<'clientes', 'create'> | ApiBody<'clientes', 'update'>) {
+    this.createCliente(data as ApiBody<'clientes', 'create'>);
   }
 
   handleModalSubmit() {
     this.clienteFormComponent()?.submitForm();
   }
 
-  createCliente(data: ClienteCreateDto) {
+  createCliente(data: ApiBody<'clientes', 'create'>) {
     this.loading.set(true);
-    this.clienteService.create(data).subscribe({
-      next: () => {
+    this.clienteService
+      .create(data)
+      .then(() => {
         this.toastService.success('Cliente creado exitosamente');
         this.loadClientes();
         this.closeModal();
-      },
-      error: (error) => {
+      })
+      .catch((error) => {
         console.error('Error al crear cliente:', error);
         this.toastService.error('Error al crear cliente');
         this.loading.set(false);
-      },
-    });
+      });
   }
 
   deleteCliente(id: number) {
@@ -156,17 +150,17 @@ export class ClientesList implements OnInit, OnDestroy {
       '¿Estás seguro de que deseas eliminar este cliente? Esta acción no se puede deshacer.',
       () => {
         this.loading.set(true);
-        this.clienteService.delete(id).subscribe({
-          next: () => {
+        this.clienteService
+          .delete(id)
+          .then(() => {
             this.toastService.success('Cliente eliminado exitosamente');
             this.loadClientes();
-          },
-          error: (error) => {
+          })
+          .catch((error) => {
             console.error('Error al eliminar cliente:', error);
             this.toastService.error('Error al eliminar cliente');
             this.loading.set(false);
-          },
-        });
+          });
       }
     );
   }

@@ -1,7 +1,7 @@
 import { Component, inject, input, output, OnInit, effect, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RutaResultDto, RutaCreateDto, RutaUpdateDto } from '@interface/admin/ruta.interface';
+import { ApiResponse, ApiBody } from 'api/backend.api';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
@@ -18,11 +18,11 @@ export class RutaForm implements OnInit {
   mapUrl = signal<SafeResourceUrl | null>(null);
 
   // Inputs
-  ruta = input<RutaResultDto | null>(null);
+  ruta = input<ApiResponse<'rutas', 'findOne'> | null>(null);
   editMode = input<boolean>(false);
 
   // Outputs
-  onSubmitForm = output<RutaCreateDto | RutaUpdateDto>();
+  onSubmitForm = output<ApiBody<'rutas', 'create'> | ApiBody<'rutas', 'update'>>();
 
   rutaForm: FormGroup = this.fb.group({
     origen: ['', [Validators.required, Validators.minLength(3)]],
@@ -95,7 +95,11 @@ export class RutaForm implements OnInit {
     }
 
     const formData = this.rutaForm.value;
-    this.onSubmitForm.emit(formData);
+    if (this.editMode()) {
+      this.onSubmitForm.emit(formData as ApiBody<'rutas', 'update'>);
+    } else {
+      this.onSubmitForm.emit(formData as ApiBody<'rutas', 'create'>);
+    }
   }
 
   calculateDistanceFromCoords() {
@@ -113,13 +117,15 @@ export class RutaForm implements OnInit {
     const dLng = this.deg2rad(destinoLng - origenLng);
     const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(this.deg2rad(origenLat)) * Math.cos(this.deg2rad(destinoLat)) *
-      Math.sin(dLng / 2) * Math.sin(dLng / 2);
+      Math.cos(this.deg2rad(origenLat)) *
+        Math.cos(this.deg2rad(destinoLat)) *
+        Math.sin(dLng / 2) *
+        Math.sin(dLng / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     const distance = R * c;
 
     this.rutaForm.patchValue({
-      distancia: distance.toFixed(2)
+      distancia: distance.toFixed(2),
     });
   }
 

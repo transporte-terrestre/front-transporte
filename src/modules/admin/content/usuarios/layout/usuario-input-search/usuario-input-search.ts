@@ -1,4 +1,4 @@
-import { Component, inject, signal, ElementRef, HostListener } from '@angular/core';
+import { Component, inject, signal, ElementRef, HostListener, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   ControlValueAccessor,
@@ -7,9 +7,9 @@ import {
   ReactiveFormsModule,
 } from '@angular/forms';
 import { UsuarioService } from '@service/admin/usuario.service';
-import { UsuarioListDto } from '@interface/admin/usuario.interface';
+import { ApiResponse } from 'api/backend.api';
 import { debounceTime, distinctUntilChanged, switchMap, tap, finalize } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { of, from } from 'rxjs';
 
 @Component({
   selector: 'app-usuario-input-search',
@@ -28,17 +28,20 @@ export class UsuarioInputSearch implements ControlValueAccessor {
   private usuarioService = inject(UsuarioService);
   private elementRef = inject(ElementRef);
 
+  // Inputs
+  initialData = input<ApiResponse<'usuarios', 'findAll'>['data'][number] | null>(null);
+
   // State
   isOpen = signal(false);
   loading = signal(false);
-  usuarios = signal<UsuarioListDto[]>([]);
-  selectedUsuario = signal<UsuarioListDto | null>(null);
+  usuarios = signal<ApiResponse<'usuarios', 'findAll'>['data']>([]);
+  selectedUsuario = signal<ApiResponse<'usuarios', 'findAll'>['data'][number] | null>(null);
 
   // Search Control
   searchControl = new FormControl('');
 
   // Value Accessor callbacks
-  onChange: (value: UsuarioListDto | null) => void = () => {};
+  onChange: (value: ApiResponse<'usuarios', 'findAll'>['data'][number] | null) => void = () => {};
   onTouched: () => void = () => {};
 
   constructor() {
@@ -49,9 +52,9 @@ export class UsuarioInputSearch implements ControlValueAccessor {
         tap(() => this.loading.set(true)),
         switchMap((term) => {
           if (!term && term !== '') return of({ data: [], meta: { total: 0 } } as any);
-          return this.usuarioService
-            .findAll({ search: term || '', limit: 10 })
-            .pipe(finalize(() => this.loading.set(false)));
+          return from(this.usuarioService.findAll({ search: term || '', limit: 10 })).pipe(
+            finalize(() => this.loading.set(false))
+          );
         })
       )
       .subscribe({
@@ -68,7 +71,12 @@ export class UsuarioInputSearch implements ControlValueAccessor {
 
   writeValue(obj: any): void {
     if (obj) {
-      this.loadInitialUsuario(obj);
+      const initial = this.initialData();
+      if (initial && initial.id === obj) {
+        this.selectedUsuario.set(initial);
+      } else {
+        this.loadInitialUsuario(obj);
+      }
     } else {
       this.selectedUsuario.set(null);
     }
@@ -96,21 +104,23 @@ export class UsuarioInputSearch implements ControlValueAccessor {
     }
   }
 
-  selectUsuario(usuario: UsuarioListDto) {
+  selectUsuario(usuario: ApiResponse<'usuarios', 'findAll'>['data'][number]) {
     this.selectedUsuario.set(usuario);
     this.onChange(usuario);
     this.isOpen.set(false);
   }
 
   loadInitialUsuario(id: number) {
-    this.usuarioService.findOne(id).subscribe({
-      next: (usuario) => {
-        this.selectedUsuario.set(usuario as unknown as UsuarioListDto);
-      },
-      error: () => {
+    this.usuarioService
+      .findOne(id)
+      .then((usuario) => {
+        this.selectedUsuario.set(
+          usuario as unknown as ApiResponse<'usuarios', 'findAll'>['data'][number]
+        );
+      })
+      .catch(() => {
         console.error('Could not load initial usuario');
-      },
-    });
+      });
   }
 
   getDisplayText(): string {

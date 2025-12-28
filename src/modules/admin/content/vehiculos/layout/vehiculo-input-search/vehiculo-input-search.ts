@@ -1,4 +1,4 @@
-import { Component, inject, signal, ElementRef, HostListener } from '@angular/core';
+import { Component, inject, signal, ElementRef, HostListener, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   ControlValueAccessor,
@@ -7,9 +7,9 @@ import {
   ReactiveFormsModule,
 } from '@angular/forms';
 import { VehiculoService } from '@service/admin/vehiculo.service';
-import { VehiculoResultDto } from '@interface/admin/vehiculo.interface';
+import { ApiResponse } from 'api/backend.api';
 import { debounceTime, distinctUntilChanged, switchMap, tap, finalize } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { of, from } from 'rxjs';
 
 @Component({
   selector: 'app-vehiculo-input-search',
@@ -28,20 +28,20 @@ export class VehiculoInputSearch implements ControlValueAccessor {
   private vehiculoService = inject(VehiculoService);
   private elementRef = inject(ElementRef);
 
+  // Inputs
+  initialData = input<ApiResponse<'vehiculos', 'findAll'>['data'][number] | null>(null);
+
   // State
   isOpen = signal(false);
   loading = signal(false);
-  vehiculos = signal<VehiculoResultDto[]>([]);
-  selectedVehiculo = signal<VehiculoResultDto | null>(null);
-
-  // Output to emit the full entity - REMOVED: Ahora se usa onChange
-  // onEntitySelected = output<VehiculoResultDto | null>();
+  vehiculos = signal<ApiResponse<'vehiculos', 'findAll'>['data']>([]);
+  selectedVehiculo = signal<ApiResponse<'vehiculos', 'findOne'> | null>(null);
 
   // Search Control
   searchControl = new FormControl('');
 
   // Value Accessor callbacks
-  onChange: (value: VehiculoResultDto | null) => void = () => {};
+  onChange: (value: ApiResponse<'vehiculos', 'findOne'> | null) => void = () => {};
   onTouched: () => void = () => {};
 
   constructor() {
@@ -51,10 +51,21 @@ export class VehiculoInputSearch implements ControlValueAccessor {
         distinctUntilChanged(),
         tap(() => this.loading.set(true)),
         switchMap((term) => {
-          if (!term && term !== '') return of({ data: [], meta: { total: 0 } } as any);
-          return this.vehiculoService
-            .findAll({ search: term || '', limit: 10 })
-            .pipe(finalize(() => this.loading.set(false)));
+          if (!term && term !== '')
+            return of<ApiResponse<'vehiculos', 'findAll'>>({
+              data: [],
+              meta: {
+                total: 0,
+                page: 1,
+                limit: 10,
+                lastPage: 1,
+                hasPreviousPage: false,
+                hasNextPage: false,
+              },
+            });
+          return from(this.vehiculoService.findAll({ search: term || '', limit: 10 })).pipe(
+            finalize(() => this.loading.set(false))
+          );
         })
       )
       .subscribe({
@@ -69,19 +80,24 @@ export class VehiculoInputSearch implements ControlValueAccessor {
       });
   }
 
-  writeValue(obj: any): void {
+  writeValue(obj: number | null): void {
     if (obj) {
-      this.loadInitialVehiculo(obj);
+      const initial = this.initialData();
+      if (initial && initial.id === obj) {
+        this.selectedVehiculo.set(initial as any);
+      } else {
+        this.loadInitialVehiculo(obj);
+      }
     } else {
       this.selectedVehiculo.set(null);
     }
   }
 
-  registerOnChange(fn: any): void {
+  registerOnChange(fn: (value: ApiResponse<'vehiculos', 'findOne'> | null) => void): void {
     this.onChange = fn;
   }
 
-  registerOnTouched(fn: any): void {
+  registerOnTouched(fn: () => void): void {
     this.onTouched = fn;
   }
 
@@ -99,21 +115,19 @@ export class VehiculoInputSearch implements ControlValueAccessor {
     }
   }
 
-  selectVehiculo(vehiculo: VehiculoResultDto) {
+  selectVehiculo(vehiculo: ApiResponse<'vehiculos', 'findOne'>) {
     this.selectedVehiculo.set(vehiculo);
     this.onChange(vehiculo);
     this.isOpen.set(false);
   }
 
-  loadInitialVehiculo(id: number) {
-    this.vehiculoService.findOne(id).subscribe({
-      next: (vehiculo) => {
-        this.selectedVehiculo.set(vehiculo);
-      },
-      error: () => {
-        console.error('Could not load initial vehiculo');
-      },
-    });
+  async loadInitialVehiculo(id: number) {
+    try {
+      const vehiculo = await this.vehiculoService.findOne(id);
+      this.selectedVehiculo.set(vehiculo);
+    } catch (e) {
+      console.error('Could not load initial vehiculo');
+    }
   }
 
   getDisplayText(): string {

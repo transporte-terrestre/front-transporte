@@ -1,14 +1,7 @@
 import { Component, inject, input, output, OnInit, effect, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import {
-  ClienteResultDto,
-  ClienteCreateDto,
-  ClienteUpdateDto,
-  ClienteDocumentoCreateDto,
-  ClienteDocumentoResultDto,
-  DocumentosAgrupadosClienteDto,
-} from '@interface/admin/cliente.interface';
+import { ApiResponse, ApiBody, ApiField } from 'api/backend.api';
 import { ImagesUpload } from '@module/admin/components/images-upload/images-upload';
 import {
   DocumentsDateUpload,
@@ -29,15 +22,15 @@ export class ClienteForm implements OnInit {
   private toastService = inject(ToastService);
 
   // Inputs
-  cliente = input<ClienteResultDto | null>(null);
+  cliente = input<ApiResponse<'clientes', 'findOne'> | null>(null);
   editMode = input<boolean>(false);
 
   // Outputs
-  onSubmitForm = output<ClienteCreateDto | ClienteUpdateDto>();
+  onSubmitForm = output<ApiBody<'clientes', 'create'> | ApiBody<'clientes', 'update'>>();
 
   // State
   imagenes = signal<string[]>([]);
-  localDocuments = signal<DocumentosAgrupadosClienteDto | null>(null);
+  localDocuments = signal<ApiResponse<'clientes', 'findOne'>['documentos'] | null>(null);
 
   clienteForm: FormGroup = this.fb.group({
     tipoDocumento: ['DNI', [Validators.required]],
@@ -51,7 +44,10 @@ export class ClienteForm implements OnInit {
     direccion: ['', [Validators.maxLength(255)]],
   });
 
-  documentTypes = [
+  documentTypes: {
+    value: keyof ApiField<'clientes', 'findOne', 'documentos'>;
+    label: string;
+  }[] = [
     { value: 'dni', label: 'DNI' },
     { value: 'ruc', label: 'RUC' },
     { value: 'contrato', label: 'Contrato' },
@@ -153,36 +149,39 @@ export class ClienteForm implements OnInit {
     if (formData.direccion) cleanData.direccion = formData.direccion;
 
     if (this.editMode()) {
-      this.onSubmitForm.emit(cleanData as ClienteUpdateDto);
+      this.onSubmitForm.emit(cleanData as ApiBody<'clientes', 'update'>);
     } else {
-      this.onSubmitForm.emit(cleanData as ClienteCreateDto);
+      this.onSubmitForm.emit(cleanData as ApiBody<'clientes', 'create'>);
     }
   }
 
   // Document Management
-  handleDocumentUpload(event: DocumentWithDate, tipo: string) {
+  handleDocumentUpload(
+    event: DocumentWithDate,
+    tipo: keyof ApiField<'clientes', 'findOne', 'documentos'>
+  ) {
     if (!this.cliente()) return;
 
     // URL now comes directly from the event (already uploaded to Cloudinary)
-    const documento: ClienteDocumentoCreateDto = {
+    const documento: ApiBody<'clientes', 'createDocumento'> = {
       clienteId: this.cliente()!.id,
-      tipo: tipo as any,
+      tipo: tipo,
       nombre: event.nombre,
       url: event.url,
       fechaEmision: event.fechaEmision,
       fechaExpiracion: event.fechaExpiracion,
     };
 
-    this.clienteService.createDocumento(documento).subscribe({
-      next: (doc) => {
+    this.clienteService
+      .createDocumento(documento)
+      .then((doc) => {
         this.toastService.success('Documento guardado exitosamente');
         this.addDocumentToLocalList(doc);
-      },
-      error: (err) => {
+      })
+      .catch((err) => {
         console.error('Error al guardar documento:', err);
         this.toastService.error('Error al guardar documento');
-      },
-    });
+      });
   }
 
   handleDocumentUpdate(event: { id: number; fechaEmision: string; fechaExpiracion: string }) {
@@ -191,35 +190,35 @@ export class ClienteForm implements OnInit {
         fechaEmision: event.fechaEmision,
         fechaExpiracion: event.fechaExpiracion,
       })
-      .subscribe({
-        next: (doc) => {
-          this.toastService.success('Documento actualizado exitosamente');
-          this.updateDocumentInLocalList(doc);
-        },
-        error: (err) => {
-          console.error('Error al actualizar documento:', err);
-          this.toastService.error('Error al actualizar documento');
-        },
+      .then((doc) => {
+        this.toastService.success('Documento actualizado exitosamente');
+        this.updateDocumentInLocalList(doc);
+      })
+      .catch((err) => {
+        console.error('Error al actualizar documento:', err);
+        this.toastService.error('Error al actualizar documento');
       });
   }
 
-  deleteDocument(id: number, tipo: string) {
-    this.clienteService.deleteDocumento(id).subscribe({
-      next: () => {
+  deleteDocument(id: number, tipo: keyof ApiField<'clientes', 'findOne', 'documentos'>) {
+    this.clienteService
+      .deleteDocumento(id)
+      .then(() => {
         this.toastService.success('Documento eliminado exitosamente');
         this.removeDocumentFromLocalList(id, tipo);
-      },
-      error: (err) => {
+      })
+      .catch((err) => {
         console.error('Error al eliminar documento:', err);
         this.toastService.error('Error al eliminar documento');
-      },
-    });
+      });
   }
 
-  private addDocumentToLocalList(doc: ClienteDocumentoResultDto) {
+  private addDocumentToLocalList(
+    doc: ApiField<'clientes', 'findOne', 'documentos'>['dni'][number]
+  ) {
     const docs = this.localDocuments();
     if (docs) {
-      const tipo = doc.tipo as keyof DocumentosAgrupadosClienteDto;
+      const tipo = doc.tipo;
       const newDocs = { ...docs };
       if (!newDocs[tipo]) {
         newDocs[tipo] = [];
@@ -229,10 +228,12 @@ export class ClienteForm implements OnInit {
     }
   }
 
-  private updateDocumentInLocalList(doc: ClienteDocumentoResultDto) {
+  private updateDocumentInLocalList(
+    doc: ApiField<'clientes', 'findOne', 'documentos'>['dni'][number]
+  ) {
     const docs = this.localDocuments();
     if (docs) {
-      const tipo = doc.tipo as keyof DocumentosAgrupadosClienteDto;
+      const tipo = doc.tipo;
       if (docs[tipo]) {
         const newDocs = { ...docs };
         newDocs[tipo] = newDocs[tipo].map((d) => (d.id === doc.id ? doc : d));
@@ -241,22 +242,25 @@ export class ClienteForm implements OnInit {
     }
   }
 
-  private removeDocumentFromLocalList(id: number, tipo: string) {
+  private removeDocumentFromLocalList(
+    id: number,
+    tipo: keyof ApiField<'clientes', 'findOne', 'documentos'>
+  ) {
     const docs = this.localDocuments();
     if (docs) {
-      const tipoKey = tipo as keyof DocumentosAgrupadosClienteDto;
-      if (docs[tipoKey]) {
+      if (docs[tipo]) {
         const newDocs = { ...docs };
-        newDocs[tipoKey] = newDocs[tipoKey].filter((d) => d.id !== id);
+        newDocs[tipo] = newDocs[tipo].filter((d) => d.id !== id);
         this.localDocuments.set(newDocs);
       }
     }
   }
 
-  getDocuments(tipo: string): ClienteDocumentoResultDto[] {
+  getDocuments(
+    tipo: keyof ApiField<'clientes', 'findOne', 'documentos'>
+  ): ApiField<'clientes', 'findOne', 'documentos'>['dni'] {
     const docs = this.localDocuments();
     if (!docs) return [];
-    const tipoKey = tipo as keyof DocumentosAgrupadosClienteDto;
-    return docs[tipoKey] || [];
+    return docs[tipo] || [];
   }
 }

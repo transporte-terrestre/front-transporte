@@ -6,7 +6,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { RutaService } from '@service/admin/ruta.service';
-import { RutaResultDto, RutaCreateDto, PaginationMeta } from '@interface/admin/ruta.interface';
+import { ApiResponse, ApiBody } from 'api/backend.api';
 import { ToastService } from '@service/toast.service';
 import { AlertService } from '@service/alert.service';
 import { ModalForm } from '../../../../components/modal-form/modal-form';
@@ -30,7 +30,7 @@ export class RutasList implements OnInit, OnDestroy {
 
   private searchSubject = new Subject<string>();
 
-  rutas = signal<RutaResultDto[]>([]);
+  rutas = signal<ApiResponse<'rutas', 'findAll'>['data']>([]);
   loading = signal(false);
   showModal = signal(false);
   viewMode = signal<'grid' | 'table'>('table');
@@ -38,7 +38,7 @@ export class RutasList implements OnInit, OnDestroy {
   // Paginación
   currentPage = signal(1);
   pageSize = signal(10);
-  meta = signal<PaginationMeta | null>(null);
+  meta = signal<ApiResponse<'rutas', 'findAll'>['meta'] | null>(null);
 
   // Filtros
   searchTerm = signal('');
@@ -70,17 +70,16 @@ export class RutasList implements OnInit, OnDestroy {
         fechaInicio: this.fechaInicio() || undefined,
         fechaFin: this.fechaFin() || undefined,
       })
-      .subscribe({
-        next: (response) => {
-          this.rutas.set(response.data);
-          this.meta.set(response.meta);
-          this.loading.set(false);
-        },
-        error: (error) => {
-          console.error('Error al cargar rutas:', error);
-          this.toastService.error('Error al cargar rutas');
-          this.loading.set(false);
-        },
+      .then((response) => {
+        this.rutas.set(response.data);
+        this.meta.set(response.meta);
+      })
+      .catch((error) => {
+        console.error('Error al cargar rutas:', error);
+        this.toastService.error('Error al cargar rutas');
+      })
+      .finally(() => {
+        this.loading.set(false);
       });
   }
 
@@ -125,7 +124,7 @@ export class RutasList implements OnInit, OnDestroy {
     this.showModal.set(true);
   }
 
-  navigateToEdit(ruta: RutaResultDto) {
+  navigateToEdit(ruta: ApiResponse<'rutas', 'findAll'>['data'][number]) {
     const path = buildPath(PATH.admin.rutas.edit).replace(':id', ruta.id.toString());
     this.router.navigate([path]);
   }
@@ -134,28 +133,30 @@ export class RutasList implements OnInit, OnDestroy {
     this.showModal.set(false);
   }
 
-  handleFormSubmit(data: any) {
-    this.createRuta(data as RutaCreateDto);
+  handleFormSubmit(data: ApiBody<'rutas', 'create'> | ApiBody<'rutas', 'update'>) {
+    this.createRuta(data as ApiBody<'rutas', 'create'>);
   }
 
   handleModalSubmit() {
     this.rutaFormComponent()?.submitForm();
   }
 
-  createRuta(data: RutaCreateDto) {
+  createRuta(data: ApiBody<'rutas', 'create'>) {
     this.loading.set(true);
-    this.rutaService.create(data).subscribe({
-      next: () => {
+    this.rutaService
+      .create(data)
+      .then(() => {
         this.toastService.success('Ruta creada exitosamente');
         this.loadRutas();
         this.closeModal();
-      },
-      error: (error) => {
+      })
+      .catch((error) => {
         console.error('Error al crear ruta:', error);
         this.toastService.error('Error al crear ruta');
+      })
+      .finally(() => {
         this.loading.set(false);
-      },
-    });
+      });
   }
 
   deleteRuta(id: number) {
@@ -164,17 +165,19 @@ export class RutasList implements OnInit, OnDestroy {
       '¿Estás seguro de que deseas eliminar esta ruta? Esta acción no se puede deshacer.',
       () => {
         this.loading.set(true);
-        this.rutaService.delete(id).subscribe({
-          next: () => {
+        this.rutaService
+          .delete(id)
+          .then(() => {
             this.toastService.success('Ruta eliminada exitosamente');
             this.loadRutas();
-          },
-          error: (error) => {
+          })
+          .catch((error) => {
             console.error('Error al eliminar ruta:', error);
             this.toastService.error('Error al eliminar ruta');
+          })
+          .finally(() => {
             this.loading.set(false);
-          },
-        });
+          });
       }
     );
   }
@@ -197,7 +200,7 @@ export class RutasList implements OnInit, OnDestroy {
     return deg * (Math.PI / 180);
   }
 
-  getMapUrl(ruta: RutaResultDto): SafeResourceUrl {
+  getMapUrl(ruta: ApiResponse<'rutas', 'findAll'>['data'][number]): SafeResourceUrl {
     // Usar Google Maps con polyline para mostrar la línea de ruta
     const origin = `${ruta.origenLat},${ruta.origenLng}`;
     const destination = `${ruta.destinoLat},${ruta.destinoLng}`;

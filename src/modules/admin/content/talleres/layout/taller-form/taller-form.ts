@@ -1,11 +1,7 @@
 import { Component, inject, input, output, OnInit, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import {
-  TallerResultDto,
-  TallerCreateDto,
-  TallerUpdateDto,
-} from '@interface/admin/taller.interface';
+import { ApiResponse, ApiBody } from 'api/backend.api';
 
 @Component({
   selector: 'app-taller-form',
@@ -17,11 +13,11 @@ export class TallerForm implements OnInit {
   private fb = inject(FormBuilder);
 
   // Inputs
-  taller = input<TallerResultDto | null>(null);
+  taller = input<ApiResponse<'talleres', 'findOne'> | null>(null);
   editMode = input<boolean>(false);
 
   // Outputs
-  onSubmitForm = output<TallerCreateDto | TallerUpdateDto>();
+  onSubmitForm = output<ApiBody<'talleres', 'create'> | ApiBody<'talleres', 'update'>>();
 
   tallerForm: FormGroup = this.fb.group({
     ruc: ['', [Validators.pattern(/^[0-9]{11}$/)]],
@@ -68,6 +64,10 @@ export class TallerForm implements OnInit {
     }
 
     const formData = this.tallerForm.value;
-    this.onSubmitForm.emit(formData);
+    if (this.editMode()) {
+      this.onSubmitForm.emit(formData as ApiBody<'talleres', 'update'>);
+    } else {
+      this.onSubmitForm.emit(formData as ApiBody<'talleres', 'create'>);
+    }
   }
 }

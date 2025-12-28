@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ViajeService } from '@service/admin/viaje.service';
-import { ViajeResultDto, ViajeUpdateDto } from '@interface/admin/viaje.interface';
+import { ApiResponse, ApiBody } from 'api/backend.api';
 import { ToastService } from '@service/toast.service';
 import { AlertService } from '@service/alert.service';
 import { ViajeForm } from '../../layout/viaje-form/viaje-form';
@@ -23,7 +23,7 @@ export class ViajesEdit implements OnInit {
   private toastService = inject(ToastService);
   private alertService = inject(AlertService);
 
-  viaje = signal<ViajeResultDto | null>(null);
+  viaje = signal<ApiResponse<'viajes', 'findOne'> | null>(null);
 
   downloadHojaRuta() {
     if (this.viaje()) {
@@ -66,36 +66,32 @@ export class ViajesEdit implements OnInit {
     }
   }
 
-  loadViaje(id: number) {
+  async loadViaje(id: number) {
     this.loading.set(true);
-    this.viajeService.findOne(id).subscribe({
-      next: (viaje) => {
-        this.viaje.set(viaje);
-        this.loading.set(false);
-      },
-      error: (error) => {
-        console.error('Error al cargar viaje:', error);
-        this.toastService.error('Error al cargar viaje');
-        this.router.navigate([buildPath(PATH.admin.viajes.list)]);
-      },
-    });
+    try {
+      const viaje = await this.viajeService.findOne(id);
+      this.viaje.set(viaje);
+      this.loading.set(false);
+    } catch (error) {
+      console.error('Error al cargar viaje:', error);
+      this.toastService.error('Error al cargar viaje');
+      this.router.navigate([buildPath(PATH.admin.viajes.list)]);
+    }
   }
 
-  handleFormSubmit(data: any) {
+  async handleFormSubmit(data: ApiBody<'viajes', 'update'>) {
     if (!this.viaje()) return;
 
     this.loading.set(true);
-    this.viajeService.update(this.viaje()!.id, data as ViajeUpdateDto).subscribe({
-      next: () => {
-        this.toastService.success('Viaje actualizado exitosamente');
-        this.loadViaje(this.viaje()!.id);
-      },
-      error: (error) => {
-        console.error('Error al actualizar viaje:', error);
-        this.toastService.error('Error al actualizar viaje');
-        this.loading.set(false);
-      },
-    });
+    try {
+      await this.viajeService.update(this.viaje()!.id, data);
+      this.toastService.success('Viaje actualizado exitosamente');
+      this.loadViaje(this.viaje()!.id);
+    } catch (error) {
+      console.error('Error al actualizar viaje:', error);
+      this.toastService.error('Error al actualizar viaje');
+      this.loading.set(false);
+    }
   }
 
   reloadViaje() {

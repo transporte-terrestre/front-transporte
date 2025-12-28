@@ -1,4 +1,4 @@
-import { Component, inject, signal, ElementRef, HostListener, Input } from '@angular/core';
+import { Component, inject, signal, ElementRef, HostListener, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   ControlValueAccessor,
@@ -7,9 +7,9 @@ import {
   ReactiveFormsModule,
 } from '@angular/forms';
 import { ClienteService } from '@service/admin/cliente.service';
-import { ClienteListDto } from '@interface/admin/cliente.interface';
+import { ApiResponse } from 'api/backend.api';
 import { debounceTime, distinctUntilChanged, switchMap, tap, finalize } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { of, from } from 'rxjs';
 
 @Component({
   selector: 'app-cliente-input-search',
@@ -30,21 +30,19 @@ export class ClienteInputSearch implements ControlValueAccessor {
   private elementRef = inject(ElementRef);
 
   // Inputs
-  @Input() initialData: ClienteListDto | null = null;
+  initialData = input<ApiResponse<'clientes', 'findAll'>['data'][number] | null>(null);
+  
   // State
   isOpen = signal(false);
   loading = signal(false);
-  clientes = signal<ClienteListDto[]>([]);
-  selectedCliente = signal<ClienteListDto | null>(null);
-
-  // Output to emit the full entity - REMOVED: Ahora se usa onChange
-  // onEntitySelected = output<ClienteListDto | null>();
+  clientes = signal<ApiResponse<'clientes', 'findAll'>['data']>([]);
+  selectedCliente = signal<ApiResponse<'clientes', 'findAll'>['data'][number] | null>(null);
 
   // Search Control
   searchControl = new FormControl('');
 
   // Value Accessor callbacks
-  onChange: (value: ClienteListDto | null) => void = () => {};
+  onChange: (value: ApiResponse<'clientes', 'findAll'>['data'][number] | null) => void = () => {};
   onTouched: () => void = () => {};
 
   constructor() {
@@ -55,9 +53,9 @@ export class ClienteInputSearch implements ControlValueAccessor {
         tap(() => this.loading.set(true)),
         switchMap((term) => {
           if (!term && term !== '') return of({ data: [], meta: { total: 0 } } as any);
-          return this.clienteService
-            .findAll({ search: term || '', limit: 10 })
-            .pipe(finalize(() => this.loading.set(false)));
+          return from(this.clienteService.findAll({ search: term || '', limit: 10 })).pipe(
+            finalize(() => this.loading.set(false))
+          );
         })
       )
       .subscribe({
@@ -74,8 +72,9 @@ export class ClienteInputSearch implements ControlValueAccessor {
 
   writeValue(obj: any): void {
     if (obj) {
-      if (this.initialData && this.initialData.id === obj) {
-        this.selectedCliente.set(this.initialData);
+      const initial = this.initialData();
+      if (initial && initial.id === obj) {
+        this.selectedCliente.set(initial);
       } else {
         this.loadInitialCliente(obj);
       }
@@ -106,21 +105,23 @@ export class ClienteInputSearch implements ControlValueAccessor {
     }
   }
 
-  selectCliente(cliente: ClienteListDto) {
+  selectCliente(cliente: ApiResponse<'clientes', 'findAll'>['data'][number]) {
     this.selectedCliente.set(cliente);
     this.onChange(cliente);
     this.isOpen.set(false);
   }
 
   loadInitialCliente(id: number) {
-    this.clienteService.findOne(id).subscribe({
-      next: (cliente) => {
-        this.selectedCliente.set(cliente as unknown as ClienteListDto);
-      },
-      error: () => {
+    this.clienteService
+      .findOne(id)
+      .then((cliente) => {
+        this.selectedCliente.set(
+          cliente as unknown as ApiResponse<'clientes', 'findAll'>['data'][number]
+        );
+      })
+      .catch(() => {
         console.error('Could not load initial cliente');
-      },
-    });
+      });
   }
 
   getDisplayText(): string {

@@ -23,9 +23,9 @@ export class Notificaciones {
     this.service.close();
   }
 
-  markAsRead(id: number, event: Event) {
+  async markAsRead(id: number, event: Event) {
     event.stopPropagation();
-    this.service.markAsRead(id).subscribe();
+    await this.service.markAsRead(id);
   }
 
   markAllRead() {

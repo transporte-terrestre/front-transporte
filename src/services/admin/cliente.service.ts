@@ -5,13 +5,14 @@ import { Api, ApiBody, ApiParam, ApiQuery } from 'api/backend.api';
   providedIn: 'root',
 })
 export class ClienteService {
-  private api = inject(Api);async findAll(query: ApiQuery<'clientes', 'findAll'>) {
+  private api = inject(Api);
+  async findAll(query: ApiQuery<'clientes', 'findAll'>) {
     return await this.api.clientes.findAll(query).then((response) => response.data);
   }
   async findOne(id: ApiParam<'clientes', 'findOne', 'id'>) {
     return await this.api.clientes.findOne({ id }).then((response) => response.data);
   }
-  async create(cliente: ApiBody<'clientes', 'create'>) {
+  async create(cliente: ApiBody<'clientes','create'>) {
     return await this.api.clientes.create(cliente).then((response) => response.data);
   }
   async update(id: ApiParam<'clientes', 'update', 'id'>, cliente: ApiBody<'clientes', 'update'>) {

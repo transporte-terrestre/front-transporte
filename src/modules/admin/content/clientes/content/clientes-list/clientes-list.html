@@ -155,12 +155,12 @@
                 <div
                   class="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center text-secondary text-xs font-inter-bold"
                 >
-                  {{ (cliente.nombres || '').charAt(0) }}{{ (cliente.apellidos || '').charAt(0) }}
+                  {{ (cliente.tipoDocumento === 'DNI' ? (cliente.nombres || '') : (cliente.razonSocial || '')).charAt(0) }}
                 </div>
                 }
                 <div>
                   <p class="text-xs font-inter-semibold text-text capitalize">
-                    {{ cliente.nombres }} {{ cliente.apellidos }}
+                    {{ cliente.tipoDocumento === 'DNI' ? cliente.nombreCompleto : (cliente.razonSocial || cliente.nombreCompleto) }}
                   </p>
                 </div>
               </div>

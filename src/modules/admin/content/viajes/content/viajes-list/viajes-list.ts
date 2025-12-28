@@ -5,12 +5,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { ViajeService } from '@service/admin/viaje.service';
-import {
-  ViajeListDto,
-  ViajeCreateDto,
-  ViajeEstado,
-  PaginationMeta,
-} from '@interface/admin/viaje.interface';
+import { ApiBody, ApiResponse } from 'api/backend.api';
 import { ToastService } from '@service/toast.service';
 import { AlertService } from '@service/alert.service';
 import { ModalForm } from '../../../../components/modal-form/modal-form';
@@ -26,7 +21,7 @@ interface WeekDay {
 }
 
 interface CalendarEvent {
-  viaje: ViajeListDto;
+  viaje: ApiResponse<'viajes', 'findAll'>['data'][number];
   top: number;
   height: number;
   dayIndex: number;
@@ -49,7 +44,7 @@ export class ViajesList implements OnInit, OnDestroy {
 
   private searchSubject = new Subject<string>();
 
-  viajes = signal<ViajeListDto[]>([]);
+  viajes = signal<ApiResponse<'viajes', 'findAll'>['data']>([]);
   loading = signal(false);
   showModal = signal(false);
   viewMode = signal<'table' | 'calendar'>('calendar');
@@ -57,7 +52,7 @@ export class ViajesList implements OnInit, OnDestroy {
   // Paginación
   currentPage = signal(1);
   pageSize = signal(10);
-  meta = signal<PaginationMeta | null>(null);
+  meta = signal<ApiResponse<'viajes', 'findAll'>['meta'] | null>(null);
 
   // Filtros
   searchTerm = signal('');
@@ -283,7 +278,7 @@ export class ViajesList implements OnInit, OnDestroy {
   }
 
   // Obtener color del evento según estado
-  getEventColor(estado: ViajeEstado): string {
+  getEventColor(estado: ApiResponse<'viajes', 'findOne'>['estado']): string {
     switch (estado) {
       case 'programado':
         return 'bg-info text-white';
@@ -299,7 +294,7 @@ export class ViajesList implements OnInit, OnDestroy {
   }
 
   // Cargar viajes para el calendario (sin paginación)
-  loadViajesForCalendar() {
+  async loadViajesForCalendar() {
     const start = this.currentWeekStart();
     const end = new Date(start);
     end.setDate(start.getDate() + 6);
@@ -313,25 +308,21 @@ export class ViajesList implements OnInit, OnDestroy {
     };
 
     this.loading.set(true);
-    this.viajeService
-      .findAll({
+    try {
+      const response = await this.viajeService.findAll({
         page: 1,
         limit: 100,
         fechaInicio: formatDate(start),
         fechaFin: formatDate(end),
-      })
-      .subscribe({
-        next: (response) => {
-          this.viajes.set(response.data);
-          this.meta.set(response.meta);
-          this.loading.set(false);
-        },
-        error: (error) => {
-          console.error('Error al cargar viajes:', error);
-          this.toastService.error('Error al cargar viajes');
-          this.loading.set(false);
-        },
       });
+      this.viajes.set(response.data);
+      this.meta.set(response.meta);
+      this.loading.set(false);
+    } catch (error) {
+      console.error('Error al cargar viajes:', error);
+      this.toastService.error('Error al cargar viajes');
+      this.loading.set(false);
+    }
   }
 
   // Formatear hora corta para eventos
@@ -364,28 +355,24 @@ export class ViajesList implements OnInit, OnDestroy {
     this.searchSubject.complete();
   }
 
-  loadViajes() {
+  async loadViajes() {
     this.loading.set(true);
-    this.viajeService
-      .findAll({
+    try {
+      const response = await this.viajeService.findAll({
         page: this.currentPage(),
         limit: this.pageSize(),
         search: this.searchTerm() || undefined,
         fechaInicio: this.fechaInicio() || undefined,
         fechaFin: this.fechaFin() || undefined,
-      })
-      .subscribe({
-        next: (response) => {
-          this.viajes.set(response.data);
-          this.meta.set(response.meta);
-          this.loading.set(false);
-        },
-        error: (error) => {
-          console.error('Error al cargar viajes:', error);
-          this.toastService.error('Error al cargar viajes');
-          this.loading.set(false);
-        },
       });
+      this.viajes.set(response.data);
+      this.meta.set(response.meta);
+      this.loading.set(false);
+    } catch (error) {
+      console.error('Error al cargar viajes:', error);
+      this.toastService.error('Error al cargar viajes');
+      this.loading.set(false);
+    }
   }
 
   onSearch() {
@@ -437,7 +424,7 @@ export class ViajesList implements OnInit, OnDestroy {
     this.showModal.set(true);
   }
 
-  navigateToEdit(viaje: ViajeListDto) {
+  navigateToEdit(viaje: ApiResponse<'viajes', 'findAll'>['data'][number]) {
     const path = buildPath(PATH.admin.viajes.edit).replace(':id', viaje.id.toString());
     this.router.navigate([path]);
   }
@@ -446,28 +433,27 @@ export class ViajesList implements OnInit, OnDestroy {
     this.showModal.set(false);
   }
 
-  handleFormSubmit(data: any) {
-    this.createViaje(data as ViajeCreateDto);
-  }
-
   handleModalSubmit() {
     this.viajeFormComponent()?.submitForm();
   }
 
-  createViaje(data: ViajeCreateDto) {
+  handleFormSubmit(data: ApiBody<'viajes', 'create'> | ApiBody<'viajes', 'update'>) {
+    this.createViaje(data);
+  }
+
+  async createViaje(data: ApiBody<'viajes', 'create'> | ApiBody<'viajes', 'update'>) {
     this.loading.set(true);
-    this.viajeService.create(data).subscribe({
-      next: () => {
-        this.toastService.success('Viaje creado exitosamente');
-        this.loadViajes();
-        this.closeModal();
-      },
-      error: (error) => {
-        console.error('Error al crear viaje:', error);
-        this.toastService.error('Error al crear viaje');
-        this.loading.set(false);
-      },
-    });
+    try {
+      await this.viajeService.create(data as ApiBody<'viajes', 'create'>);
+      this.toastService.success('Viaje creado exitosamente');
+      this.closeModal();
+      this.loadViajes();
+      this.loadViajesForCalendar();
+    } catch (error) {
+      console.error('Error al crear viaje:', error);
+      this.toastService.error('Error al crear viaje');
+      this.loading.set(false);
+    }
   }
 
   deleteViaje(id: number) {
@@ -476,29 +462,29 @@ export class ViajesList implements OnInit, OnDestroy {
       '¿Estás seguro de que deseas eliminar este viaje? Esta acción no se puede deshacer.',
       () => {
         this.loading.set(true);
-        this.viajeService.delete(id).subscribe({
-          next: () => {
+        this.viajeService.delete(id).then(
+          () => {
             this.toastService.success('Viaje eliminado exitosamente');
             this.loadViajes();
           },
-          error: (error) => {
+          (error) => {
             console.error('Error al eliminar viaje:', error);
             this.toastService.error('Error al eliminar viaje');
             this.loading.set(false);
-          },
-        });
+          }
+        );
       }
     );
   }
 
-  getRutaDisplay(viaje: ViajeListDto): string {
+  getRutaDisplay(viaje: ApiResponse<'viajes', 'findAll'>['data'][number]): string {
     if (viaje.ruta) {
       return `${viaje.ruta.origen} → ${viaje.ruta.destino}`;
     }
     return viaje.rutaOcasional || 'Ruta no especificada';
   }
 
-  getVehiculoDisplay(viaje: ViajeListDto): string {
+  getVehiculoDisplay(viaje: ApiResponse<'viajes', 'findAll'>['data'][number]): string {
     return viaje.vehiculoPrincipal
       ? `${viaje.vehiculoPrincipal.marca ?? ''} ${viaje.vehiculoPrincipal.modelo ?? ''} - ${
           viaje.vehiculoPrincipal.placa
@@ -506,15 +492,15 @@ export class ViajesList implements OnInit, OnDestroy {
       : 'Sin vehículo';
   }
 
-  getConductorDisplay(viaje: ViajeListDto): string {
+  getConductorDisplay(viaje: ApiResponse<'viajes', 'findAll'>['data'][number]): string {
     return viaje.conductorPrincipal?.nombreCompleto || 'Sin conductor';
   }
 
-  getClienteDisplay(viaje: ViajeListDto): string {
+  getClienteDisplay(viaje: ApiResponse<'viajes', 'findAll'>['data'][number]): string {
     return viaje.cliente?.razonSocial || viaje.cliente?.nombreCompleto || 'Sin cliente';
   }
 
-  getEstadoBadgeClass(estado: ViajeEstado): string {
+  getEstadoBadgeClass(estado: ApiResponse<'viajes', 'findOne'>['estado']): string {
     switch (estado) {
       case 'programado':
         return 'bg-info/10 text-info';
@@ -529,7 +515,7 @@ export class ViajesList implements OnInit, OnDestroy {
     }
   }
 
-  getEstadoIcon(estado: ViajeEstado): string {
+  getEstadoIcon(estado: ApiResponse<'viajes', 'findOne'>['estado']): string {
     switch (estado) {
       case 'programado':
         return 'fa-clock';
@@ -544,7 +530,7 @@ export class ViajesList implements OnInit, OnDestroy {
     }
   }
 
-  getEstadoLabel(estado: ViajeEstado): string {
+  getEstadoLabel(estado: ApiResponse<'viajes', 'findOne'>['estado']): string {
     switch (estado) {
       case 'programado':
         return 'Programado';
@@ -587,26 +573,5 @@ export class ViajesList implements OnInit, OnDestroy {
     const strMinutes = minutes < 10 ? '0' + minutes : minutes;
 
     return `${day} ${month} ${year} ${hours}:${strMinutes} ${ampm}`;
-  }
-
-  getDistanciaEstimada(viaje: ViajeListDto): string {
-    return viaje.distanciaEstimada ? `${viaje.distanciaEstimada} km` : '-';
-  }
-
-  getDistanciaFinal(viaje: ViajeListDto): string {
-    return viaje.distanciaFinal ? `${viaje.distanciaFinal} km` : '-';
-  }
-
-  getDiferenciaDistancia(viaje: ViajeListDto): { value: string; class: string } {
-    if (!viaje.distanciaEstimada || !viaje.distanciaFinal) {
-      return { value: '-', class: 'text-text/40' };
-    }
-    const diff = parseFloat(viaje.distanciaFinal) - parseFloat(viaje.distanciaEstimada);
-    if (diff > 0) {
-      return { value: `+${diff.toFixed(2)} km`, class: 'text-warning' };
-    } else if (diff < 0) {
-      return { value: `${diff.toFixed(2)} km`, class: 'text-success' };
-    }
-    return { value: '0 km', class: 'text-text/60' };
   }
 }

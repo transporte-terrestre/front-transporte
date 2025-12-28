@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ViajeService } from '@service/admin/viaje.service';
 import { ToastService } from '@service/toast.service';
-import { ViajeResultDto } from '@interface/admin/viaje.interface';
+import { ApiResponse, ApiBody } from 'api/backend.api';
 
 @Component({
   selector: 'app-viaje-comentarios-form',
@@ -16,7 +16,7 @@ export class ViajeComentariosForm {
   private viajeService = inject(ViajeService);
   private toastService = inject(ToastService);
 
-  viaje = input.required<ViajeResultDto>();
+  viaje = input.required<ApiResponse<'viajes', 'findOne'>>();
   onDataChange = output<void>();
 
   showComentarioModal = signal(false);
@@ -35,27 +35,28 @@ export class ViajeComentariosForm {
     this.showComentarioModal.set(false);
   }
 
-  saveComentario() {
+  async saveComentario() {
     if (this.addComentarioForm.invalid) {
       return;
     }
     // TODO: Obtener ID de usuario real
     const usuarioId = 1;
 
-    this.viajeService
-      .createComentario({
+    try {
+      await this.viajeService.createComentario({
         viajeId: this.viaje().id,
         usuarioId: usuarioId,
         comentario: this.addComentarioForm.value.comentario || '',
-        tipo: this.addComentarioForm.value.tipo as any,
-      })
-      .subscribe({
-        next: () => {
-          this.toastService.success('Comentario agregado');
-          this.closeAddComentario();
-          this.onDataChange.emit();
-        },
-        error: () => this.toastService.error('Error al agregar comentario'),
+        tipo: (this.addComentarioForm.value.tipo || 'general') as ApiBody<
+          'viajes',
+          'createComentario'
+        >['tipo'],
       });
+      this.toastService.success('Comentario agregado');
+      this.closeAddComentario();
+      this.onDataChange.emit();
+    } catch (e) {
+      this.toastService.error('Error al agregar comentario');
+    }
   }
 }

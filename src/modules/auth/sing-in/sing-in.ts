@@ -4,8 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '@service/auth/auth.service';
 import { ToastService } from '@service/toast.service';
-import { LoginDto } from '@interface/auth/auth.interface';
 import { PATH, buildPath } from '@route/path.route';
+import { ApiBody } from '@api/backend.api';
 
 @Component({
   selector: 'app-sing-in',
@@ -37,7 +37,7 @@ export class SingIn {
   /**
    * Maneja el submit del formulario de login
    */
-  onLogin(): void {
+  async onLogin(): Promise<void> {
     if (!this.email() || !this.password()) {
       this.toastService.error('Please enter email and password');
       return;
@@ -45,24 +45,22 @@ export class SingIn {
 
     this.loading.set(true);
 
-    const credentials: LoginDto = {
+    const credentials: ApiBody<'auth', 'login'> = {
       email: this.email(),
       password: this.password(),
     };
 
-    this.authService.login(credentials).subscribe({
-      next: () => {
-        this.toastService.success('Welcome!');
-        const returnUrl =
-          this.route.snapshot.queryParams['returnUrl'] || buildPath(PATH.admin.dashboard);
-        this.router.navigate([returnUrl]);
-        this.loading.set(false);
-      },
-      error: (err) => {
-        console.error('Login error:', err);
-        this.toastService.error(err.error?.message || 'Invalid credentials');
-        this.loading.set(false);
-      },
-    });
+    try {
+      await this.authService.login(credentials);
+      this.toastService.success('Welcome!');
+      const returnUrl =
+        this.route.snapshot.queryParams['returnUrl'] || buildPath(PATH.admin.dashboard);
+      this.router.navigate([returnUrl]);
+    } catch (err: any) {
+      console.error('Login error:', err);
+      this.toastService.error(err.error?.message || 'Invalid credentials');
+    } finally {
+      this.loading.set(false);
+    }
   }
 }

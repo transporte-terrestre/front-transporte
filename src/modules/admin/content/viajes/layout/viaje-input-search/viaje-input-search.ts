@@ -1,4 +1,4 @@
-import { Component, inject, signal, ElementRef, HostListener } from '@angular/core';
+import { Component, inject, signal, ElementRef, HostListener, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   ControlValueAccessor,
@@ -7,9 +7,9 @@ import {
   ReactiveFormsModule,
 } from '@angular/forms';
 import { ViajeService } from '@service/admin/viaje.service';
-import { ViajeResultDto } from '@interface/admin/viaje.interface';
+import { ApiResponse } from 'api/backend.api';
 import { debounceTime, distinctUntilChanged, switchMap, tap, finalize } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { of, from } from 'rxjs';
 
 @Component({
   selector: 'app-viaje-input-search',
@@ -28,17 +28,20 @@ export class ViajeInputSearch implements ControlValueAccessor {
   private viajeService = inject(ViajeService);
   private elementRef = inject(ElementRef);
 
+  // Inputs
+  initialData = input<ApiResponse<'viajes', 'findAll'>['data'][number] | null>(null);
+
   // State
   isOpen = signal(false);
   loading = signal(false);
-  viajes = signal<ViajeResultDto[]>([]);
-  selectedViaje = signal<ViajeResultDto | null>(null);
+  viajes = signal<ApiResponse<'viajes', 'findAll'>['data']>([]);
+  selectedViaje = signal<ApiResponse<'viajes', 'findOne'> | null>(null);
 
   // Search Control
   searchControl = new FormControl('');
 
   // Value Accessor callbacks
-  onChange: (value: ViajeResultDto | null) => void = () => {};
+  onChange: (value: ApiResponse<'viajes', 'findOne'> | null) => void = () => {};
   onTouched: () => void = () => {};
 
   constructor() {
@@ -48,10 +51,21 @@ export class ViajeInputSearch implements ControlValueAccessor {
         distinctUntilChanged(),
         tap(() => this.loading.set(true)),
         switchMap((term) => {
-          if (!term && term !== '') return of({ data: [], meta: { total: 0 } } as any);
-          return this.viajeService
-            .findAll({ search: term || '', limit: 10 })
-            .pipe(finalize(() => this.loading.set(false)));
+          if (!term && term !== '')
+            return of<ApiResponse<'viajes', 'findAll'>>({
+              data: [],
+              meta: {
+                total: 0,
+                page: 1,
+                limit: 10,
+                lastPage: 1,
+                hasPreviousPage: false,
+                hasNextPage: false,
+              },
+            });
+          return from(this.viajeService.findAll({ search: term || '', limit: 10 })).pipe(
+            finalize(() => this.loading.set(false))
+          );
         })
       )
       .subscribe({
@@ -68,17 +82,22 @@ export class ViajeInputSearch implements ControlValueAccessor {
 
   writeValue(obj: any): void {
     if (obj) {
-      this.loadInitialViaje(obj);
+      const initial = this.initialData();
+      if (initial && initial.id === obj) {
+        this.selectedViaje.set(initial as any);
+      } else {
+        this.loadInitialViaje(obj);
+      }
     } else {
       this.selectedViaje.set(null);
     }
   }
 
-  registerOnChange(fn: any): void {
+  registerOnChange(fn: (value: ApiResponse<'viajes', 'findOne'> | null) => void): void {
     this.onChange = fn;
   }
 
-  registerOnTouched(fn: any): void {
+  registerOnTouched(fn: () => void): void {
     this.onTouched = fn;
   }
 
@@ -96,21 +115,21 @@ export class ViajeInputSearch implements ControlValueAccessor {
     }
   }
 
-  selectViaje(viaje: ViajeResultDto) {
+  selectViaje(viaje: ApiResponse<'viajes', 'findOne'>) {
     this.selectedViaje.set(viaje);
     this.onChange(viaje);
     this.isOpen.set(false);
   }
 
-  loadInitialViaje(id: number) {
-    this.viajeService.findOne(id).subscribe({
-      next: (viaje) => {
-        this.selectedViaje.set(viaje);
-      },
-      error: () => {
+  async loadInitialViaje(id: number) {
+    this.viajeService
+      .findOne(id)
+      .then((viaje) => {
+        this.selectedViaje.set(viaje as any);
+      })
+      .catch(() => {
         console.error('Could not load initial viaje');
-      },
-    });
+      });
   }
 
   getDisplayText(): string {

@@ -2,7 +2,7 @@ import { Component, inject, signal, OnInit, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RutaService } from '@service/admin/ruta.service';
-import { RutaResultDto, RutaUpdateDto } from '@interface/admin/ruta.interface';
+import { ApiResponse, ApiBody } from 'api/backend.api';
 import { ToastService } from '@service/toast.service';
 import { RutaForm } from '../../layout/ruta-form/ruta-form';
 import { PATH, buildPath } from '@route/path.route';
@@ -19,7 +19,7 @@ export class RutasEdit implements OnInit {
   private rutaService = inject(RutaService);
   private toastService = inject(ToastService);
 
-  ruta = signal<RutaResultDto | null>(null);
+  ruta = signal<ApiResponse<'rutas', 'findOne'> | null>(null);
   loading = signal(false);
 
   rutaFormComponent = viewChild<RutaForm>(RutaForm);
@@ -35,34 +35,38 @@ export class RutasEdit implements OnInit {
 
   loadRuta(id: number) {
     this.loading.set(true);
-    this.rutaService.findOne(id).subscribe({
-      next: (ruta) => {
+    this.rutaService
+      .findOne(id)
+      .then((ruta) => {
         this.ruta.set(ruta);
-        this.loading.set(false);
-      },
-      error: (error) => {
+      })
+      .catch((error) => {
         console.error('Error al cargar ruta:', error);
         this.toastService.error('Error al cargar ruta');
         this.router.navigate([buildPath(PATH.admin.rutas.list)]);
-      },
-    });
+      })
+      .finally(() => {
+        this.loading.set(false);
+      });
   }
 
-  handleFormSubmit(data: any) {
+  handleFormSubmit(data: ApiBody<'rutas', 'create'> | ApiBody<'rutas', 'update'>) {
     if (!this.ruta()) return;
 
     this.loading.set(true);
-    this.rutaService.update(this.ruta()!.id, data as RutaUpdateDto).subscribe({
-      next: () => {
+    this.rutaService
+      .update(this.ruta()!.id, data as ApiBody<'rutas', 'update'>)
+      .then(() => {
         this.toastService.success('Ruta actualizada exitosamente');
         this.router.navigate([buildPath(PATH.admin.rutas.list)]);
-      },
-      error: (error) => {
+      })
+      .catch((error) => {
         console.error('Error al actualizar ruta:', error);
         this.toastService.error('Error al actualizar ruta');
+      })
+      .finally(() => {
         this.loading.set(false);
-      },
-    });
+      });
   }
 
   onCancel() {

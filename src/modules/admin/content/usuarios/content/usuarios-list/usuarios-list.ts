@@ -5,11 +5,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { UsuarioService } from '@service/admin/usuario.service';
-import {
-  UsuarioListDto,
-  UsuarioCreateDto,
-  PaginationMeta,
-} from '@interface/admin/usuario.interface';
+import { ApiResponse, ApiBody } from 'api/backend.api';
 import { ToastService } from '@service/toast.service';
 import { AlertService } from '@service/alert.service';
 import { ModalForm } from '../../../../components/modal-form/modal-form';
@@ -31,14 +27,14 @@ export class UsuariosList implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private searchSubject = new Subject<string>();
 
-  usuarios = signal<UsuarioListDto[]>([]);
+  usuarios = signal<ApiResponse<'usuarios', 'findAll'>['data']>([]);
   loading = signal(false);
   showModal = signal(false);
 
   // Paginación
   currentPage = signal(1);
   pageSize = signal(10);
-  meta = signal<PaginationMeta | null>(null);
+  meta = signal<ApiResponse<'usuarios', 'findAll'>['meta'] | null>(null);
 
   // Filtros
   searchTerm = signal('');
@@ -71,17 +67,15 @@ export class UsuariosList implements OnInit, OnDestroy {
         fechaInicio: this.fechaInicio() || undefined,
         fechaFin: this.fechaFin() || undefined,
       })
-      .subscribe({
-        next: (response) => {
-          this.usuarios.set(response.data);
-          this.meta.set(response.meta);
-          this.loading.set(false);
-        },
-        error: (error) => {
-          console.error('Error al cargar usuarios:', error);
-          this.toastService.error('Error al cargar usuarios');
-          this.loading.set(false);
-        },
+      .then((response) => {
+        this.usuarios.set(response.data);
+        this.meta.set(response.meta);
+        this.loading.set(false);
+      })
+      .catch((error) => {
+        console.error('Error al cargar usuarios:', error);
+        this.toastService.error('Error al cargar usuarios');
+        this.loading.set(false);
       });
   }
 
@@ -118,7 +112,7 @@ export class UsuariosList implements OnInit, OnDestroy {
     this.showModal.set(true);
   }
 
-  navigateToEdit(usuario: UsuarioListDto) {
+  navigateToEdit(usuario: ApiResponse<'usuarios', 'findAll'>['data'][number]) {
     const path = buildPath(PATH.admin.usuarios.edit).replace(':id', usuario.id.toString());
     this.router.navigate([path]);
   }
@@ -128,27 +122,27 @@ export class UsuariosList implements OnInit, OnDestroy {
   }
 
   handleFormSubmit(data: any) {
-    this.createUsuario(data as UsuarioCreateDto);
+    this.createUsuario(data as ApiBody<'usuarios', 'create'>);
   }
 
   handleModalSubmit() {
     this.usuarioFormComponent()?.submitForm();
   }
 
-  createUsuario(data: UsuarioCreateDto) {
+  createUsuario(data: ApiBody<'usuarios', 'create'>) {
     this.loading.set(true);
-    this.usuarioService.create(data).subscribe({
-      next: () => {
+    this.usuarioService
+      .create(data)
+      .then(() => {
         this.toastService.success('Usuario creado exitosamente');
         this.loadUsuarios();
         this.closeModal();
-      },
-      error: (error) => {
+      })
+      .catch((error) => {
         console.error('Error al crear usuario:', error);
         this.toastService.error('Error al crear usuario');
         this.loading.set(false);
-      },
-    });
+      });
   }
 
   deleteUsuario(id: number) {
@@ -157,17 +151,17 @@ export class UsuariosList implements OnInit, OnDestroy {
       '¿Estás seguro de que deseas eliminar este usuario? Esta acción no se puede deshacer.',
       () => {
         this.loading.set(true);
-        this.usuarioService.delete(id).subscribe({
-          next: () => {
+        this.usuarioService
+          .delete(id)
+          .then(() => {
             this.toastService.success('Usuario eliminado exitosamente');
             this.loadUsuarios();
-          },
-          error: (error) => {
+          })
+          .catch((error) => {
             console.error('Error al eliminar usuario:', error);
             this.toastService.error('Error al eliminar usuario');
             this.loading.set(false);
-          },
-        });
+          });
       }
     );
   }

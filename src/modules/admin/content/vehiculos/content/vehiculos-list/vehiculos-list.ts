@@ -5,11 +5,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { VehiculoService } from '@service/admin/vehiculo.service';
-import {
-  VehiculoListDto,
-  VehiculoCreateDto,
-  PaginationMeta,
-} from '@interface/admin/vehiculo.interface';
+import { ApiBody, ApiResponse } from 'api/backend.api';
 import { ToastService } from '@service/toast.service';
 import { AlertService } from '@service/alert.service';
 import { ModalForm } from '../../../../components/modal-form/modal-form';
@@ -32,7 +28,7 @@ export class VehiculosList implements OnInit, OnDestroy {
 
   private searchSubject = new Subject<string>();
 
-  vehiculos = signal<VehiculoListDto[]>([]);
+  vehiculos = signal<ApiResponse<'vehiculos', 'findAll'>['data']>([]);
   loading = signal(false);
   showModal = signal(false);
   viewMode = signal<'grid' | 'table'>('table');
@@ -40,7 +36,7 @@ export class VehiculosList implements OnInit, OnDestroy {
   // Paginación
   currentPage = signal(1);
   pageSize = signal(10);
-  meta = signal<PaginationMeta | null>(null);
+  meta = signal<ApiResponse<'vehiculos', 'findAll'>['meta'] | null>(null);
 
   // Filtros
   searchTerm = signal('');
@@ -62,28 +58,24 @@ export class VehiculosList implements OnInit, OnDestroy {
     this.searchSubject.complete();
   }
 
-  loadVehiculos() {
+  async loadVehiculos() {
     this.loading.set(true);
-    this.vehiculoService
-      .findAll({
+    try {
+      const response = await this.vehiculoService.findAll({
         page: this.currentPage(),
         limit: this.pageSize(),
         search: this.searchTerm() || undefined,
         fechaInicio: this.fechaInicio() || undefined,
         fechaFin: this.fechaFin() || undefined,
-      })
-      .subscribe({
-        next: (response) => {
-          this.vehiculos.set(response.data);
-          this.meta.set(response.meta);
-          this.loading.set(false);
-        },
-        error: (error) => {
-          console.error('Error al cargar vehículos:', error);
-          this.toastService.error('Error al cargar vehículos');
-          this.loading.set(false);
-        },
       });
+      this.vehiculos.set(response.data);
+      this.meta.set(response.meta);
+      this.loading.set(false);
+    } catch (error) {
+      console.error('Error al cargar vehículos:', error);
+      this.toastService.error('Error al cargar vehículos');
+      this.loading.set(false);
+    }
   }
 
   onSearch() {
@@ -127,11 +119,6 @@ export class VehiculosList implements OnInit, OnDestroy {
     this.showModal.set(true);
   }
 
-  navigateToEdit(vehiculo: VehiculoListDto) {
-    const path = buildPath(PATH.admin.vehiculos.edit).replace(':id', vehiculo.id.toString());
-    this.router.navigate([path]);
-  }
-
   navigateToLineas() {
     const path = buildPath(PATH.admin.vehiculos.lineas);
     this.router.navigate([path]);
@@ -141,28 +128,31 @@ export class VehiculosList implements OnInit, OnDestroy {
     this.showModal.set(false);
   }
 
-  handleFormSubmit(data: any) {
-    this.createVehiculo(data as VehiculoCreateDto);
-  }
-
   handleModalSubmit() {
     this.vehiculoFormComponent()?.submitForm();
   }
 
-  createVehiculo(data: VehiculoCreateDto) {
+  navigateToEdit(vehiculo: ApiResponse<'vehiculos', 'findAll'>['data'][number]) {
+    const path = buildPath(PATH.admin.vehiculos.edit).replace(':id', vehiculo.id.toString());
+    this.router.navigate([path]);
+  }
+
+  handleFormSubmit(data: ApiBody<'vehiculos', 'create'> | ApiBody<'vehiculos', 'update'>) {
+    this.createVehiculo(data);
+  }
+
+  async createVehiculo(data: ApiBody<'vehiculos', 'create'> | ApiBody<'vehiculos', 'update'>) {
     this.loading.set(true);
-    this.vehiculoService.create(data).subscribe({
-      next: () => {
-        this.toastService.success('Vehículo creado exitosamente');
-        this.loadVehiculos();
-        this.closeModal();
-      },
-      error: (error) => {
-        console.error('Error al crear vehículo:', error);
-        this.toastService.error('Error al crear vehículo');
-        this.loading.set(false);
-      },
-    });
+    try {
+      await this.vehiculoService.create(data as ApiBody<'vehiculos', 'create'>);
+      this.toastService.success('Vehículo creado exitosamente');
+      this.loadVehiculos();
+      this.closeModal();
+    } catch (error) {
+      console.error('Error al crear vehículo:', error);
+      this.toastService.error('Error al crear vehículo');
+      this.loading.set(false);
+    }
   }
 
   deleteVehiculo(id: number) {
@@ -171,17 +161,17 @@ export class VehiculosList implements OnInit, OnDestroy {
       '¿Estás seguro de que deseas eliminar este vehículo? Esta acción no se puede deshacer.',
       () => {
         this.loading.set(true);
-        this.vehiculoService.delete(id).subscribe({
-          next: () => {
+        this.vehiculoService.delete(id).then(
+          () => {
             this.toastService.success('Vehículo eliminado exitosamente');
             this.loadVehiculos();
           },
-          error: (error) => {
+          (error) => {
             console.error('Error al eliminar vehículo:', error);
             this.toastService.error('Error al eliminar vehículo');
             this.loading.set(false);
-          },
-        });
+          }
+        );
       }
     );
   }
