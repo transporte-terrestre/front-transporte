@@ -182,6 +182,28 @@ export const routes: Routes = [
         ],
       },
       {
+        path: getPath(PATH.admin.propietarios),
+        loadComponent: () =>
+          import('@module/admin/content/propietarios/propietarios').then((m) => m.Propietarios),
+        children: [
+          {
+            path: getPath(PATH.admin.propietarios.list),
+            loadComponent: () =>
+              import(
+                '@module/admin/content/propietarios/content/propietarios-list/propietarios-list'
+              ).then((m) => m.PropietariosList),
+          },
+          {
+            path: getPath(PATH.admin.propietarios.edit),
+            loadComponent: () =>
+              import(
+                '@module/admin/content/propietarios/content/propietarios-edit/propietarios-edit'
+              ).then((m) => m.PropietariosEdit),
+          },
+          { path: '**', redirectTo: getPath(PATH.admin.propietarios.list), pathMatch: 'full' },
+        ],
+      },
+      {
         path: getPath(PATH.admin.talleres),
         loadComponent: () =>
           import('@module/admin/content/talleres/talleres').then((m) => m.Talleres),

@@ -70,6 +70,11 @@ export class Sidebar {
       icon: 'fas fa-user-tie',
     },
     {
+      label: 'Propietarios',
+      path: buildPath(PATH.admin.propietarios),
+      icon: 'fas fa-user-shield',
+    },
+    {
       label: 'Usuarios',
       path: buildPath(PATH.admin.usuarios),
       icon: 'fas fa-users',

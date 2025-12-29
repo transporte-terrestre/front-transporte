@@ -12,9 +12,11 @@ import { VehiculoService } from '@service/admin/vehiculo.service';
 import { ToastService } from '@service/toast.service';
 import { MarcaInputSearch } from '../../content/vehiculos-lineas/layout/marca-input-search/marca-input-search';
 import { ModeloInputSearch } from '../../content/vehiculos-lineas/layout/modelo-input-search/modelo-input-search';
+import { PropietarioInputSearch } from '../../../propietarios/layout/propietario-input-search/propietario-input-search';
 
 @Component({
   selector: 'app-vehiculo-form',
+  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -22,6 +24,7 @@ import { ModeloInputSearch } from '../../content/vehiculos-lineas/layout/modelo-
     DocumentsDateUpload,
     MarcaInputSearch,
     ModeloInputSearch,
+    PropietarioInputSearch,
   ],
   templateUrl: './vehiculo-form.html',
   styleUrl: './vehiculo-form.css',
@@ -43,16 +46,28 @@ export class VehiculoForm implements OnInit {
   localDocuments = signal<ApiResponse<'vehiculos', 'findOne'>['documentos'] | null>(null);
   selectedMarcaId = signal<number | null>(null);
 
-  // ... (rest properties same)
-
   vehiculoForm: FormGroup = this.fb.group({
-    placa: ['', [Validators.required, Validators.pattern(/^[A-Z0-9]{6,7}$/)]],
+    placa: ['', [Validators.required, Validators.pattern(/^[A-Z0-9-]{6,8}$/)]],
+    placaAnterior: ['', [Validators.maxLength(20)]],
     codigoInterno: [{ value: '', disabled: true }],
     marca: [null, []],
     modelo: [null, [Validators.required]],
     anio: ['', [Validators.required, Validators.min(1900), Validators.max(2100)]],
+    vin: ['', [Validators.maxLength(50)]],
+    numeroMotor: ['', [Validators.maxLength(50)]],
+    numeroSerie: ['', [Validators.maxLength(50)]],
+    color: ['', [Validators.maxLength(50)]],
+    combustible: ['diesel', []],
+    carroceria: ['', [Validators.maxLength(100)]],
+    categoria: ['', [Validators.maxLength(50)]],
+    cargaUtil: ['', []],
+    pesoBruto: ['', []],
+    pesoNeto: ['', []],
+    asientos: ['', [Validators.min(0)]],
+    ejes: ['', [Validators.min(0)]],
     kilometraje: ['', [Validators.required, Validators.min(0)]],
     estado: ['activo', [Validators.required]],
+    propietarioId: [null, []],
   });
 
   estados: Array<{ value: 'activo' | 'taller' | 'retirado'; label: string; icon: string }> = [
@@ -99,10 +114,24 @@ export class VehiculoForm implements OnInit {
         if (isEditMode && vehiculoData) {
           this.vehiculoForm.patchValue({
             placa: vehiculoData.placa,
+            placaAnterior: vehiculoData.placaAnterior,
             codigoInterno: vehiculoData.codigoInterno,
             anio: vehiculoData.anio,
+            vin: vehiculoData.vin,
+            numeroMotor: vehiculoData.numeroMotor,
+            numeroSerie: vehiculoData.numeroSerie,
+            color: vehiculoData.color,
+            combustible: vehiculoData.combustible || 'diesel',
+            carroceria: vehiculoData.carroceria,
+            categoria: vehiculoData.categoria,
+            cargaUtil: vehiculoData.cargaUtil,
+            pesoBruto: vehiculoData.pesoBruto,
+            pesoNeto: vehiculoData.pesoNeto,
+            asientos: vehiculoData.asientos,
+            ejes: vehiculoData.ejes,
             kilometraje: vehiculoData.kilometraje,
             estado: vehiculoData.estado,
+            propietarioId: vehiculoData.propietarioId,
           });
           this.imagenes.set(vehiculoData.imagenes || []);
           this.localDocuments.set(JSON.parse(JSON.stringify(vehiculoData.documentos)));
@@ -122,7 +151,7 @@ export class VehiculoForm implements OnInit {
             }
           }
         } else {
-          this.vehiculoForm.reset({ estado: 'activo' });
+          this.vehiculoForm.reset({ estado: 'activo', combustible: 'diesel' });
           this.imagenes.set([]);
           this.localDocuments.set(null);
           this.selectedMarcaId.set(null);
@@ -141,10 +170,24 @@ export class VehiculoForm implements OnInit {
     const formValue = this.vehiculoForm.value;
     const formData: ApiBody<'vehiculos', 'create'> = {
       placa: formValue.placa,
+      placaAnterior: formValue.placaAnterior || undefined,
       modeloId: formValue.modelo?.id ? Number(formValue.modelo.id) : Number(formValue.modelo),
       anio: formValue.anio,
+      vin: formValue.vin || undefined,
+      numeroMotor: formValue.numeroMotor || undefined,
+      numeroSerie: formValue.numeroSerie || undefined,
+      color: formValue.color || undefined,
+      combustible: formValue.combustible || undefined,
+      carroceria: formValue.carroceria || undefined,
+      categoria: formValue.categoria || undefined,
+      cargaUtil: formValue.cargaUtil ? String(formValue.cargaUtil) : undefined,
+      pesoBruto: formValue.pesoBruto ? String(formValue.pesoBruto) : undefined,
+      pesoNeto: formValue.pesoNeto ? String(formValue.pesoNeto) : undefined,
+      asientos: formValue.asientos ? Number(formValue.asientos) : undefined,
+      ejes: formValue.ejes ? Number(formValue.ejes) : undefined,
       kilometraje: formValue.kilometraje,
       estado: formValue.estado,
+      propietarioId: formValue.propietarioId ? Number(formValue.propietarioId) : undefined,
       imagenes: this.imagenes(),
     };
     this.onSubmitForm.emit(formData);

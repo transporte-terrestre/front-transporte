@@ -173,6 +173,15 @@
           </div>
         </div>
 
+        <!-- Propietario -->
+        <div class="flex items-center gap-2 text-text">
+          <i class="fas fa-user-shield text-secondary/70 text-sm w-5"></i>
+          <div class="flex-1">
+            <p class="text-xs font-inter-medium text-text/60">Propietario</p>
+            <p class="text-sm font-inter-bold truncate">{{ vehiculo.propietarioNombre || '-' }}</p>
+          </div>
+        </div>
+
         <!-- Kilometraje -->
         <div class="flex items-center gap-2 text-text">
           <i class="fas fa-tachometer-alt text-info/70 text-sm w-5"></i>
@@ -246,6 +255,11 @@
             <th
               class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
             >
+              Propietario
+            </th>
+            <th
+              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+            >
               Año
             </th>
             <th
@@ -299,6 +313,12 @@
             </td>
             <td class="px-4 py-3 whitespace-nowrap">
               <span class="text-xs font-inter-medium text-text/70">{{ vehiculo.modelo }}</span>
+            </td>
+            <td class="px-4 py-3 whitespace-nowrap">
+              <span
+                class="text-xs font-inter-semibold text-text truncate max-w-[150px] inline-block"
+                >{{ vehiculo.propietarioNombre || '-' }}</span
+              >
             </td>
             <td class="px-4 py-3 whitespace-nowrap">
               <span class="text-xs font-inter-medium text-text">{{ vehiculo.anio }}</span>

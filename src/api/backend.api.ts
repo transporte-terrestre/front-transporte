@@ -613,6 +613,11 @@ export interface VehiculoListDto {
    */
   placa: string;
   /**
+   * Previous license plate
+   * @example "XYZ-789"
+   */
+  placaAnterior?: string;
+  /**
    * Internal vehicle code
    * @example "00012"
    */
@@ -638,6 +643,18 @@ export interface VehiculoListDto {
    */
   anio: number;
   /**
+   * VIN
+   * @example "VIN1234567890ABCD"
+   */
+  vin?: string;
+  /**
+   * Color
+   * @example "Blanco"
+   */
+  color?: string;
+  /** Fuel type */
+  combustible?: "gasolina" | "diesel" | "gnv" | "glp" | "electrico" | "hibrido";
+  /**
    * Current mileage
    * @example 50000
    */
@@ -647,6 +664,16 @@ export interface VehiculoListDto {
    * @example "activo"
    */
   estado: "activo" | "taller" | "retirado";
+  /**
+   * Owner ID
+   * @example 1
+   */
+  propietarioId?: number;
+  /**
+   * Owner Name
+   * @example "Empresa SAC"
+   */
+  propietarioNombre?: string;
   /**
    * Creation date
    * @format date-time
@@ -780,6 +807,11 @@ export interface VehiculoResultDto {
    */
   placa: string;
   /**
+   * Previous license plate
+   * @example "XYZ-789"
+   */
+  placaAnterior?: string;
+  /**
    * Internal vehicle code
    * @example "0582"
    */
@@ -805,6 +837,63 @@ export interface VehiculoResultDto {
    */
   anio: number;
   /**
+   * VIN
+   * @example "VIN1234567890ABCD"
+   */
+  vin?: string;
+  /**
+   * Engine number
+   * @example "MOTOR123"
+   */
+  numeroMotor?: string;
+  /**
+   * Series number
+   * @example "SERIE123"
+   */
+  numeroSerie?: string;
+  /**
+   * Color
+   * @example "Blanco"
+   */
+  color?: string;
+  /** Fuel type */
+  combustible?: "gasolina" | "diesel" | "gnv" | "glp" | "electrico" | "hibrido";
+  /**
+   * Bodywork type
+   * @example "PICK UP"
+   */
+  carroceria?: string;
+  /**
+   * Vehicle category
+   * @example "N1"
+   */
+  categoria?: string;
+  /**
+   * Payload Kg
+   * @example "1500.50"
+   */
+  cargaUtil?: string;
+  /**
+   * Gross weight Kg
+   * @example "2500.00"
+   */
+  pesoBruto?: string;
+  /**
+   * Net weight Kg
+   * @example "1000.00"
+   */
+  pesoNeto?: string;
+  /**
+   * Seats
+   * @example 2
+   */
+  asientos?: number;
+  /**
+   * Axles
+   * @example 2
+   */
+  ejes?: number;
+  /**
    * Current mileage
    * @example 50000
    */
@@ -814,6 +903,16 @@ export interface VehiculoResultDto {
    * @example "activo"
    */
   estado: "activo" | "taller" | "retirado";
+  /**
+   * Owner ID
+   * @example 1
+   */
+  propietarioId?: number;
+  /**
+   * Owner Name
+   * @example "Empresa SAC"
+   */
+  propietarioNombre?: string;
   /**
    * Lista de URLs de imágenes del vehículo
    * @example ["https://res.cloudinary.com/xxx/image.jpg"]
@@ -842,6 +941,11 @@ export interface VehiculoCreateDto {
    */
   placa: string;
   /**
+   * Previous license plate
+   * @example "XYZ-789"
+   */
+  placaAnterior?: string;
+  /**
    * Vehicle model ID
    * @example 1
    */
@@ -852,6 +956,63 @@ export interface VehiculoCreateDto {
    */
   anio: number;
   /**
+   * Vehicle Identification Number
+   * @example "VIN1234567890ABCD"
+   */
+  vin?: string;
+  /**
+   * Engine number
+   * @example "MOTOR123"
+   */
+  numeroMotor?: string;
+  /**
+   * Series number
+   * @example "SERIE123"
+   */
+  numeroSerie?: string;
+  /**
+   * Vehicle color
+   * @example "Blanco"
+   */
+  color?: string;
+  /** Fuel type */
+  combustible?: "gasolina" | "diesel" | "gnv" | "glp" | "electrico" | "hibrido";
+  /**
+   * Bodywork type
+   * @example "PICK UP"
+   */
+  carroceria?: string;
+  /**
+   * Vehicle category
+   * @example "N1"
+   */
+  categoria?: string;
+  /**
+   * Payload capacity in Kg
+   * @example 1500.5
+   */
+  cargaUtil?: string;
+  /**
+   * Gross weight in Kg
+   * @example 2500
+   */
+  pesoBruto?: string;
+  /**
+   * Net weight in Kg
+   * @example 1000
+   */
+  pesoNeto?: string;
+  /**
+   * Number of seats
+   * @example 2
+   */
+  asientos?: number;
+  /**
+   * Number of axles
+   * @example 2
+   */
+  ejes?: number;
+  /**
    * Current mileage
    * @example 50000
    */
@@ -861,6 +1022,11 @@ export interface VehiculoCreateDto {
    * @default "activo"
    */
   estado?: "activo" | "taller" | "retirado";
+  /**
+   * Vehicle owner ID
+   * @example 1
+   */
+  propietarioId?: number;
   /**
    * Lista de URLs de imágenes del vehículo
    * @example ["https://res.cloudinary.com/xxx/image.jpg"]
@@ -880,6 +1046,11 @@ export interface VehiculoUpdateDto {
    */
   placa?: string;
   /**
+   * Previous license plate
+   * @example "XYZ-789"
+   */
+  placaAnterior?: string;
+  /**
    * Vehicle model ID
    * @example 1
    */
@@ -890,6 +1061,63 @@ export interface VehiculoUpdateDto {
    */
   anio?: number;
   /**
+   * Vehicle Identification Number
+   * @example "VIN1234567890ABCD"
+   */
+  vin?: string;
+  /**
+   * Engine number
+   * @example "MOTOR123"
+   */
+  numeroMotor?: string;
+  /**
+   * Series number
+   * @example "SERIE123"
+   */
+  numeroSerie?: string;
+  /**
+   * Vehicle color
+   * @example "Blanco"
+   */
+  color?: string;
+  /** Fuel type */
+  combustible?: "gasolina" | "diesel" | "gnv" | "glp" | "electrico" | "hibrido";
+  /**
+   * Bodywork type
+   * @example "PICK UP"
+   */
+  carroceria?: string;
+  /**
+   * Vehicle category
+   * @example "N1"
+   */
+  categoria?: string;
+  /**
+   * Payload capacity in Kg
+   * @example 1500.5
+   */
+  cargaUtil?: string;
+  /**
+   * Gross weight in Kg
+   * @example 2500
+   */
+  pesoBruto?: string;
+  /**
+   * Net weight in Kg
+   * @example 1000
+   */
+  pesoNeto?: string;
+  /**
+   * Number of seats
+   * @example 2
+   */
+  asientos?: number;
+  /**
+   * Number of axles
+   * @example 2
+   */
+  ejes?: number;
+  /**
    * Current mileage
    * @example 50000
    */
@@ -899,6 +1127,11 @@ export interface VehiculoUpdateDto {
    * @default "activo"
    */
   estado?: "activo" | "taller" | "retirado";
+  /**
+   * Vehicle owner ID
+   * @example 1
+   */
+  propietarioId?: number;
   /**
    * Lista de URLs de imágenes del vehículo
    * @example ["https://res.cloudinary.com/xxx/image.jpg"]
@@ -1536,6 +1769,11 @@ export interface VehiculoMantenimientoListDto {
    */
   placa: string;
   /**
+   * Previous license plate
+   * @example "XYZ-789"
+   */
+  placaAnterior?: string;
+  /**
    * Internal vehicle code
    * @example "0582"
    */
@@ -1561,6 +1799,63 @@ export interface VehiculoMantenimientoListDto {
    */
   anio: number;
   /**
+   * VIN
+   * @example "VIN1234567890ABCD"
+   */
+  vin?: string;
+  /**
+   * Engine number
+   * @example "MOTOR123"
+   */
+  numeroMotor?: string;
+  /**
+   * Series number
+   * @example "SERIE123"
+   */
+  numeroSerie?: string;
+  /**
+   * Color
+   * @example "Blanco"
+   */
+  color?: string;
+  /** Fuel type */
+  combustible?: "gasolina" | "diesel" | "gnv" | "glp" | "electrico" | "hibrido";
+  /**
+   * Bodywork type
+   * @example "PICK UP"
+   */
+  carroceria?: string;
+  /**
+   * Vehicle category
+   * @example "N1"
+   */
+  categoria?: string;
+  /**
+   * Payload Kg
+   * @example "1500.50"
+   */
+  cargaUtil?: string;
+  /**
+   * Gross weight Kg
+   * @example "2500.00"
+   */
+  pesoBruto?: string;
+  /**
+   * Net weight Kg
+   * @example "1000.00"
+   */
+  pesoNeto?: string;
+  /**
+   * Seats
+   * @example 2
+   */
+  asientos?: number;
+  /**
+   * Axles
+   * @example 2
+   */
+  ejes?: number;
+  /**
    * Current mileage
    * @example 50000
    */
@@ -1570,6 +1865,11 @@ export interface VehiculoMantenimientoListDto {
    * @example "activo"
    */
   estado: "activo" | "taller" | "retirado";
+  /**
+   * Owner ID
+   * @example 1
+   */
+  propietarioId?: number;
   /**
    * Lista de URLs de imágenes del vehículo
    * @example ["https://res.cloudinary.com/xxx/image.jpg"]
@@ -1751,6 +2051,11 @@ export interface VehiculoMantenimientoResultDto {
    */
   placa: string;
   /**
+   * Previous license plate
+   * @example "XYZ-789"
+   */
+  placaAnterior?: string;
+  /**
    * Internal vehicle code
    * @example "0582"
    */
@@ -1776,6 +2081,63 @@ export interface VehiculoMantenimientoResultDto {
    */
   anio: number;
   /**
+   * VIN
+   * @example "VIN1234567890ABCD"
+   */
+  vin?: string;
+  /**
+   * Engine number
+   * @example "MOTOR123"
+   */
+  numeroMotor?: string;
+  /**
+   * Series number
+   * @example "SERIE123"
+   */
+  numeroSerie?: string;
+  /**
+   * Color
+   * @example "Blanco"
+   */
+  color?: string;
+  /** Fuel type */
+  combustible?: "gasolina" | "diesel" | "gnv" | "glp" | "electrico" | "hibrido";
+  /**
+   * Bodywork type
+   * @example "PICK UP"
+   */
+  carroceria?: string;
+  /**
+   * Vehicle category
+   * @example "N1"
+   */
+  categoria?: string;
+  /**
+   * Payload Kg
+   * @example "1500.50"
+   */
+  cargaUtil?: string;
+  /**
+   * Gross weight Kg
+   * @example "2500.00"
+   */
+  pesoBruto?: string;
+  /**
+   * Net weight Kg
+   * @example "1000.00"
+   */
+  pesoNeto?: string;
+  /**
+   * Seats
+   * @example 2
+   */
+  asientos?: number;
+  /**
+   * Axles
+   * @example 2
+   */
+  ejes?: number;
+  /**
    * Current mileage
    * @example 50000
    */
@@ -1785,6 +2147,16 @@ export interface VehiculoMantenimientoResultDto {
    * @example "activo"
    */
   estado: "activo" | "taller" | "retirado";
+  /**
+   * Owner ID
+   * @example 1
+   */
+  propietarioId?: number;
+  /**
+   * Owner Name
+   * @example "Empresa SAC"
+   */
+  propietarioNombre?: string;
   /**
    * Lista de URLs de imágenes del vehículo
    * @example ["https://res.cloudinary.com/xxx/image.jpg"]
@@ -2508,6 +2880,11 @@ export interface VehiculoViajeDto {
    */
   placa: string;
   /**
+   * Previous license plate
+   * @example "XYZ-789"
+   */
+  placaAnterior?: string;
+  /**
    * Internal vehicle code
    * @example "0582"
    */
@@ -2533,6 +2910,63 @@ export interface VehiculoViajeDto {
    */
   anio: number;
   /**
+   * VIN
+   * @example "VIN1234567890ABCD"
+   */
+  vin?: string;
+  /**
+   * Engine number
+   * @example "MOTOR123"
+   */
+  numeroMotor?: string;
+  /**
+   * Series number
+   * @example "SERIE123"
+   */
+  numeroSerie?: string;
+  /**
+   * Color
+   * @example "Blanco"
+   */
+  color?: string;
+  /** Fuel type */
+  combustible?: "gasolina" | "diesel" | "gnv" | "glp" | "electrico" | "hibrido";
+  /**
+   * Bodywork type
+   * @example "PICK UP"
+   */
+  carroceria?: string;
+  /**
+   * Vehicle category
+   * @example "N1"
+   */
+  categoria?: string;
+  /**
+   * Payload Kg
+   * @example "1500.50"
+   */
+  cargaUtil?: string;
+  /**
+   * Gross weight Kg
+   * @example "2500.00"
+   */
+  pesoBruto?: string;
+  /**
+   * Net weight Kg
+   * @example "1000.00"
+   */
+  pesoNeto?: string;
+  /**
+   * Seats
+   * @example 2
+   */
+  asientos?: number;
+  /**
+   * Axles
+   * @example 2
+   */
+  ejes?: number;
+  /**
    * Current mileage
    * @example 50000
    */
@@ -2542,6 +2976,11 @@ export interface VehiculoViajeDto {
    * @example "activo"
    */
   estado: "activo" | "taller" | "retirado";
+  /**
+   * Owner ID
+   * @example 1
+   */
+  propietarioId?: number;
   /**
    * Lista de URLs de imágenes del vehículo
    * @example ["https://res.cloudinary.com/xxx/image.jpg"]
@@ -2812,6 +3251,11 @@ export interface ViajeVehiculoDetalleDto {
    */
   placa: string;
   /**
+   * Previous license plate
+   * @example "XYZ-789"
+   */
+  placaAnterior?: string;
+  /**
    * Internal vehicle code
    * @example "0582"
    */
@@ -2837,6 +3281,63 @@ export interface ViajeVehiculoDetalleDto {
    */
   anio: number;
   /**
+   * VIN
+   * @example "VIN1234567890ABCD"
+   */
+  vin?: string;
+  /**
+   * Engine number
+   * @example "MOTOR123"
+   */
+  numeroMotor?: string;
+  /**
+   * Series number
+   * @example "SERIE123"
+   */
+  numeroSerie?: string;
+  /**
+   * Color
+   * @example "Blanco"
+   */
+  color?: string;
+  /** Fuel type */
+  combustible?: "gasolina" | "diesel" | "gnv" | "glp" | "electrico" | "hibrido";
+  /**
+   * Bodywork type
+   * @example "PICK UP"
+   */
+  carroceria?: string;
+  /**
+   * Vehicle category
+   * @example "N1"
+   */
+  categoria?: string;
+  /**
+   * Payload Kg
+   * @example "1500.50"
+   */
+  cargaUtil?: string;
+  /**
+   * Gross weight Kg
+   * @example "2500.00"
+   */
+  pesoBruto?: string;
+  /**
+   * Net weight Kg
+   * @example "1000.00"
+   */
+  pesoNeto?: string;
+  /**
+   * Seats
+   * @example 2
+   */
+  asientos?: number;
+  /**
+   * Axles
+   * @example 2
+   */
+  ejes?: number;
+  /**
    * Current mileage
    * @example 50000
    */
@@ -2846,6 +3347,16 @@ export interface ViajeVehiculoDetalleDto {
    * @example "activo"
    */
   estado: "activo" | "taller" | "retirado";
+  /**
+   * Owner ID
+   * @example 1
+   */
+  propietarioId?: number;
+  /**
+   * Owner Name
+   * @example "Empresa SAC"
+   */
+  propietarioNombre?: string;
   /**
    * Lista de URLs de imágenes del vehículo
    * @example ["https://res.cloudinary.com/xxx/image.jpg"]
@@ -4129,6 +4640,396 @@ export interface MantenimientoDetalladoTallerDto {
   vehiculoModelo: string;
 }
 
+export interface PropietarioListDto {
+  /**
+   * ID del propietario
+   * @example 1
+   */
+  id: number;
+  /**
+   * DNI del propietario
+   * @example "12345678"
+   */
+  dni: string;
+  /**
+   * Tipo de documento
+   * @example "DNI"
+   */
+  tipoDocumento: "DNI" | "RUC";
+  /**
+   * RUC del propietario
+   * @example "20123456789"
+   */
+  ruc?: string;
+  /**
+   * Razón Social del propietario
+   * @example "Empresa SAC"
+   */
+  razonSocial?: string;
+  /**
+   * Nombres del propietario
+   * @example "Juan Carlos"
+   */
+  nombres: string;
+  /**
+   * Apellidos del propietario
+   * @example "Pérez García"
+   */
+  apellidos: string;
+  /**
+   * Nombre completo del propietario
+   * @example "Juan Carlos Pérez García"
+   */
+  nombreCompleto: string;
+  /**
+   * Email del propietario
+   * @example "juan.perez@example.com"
+   */
+  email?: string;
+  /**
+   * Teléfono del propietario
+   * @example "987654321"
+   */
+  telefono?: string;
+  /**
+   * Dirección del propietario
+   * @example "Av. Principal 123"
+   */
+  direccion?: string;
+  /**
+   * Lista de URLs de imágenes del propietario
+   * @example ["https://res.cloudinary.com/xxx/image.jpg"]
+   */
+  imagenes: string[];
+  /**
+   * Fecha de creación
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  creadoEn: string;
+  /**
+   * Fecha de actualización
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  actualizadoEn: string;
+  /**
+   * Fecha de eliminación
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  eliminadoEn?: string;
+}
+
+export interface PaginatedPropietarioResultDto {
+  data: PropietarioListDto[];
+  meta: PaginationMetaDto;
+}
+
+export interface PropietarioDocumentoResultDto {
+  /**
+   * ID del documento
+   * @example 1
+   */
+  id: number;
+  /**
+   * ID del propietario
+   * @example 1
+   */
+  propietarioId: number;
+  /**
+   * Tipo de documento
+   * @example "contrato"
+   */
+  tipo: "dni" | "ruc" | "contrato" | "otros";
+  /**
+   * Nombre del documento
+   * @example "Contrato de Propietario"
+   */
+  nombre: string;
+  /**
+   * URL del documento
+   * @example "https://res.cloudinary.com/xxx/doc.pdf"
+   */
+  url: string;
+  /**
+   * Fecha de expiración (YYYY-MM-DD)
+   * @example "2025-12-31"
+   */
+  fechaExpiracion?: string;
+  /**
+   * Fecha de emisión (YYYY-MM-DD)
+   * @example "2023-01-01"
+   */
+  fechaEmision?: string;
+  /**
+   * Fecha de creación
+   * @format date-time
+   */
+  creadoEn: string;
+  /**
+   * Fecha de actualización
+   * @format date-time
+   */
+  actualizadoEn: string;
+}
+
+export interface DocumentosAgrupadosPropietarioDto {
+  dni: PropietarioDocumentoResultDto[];
+  ruc: PropietarioDocumentoResultDto[];
+  contrato: PropietarioDocumentoResultDto[];
+  otros: PropietarioDocumentoResultDto[];
+}
+
+export interface PropietarioResultDto {
+  /**
+   * ID del propietario
+   * @example 1
+   */
+  id: number;
+  /**
+   * Tipo de documento
+   * @example "DNI"
+   */
+  tipoDocumento: "DNI" | "RUC";
+  /**
+   * DNI del propietario
+   * @example "12345678"
+   */
+  dni: string;
+  /**
+   * RUC del propietario
+   * @example "20123456789"
+   */
+  ruc: string;
+  /**
+   * Nombres del propietario
+   * @example "Juan Carlos"
+   */
+  nombres: string;
+  /**
+   * Apellidos del propietario
+   * @example "Pérez García"
+   */
+  apellidos: string;
+  /**
+   * Razón Social del propietario
+   * @example "Empresa SAC"
+   */
+  razonSocial: string;
+  /**
+   * Nombre completo del propietario
+   * @example "Juan Carlos Pérez García"
+   */
+  nombreCompleto: string;
+  /**
+   * Email del propietario
+   * @example "juan.perez@example.com"
+   */
+  email?: string;
+  /**
+   * Teléfono del propietario
+   * @example "987654321"
+   */
+  telefono?: string;
+  /**
+   * Dirección del propietario
+   * @example "Av. Principal 123"
+   */
+  direccion?: string;
+  /**
+   * Lista de URLs de imágenes del propietario
+   * @example ["https://res.cloudinary.com/xxx/image.jpg"]
+   */
+  imagenes: string[];
+  /**
+   * Fecha de creación
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  creadoEn: string;
+  /**
+   * Fecha de actualización
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  actualizadoEn: string;
+  /** Propietario documents grouped by type */
+  documentos: DocumentosAgrupadosPropietarioDto;
+}
+
+export interface PropietarioCreateDto {
+  /**
+   * Tipo de documento
+   * @default "DNI"
+   */
+  tipoDocumento: "DNI" | "RUC";
+  /**
+   * DNI del propietario
+   * @example "12345678"
+   */
+  dni?: string;
+  /**
+   * RUC del propietario
+   * @example "20123456789"
+   */
+  ruc?: string;
+  /**
+   * Nombres del propietario
+   * @example "Juan Carlos"
+   */
+  nombres?: string;
+  /**
+   * Apellidos del propietario
+   * @example "Pérez García"
+   */
+  apellidos?: string;
+  /**
+   * Razón Social del propietario
+   * @example "Empresa SAC"
+   */
+  razonSocial?: string;
+  /**
+   * Email del propietario
+   * @example "juan.perez@example.com"
+   */
+  email?: string;
+  /**
+   * Teléfono del propietario
+   * @example "987654321"
+   */
+  telefono?: string;
+  /**
+   * Dirección del propietario
+   * @example "Av. Principal 123"
+   */
+  direccion?: string;
+  /**
+   * Lista de URLs de imágenes del propietario
+   * @example ["https://res.cloudinary.com/xxx/image.jpg"]
+   */
+  imagenes?: string[];
+}
+
+export interface PropietarioUpdateDto {
+  /**
+   * Tipo de documento
+   * @default "DNI"
+   */
+  tipoDocumento?: "DNI" | "RUC";
+  /**
+   * DNI del propietario
+   * @example "12345678"
+   */
+  dni?: string;
+  /**
+   * RUC del propietario
+   * @example "20123456789"
+   */
+  ruc?: string;
+  /**
+   * Nombres del propietario
+   * @example "Juan Carlos"
+   */
+  nombres?: string;
+  /**
+   * Apellidos del propietario
+   * @example "Pérez García"
+   */
+  apellidos?: string;
+  /**
+   * Razón Social del propietario
+   * @example "Empresa SAC"
+   */
+  razonSocial?: string;
+  /**
+   * Email del propietario
+   * @example "juan.perez@example.com"
+   */
+  email?: string;
+  /**
+   * Teléfono del propietario
+   * @example "987654321"
+   */
+  telefono?: string;
+  /**
+   * Dirección del propietario
+   * @example "Av. Principal 123"
+   */
+  direccion?: string;
+  /**
+   * Lista de URLs de imágenes del propietario
+   * @example ["https://res.cloudinary.com/xxx/image.jpg"]
+   */
+  imagenes?: string[];
+}
+
+export interface PropietarioDocumentoCreateDto {
+  /**
+   * ID del propietario
+   * @example 1
+   */
+  propietarioId: number;
+  /**
+   * Tipo de documento
+   * @default "dni"
+   */
+  tipo: "dni" | "ruc" | "contrato" | "otros";
+  /**
+   * Nombre del documento
+   * @example "Documento 1"
+   */
+  nombre: string;
+  /**
+   * URL del documento
+   * @example "https://storage.example.com/documentos/dni-12345678.pdf"
+   */
+  url: string;
+  /**
+   * Fecha de expiración del documento
+   * @example "2025-12-31"
+   */
+  fechaExpiracion?: string;
+  /**
+   * Fecha de emisión del documento
+   * @example "2023-01-15"
+   */
+  fechaEmision?: string;
+}
+
+export interface PropietarioDocumentoUpdateDto {
+  /**
+   * ID del propietario
+   * @example 1
+   */
+  propietarioId?: number;
+  /**
+   * Tipo de documento
+   * @default "dni"
+   */
+  tipo?: "dni" | "ruc" | "contrato" | "otros";
+  /**
+   * Nombre del documento
+   * @example "Documento 1"
+   */
+  nombre?: string;
+  /**
+   * URL del documento
+   * @example "https://storage.example.com/documentos/dni-12345678.pdf"
+   */
+  url?: string;
+  /**
+   * Fecha de expiración del documento
+   * @example "2025-12-31"
+   */
+  fechaExpiracion?: string;
+  /**
+   * Fecha de emisión del documento
+   * @example "2023-01-15"
+   */
+  fechaEmision?: string;
+}
+
 export interface StorageResultDto {
   /**
    * Public ID del archivo en Cloudinary
@@ -5112,6 +6013,84 @@ export interface ReportesGetMantenimientosDetalladosPorTallerParams {
 
 export type ReportesGetMantenimientosDetalladosPorTallerError =
   MantenimientoDetalladoTallerDto[];
+
+export interface PropietariosFindAllParams {
+  /**
+   * Número de página
+   * @example 1
+   */
+  page?: number;
+  /**
+   * Registros por página
+   * @example 10
+   */
+  limit?: number;
+  /**
+   * Búsqueda por nombre, dni, ruc, email, teléfono
+   * @example "Juan"
+   */
+  search?: string;
+  /**
+   * Fecha inicio
+   * @example "2023-01-01"
+   */
+  fechaInicio?: string;
+  /**
+   * Fecha fin
+   * @example "2023-12-31"
+   */
+  fechaFin?: string;
+  /** Filtrar por tipo de documento */
+  tipoDocumento?: "DNI" | "RUC";
+}
+
+export type PropietariosFindAllData = PaginatedPropietarioResultDto;
+
+export interface PropietariosFindOneParams {
+  /** ID del propietario */
+  id: number;
+}
+
+export type PropietariosFindOneData = PropietarioResultDto;
+
+export type PropietariosCreateData = PropietarioResultDto;
+
+export interface PropietariosUpdateParams {
+  /** ID del propietario */
+  id: number;
+}
+
+export type PropietariosUpdateData = PropietarioResultDto;
+
+export interface PropietariosRemoveParams {
+  /** ID del propietario */
+  id: number;
+}
+
+export type PropietariosRemoveData = PropietarioResultDto;
+
+export interface PropietariosFindDocumentoParams {
+  /** ID del documento */
+  id: number;
+}
+
+export type PropietariosFindDocumentoData = PropietarioDocumentoResultDto;
+
+export type PropietariosCreateDocumentoData = PropietarioDocumentoResultDto;
+
+export interface PropietariosUpdateDocumentoParams {
+  /** ID del documento */
+  id: number;
+}
+
+export type PropietariosUpdateDocumentoData = PropietarioDocumentoResultDto;
+
+export interface PropietariosDeleteDocumentoParams {
+  /** ID del documento */
+  id: number;
+}
+
+export type PropietariosDeleteDocumentoData = PropietarioDocumentoResultDto;
 
 export interface StorageUploadPayload {
   /** @format binary */
@@ -7587,6 +8566,207 @@ export namespace Reportes {
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = any;
+  }
+}
+
+export namespace Propietarios {
+  /**
+   * No description
+   * @tags propietarios
+   * @name PropietariosFindAll
+   * @summary Obtener propietarios con paginación, búsqueda y filtros
+   * @request GET:/propietario/find-all
+   * @secure
+   * @response `200` `PropietariosFindAllData`
+   */
+  export namespace PropietariosFindAll {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /**
+       * Número de página
+       * @example 1
+       */
+      page?: number;
+      /**
+       * Registros por página
+       * @example 10
+       */
+      limit?: number;
+      /**
+       * Búsqueda por nombre, dni, ruc, email, teléfono
+       * @example "Juan"
+       */
+      search?: string;
+      /**
+       * Fecha inicio
+       * @example "2023-01-01"
+       */
+      fechaInicio?: string;
+      /**
+       * Fecha fin
+       * @example "2023-12-31"
+       */
+      fechaFin?: string;
+      /** Filtrar por tipo de documento */
+      tipoDocumento?: "DNI" | "RUC";
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = PropietariosFindAllData;
+  }
+
+  /**
+   * No description
+   * @tags propietarios
+   * @name PropietariosFindOne
+   * @summary Obtener un propietario por ID
+   * @request GET:/propietario/find-one/{id}
+   * @secure
+   * @response `200` `PropietariosFindOneData`
+   */
+  export namespace PropietariosFindOne {
+    export type RequestParams = {
+      /** ID del propietario */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = PropietariosFindOneData;
+  }
+
+  /**
+   * No description
+   * @tags propietarios
+   * @name PropietariosCreate
+   * @summary Crear un nuevo propietario
+   * @request POST:/propietario/create
+   * @secure
+   * @response `200` `PropietariosCreateData`
+   */
+  export namespace PropietariosCreate {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = PropietarioCreateDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = PropietariosCreateData;
+  }
+
+  /**
+   * No description
+   * @tags propietarios
+   * @name PropietariosUpdate
+   * @summary Actualizar un propietario
+   * @request PATCH:/propietario/update/{id}
+   * @secure
+   * @response `200` `PropietariosUpdateData`
+   */
+  export namespace PropietariosUpdate {
+    export type RequestParams = {
+      /** ID del propietario */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = PropietarioUpdateDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = PropietariosUpdateData;
+  }
+
+  /**
+   * No description
+   * @tags propietarios
+   * @name PropietariosRemove
+   * @summary Eliminar un propietario
+   * @request DELETE:/propietario/delete/{id}
+   * @secure
+   * @response `200` `PropietariosRemoveData`
+   */
+  export namespace PropietariosRemove {
+    export type RequestParams = {
+      /** ID del propietario */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = PropietariosRemoveData;
+  }
+
+  /**
+   * No description
+   * @tags propietarios
+   * @name PropietariosFindDocumento
+   * @summary Obtener un documento por ID
+   * @request GET:/propietario/documento/{id}
+   * @secure
+   * @response `200` `PropietariosFindDocumentoData`
+   */
+  export namespace PropietariosFindDocumento {
+    export type RequestParams = {
+      /** ID del documento */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = PropietariosFindDocumentoData;
+  }
+
+  /**
+   * No description
+   * @tags propietarios
+   * @name PropietariosCreateDocumento
+   * @summary Crear un nuevo documento de propietario
+   * @request POST:/propietario/documento/create
+   * @secure
+   * @response `201` `PropietariosCreateDocumentoData`
+   */
+  export namespace PropietariosCreateDocumento {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = PropietarioDocumentoCreateDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = PropietariosCreateDocumentoData;
+  }
+
+  /**
+   * No description
+   * @tags propietarios
+   * @name PropietariosUpdateDocumento
+   * @summary Actualizar un documento de propietario
+   * @request PATCH:/propietario/documento/update/{id}
+   * @secure
+   * @response `200` `PropietariosUpdateDocumentoData`
+   */
+  export namespace PropietariosUpdateDocumento {
+    export type RequestParams = {
+      /** ID del documento */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = PropietarioDocumentoUpdateDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = PropietariosUpdateDocumentoData;
+  }
+
+  /**
+   * No description
+   * @tags propietarios
+   * @name PropietariosDeleteDocumento
+   * @summary Eliminar un documento de propietario
+   * @request DELETE:/propietario/documento/delete/{id}
+   * @secure
+   * @response `200` `PropietariosDeleteDocumentoData`
+   */
+  export namespace PropietariosDeleteDocumento {
+    export type RequestParams = {
+      /** ID del documento */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = PropietariosDeleteDocumentoData;
   }
 }
 
@@ -10415,6 +11595,216 @@ export class Api<SecurityDataType extends unknown> {
           ...params,
         },
       ),
+  };
+  propietarios = {
+    /**
+     * No description
+     *
+     * @tags propietarios
+     * @name PropietariosFindAll
+     * @summary Obtener propietarios con paginación, búsqueda y filtros
+     * @request GET:/propietario/find-all
+     * @secure
+     * @response `200` `PropietariosFindAllData`
+     */
+    findAll: (
+      query: PropietariosFindAllParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<PropietariosFindAllData, any>({
+        path: `/propietario/find-all`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags propietarios
+     * @name PropietariosFindOne
+     * @summary Obtener un propietario por ID
+     * @request GET:/propietario/find-one/{id}
+     * @secure
+     * @response `200` `PropietariosFindOneData`
+     */
+    findOne: (
+      { id, ...query }: PropietariosFindOneParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<PropietariosFindOneData, any>({
+        path: `/propietario/find-one/${id}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags propietarios
+     * @name PropietariosCreate
+     * @summary Crear un nuevo propietario
+     * @request POST:/propietario/create
+     * @secure
+     * @response `200` `PropietariosCreateData`
+     */
+    create: (
+      data: PropietarioCreateDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<PropietariosCreateData, any>({
+        path: `/propietario/create`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags propietarios
+     * @name PropietariosUpdate
+     * @summary Actualizar un propietario
+     * @request PATCH:/propietario/update/{id}
+     * @secure
+     * @response `200` `PropietariosUpdateData`
+     */
+    update: (
+      { id, ...query }: PropietariosUpdateParams,
+      data: PropietarioUpdateDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<PropietariosUpdateData, any>({
+        path: `/propietario/update/${id}`,
+        method: "PATCH",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags propietarios
+     * @name PropietariosRemove
+     * @summary Eliminar un propietario
+     * @request DELETE:/propietario/delete/{id}
+     * @secure
+     * @response `200` `PropietariosRemoveData`
+     */
+    remove: (
+      { id, ...query }: PropietariosRemoveParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<PropietariosRemoveData, any>({
+        path: `/propietario/delete/${id}`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags propietarios
+     * @name PropietariosFindDocumento
+     * @summary Obtener un documento por ID
+     * @request GET:/propietario/documento/{id}
+     * @secure
+     * @response `200` `PropietariosFindDocumentoData`
+     */
+    findDocumento: (
+      { id, ...query }: PropietariosFindDocumentoParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<PropietariosFindDocumentoData, any>({
+        path: `/propietario/documento/${id}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags propietarios
+     * @name PropietariosCreateDocumento
+     * @summary Crear un nuevo documento de propietario
+     * @request POST:/propietario/documento/create
+     * @secure
+     * @response `201` `PropietariosCreateDocumentoData`
+     */
+    createDocumento: (
+      data: PropietarioDocumentoCreateDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<PropietariosCreateDocumentoData, any>({
+        path: `/propietario/documento/create`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags propietarios
+     * @name PropietariosUpdateDocumento
+     * @summary Actualizar un documento de propietario
+     * @request PATCH:/propietario/documento/update/{id}
+     * @secure
+     * @response `200` `PropietariosUpdateDocumentoData`
+     */
+    updateDocumento: (
+      { id, ...query }: PropietariosUpdateDocumentoParams,
+      data: PropietarioDocumentoUpdateDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<PropietariosUpdateDocumentoData, any>({
+        path: `/propietario/documento/update/${id}`,
+        method: "PATCH",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags propietarios
+     * @name PropietariosDeleteDocumento
+     * @summary Eliminar un documento de propietario
+     * @request DELETE:/propietario/documento/delete/{id}
+     * @secure
+     * @response `200` `PropietariosDeleteDocumentoData`
+     */
+    deleteDocumento: (
+      { id, ...query }: PropietariosDeleteDocumentoParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<PropietariosDeleteDocumentoData, any>({
+        path: `/propietario/documento/delete/${id}`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
   };
   storage = {
     /**
