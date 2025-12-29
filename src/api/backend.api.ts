@@ -3589,6 +3589,11 @@ export interface ViajeResultDto {
     | "turismo"
     | "corporativo";
   /**
+   * Horas contratadas
+   * @example "8.00"
+   */
+  horasContrato: string;
+  /**
    * Trip status
    * @example "programado"
    */
@@ -3672,6 +3677,11 @@ export interface ViajeCreateDto {
     | "turismo"
     | "corporativo";
   /**
+   * Horas contratadas (si no se especifica, se toma del cliente)
+   * @example "8.00"
+   */
+  horasContrato?: string;
+  /**
    * Departure date
    * @format date-time
    * @example "2025-01-01T10:00:00Z"
@@ -3747,6 +3757,11 @@ export interface ViajeUpdateDto {
     | "especial"
     | "turismo"
     | "corporativo";
+  /**
+   * Horas contratadas (si no se especifica, se toma del cliente)
+   * @example "8.00"
+   */
+  horasContrato?: string;
   /**
    * Departure date
    * @format date-time
@@ -4649,6 +4664,12 @@ export interface ViajeDetalladoDto {
   distanciaFinal: string | null;
   /** Diferencia entre distancia final y estimada (0 si no hay valores) */
   diferencia: number;
+  /** Horas contratadas para este viaje */
+  horasContrato: string;
+  /** Horas totales de duración del viaje */
+  horasTotales: number;
+  /** Horas excedidas sobre el contrato */
+  horasExcedidas: number;
   estado: string;
   modalidadServicio: string;
   /** @format date-time */
@@ -6016,7 +6037,7 @@ export interface ReportesGetViajesDetalladosPorVehiculoParams {
   id: number;
 }
 
-export type ReportesGetViajesDetalladosPorVehiculoError = ViajeDetalladoDto[];
+export type ReportesGetViajesDetalladosPorVehiculoData = ViajeDetalladoDto[];
 
 export interface ReportesGetViajesDetalladosPorConductorParams {
   /** Fecha de inicio del reporte (YYYY-MM-DD) */
@@ -6027,7 +6048,7 @@ export interface ReportesGetViajesDetalladosPorConductorParams {
   id: number;
 }
 
-export type ReportesGetViajesDetalladosPorConductorError = ViajeDetalladoDto[];
+export type ReportesGetViajesDetalladosPorConductorData = ViajeDetalladoDto[];
 
 export interface ReportesGetViajesDetalladosPorClienteParams {
   /** Fecha de inicio del reporte (YYYY-MM-DD) */
@@ -6038,7 +6059,7 @@ export interface ReportesGetViajesDetalladosPorClienteParams {
   id: number;
 }
 
-export type ReportesGetViajesDetalladosPorClienteError = ViajeDetalladoDto[];
+export type ReportesGetViajesDetalladosPorClienteData = ViajeDetalladoDto[];
 
 export interface ReportesGetMantenimientosDetalladosPorVehiculoParams {
   /** Fecha de inicio del reporte (YYYY-MM-DD) */
@@ -6049,7 +6070,7 @@ export interface ReportesGetMantenimientosDetalladosPorVehiculoParams {
   id: number;
 }
 
-export type ReportesGetMantenimientosDetalladosPorVehiculoError =
+export type ReportesGetMantenimientosDetalladosPorVehiculoData =
   MantenimientoDetalladoVehiculoDto[];
 
 export interface ReportesGetMantenimientosDetalladosPorTallerParams {
@@ -6061,7 +6082,7 @@ export interface ReportesGetMantenimientosDetalladosPorTallerParams {
   id: number;
 }
 
-export type ReportesGetMantenimientosDetalladosPorTallerError =
+export type ReportesGetMantenimientosDetalladosPorTallerData =
   MantenimientoDetalladoTallerDto[];
 
 export interface PropietariosFindAllParams {
@@ -8500,7 +8521,7 @@ export namespace Reportes {
    * @summary Viajes detallados de un vehículo específico
    * @request GET:/reportes/viajes-detallados/vehiculo/{id}
    * @secure
-   * @response `default` `(ViajeDetalladoDto)[]`
+   * @response `200` `ReportesGetViajesDetalladosPorVehiculoData` Lista de viajes detallados
    */
   export namespace ReportesGetViajesDetalladosPorVehiculo {
     export type RequestParams = {
@@ -8515,7 +8536,7 @@ export namespace Reportes {
     };
     export type RequestBody = never;
     export type RequestHeaders = {};
-    export type ResponseBody = any;
+    export type ResponseBody = ReportesGetViajesDetalladosPorVehiculoData;
   }
 
   /**
@@ -8525,7 +8546,7 @@ export namespace Reportes {
    * @summary Viajes detallados de un conductor específico
    * @request GET:/reportes/viajes-detallados/conductor/{id}
    * @secure
-   * @response `default` `(ViajeDetalladoDto)[]`
+   * @response `200` `ReportesGetViajesDetalladosPorConductorData` Lista de viajes detallados
    */
   export namespace ReportesGetViajesDetalladosPorConductor {
     export type RequestParams = {
@@ -8540,7 +8561,7 @@ export namespace Reportes {
     };
     export type RequestBody = never;
     export type RequestHeaders = {};
-    export type ResponseBody = any;
+    export type ResponseBody = ReportesGetViajesDetalladosPorConductorData;
   }
 
   /**
@@ -8550,7 +8571,7 @@ export namespace Reportes {
    * @summary Viajes detallados de un cliente específico
    * @request GET:/reportes/viajes-detallados/cliente/{id}
    * @secure
-   * @response `default` `(ViajeDetalladoDto)[]`
+   * @response `200` `ReportesGetViajesDetalladosPorClienteData` Lista de viajes detallados
    */
   export namespace ReportesGetViajesDetalladosPorCliente {
     export type RequestParams = {
@@ -8565,7 +8586,7 @@ export namespace Reportes {
     };
     export type RequestBody = never;
     export type RequestHeaders = {};
-    export type ResponseBody = any;
+    export type ResponseBody = ReportesGetViajesDetalladosPorClienteData;
   }
 
   /**
@@ -8575,7 +8596,7 @@ export namespace Reportes {
    * @summary Mantenimientos detallados de un vehículo específico
    * @request GET:/reportes/mantenimientos-detallados/vehiculo/{id}
    * @secure
-   * @response `default` `(MantenimientoDetalladoVehiculoDto)[]`
+   * @response `200` `ReportesGetMantenimientosDetalladosPorVehiculoData` Lista de mantenimientos detallados
    */
   export namespace ReportesGetMantenimientosDetalladosPorVehiculo {
     export type RequestParams = {
@@ -8590,7 +8611,8 @@ export namespace Reportes {
     };
     export type RequestBody = never;
     export type RequestHeaders = {};
-    export type ResponseBody = any;
+    export type ResponseBody =
+      ReportesGetMantenimientosDetalladosPorVehiculoData;
   }
 
   /**
@@ -8600,7 +8622,7 @@ export namespace Reportes {
    * @summary Mantenimientos detallados de un taller específico
    * @request GET:/reportes/mantenimientos-detallados/taller/{id}
    * @secure
-   * @response `default` `(MantenimientoDetalladoTallerDto)[]`
+   * @response `200` `ReportesGetMantenimientosDetalladosPorTallerData` Lista de mantenimientos detallados
    */
   export namespace ReportesGetMantenimientosDetalladosPorTaller {
     export type RequestParams = {
@@ -8615,7 +8637,7 @@ export namespace Reportes {
     };
     export type RequestBody = never;
     export type RequestHeaders = {};
-    export type ResponseBody = any;
+    export type ResponseBody = ReportesGetMantenimientosDetalladosPorTallerData;
   }
 }
 
@@ -11539,17 +11561,18 @@ export class Api<SecurityDataType extends unknown> {
      * @summary Viajes detallados de un vehículo específico
      * @request GET:/reportes/viajes-detallados/vehiculo/{id}
      * @secure
-     * @response `default` `(ViajeDetalladoDto)[]`
+     * @response `200` `ReportesGetViajesDetalladosPorVehiculoData` Lista de viajes detallados
      */
     getViajesDetalladosPorVehiculo: (
       { id, ...query }: ReportesGetViajesDetalladosPorVehiculoParams,
       params: RequestParams = {},
     ) =>
-      this.http.request<any, ReportesGetViajesDetalladosPorVehiculoError>({
+      this.http.request<ReportesGetViajesDetalladosPorVehiculoData, any>({
         path: `/reportes/viajes-detallados/vehiculo/${id}`,
         method: "GET",
         query: query,
         secure: true,
+        format: "json",
         ...params,
       }),
 
@@ -11561,17 +11584,18 @@ export class Api<SecurityDataType extends unknown> {
      * @summary Viajes detallados de un conductor específico
      * @request GET:/reportes/viajes-detallados/conductor/{id}
      * @secure
-     * @response `default` `(ViajeDetalladoDto)[]`
+     * @response `200` `ReportesGetViajesDetalladosPorConductorData` Lista de viajes detallados
      */
     getViajesDetalladosPorConductor: (
       { id, ...query }: ReportesGetViajesDetalladosPorConductorParams,
       params: RequestParams = {},
     ) =>
-      this.http.request<any, ReportesGetViajesDetalladosPorConductorError>({
+      this.http.request<ReportesGetViajesDetalladosPorConductorData, any>({
         path: `/reportes/viajes-detallados/conductor/${id}`,
         method: "GET",
         query: query,
         secure: true,
+        format: "json",
         ...params,
       }),
 
@@ -11583,17 +11607,18 @@ export class Api<SecurityDataType extends unknown> {
      * @summary Viajes detallados de un cliente específico
      * @request GET:/reportes/viajes-detallados/cliente/{id}
      * @secure
-     * @response `default` `(ViajeDetalladoDto)[]`
+     * @response `200` `ReportesGetViajesDetalladosPorClienteData` Lista de viajes detallados
      */
     getViajesDetalladosPorCliente: (
       { id, ...query }: ReportesGetViajesDetalladosPorClienteParams,
       params: RequestParams = {},
     ) =>
-      this.http.request<any, ReportesGetViajesDetalladosPorClienteError>({
+      this.http.request<ReportesGetViajesDetalladosPorClienteData, any>({
         path: `/reportes/viajes-detallados/cliente/${id}`,
         method: "GET",
         query: query,
         secure: true,
+        format: "json",
         ...params,
       }),
 
@@ -11605,20 +11630,21 @@ export class Api<SecurityDataType extends unknown> {
      * @summary Mantenimientos detallados de un vehículo específico
      * @request GET:/reportes/mantenimientos-detallados/vehiculo/{id}
      * @secure
-     * @response `default` `(MantenimientoDetalladoVehiculoDto)[]`
+     * @response `200` `ReportesGetMantenimientosDetalladosPorVehiculoData` Lista de mantenimientos detallados
      */
     getMantenimientosDetalladosPorVehiculo: (
       { id, ...query }: ReportesGetMantenimientosDetalladosPorVehiculoParams,
       params: RequestParams = {},
     ) =>
       this.http.request<
-        any,
-        ReportesGetMantenimientosDetalladosPorVehiculoError
+        ReportesGetMantenimientosDetalladosPorVehiculoData,
+        any
       >({
         path: `/reportes/mantenimientos-detallados/vehiculo/${id}`,
         method: "GET",
         query: query,
         secure: true,
+        format: "json",
         ...params,
       }),
 
@@ -11630,21 +11656,20 @@ export class Api<SecurityDataType extends unknown> {
      * @summary Mantenimientos detallados de un taller específico
      * @request GET:/reportes/mantenimientos-detallados/taller/{id}
      * @secure
-     * @response `default` `(MantenimientoDetalladoTallerDto)[]`
+     * @response `200` `ReportesGetMantenimientosDetalladosPorTallerData` Lista de mantenimientos detallados
      */
     getMantenimientosDetalladosPorTaller: (
       { id, ...query }: ReportesGetMantenimientosDetalladosPorTallerParams,
       params: RequestParams = {},
     ) =>
-      this.http.request<any, ReportesGetMantenimientosDetalladosPorTallerError>(
-        {
-          path: `/reportes/mantenimientos-detallados/taller/${id}`,
-          method: "GET",
-          query: query,
-          secure: true,
-          ...params,
-        },
-      ),
+      this.http.request<ReportesGetMantenimientosDetalladosPorTallerData, any>({
+        path: `/reportes/mantenimientos-detallados/taller/${id}`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
   };
   propietarios = {
     /**
