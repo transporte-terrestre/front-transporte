@@ -216,6 +216,22 @@ export class ReportesViaje implements OnInit {
     );
   }
 
+  getTotalHorasTotales(): number {
+    return this.viajes().reduce(
+      (total: number, viaje: ApiResponse<'reportes', 'getViajesDetalladosPorVehiculo'>[number]) =>
+        total + (viaje.horasTotales || 0),
+      0
+    );
+  }
+
+  getTotalHorasExcedidas(): number {
+    return this.viajes().reduce(
+      (total: number, viaje: ApiResponse<'reportes', 'getViajesDetalladosPorVehiculo'>[number]) =>
+        total + (viaje.horasExcedidas || 0),
+      0
+    );
+  }
+
   descargarPdf() {
     if (this.viajes().length === 0) {
       this.toastService.warning('No hay datos para generar el PDF');

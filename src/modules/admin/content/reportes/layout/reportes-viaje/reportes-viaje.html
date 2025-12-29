@@ -123,49 +123,59 @@
         <thead class="bg-text/5 border-b border-text/10">
           <tr>
             <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider min-w-[60px]"
             >
               ID
             </th>
             <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider min-w-[180px]"
             >
               Ruta
             </th>
             <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider min-w-[100px]"
             >
               Modalidad
             </th>
             <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider min-w-[100px]"
             >
               Estado
             </th>
             <th
-              class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase tracking-wider min-w-[90px]"
             >
               Km Est.
             </th>
             <th
-              class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase tracking-wider min-w-[90px]"
             >
               Km Final
             </th>
             <th
-              class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase tracking-wider min-w-[90px]"
             >
               Dif.
             </th>
             <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider min-w-[130px]"
             >
               Fecha Salida
             </th>
             <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider min-w-[130px]"
             >
               Fecha Llegada
+            </th>
+            <th
+              class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase tracking-wider min-w-[90px]"
+            >
+              Hrs Tot.
+            </th>
+            <th
+              class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase tracking-wider min-w-[90px]"
+            >
+              Hrs Exc.
             </th>
           </tr>
         </thead>
@@ -248,6 +258,26 @@
             <td class="px-4 py-3 whitespace-nowrap text-xs font-inter-regular text-text/60">
               {{ viaje.fechaLlegada ? (viaje.fechaLlegada | date : 'dd/MM/yyyy HH:mm') : '—' }}
             </td>
+            <td class="px-4 py-3 whitespace-nowrap text-right">
+              @if (viaje.horasTotales) {
+              <span class="text-xs font-inter-semibold text-text">{{
+                viaje.horasTotales | number : '1.1-2'
+              }}</span>
+              <span class="text-[10px] text-text/40"> h</span>
+              } @else {
+              <span class="text-xs text-text/30">—</span>
+              }
+            </td>
+            <td class="px-4 py-3 whitespace-nowrap text-right">
+              @if (viaje.horasExcedidas && viaje.horasExcedidas > 0) {
+              <span class="text-xs font-inter-bold text-danger">
+                +{{ viaje.horasExcedidas | number : '1.1-2' }}
+              </span>
+              <span class="text-[10px] text-danger/70"> h</span>
+              } @else {
+              <span class="text-xs text-text/30">—</span>
+              }
+            </td>
           </tr>
           }
         </tbody>
@@ -261,6 +291,20 @@
         <span class="text-xs font-inter-medium text-text">Total Recorrido:</span>
         <span class="text-sm font-inter-bold text-secondary">
           {{ getTotalKilometrosFinales() | number : '1.0-0' }} km
+        </span>
+      </div>
+      <div class="flex items-center gap-2">
+        <i class="fas fa-clock text-info text-xs"></i>
+        <span class="text-xs font-inter-medium text-text">Total Horas:</span>
+        <span class="text-sm font-inter-bold text-info">
+          {{ getTotalHorasTotales() | number : '1.1-1' }} h
+        </span>
+      </div>
+      <div class="flex items-center gap-2">
+        <i class="fas fa-exclamation-circle text-danger text-xs"></i>
+        <span class="text-xs font-inter-medium text-text">Horas Excedidas:</span>
+        <span class="text-sm font-inter-bold text-danger">
+          {{ getTotalHorasExcedidas() | number : '1.1-1' }} h
         </span>
       </div>
       <button

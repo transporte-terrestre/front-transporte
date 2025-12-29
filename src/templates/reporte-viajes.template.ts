@@ -7,10 +7,12 @@ export interface ReportePdfData {
   entidadNombre: string;
   fechaInicio: string;
   fechaFin: string;
-  viajes: ApiResponse<"reportes","getViajesDetalladosPorCliente">[];
+  viajes: ApiResponse<'reportes', 'getViajesDetalladosPorCliente'>;
   totalKilometrosFinales: number;
   totalKilometrosEstimados?: number;
   totalDiferencia?: number;
+  totalHorasTotales?: number;
+  totalHorasExcedidas?: number;
 }
 
 export const generateReportePdf = (data: ReportePdfData) => {
@@ -42,6 +44,12 @@ export const generateReportePdf = (data: ReportePdfData) => {
 
   const totalDiferencia =
     data.totalDiferencia ?? data.viajes.reduce((acc, v) => acc + v.diferencia, 0);
+
+  const totalHorasTotales =
+    data.totalHorasTotales ?? data.viajes.reduce((acc, v) => acc + (v.horasTotales || 0), 0);
+
+  const totalHorasExcedidas =
+    data.totalHorasExcedidas ?? data.viajes.reduce((acc, v) => acc + (v.horasExcedidas || 0), 0);
 
   // Helper function
   const drawField = (label: string, value: string, x: number, currentY: number) => {
@@ -206,6 +214,12 @@ export const generateReportePdf = (data: ReportePdfData) => {
       ? new Date(viaje.fechaSalida).toLocaleDateString('es-PE')
       : '---';
 
+    const horasTotales = viaje.horasTotales ? viaje.horasTotales.toFixed(2) : '-';
+    const horasExcedidas =
+      viaje.horasExcedidas && viaje.horasExcedidas > 0
+        ? `+${viaje.horasExcedidas.toFixed(2)}`
+        : '-';
+
     return [
       `#${viaje.id}`,
       ruta,
@@ -214,12 +228,14 @@ export const generateReportePdf = (data: ReportePdfData) => {
       kmFinal,
       diferencia,
       fechaSalida,
+      horasTotales,
+      horasExcedidas,
     ];
   });
 
   autoTable(doc, {
     startY: y,
-    head: [['ID', 'Ruta', 'Estado', 'Km Est.', 'Km Final', 'Dif.', 'Fecha']],
+    head: [['ID', 'Ruta', 'Estado', 'Km Est.', 'Km Real', 'Dif.', 'Fecha', 'H. Tot', 'H. Exc']],
     body: tableData,
     theme: 'grid',
     styles: {
@@ -228,6 +244,7 @@ export const generateReportePdf = (data: ReportePdfData) => {
       lineColor: [220, 220, 220],
       lineWidth: 0.1,
       textColor: [50, 50, 50],
+      minCellWidth: 10, // Ensure cells don't collapse too much
     },
     headStyles: {
       fillColor: [31, 41, 55],
@@ -237,13 +254,15 @@ export const generateReportePdf = (data: ReportePdfData) => {
       fontSize: 7,
     },
     columnStyles: {
-      0: { cellWidth: 14, halign: 'center' },
-      1: { cellWidth: 'auto' },
-      2: { cellWidth: 22 },
-      3: { cellWidth: 18, halign: 'right' },
-      4: { cellWidth: 18, halign: 'right' },
-      5: { cellWidth: 16, halign: 'right' },
-      6: { cellWidth: 22, halign: 'center' },
+      0: { cellWidth: 12, halign: 'center' }, // ID
+      1: { cellWidth: 40 }, // Ruta - Fixed width to prevent wrapping issues impacting others
+      2: { cellWidth: 20 }, // Estado
+      3: { cellWidth: 16, halign: 'right' }, // Km Est
+      4: { cellWidth: 16, halign: 'right' }, // Km Real
+      5: { cellWidth: 14, halign: 'right' }, // Dif
+      6: { cellWidth: 24, halign: 'center' }, // Fecha
+      7: { cellWidth: 14, halign: 'right' }, // H. Tot
+      8: { cellWidth: 14, halign: 'right' }, // H. Exc
     },
     alternateRowStyles: {
       fillColor: [249, 250, 251],
@@ -269,6 +288,14 @@ export const generateReportePdf = (data: ReportePdfData) => {
           cellData.cell.styles.textColor = [239, 68, 68]; // Red for positive
         } else if (dif.startsWith('-')) {
           cellData.cell.styles.textColor = [34, 197, 94]; // Green for negative
+        }
+      }
+      // Color for Exceeded hours column (Index 8 now)
+      if (cellData.column.index === 8 && cellData.section === 'body') {
+        const val = cellData.cell.raw as string;
+        if (val.startsWith('+')) {
+          cellData.cell.styles.textColor = [239, 68, 68]; // Red for exceeded
+          cellData.cell.styles.fontStyle = 'bold';
         }
       }
     },
@@ -332,6 +359,19 @@ export const generateReportePdf = (data: ReportePdfData) => {
     y + 5,
     { align: 'center' }
   );
+
+  // Badge 4: Horas Excedidas (if > 0)
+  if (totalHorasExcedidas > 0) {
+    const badge4X = badgesStartX - (badgeWidth + badgeGap);
+    doc.setFillColor(...dangerColor);
+    doc.roundedRect(badge4X, y - 2, badgeWidth, badgeHeight, 2, 2, 'F');
+    doc.setFontSize(7);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(255);
+    doc.text(`Exc: +${totalHorasExcedidas.toFixed(1)} h`, badge4X + badgeWidth / 2, y + 5, {
+      align: 'center',
+    });
+  }
 
   doc.setTextColor(100);
   doc.setFontSize(8);

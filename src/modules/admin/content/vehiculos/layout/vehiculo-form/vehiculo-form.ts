@@ -127,59 +127,56 @@ export class VehiculoForm implements OnInit {
     this.imagenes.set(images);
   }
   constructor() {
-    effect(
-      async () => {
-        const vehiculoData = this.vehiculo();
-        const isEditMode = this.editMode();
+    effect(async () => {
+      const vehiculoData = this.vehiculo();
+      const isEditMode = this.editMode();
 
-        if (isEditMode && vehiculoData) {
-          this.vehiculoForm.patchValue({
-            placa: vehiculoData.placa,
-            placaAnterior: vehiculoData.placaAnterior,
-            codigoInterno: vehiculoData.codigoInterno,
-            anio: vehiculoData.anio,
-            vin: vehiculoData.vin,
-            numeroMotor: vehiculoData.numeroMotor,
-            numeroSerie: vehiculoData.numeroSerie,
-            color: vehiculoData.color,
-            combustible: vehiculoData.combustible || 'diesel',
-            carroceria: vehiculoData.carroceria,
-            categoria: vehiculoData.categoria,
-            cargaUtil: vehiculoData.cargaUtil,
-            pesoBruto: vehiculoData.pesoBruto,
-            pesoNeto: vehiculoData.pesoNeto,
-            asientos: vehiculoData.asientos,
-            ejes: vehiculoData.ejes,
-            kilometraje: vehiculoData.kilometraje,
-            estado: vehiculoData.estado,
-            propietarioId: vehiculoData.propietarioId,
-          });
-          this.imagenes.set(vehiculoData.imagenes || []);
-          this.localDocuments.set(JSON.parse(JSON.stringify(vehiculoData.documentos)));
+      if (isEditMode && vehiculoData) {
+        this.vehiculoForm.patchValue({
+          placa: vehiculoData.placa,
+          placaAnterior: vehiculoData.placaAnterior,
+          codigoInterno: vehiculoData.codigoInterno,
+          anio: vehiculoData.anio,
+          vin: vehiculoData.vin,
+          numeroMotor: vehiculoData.numeroMotor,
+          numeroSerie: vehiculoData.numeroSerie,
+          color: vehiculoData.color,
+          combustible: vehiculoData.combustible || 'diesel',
+          carroceria: vehiculoData.carroceria,
+          categoria: vehiculoData.categoria,
+          cargaUtil: vehiculoData.cargaUtil,
+          pesoBruto: vehiculoData.pesoBruto,
+          pesoNeto: vehiculoData.pesoNeto,
+          asientos: vehiculoData.asientos,
+          ejes: vehiculoData.ejes,
+          kilometraje: vehiculoData.kilometraje,
+          estado: vehiculoData.estado,
+          propietarioId: vehiculoData.propietarioId,
+        });
+        this.imagenes.set(vehiculoData.imagenes || []);
+        this.localDocuments.set(JSON.parse(JSON.stringify(vehiculoData.documentos)));
 
-          // Cargar marca y modelo desde el modeloId
-          if (vehiculoData.modeloId) {
-            try {
-              const modelo = await this.vehiculoService.findOneModelo(vehiculoData.modeloId);
-              // Setear marca primero
-              this.selectedMarcaId.set(modelo.marcaId);
-              this.vehiculoForm.patchValue({
-                marca: { id: modelo.marcaId, nombre: vehiculoData.marca },
-                modelo: { id: modelo.id, nombre: modelo.nombre, marcaId: modelo.marcaId },
-              });
-            } catch (e) {
-              // ignore
-            }
+        // Cargar marca y modelo desde el modeloId
+        if (vehiculoData.modeloId) {
+          try {
+            const modelo = await this.vehiculoService.findOneModelo(vehiculoData.modeloId);
+            // Setear marca primero
+            this.selectedMarcaId.set(modelo.marcaId);
+            this.vehiculoForm.patchValue({
+              marca: { id: modelo.marcaId, nombre: vehiculoData.marca },
+              modelo: { id: modelo.id, nombre: modelo.nombre, marcaId: modelo.marcaId },
+            });
+          } catch (e) {
+            // ignore
           }
-        } else {
-          this.vehiculoForm.reset({ estado: 'activo', combustible: 'diesel' });
-          this.imagenes.set([]);
-          this.localDocuments.set(null);
-          this.selectedMarcaId.set(null);
         }
-      },
-      { allowSignalWrites: true }
-    );
+      } else {
+        this.vehiculoForm.reset({ estado: 'activo', combustible: 'diesel' });
+        this.imagenes.set([]);
+        this.localDocuments.set(null);
+        this.selectedMarcaId.set(null);
+      }
+    });
   }
 
   submitForm() {

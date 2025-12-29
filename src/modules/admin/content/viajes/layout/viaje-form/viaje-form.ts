@@ -104,50 +104,47 @@ export class ViajeForm implements OnInit {
   ];
 
   constructor() {
-    effect(
-      () => {
-        const viajeData = this.viaje();
-        const isEditMode = this.editMode();
+    effect(() => {
+      const viajeData = this.viaje();
+      const isEditMode = this.editMode();
 
-        if (isEditMode && viajeData) {
-          this.viajeForm.patchValue({
-            cliente: viajeData.clienteId,
-            tipoRuta: viajeData.tipoRuta,
-            ruta: viajeData.rutaId,
-            rutaOcasional: viajeData.rutaOcasional,
-            distanciaEstimada: viajeData.distanciaEstimada || '',
-            distanciaFinal: viajeData.distanciaFinal || '',
-            modalidadServicio: viajeData.modalidadServicio,
-            vehiculo: viajeData.vehiculoPrincipal?.id,
-            conductor: viajeData.conductorPrincipal?.id,
-            fechaSalida: this.formatDateTimeForInput(viajeData.fechaSalida),
-            fechaLlegada: viajeData.fechaLlegada
-              ? this.formatDateTimeForInput(viajeData.fechaLlegada)
-              : '',
-            estado: viajeData.estado,
-          });
+      if (isEditMode && viajeData) {
+        this.viajeForm.patchValue({
+          cliente: viajeData.clienteId,
+          tipoRuta: viajeData.tipoRuta,
+          ruta: viajeData.rutaId,
+          rutaOcasional: viajeData.rutaOcasional,
+          distanciaEstimada: viajeData.distanciaEstimada || '',
+          distanciaFinal: viajeData.distanciaFinal || '',
+          modalidadServicio: viajeData.modalidadServicio,
+          vehiculo: viajeData.vehiculoPrincipal?.id,
+          conductor: viajeData.conductorPrincipal?.id,
+          fechaSalida: this.formatDateTimeForInput(viajeData.fechaSalida),
+          fechaLlegada: viajeData.fechaLlegada
+            ? this.formatDateTimeForInput(viajeData.fechaLlegada)
+            : '',
+          estado: viajeData.estado,
+        });
 
-          // Cargar tripulantes
-          this.tripulantesArray.clear();
-          if (viajeData.tripulantes && viajeData.tripulantes.length > 0) {
-            viajeData.tripulantes.forEach((t) => this.addTripulante(t));
-          }
-
-          // Aplicar estado de distanciaFinal después de cargar datos
-          this.updateDistanciaFinalState(viajeData.estado);
-        } else {
-          this.viajeForm.reset({
-            estado: 'programado',
-            tipoRuta: 'fija',
-            modalidadServicio: 'regular',
-          });
-          this.tripulantesArray.clear();
-          // Desactivar distanciaFinal por defecto (estado = programado)
-          this.updateDistanciaFinalState('programado');
+        // Cargar tripulantes
+        this.tripulantesArray.clear();
+        if (viajeData.tripulantes && viajeData.tripulantes.length > 0) {
+          viajeData.tripulantes.forEach((t) => this.addTripulante(t));
         }
-      },
-      { allowSignalWrites: true }
-    );
+
+        // Aplicar estado de distanciaFinal después de cargar datos
+        this.updateDistanciaFinalState(viajeData.estado);
+      } else {
+        this.viajeForm.reset({
+          estado: 'programado',
+          tipoRuta: 'fija',
+          modalidadServicio: 'regular',
+        });
+        this.tripulantesArray.clear();
+        // Desactivar distanciaFinal por defecto (estado = programado)
+        this.updateDistanciaFinalState('programado');
+      }
+    });
   }
 
   get tripulantesArray(): FormArray {

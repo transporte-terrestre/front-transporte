@@ -7,8 +7,8 @@ export interface ReporteMantenimientoPdfData {
   entidadNombre: string;
   fechaInicio: string;
   fechaFin: string;
-  mantenimientosVehiculo?: ApiResponse<"reportes","getViajesDetalladosPorVehiculo">[];
-  mantenimientosTaller?: ApiResponse<"reportes","getMantenimientosDetalladosPorTaller">[];
+  mantenimientosVehiculo?: ApiResponse<"reportes","getMantenimientosDetalladosPorVehiculo">;
+  mantenimientosTaller?: ApiResponse<"reportes","getMantenimientosDetalladosPorTaller">;
   totalCosto: number;
 }
 
