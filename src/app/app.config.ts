@@ -2,19 +2,18 @@ import {
   ApplicationConfig,
   provideBrowserGlobalErrorListeners,
   provideZonelessChangeDetection,
-  LOCALE_ID,
+  PLATFORM_ID,
+  inject,
 } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { registerLocaleData } from '@angular/common';
-import localeEsPE from '@angular/common/locales/es-PE';
-
-registerLocaleData(localeEsPE, 'es-PE');
-
+import { registerLocaleData, isPlatformBrowser } from '@angular/common';
 import { routes } from './app.routes';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { authInterceptor } from '@interceptor/auth/auth.interceptor';
-import { Api, HttpClient as ApiHttpClient } from 'api/backend.api';
+import { Api, HttpClient } from '@api/backend.api';
+import { AuthService } from '@service/auth/auth.service';
+
+import localeEsPE from '@angular/common/locales/es-PE';
+registerLocaleData(localeEsPE, 'es-PE');
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -24,22 +23,42 @@ export const appConfig: ApplicationConfig = {
     provideClientHydration(withEventReplay()),
 
     // agregado
-    provideHttpClient(withInterceptors([authInterceptor])),
     {
       provide: Api,
       useFactory: () => {
+        const platformId = inject(PLATFORM_ID);
+
         return new Api(
-          new ApiHttpClient({
+          new HttpClient({
             baseUrl: 'http://localhost:3000',
-            securityWorker: (securityData) => {
-              if (typeof window !== 'undefined') {
+
+            // 1. SECURITY WORKER: Se encarga SOLO de poner el token si existe
+            securityWorker: async () => {
+              if (isPlatformBrowser(platformId)) {
                 const token = localStorage.getItem('accessToken');
                 if (token) {
                   return { headers: { Authorization: `Bearer ${token}` } };
                 }
               }
-              return Promise.resolve({});
+              return {};
             },
+
+            // 2. CUSTOM FETCH: Aquí está la magia del interceptor
+            customFetch: (input, init) => {
+              // Si estamos en el SERVIDOR (SSR), bloqueamos la petición
+              if (!isPlatformBrowser(platformId)) {
+                // Retornamos una promesa "falsa" que resuelve nada.
+                // Esto imita el "return EMPTY" de RxJS.
+                // Evita el error 401 y el crash en consola.
+                return Promise.resolve(new Response(JSON.stringify({}), {
+                  status: 200,
+                  headers: { 'Content-Type': 'application/json' }
+                }));
+              }
+
+              // Si estamos en el NAVEGADOR, hacemos el fetch real
+              return fetch(input, init);
+            }
           })
         );
       },

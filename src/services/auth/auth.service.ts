@@ -1,5 +1,6 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { Api, ApiBody, ApiResponse, ApiField } from 'api/backend.api';
+
 @Injectable({
   providedIn: 'root',
 })
@@ -10,10 +11,11 @@ export class AuthService {
   user = this.userSignal.asReadonly();
   token = this.tokenSignal.asReadonly();
   isAuthenticated = computed(() => this.userSignal() !== null && this.tokenSignal() !== null);
+
   constructor() {
     this.restoreSession();
   }
- 
+
   async login(credentials: ApiBody<'auth', 'login'>) {
     const response = await this.api.auth.login(credentials).then((r) => r.data);
     this.userSignal.set(response.user);

@@ -4004,6 +4004,78 @@ export interface NotificacionCreateDto {
   tipo?: "info" | "warning" | "error" | "success";
 }
 
+export interface NotificacionResultDto {
+  /** @example 1 */
+  id: number;
+  /** @example "Título de la notificación" */
+  titulo: string;
+  /** @example "Cuerpo del mensaje de la notificación" */
+  mensaje: string;
+  /** @example "info" */
+  tipo: "info" | "warning" | "error" | "success";
+  /**
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  creadoEn: string;
+  /** @example false */
+  leido: boolean;
+}
+
+export interface VencimientoResumenDto {
+  /** @example 5 */
+  clientes: number;
+  /** @example 3 */
+  conductores: number;
+  /** @example 2 */
+  vehiculos: number;
+  /** @example 1 */
+  usuarios: number;
+  /** @example 2 */
+  vencidos: number;
+  /** @example 9 */
+  porVencer: number;
+}
+
+export interface NotificacionPreviewDto {
+  /** @example "DNI próximo a vencer" */
+  titulo: string;
+  /** @example "El documento DNI de Cliente Juan Pérez vencerá en 5 días" */
+  mensaje: string;
+  /** @example "warning" */
+  tipo: "info" | "warning" | "error" | "success";
+  /** @example "cliente" */
+  entidad: "cliente" | "conductor" | "vehiculo" | "usuario";
+  /** @example 1 */
+  entidadId: number;
+  /** @example "Juan Pérez" */
+  entidadNombre: string;
+  /** @example "dni" */
+  tipoDocumento: string;
+  /** @example 5 */
+  diasRestantes: number;
+}
+
+export interface PreviewVencimientosResultDto {
+  /** @example {"fechaReferencia":"2025-12-18","diasAnticipacion":7,"fechaLimite":"2025-12-25"} */
+  parametros: object;
+  /** @example 11 */
+  totalDocumentosEncontrados: number;
+  resumen: VencimientoResumenDto;
+  notificaciones: NotificacionPreviewDto[];
+}
+
+export interface GenerarVencimientosResultDto {
+  /** @example "Se crearon 5 notificaciones" */
+  message: string;
+  /** @example 5 */
+  created: number;
+  notifications?: NotificacionResultDto[];
+  previews: NotificacionPreviewDto[];
+  /** @example {"fechaReferencia":"2025-12-18","diasAnticipacion":7} */
+  parametros: object;
+}
+
 export interface ViajeDetalladoDto {
   id: number;
   tipoRuta: string;
@@ -4939,16 +5011,16 @@ export interface NotificacionesFindAllParams {
   userId: number;
 }
 
-export type NotificacionesFindAllError = PaginatedNotificacionResultDto;
+export type NotificacionesFindAllData = PaginatedNotificacionResultDto;
 
-export type NotificacionesCreateData = any;
+export type NotificacionesCreateData = NotificacionResultDto;
 
 export interface NotificacionesMarkAsReadParams {
   userId: number;
   id: number;
 }
 
-export type NotificacionesMarkAsReadData = any;
+export type NotificacionesMarkAsReadData = NotificacionResultDto;
 
 export interface NotificacionesPreviewVencimientosParams {
   /**
@@ -4958,12 +5030,14 @@ export interface NotificacionesPreviewVencimientosParams {
   fecha: string;
   /**
    * Días de anticipación a buscar (default: 7). Busca documentos que vencen hasta fecha + diasAnticipacion.
+   * @default 7
    * @example 7
    */
   diasAnticipacion?: number;
 }
 
-export type NotificacionesPreviewVencimientosData = any;
+export type NotificacionesPreviewVencimientosData =
+  PreviewVencimientosResultDto;
 
 export interface NotificacionesGenerarVencimientosParams {
   /**
@@ -4973,12 +5047,14 @@ export interface NotificacionesGenerarVencimientosParams {
   fecha: string;
   /**
    * Días de anticipación a buscar (default: 7). Busca documentos que vencen hasta fecha + diasAnticipacion.
+   * @default 7
    * @example 7
    */
   diasAnticipacion?: number;
 }
 
-export type NotificacionesGenerarVencimientosData = any;
+export type NotificacionesGenerarVencimientosData =
+  GenerarVencimientosResultDto;
 
 export interface ReportesGetViajesDetalladosPorVehiculoParams {
   /** Fecha de inicio del reporte (YYYY-MM-DD) */
@@ -7144,6 +7220,7 @@ export namespace Talleres {
    * @name TalleresCreate
    * @summary Crear un nuevo taller
    * @request POST:/taller/create
+   * @secure
    * @response `201` `TalleresCreateData`
    */
   export namespace TalleresCreate {
@@ -7160,6 +7237,7 @@ export namespace Talleres {
    * @name TalleresFindAll
    * @summary Listar talleres de forma paginada
    * @request GET:/taller/find-all
+   * @secure
    * @response `200` `TalleresFindAllData`
    */
   export namespace TalleresFindAll {
@@ -7200,6 +7278,7 @@ export namespace Talleres {
    * @name TalleresFindOne
    * @summary Obtener un taller por ID
    * @request GET:/taller/find-one/{id}
+   * @secure
    * @response `200` `TalleresFindOneData`
    */
   export namespace TalleresFindOne {
@@ -7218,6 +7297,7 @@ export namespace Talleres {
    * @name TalleresUpdate
    * @summary Actualizar un taller por ID
    * @request PATCH:/taller/update/{id}
+   * @secure
    * @response `200` `TalleresUpdateData`
    */
   export namespace TalleresUpdate {
@@ -7236,6 +7316,7 @@ export namespace Talleres {
    * @name TalleresRemove
    * @summary Eliminar un taller por ID
    * @request DELETE:/taller/delete/{id}
+   * @secure
    * @response `200` `TalleresRemoveData`
    */
   export namespace TalleresRemove {
@@ -7257,7 +7338,7 @@ export namespace Notificaciones {
    * @summary Obtener notificaciones del usuario
    * @request GET:/notificacion/find-all
    * @secure
-   * @response `default` `PaginatedNotificacionResultDto`
+   * @response `200` `NotificacionesFindAllData`
    */
   export namespace NotificacionesFindAll {
     export type RequestParams = {};
@@ -7282,7 +7363,7 @@ export namespace Notificaciones {
     };
     export type RequestBody = never;
     export type RequestHeaders = {};
-    export type ResponseBody = any;
+    export type ResponseBody = NotificacionesFindAllData;
   }
 
   /**
@@ -7309,7 +7390,7 @@ export namespace Notificaciones {
    * @summary Marcar notificación como leída
    * @request POST:/notificacion/leido/{id}
    * @secure
-   * @response `201` `NotificacionesMarkAsReadData`
+   * @response `200` `NotificacionesMarkAsReadData`
    */
   export namespace NotificacionesMarkAsRead {
     export type RequestParams = {
@@ -7324,7 +7405,7 @@ export namespace Notificaciones {
   }
 
   /**
-   * @description Retorna una lista de posibles notificaciones para documentos que vencen dentro del período especificado. NO CREA las notificaciones.
+   * No description
    * @tags Notificaciones
    * @name NotificacionesPreviewVencimientos
    * @summary TEST: Previsualizar notificaciones de documentos por vencer
@@ -7342,6 +7423,7 @@ export namespace Notificaciones {
       fecha: string;
       /**
        * Días de anticipación a buscar (default: 7). Busca documentos que vencen hasta fecha + diasAnticipacion.
+       * @default 7
        * @example 7
        */
       diasAnticipacion?: number;
@@ -7370,6 +7452,7 @@ export namespace Notificaciones {
       fecha: string;
       /**
        * Días de anticipación a buscar (default: 7). Busca documentos que vencen hasta fecha + diasAnticipacion.
+       * @default 7
        * @example 7
        */
       diasAnticipacion?: number;
@@ -9997,6 +10080,7 @@ export class Api<SecurityDataType extends unknown> {
      * @name TalleresCreate
      * @summary Crear un nuevo taller
      * @request POST:/taller/create
+     * @secure
      * @response `201` `TalleresCreateData`
      */
     create: (data: TallerCreateDto, params: RequestParams = {}) =>
@@ -10004,6 +10088,7 @@ export class Api<SecurityDataType extends unknown> {
         path: `/taller/create`,
         method: "POST",
         body: data,
+        secure: true,
         type: ContentType.Json,
         ...params,
       }),
@@ -10015,6 +10100,7 @@ export class Api<SecurityDataType extends unknown> {
      * @name TalleresFindAll
      * @summary Listar talleres de forma paginada
      * @request GET:/taller/find-all
+     * @secure
      * @response `200` `TalleresFindAllData`
      */
     findAll: (
@@ -10025,6 +10111,7 @@ export class Api<SecurityDataType extends unknown> {
         path: `/taller/find-all`,
         method: "GET",
         query: query,
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -10036,6 +10123,7 @@ export class Api<SecurityDataType extends unknown> {
      * @name TalleresFindOne
      * @summary Obtener un taller por ID
      * @request GET:/taller/find-one/{id}
+     * @secure
      * @response `200` `TalleresFindOneData`
      */
     findOne: (
@@ -10045,6 +10133,7 @@ export class Api<SecurityDataType extends unknown> {
       this.http.request<TalleresFindOneData, any>({
         path: `/taller/find-one/${id}`,
         method: "GET",
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -10056,6 +10145,7 @@ export class Api<SecurityDataType extends unknown> {
      * @name TalleresUpdate
      * @summary Actualizar un taller por ID
      * @request PATCH:/taller/update/{id}
+     * @secure
      * @response `200` `TalleresUpdateData`
      */
     update: (
@@ -10067,6 +10157,7 @@ export class Api<SecurityDataType extends unknown> {
         path: `/taller/update/${id}`,
         method: "PATCH",
         body: data,
+        secure: true,
         type: ContentType.Json,
         ...params,
       }),
@@ -10078,6 +10169,7 @@ export class Api<SecurityDataType extends unknown> {
      * @name TalleresRemove
      * @summary Eliminar un taller por ID
      * @request DELETE:/taller/delete/{id}
+     * @secure
      * @response `200` `TalleresRemoveData`
      */
     remove: (
@@ -10087,6 +10179,7 @@ export class Api<SecurityDataType extends unknown> {
       this.http.request<TalleresRemoveData, any>({
         path: `/taller/delete/${id}`,
         method: "DELETE",
+        secure: true,
         ...params,
       }),
   };
@@ -10099,17 +10192,18 @@ export class Api<SecurityDataType extends unknown> {
      * @summary Obtener notificaciones del usuario
      * @request GET:/notificacion/find-all
      * @secure
-     * @response `default` `PaginatedNotificacionResultDto`
+     * @response `200` `NotificacionesFindAllData`
      */
     findAll: (
       query: NotificacionesFindAllParams,
       params: RequestParams = {},
     ) =>
-      this.http.request<any, NotificacionesFindAllError>({
+      this.http.request<NotificacionesFindAllData, any>({
         path: `/notificacion/find-all`,
         method: "GET",
         query: query,
         secure: true,
+        format: "json",
         ...params,
       }),
 
@@ -10133,6 +10227,7 @@ export class Api<SecurityDataType extends unknown> {
         body: data,
         secure: true,
         type: ContentType.Json,
+        format: "json",
         ...params,
       }),
 
@@ -10144,7 +10239,7 @@ export class Api<SecurityDataType extends unknown> {
      * @summary Marcar notificación como leída
      * @request POST:/notificacion/leido/{id}
      * @secure
-     * @response `201` `NotificacionesMarkAsReadData`
+     * @response `200` `NotificacionesMarkAsReadData`
      */
     markAsRead: (
       { id, ...query }: NotificacionesMarkAsReadParams,
@@ -10155,11 +10250,12 @@ export class Api<SecurityDataType extends unknown> {
         method: "POST",
         query: query,
         secure: true,
+        format: "json",
         ...params,
       }),
 
     /**
-     * @description Retorna una lista de posibles notificaciones para documentos que vencen dentro del período especificado. NO CREA las notificaciones.
+     * No description
      *
      * @tags Notificaciones
      * @name NotificacionesPreviewVencimientos
@@ -10177,6 +10273,7 @@ export class Api<SecurityDataType extends unknown> {
         method: "GET",
         query: query,
         secure: true,
+        format: "json",
         ...params,
       }),
 
@@ -10199,6 +10296,7 @@ export class Api<SecurityDataType extends unknown> {
         method: "POST",
         query: query,
         secure: true,
+        format: "json",
         ...params,
       }),
   };

@@ -28,6 +28,7 @@ export class NotificacionService {
       }
     });
   }
+
   toggle() {
     this.isOpen.update((v) => !v);
     if (this.isOpen()) {

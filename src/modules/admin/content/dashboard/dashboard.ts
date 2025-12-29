@@ -1,5 +1,5 @@
-import { Component, signal, inject, OnInit, PLATFORM_ID } from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Component, signal, inject, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { DashboardService } from '@service/admin/dashboard.service';
 import { ToastService } from '@service/toast.service';
 
@@ -72,12 +72,8 @@ export class Dashboard implements OnInit {
   // Ingresos mensuales
   ingresosMensuales = signal<IngresoMensualVM[]>([]);
 
-  private platformId = inject(PLATFORM_ID);
-
   ngOnInit() {
-    if (isPlatformBrowser(this.platformId)) {
-      this.loadDashboardData();
-    }
+    this.loadDashboardData();
   }
 
   loadDashboardData() {
@@ -105,7 +101,7 @@ export class Dashboard implements OnInit {
       this.stats.set([
         {
           title: 'Total Vehículos',
-          value: data.totalVehiculos.toString(),
+          value: data?.totalVehiculos?.toString(),
           icon: 'fa-truck',
           color: 'bg-blue-500',
           change: `+${data.cambioVehiculos}%`,
@@ -113,7 +109,7 @@ export class Dashboard implements OnInit {
         },
         {
           title: 'Conductores Activos',
-          value: data.conductoresActivos.toString(),
+          value: data?.conductoresActivos?.toString(),
           icon: 'fa-user-tie',
           color: 'bg-green-500',
           change: `+${data.cambioConductores}%`,
@@ -121,7 +117,7 @@ export class Dashboard implements OnInit {
         },
         {
           title: 'Viajes Hoy',
-          value: data.viajesHoy.toString(),
+          value: data?.viajesHoy?.toString(),
           icon: 'fa-route',
           color: 'bg-purple-500',
           change: `+${data.cambioViajes}%`,
@@ -129,7 +125,7 @@ export class Dashboard implements OnInit {
         },
         {
           title: 'Clientes',
-          value: data.totalClientes.toString(),
+          value: data?.totalClientes?.toString(),
           icon: 'fa-users',
           color: 'bg-orange-500',
           change: `+${data.cambioClientes}%`,
@@ -141,10 +137,6 @@ export class Dashboard implements OnInit {
 
   private loadVehiculosPorEstado() {
     return this.dashboardService.getVehiculosPorEstado().then((response) => {
-      // Assuming response has a 'data' property which is the array, based on interface structure
-      // Adjust if service returns the array directly.
-      // Looking at service: return ... .then(response => response.data)
-      // If response.data is VehiculosPorEstadoDto { data: [...] }, then here 'response' is that DTO.
       const data = response.data || [];
 
       const estadoMap: { [key: string]: { label: string; color: string } } = {
