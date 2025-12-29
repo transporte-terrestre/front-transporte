@@ -167,7 +167,7 @@ export class TareaInputSearch implements ControlValueAccessor {
   getDisplayText(): string {
     const t = this.selectedTarea();
     if (!t) return this.placeholder();
-    return t.descripcion || t.codigo;
+    return t.nombreTrabajo || t.grupo || t.codigo;
   }
 
   @HostListener('document:click', ['$event'])

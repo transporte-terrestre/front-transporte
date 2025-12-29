@@ -19,7 +19,8 @@ export class TareaForm {
 
   tareaForm: FormGroup = this.fb.group({
     codigo: ['', [Validators.required, Validators.maxLength(50)]],
-    descripcion: ['', [Validators.required, Validators.maxLength(255)]],
+    nombreTrabajo: ['', [Validators.required, Validators.maxLength(255)]],
+    grupo: ['', [Validators.required, Validators.maxLength(100)]],
   });
 
   constructor() {
@@ -28,7 +29,8 @@ export class TareaForm {
       if (t) {
         this.tareaForm.patchValue({
           codigo: t.codigo,
-          descripcion: t.descripcion,
+          nombreTrabajo: t.nombreTrabajo,
+          grupo: t.grupo,
         });
       } else {
         this.tareaForm.reset();

@@ -2188,10 +2188,15 @@ export interface TareaResultDto {
    */
   codigo: string;
   /**
-   * Descripción de la tarea
+   * Nombre del trabajo
    * @example "Cambio de aceite"
    */
-  descripcion: string;
+  nombreTrabajo: string;
+  /**
+   * Grupo de la tarea
+   * @example "Motor"
+   */
+  grupo: string;
   /**
    * Fecha de creación
    * @format date-time
@@ -2526,10 +2531,15 @@ export interface TareaListDto {
    */
   codigo: string;
   /**
-   * Descripción de la tarea
+   * Nombre del trabajo
    * @example "Cambio de aceite"
    */
-  descripcion: string;
+  nombreTrabajo: string;
+  /**
+   * Grupo de la tarea
+   * @example "Motor"
+   */
+  grupo: string;
   /**
    * Fecha de creación
    * @format date-time
@@ -2558,10 +2568,15 @@ export interface TareaCreateDto {
    */
   codigo: string;
   /**
-   * Descripción de la tarea
+   * Nombre del trabajo
    * @example "Cambio de aceite"
    */
-  descripcion: string;
+  nombreTrabajo: string;
+  /**
+   * Grupo de la tarea
+   * @example "Motor"
+   */
+  grupo: string;
 }
 
 export interface TareaUpdateDto {
@@ -2571,10 +2586,15 @@ export interface TareaUpdateDto {
    */
   codigo?: string;
   /**
-   * Descripción de la tarea
+   * Nombre del trabajo
    * @example "Cambio de aceite"
    */
-  descripcion?: string;
+  nombreTrabajo?: string;
+  /**
+   * Grupo de la tarea
+   * @example "Motor"
+   */
+  grupo?: string;
 }
 
 export interface MantenimientoDocumentoCreateDto {
