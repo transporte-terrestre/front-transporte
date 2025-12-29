@@ -42,7 +42,8 @@ export class PropietarioInputSearch implements ControlValueAccessor {
   searchControl = new FormControl('');
 
   // Value Accessor callbacks
-  onChange: (value: number | null) => void = () => {};
+  onChange: (value: ApiResponse<'propietarios', 'findAll'>['data'][number] | null) => void =
+    () => {};
   onTouched: () => void = () => {};
 
   constructor() {
@@ -83,24 +84,30 @@ export class PropietarioInputSearch implements ControlValueAccessor {
       });
   }
 
-  writeValue(obj: any): void {
+  writeValue(obj: number | ApiResponse<'propietarios', 'findAll'>['data'][number] | null): void {
     if (obj) {
-      const initial = this.initialData();
-      if (initial && initial.id === obj) {
-        this.selectedPropietario.set(initial);
+      if (typeof obj === 'object') {
+        this.selectedPropietario.set(obj);
       } else {
-        this.loadInitialPropietario(obj);
+        const initial = this.initialData();
+        if (initial && initial.id === obj) {
+          this.selectedPropietario.set(initial);
+        } else {
+          this.loadInitialPropietario(obj);
+        }
       }
     } else {
       this.selectedPropietario.set(null);
     }
   }
 
-  registerOnChange(fn: any): void {
+  registerOnChange(
+    fn: (value: ApiResponse<'propietarios', 'findAll'>['data'][number] | null) => void
+  ): void {
     this.onChange = fn;
   }
 
-  registerOnTouched(fn: any): void {
+  registerOnTouched(fn: () => void): void {
     this.onTouched = fn;
   }
 
@@ -120,7 +127,7 @@ export class PropietarioInputSearch implements ControlValueAccessor {
 
   selectPropietario(propietario: ApiResponse<'propietarios', 'findAll'>['data'][number]) {
     this.selectedPropietario.set(propietario);
-    this.onChange(propietario.id);
+    this.onChange(propietario);
     this.isOpen.set(false);
   }
 
@@ -128,7 +135,7 @@ export class PropietarioInputSearch implements ControlValueAccessor {
     this.propietarioService
       .findOne(id)
       .then((propietario) => {
-        this.selectedPropietario.set(propietario as any);
+        this.selectedPropietario.set(propietario);
       })
       .catch(() => {
         console.error('Could not load initial propietario');

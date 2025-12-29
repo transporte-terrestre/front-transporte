@@ -80,13 +80,17 @@ export class VehiculoInputSearch implements ControlValueAccessor {
       });
   }
 
-  writeValue(obj: number | null): void {
+  writeValue(obj: number | ApiResponse<'vehiculos', 'findAll'>['data'][number] | null): void {
     if (obj) {
-      const initial = this.initialData();
-      if (initial && initial.id === obj) {
-        this.selectedVehiculo.set(initial as any);
+      if (typeof obj === 'object') {
+        this.selectedVehiculo.set(obj);
       } else {
-        this.loadInitialVehiculo(obj);
+        const initial = this.initialData();
+        if (initial && initial.id === obj) {
+          this.selectedVehiculo.set(initial);
+        } else {
+          this.loadInitialVehiculo(obj);
+        }
       }
     } else {
       this.selectedVehiculo.set(null);

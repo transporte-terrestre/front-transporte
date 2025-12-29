@@ -81,24 +81,30 @@ export class ClienteInputSearch implements ControlValueAccessor {
       });
   }
 
-  writeValue(obj: any): void {
+  writeValue(obj: number | ApiResponse<'clientes', 'findAll'>['data'][number] | null): void {
     if (obj) {
-      const initial = this.initialData();
-      if (initial && initial.id === obj) {
-        this.selectedCliente.set(initial);
+      if (typeof obj === 'object') {
+        this.selectedCliente.set(obj);
       } else {
-        this.loadInitialCliente(obj);
+        const initial = this.initialData();
+        if (initial && initial.id === obj) {
+          this.selectedCliente.set(initial);
+        } else {
+          this.loadInitialCliente(obj);
+        }
       }
     } else {
       this.selectedCliente.set(null);
     }
   }
 
-  registerOnChange(fn: any): void {
+  registerOnChange(
+    fn: (value: ApiResponse<'clientes', 'findAll'>['data'][number] | null) => void
+  ): void {
     this.onChange = fn;
   }
 
-  registerOnTouched(fn: any): void {
+  registerOnTouched(fn: () => void): void {
     this.onTouched = fn;
   }
 

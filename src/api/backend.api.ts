@@ -3062,6 +3062,11 @@ export interface ClienteViajeDto {
    */
   imagenes: string[];
   /**
+   * Horas de contrato del cliente
+   * @example "8.50"
+   */
+  horasContrato: string;
+  /**
    * Fecha de creación
    * @format date-time
    * @example "2023-01-01T00:00:00.000Z"
@@ -3492,6 +3497,11 @@ export interface ClienteViajeResultDto {
    * @example ["https://res.cloudinary.com/xxx/image.jpg"]
    */
   imagenes: string[];
+  /**
+   * Horas de contrato del cliente
+   * @example "8.50"
+   */
+  horasContrato: string;
   /**
    * Fecha de creación
    * @format date-time
@@ -4028,6 +4038,11 @@ export interface ClienteListDto {
    */
   imagenes: string[];
   /**
+   * Horas de contrato del cliente
+   * @example "8.50"
+   */
+  horasContrato: string;
+  /**
    * Fecha de creación
    * @format date-time
    * @example "2023-01-01T00:00:00.000Z"
@@ -4175,6 +4190,11 @@ export interface ClienteResultDto {
    */
   imagenes: string[];
   /**
+   * Horas de contrato del cliente
+   * @example "8.50"
+   */
+  horasContrato: string;
+  /**
    * Fecha de creación
    * @format date-time
    * @example "2023-01-01T00:00:00.000Z"
@@ -4237,6 +4257,11 @@ export interface ClienteCreateDto {
    */
   direccion?: string;
   /**
+   * Horas de contrato del cliente
+   * @example "8.50"
+   */
+  horasContrato?: string;
+  /**
    * Lista de URLs de imágenes del cliente
    * @example ["https://res.cloudinary.com/xxx/image.jpg"]
    */
@@ -4289,6 +4314,11 @@ export interface ClienteUpdateDto {
    * @example "Av. Principal 123"
    */
   direccion?: string;
+  /**
+   * Horas de contrato del cliente
+   * @example "8.50"
+   */
+  horasContrato?: string;
   /**
    * Lista de URLs de imágenes del cliente
    * @example ["https://res.cloudinary.com/xxx/image.jpg"]

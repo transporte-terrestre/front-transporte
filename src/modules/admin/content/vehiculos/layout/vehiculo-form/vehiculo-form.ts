@@ -100,7 +100,28 @@ export class VehiculoForm implements OnInit {
     { value: 'otros', label: 'Otros' },
   ];
 
-  ngOnInit() {}
+  ngOnInit() {
+    // Escuchar cambios en marca para filtrar modelos
+    this.vehiculoForm
+      .get('marca')
+      ?.valueChanges.subscribe((marca: { id: number } | number | null) => {
+        const brandId = marca && typeof marca === 'object' ? marca.id : (marca as number | null);
+        this.selectedMarcaId.set(brandId);
+
+        // Limpiar modelo al cambiar marca para evitar inconsistencias
+        const currentModelo = this.vehiculoForm.get('modelo')?.value;
+        if (
+          currentModelo &&
+          typeof currentModelo === 'object' &&
+          currentModelo.marcaId !== brandId
+        ) {
+          this.vehiculoForm.get('modelo')?.setValue(null);
+        } else if (typeof currentModelo === 'number' && currentModelo !== 0) {
+          // Si es un ID, no sabemos a qué marca pertenece sin consultar, pero por seguridad reseteamos si cambia la marca manualmente
+          this.vehiculoForm.get('modelo')?.setValue(null);
+        }
+      });
+  }
 
   onImagesChange(images: string[]) {
     this.imagenes.set(images);

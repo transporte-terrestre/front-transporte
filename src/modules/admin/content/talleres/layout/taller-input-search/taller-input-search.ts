@@ -82,24 +82,30 @@ export class TallerInputSearch implements ControlValueAccessor {
       });
   }
 
-  writeValue(obj: any): void {
+  writeValue(obj: number | ApiResponse<'talleres', 'findAll'>['data'][number] | null): void {
     if (obj) {
-      const initial = this.initialData();
-      if (initial && initial.id === obj) {
-        this.selectedTaller.set(initial);
+      if (typeof obj === 'object') {
+        this.selectedTaller.set(obj);
       } else {
-        this.loadInitialTaller(obj);
+        const initial = this.initialData();
+        if (initial && initial.id === obj) {
+          this.selectedTaller.set(initial);
+        } else {
+          this.loadInitialTaller(obj);
+        }
       }
     } else {
       this.selectedTaller.set(null);
     }
   }
 
-  registerOnChange(fn: any): void {
+  registerOnChange(
+    fn: (value: ApiResponse<'talleres', 'findAll'>['data'][number] | null) => void
+  ): void {
     this.onChange = fn;
   }
 
-  registerOnTouched(fn: any): void {
+  registerOnTouched(fn: () => void): void {
     this.onTouched = fn;
   }
 

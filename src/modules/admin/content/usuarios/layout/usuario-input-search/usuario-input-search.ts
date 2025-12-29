@@ -80,24 +80,30 @@ export class UsuarioInputSearch implements ControlValueAccessor {
       });
   }
 
-  writeValue(obj: any): void {
+  writeValue(obj: number | ApiResponse<'usuarios', 'findAll'>['data'][number] | null): void {
     if (obj) {
-      const initial = this.initialData();
-      if (initial && initial.id === obj) {
-        this.selectedUsuario.set(initial);
+      if (typeof obj === 'object') {
+        this.selectedUsuario.set(obj);
       } else {
-        this.loadInitialUsuario(obj);
+        const initial = this.initialData();
+        if (initial && initial.id === obj) {
+          this.selectedUsuario.set(initial);
+        } else {
+          this.loadInitialUsuario(obj);
+        }
       }
     } else {
       this.selectedUsuario.set(null);
     }
   }
 
-  registerOnChange(fn: any): void {
+  registerOnChange(
+    fn: (value: ApiResponse<'usuarios', 'findAll'>['data'][number] | null) => void
+  ): void {
     this.onChange = fn;
   }
 
-  registerOnTouched(fn: any): void {
+  registerOnTouched(fn: () => void): void {
     this.onTouched = fn;
   }
 

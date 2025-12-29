@@ -82,14 +82,14 @@ export class MarcaInputSearch implements ControlValueAccessor {
       });
   }
 
-  writeValue(obj: any): void {
+  writeValue(obj: number | ApiResponse<'vehiculos', 'findOneMarca'> | null): void {
     if (obj) {
       if (typeof obj === 'object') {
         this.selectedMarca.set(obj);
       } else {
         const initial = this.initialData();
         if (initial && initial.id === obj) {
-          this.selectedMarca.set(initial as any);
+          this.selectedMarca.set(initial);
         } else {
           this.loadInitialMarca(obj);
         }

@@ -101,14 +101,14 @@ export class ModeloInputSearch implements ControlValueAccessor {
       });
   }
 
-  writeValue(obj: any): void {
+  writeValue(obj: number | ApiResponse<'vehiculos', 'findOneModelo'> | null): void {
     if (obj) {
       if (typeof obj === 'object') {
         this.selectedModelo.set(obj);
       } else {
         const initial = this.initialData();
         if (initial && initial.id === obj) {
-          this.selectedModelo.set(initial as any);
+          this.selectedModelo.set(initial);
         } else {
           this.loadInitialModelo(obj);
         }

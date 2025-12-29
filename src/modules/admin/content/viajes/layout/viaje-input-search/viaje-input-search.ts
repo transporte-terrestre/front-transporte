@@ -80,20 +80,26 @@ export class ViajeInputSearch implements ControlValueAccessor {
       });
   }
 
-  writeValue(obj: any): void {
+  writeValue(obj: number | ApiResponse<'viajes', 'findAll'>['data'][number] | null): void {
     if (obj) {
-      const initial = this.initialData();
-      if (initial && initial.id === obj) {
-        this.selectedViaje.set(initial as any);
+      if (typeof obj === 'object') {
+        this.selectedViaje.set(obj);
       } else {
-        this.loadInitialViaje(obj);
+        const initial = this.initialData();
+        if (initial && initial.id === obj) {
+          this.selectedViaje.set(initial);
+        } else {
+          this.loadInitialViaje(obj);
+        }
       }
     } else {
       this.selectedViaje.set(null);
     }
   }
 
-  registerOnChange(fn: (value: ApiResponse<'viajes', 'findAll'>['data'][number] | null) => void): void {
+  registerOnChange(
+    fn: (value: ApiResponse<'viajes', 'findAll'>['data'][number] | null) => void
+  ): void {
     this.onChange = fn;
   }
 

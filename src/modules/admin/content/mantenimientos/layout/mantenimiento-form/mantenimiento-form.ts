@@ -153,7 +153,7 @@ export class MantenimientoForm implements OnInit {
       estado: formValue.estado,
     };
 
-    this.onSubmitForm.emit(formData as any);
+    this.onSubmitForm.emit(formData);
   }
 
   // Document Management

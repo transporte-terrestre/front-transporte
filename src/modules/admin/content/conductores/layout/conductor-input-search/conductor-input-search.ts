@@ -81,24 +81,30 @@ export class ConductorInputSearch implements ControlValueAccessor {
       });
   }
 
-  writeValue(obj: any): void {
+  writeValue(obj: number | ApiResponse<'conductores', 'findAll'>['data'][number] | null): void {
     if (obj) {
-      const initial = this.initialData();
-      if (initial && initial.id === obj) {
-        this.selectedConductor.set(initial);
+      if (typeof obj === 'object') {
+        this.selectedConductor.set(obj);
       } else {
-        this.loadInitialConductor(obj);
+        const initial = this.initialData();
+        if (initial && initial.id === obj) {
+          this.selectedConductor.set(initial);
+        } else {
+          this.loadInitialConductor(obj);
+        }
       }
     } else {
       this.selectedConductor.set(null);
     }
   }
 
-  registerOnChange(fn: any): void {
+  registerOnChange(
+    fn: (value: ApiResponse<'conductores', 'findAll'>['data'][number] | null) => void
+  ): void {
     this.onChange = fn;
   }
 
-  registerOnTouched(fn: any): void {
+  registerOnTouched(fn: () => void): void {
     this.onTouched = fn;
   }
 
@@ -126,7 +132,7 @@ export class ConductorInputSearch implements ControlValueAccessor {
     this.conductorService
       .findOne(id)
       .then((conductor) => {
-        this.selectedConductor.set(conductor as any);
+        this.selectedConductor.set(conductor);
       })
       .catch(() => {
         console.error('Could not load initial conductor');

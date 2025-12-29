@@ -80,19 +80,25 @@ export class MantenimientoInputSearch implements ControlValueAccessor {
       });
   }
 
-  writeValue(obj: any): void {
+  writeValue(obj: number | ApiResponse<'mantenimientos', 'findAll'>['data'][number] | null): void {
     if (obj) {
-      this.loadInitialMantenimiento(obj);
+      if (typeof obj === 'object') {
+        this.selectedMantenimiento.set(obj);
+      } else {
+        this.loadInitialMantenimiento(obj);
+      }
     } else {
       this.selectedMantenimiento.set(null);
     }
   }
 
-  registerOnChange(fn: any): void {
+  registerOnChange(
+    fn: (value: ApiResponse<'mantenimientos', 'findAll'>['data'][number] | null) => void
+  ): void {
     this.onChange = fn;
   }
 
-  registerOnTouched(fn: any): void {
+  registerOnTouched(fn: () => void): void {
     this.onTouched = fn;
   }
 

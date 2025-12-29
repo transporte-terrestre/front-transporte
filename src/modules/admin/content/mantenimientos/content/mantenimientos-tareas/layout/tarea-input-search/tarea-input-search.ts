@@ -87,7 +87,9 @@ export class TareaInputSearch implements ControlValueAccessor {
       });
   }
 
-  writeValue(obj: any): void {
+  writeValue(
+    obj: number | ApiResponse<'mantenimientos', 'findAllTareas'>['data'][number] | null
+  ): void {
     if (obj) {
       if (typeof obj === 'object') {
         this.selectedTarea.set(obj);
@@ -104,11 +106,13 @@ export class TareaInputSearch implements ControlValueAccessor {
     }
   }
 
-  registerOnChange(fn: any): void {
+  registerOnChange(
+    fn: (value: ApiResponse<'mantenimientos', 'findAllTareas'>['data'][number] | null) => void
+  ): void {
     this.onChange = fn;
   }
 
-  registerOnTouched(fn: any): void {
+  registerOnTouched(fn: () => void): void {
     this.onTouched = fn;
   }
 

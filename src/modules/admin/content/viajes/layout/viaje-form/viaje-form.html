@@ -43,8 +43,7 @@
         Ruta
       </label>
       <app-ruta-input-search
-        formControlName="ruta"
-        [initialData]="viaje()?.ruta || null">
+        formControlName="ruta">
       </app-ruta-input-search>
       @if (viajeForm.get('ruta')?.touched && viajeForm.get('ruta')?.errors) {
         <p class="text-danger text-xs font-inter-medium mt-1">La ruta es requerida</p>
@@ -121,8 +120,7 @@
       Cliente
     </label>
     <app-cliente-input-search
-      formControlName="cliente"
-      [initialData]="viaje()?.cliente || null">
+      formControlName="cliente">
     </app-cliente-input-search>
     @if (viajeForm.get('cliente')?.touched && viajeForm.get('cliente')?.errors) {
       <p class="text-danger text-xs font-inter-medium mt-1">El cliente es requerido</p>
