@@ -178,8 +178,10 @@ export class VehiculosList implements OnInit, OnDestroy {
 
   getEstadoBadgeClass(estado: string): string {
     switch (estado) {
-      case 'activo':
+      case 'disponible':
         return 'bg-success/10 text-success';
+      case 'circulacion':
+        return 'bg-info/10 text-info';
       case 'taller':
         return 'bg-warning/10 text-warning';
       case 'retirado':
@@ -191,8 +193,10 @@ export class VehiculosList implements OnInit, OnDestroy {
 
   getEstadoIcon(estado: string): string {
     switch (estado) {
-      case 'activo':
+      case 'disponible':
         return 'fa-check-circle';
+      case 'circulacion':
+        return 'fa-road';
       case 'taller':
         return 'fa-wrench';
       case 'retirado':

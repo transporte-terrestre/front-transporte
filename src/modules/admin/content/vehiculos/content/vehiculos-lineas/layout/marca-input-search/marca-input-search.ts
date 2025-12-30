@@ -36,7 +36,7 @@ export class MarcaInputSearch implements ControlValueAccessor {
   isOpen = signal(false);
   loading = signal(false);
   marcas = signal<ApiResponse<'vehiculos', 'findAllMarcas'>['data']>([]);
-  selectedMarca = signal<ApiResponse<'vehiculos', 'findOneMarca'> | null>(null);
+  selectedMarca = signal<ApiResponse<'vehiculos', 'findAllMarcas'>['data'][number] | null>(null);
   disabled = signal(false);
 
   // Search Control

@@ -661,19 +661,14 @@ export interface VehiculoListDto {
   kilometraje: number;
   /**
    * Vehicle status
-   * @example "activo"
+   * @example "disponible"
    */
-  estado: "activo" | "taller" | "retirado";
+  estado: "disponible" | "circulacion" | "taller" | "retirado";
   /**
-   * Owner ID
-   * @example 1
+   * List of owners names
+   * @default []
    */
-  propietarioId?: number;
-  /**
-   * Owner Name
-   * @example "Empresa SAC"
-   */
-  propietarioNombre?: string;
+  propietarios_nombres?: string[];
   /**
    * Creation date
    * @format date-time
@@ -704,6 +699,19 @@ export interface PaginatedVehiculoResultDto {
   data: VehiculoListDto[];
   /** Metadatos de la paginación */
   meta: PaginationMetaDto;
+}
+
+export interface PropietarioVehiculoDto {
+  /**
+   * Owner ID
+   * @example 1
+   */
+  id: number;
+  /**
+   * Owner Name
+   * @example "Juan Perez"
+   */
+  nombre: string;
 }
 
 export interface VehiculoDocumentoResultDto {
@@ -837,6 +845,11 @@ export interface VehiculoResultDto {
    */
   anio: number;
   /**
+   * Model year
+   * @example 2021
+   */
+  anioModelo?: number;
+  /**
    * VIN
    * @example "VIN1234567890ABCD"
    */
@@ -889,10 +902,20 @@ export interface VehiculoResultDto {
    */
   asientos?: number;
   /**
+   * Passengers
+   * @example 4
+   */
+  pasajeros?: number;
+  /**
    * Axles
    * @example 2
    */
   ejes?: number;
+  /**
+   * Wheels
+   * @example 4
+   */
+  ruedas?: number;
   /**
    * Current mileage
    * @example 50000
@@ -900,19 +923,61 @@ export interface VehiculoResultDto {
   kilometraje: number;
   /**
    * Vehicle status
-   * @example "activo"
+   * @example "disponible"
    */
-  estado: "activo" | "taller" | "retirado";
+  estado: "disponible" | "circulacion" | "taller" | "retirado";
   /**
-   * Owner ID
-   * @example 1
+   * Annotations
+   * @example "Some notes"
    */
-  propietarioId?: number;
+  anotaciones?: string;
   /**
-   * Owner Name
-   * @example "Empresa SAC"
+   * Headquarters
+   * @example "Lima"
    */
-  propietarioNombre?: string;
+  sede?: string;
+  /**
+   * Power
+   * @example "110@3400"
+   */
+  potencia?: string;
+  /**
+   * Rolling formula
+   * @example "4x4"
+   */
+  formulaRodante?: string;
+  /**
+   * Version
+   * @example "DX"
+   */
+  version?: string;
+  /**
+   * Cylinders
+   * @example 4
+   */
+  cilindros?: number;
+  /**
+   * Displacement
+   * @example "2.776"
+   */
+  cilindrada?: string;
+  /**
+   * Length
+   * @example "5.365"
+   */
+  longitud?: string;
+  /**
+   * Height
+   * @example "1.809"
+   */
+  altura?: string;
+  /**
+   * Width
+   * @example "1.90"
+   */
+  ancho?: string;
+  /** List of owners */
+  propietarios: PropietarioVehiculoDto[];
   /**
    * Lista de URLs de imágenes del vehículo
    * @example ["https://res.cloudinary.com/xxx/image.jpg"]
@@ -956,6 +1021,11 @@ export interface VehiculoCreateDto {
    */
   anio: number;
   /**
+   * Model year
+   * @example 2021
+   */
+  anioModelo?: number;
+  /**
    * Vehicle Identification Number
    * @example "VIN1234567890ABCD"
    */
@@ -989,17 +1059,17 @@ export interface VehiculoCreateDto {
   categoria?: string;
   /**
    * Payload capacity in Kg
-   * @example 1500.5
+   * @example "1500.5"
    */
   cargaUtil?: string;
   /**
    * Gross weight in Kg
-   * @example 2500
+   * @example "2500.0"
    */
   pesoBruto?: string;
   /**
    * Net weight in Kg
-   * @example 1000
+   * @example "1000.0"
    */
   pesoNeto?: string;
   /**
@@ -1008,10 +1078,20 @@ export interface VehiculoCreateDto {
    */
   asientos?: number;
   /**
+   * Number of passengers
+   * @example 4
+   */
+  pasajeros?: number;
+  /**
    * Number of axles
    * @example 2
    */
   ejes?: number;
+  /**
+   * Number of wheels
+   * @example 4
+   */
+  ruedas?: number;
   /**
    * Current mileage
    * @example 50000
@@ -1019,14 +1099,64 @@ export interface VehiculoCreateDto {
   kilometraje: number;
   /**
    * Vehicle status
-   * @default "activo"
+   * @default "disponible"
    */
-  estado?: "activo" | "taller" | "retirado";
+  estado?: "disponible" | "circulacion" | "taller" | "retirado";
   /**
-   * Vehicle owner ID
-   * @example 1
+   * Annotations
+   * @example "Some notes"
    */
-  propietarioId?: number;
+  anotaciones?: string;
+  /**
+   * Headquarters
+   * @example "Lima"
+   */
+  sede?: string;
+  /**
+   * Power
+   * @example "110@3400"
+   */
+  potencia?: string;
+  /**
+   * Rolling formula
+   * @example "4x4"
+   */
+  formulaRodante?: string;
+  /**
+   * Version
+   * @example "DX"
+   */
+  version?: string;
+  /**
+   * Cylinders
+   * @example 4
+   */
+  cilindros?: number;
+  /**
+   * Displacement
+   * @example "2.776"
+   */
+  cilindrada?: string;
+  /**
+   * Length
+   * @example "5.365"
+   */
+  longitud?: string;
+  /**
+   * Height
+   * @example "1.809"
+   */
+  altura?: string;
+  /**
+   * Width
+   * @example "1.9"
+   */
+  ancho?: string;
+  /**
+   * List of owner IDs
+   * @example [1,2]
+   */
+  propietarios?: number[];
   /**
    * Lista de URLs de imágenes del vehículo
    * @example ["https://res.cloudinary.com/xxx/image.jpg"]
@@ -1061,6 +1191,11 @@ export interface VehiculoUpdateDto {
    */
   anio?: number;
   /**
+   * Model year
+   * @example 2021
+   */
+  anioModelo?: number;
+  /**
    * Vehicle Identification Number
    * @example "VIN1234567890ABCD"
    */
@@ -1094,17 +1229,17 @@ export interface VehiculoUpdateDto {
   categoria?: string;
   /**
    * Payload capacity in Kg
-   * @example 1500.5
+   * @example "1500.5"
    */
   cargaUtil?: string;
   /**
    * Gross weight in Kg
-   * @example 2500
+   * @example "2500.0"
    */
   pesoBruto?: string;
   /**
    * Net weight in Kg
-   * @example 1000
+   * @example "1000.0"
    */
   pesoNeto?: string;
   /**
@@ -1113,10 +1248,20 @@ export interface VehiculoUpdateDto {
    */
   asientos?: number;
   /**
+   * Number of passengers
+   * @example 4
+   */
+  pasajeros?: number;
+  /**
    * Number of axles
    * @example 2
    */
   ejes?: number;
+  /**
+   * Number of wheels
+   * @example 4
+   */
+  ruedas?: number;
   /**
    * Current mileage
    * @example 50000
@@ -1124,14 +1269,64 @@ export interface VehiculoUpdateDto {
   kilometraje?: number;
   /**
    * Vehicle status
-   * @default "activo"
+   * @default "disponible"
    */
-  estado?: "activo" | "taller" | "retirado";
+  estado?: "disponible" | "circulacion" | "taller" | "retirado";
   /**
-   * Vehicle owner ID
-   * @example 1
+   * Annotations
+   * @example "Some notes"
    */
-  propietarioId?: number;
+  anotaciones?: string;
+  /**
+   * Headquarters
+   * @example "Lima"
+   */
+  sede?: string;
+  /**
+   * Power
+   * @example "110@3400"
+   */
+  potencia?: string;
+  /**
+   * Rolling formula
+   * @example "4x4"
+   */
+  formulaRodante?: string;
+  /**
+   * Version
+   * @example "DX"
+   */
+  version?: string;
+  /**
+   * Cylinders
+   * @example 4
+   */
+  cilindros?: number;
+  /**
+   * Displacement
+   * @example "2.776"
+   */
+  cilindrada?: string;
+  /**
+   * Length
+   * @example "5.365"
+   */
+  longitud?: string;
+  /**
+   * Height
+   * @example "1.809"
+   */
+  altura?: string;
+  /**
+   * Width
+   * @example "1.9"
+   */
+  ancho?: string;
+  /**
+   * List of owner IDs
+   * @example [1,2]
+   */
+  propietarios?: number[];
   /**
    * Lista de URLs de imágenes del vehículo
    * @example ["https://res.cloudinary.com/xxx/image.jpg"]
@@ -1251,7 +1446,7 @@ export interface MarcaListDto {
    * Lista de nombres de modelos de la marca
    * @example ["Corolla","Camry","RAV4"]
    */
-  modelos: string[];
+  modelos?: string[];
   /**
    * Fecha de creación
    * @format date-time
@@ -1799,6 +1994,11 @@ export interface VehiculoMantenimientoListDto {
    */
   anio: number;
   /**
+   * Model year
+   * @example 2021
+   */
+  anioModelo?: number;
+  /**
    * VIN
    * @example "VIN1234567890ABCD"
    */
@@ -1851,10 +2051,20 @@ export interface VehiculoMantenimientoListDto {
    */
   asientos?: number;
   /**
+   * Passengers
+   * @example 4
+   */
+  pasajeros?: number;
+  /**
    * Axles
    * @example 2
    */
   ejes?: number;
+  /**
+   * Wheels
+   * @example 4
+   */
+  ruedas?: number;
   /**
    * Current mileage
    * @example 50000
@@ -1862,14 +2072,59 @@ export interface VehiculoMantenimientoListDto {
   kilometraje: number;
   /**
    * Vehicle status
-   * @example "activo"
+   * @example "disponible"
    */
-  estado: "activo" | "taller" | "retirado";
+  estado: "disponible" | "circulacion" | "taller" | "retirado";
   /**
-   * Owner ID
-   * @example 1
+   * Annotations
+   * @example "Some notes"
    */
-  propietarioId?: number;
+  anotaciones?: string;
+  /**
+   * Headquarters
+   * @example "Lima"
+   */
+  sede?: string;
+  /**
+   * Power
+   * @example "110@3400"
+   */
+  potencia?: string;
+  /**
+   * Rolling formula
+   * @example "4x4"
+   */
+  formulaRodante?: string;
+  /**
+   * Version
+   * @example "DX"
+   */
+  version?: string;
+  /**
+   * Cylinders
+   * @example 4
+   */
+  cilindros?: number;
+  /**
+   * Displacement
+   * @example "2.776"
+   */
+  cilindrada?: string;
+  /**
+   * Length
+   * @example "5.365"
+   */
+  longitud?: string;
+  /**
+   * Height
+   * @example "1.809"
+   */
+  altura?: string;
+  /**
+   * Width
+   * @example "1.90"
+   */
+  ancho?: string;
   /**
    * Lista de URLs de imágenes del vehículo
    * @example ["https://res.cloudinary.com/xxx/image.jpg"]
@@ -2081,6 +2336,11 @@ export interface VehiculoMantenimientoResultDto {
    */
   anio: number;
   /**
+   * Model year
+   * @example 2021
+   */
+  anioModelo?: number;
+  /**
    * VIN
    * @example "VIN1234567890ABCD"
    */
@@ -2133,10 +2393,20 @@ export interface VehiculoMantenimientoResultDto {
    */
   asientos?: number;
   /**
+   * Passengers
+   * @example 4
+   */
+  pasajeros?: number;
+  /**
    * Axles
    * @example 2
    */
   ejes?: number;
+  /**
+   * Wheels
+   * @example 4
+   */
+  ruedas?: number;
   /**
    * Current mileage
    * @example 50000
@@ -2144,19 +2414,61 @@ export interface VehiculoMantenimientoResultDto {
   kilometraje: number;
   /**
    * Vehicle status
-   * @example "activo"
+   * @example "disponible"
    */
-  estado: "activo" | "taller" | "retirado";
+  estado: "disponible" | "circulacion" | "taller" | "retirado";
   /**
-   * Owner ID
-   * @example 1
+   * Annotations
+   * @example "Some notes"
    */
-  propietarioId?: number;
+  anotaciones?: string;
   /**
-   * Owner Name
-   * @example "Empresa SAC"
+   * Headquarters
+   * @example "Lima"
    */
-  propietarioNombre?: string;
+  sede?: string;
+  /**
+   * Power
+   * @example "110@3400"
+   */
+  potencia?: string;
+  /**
+   * Rolling formula
+   * @example "4x4"
+   */
+  formulaRodante?: string;
+  /**
+   * Version
+   * @example "DX"
+   */
+  version?: string;
+  /**
+   * Cylinders
+   * @example 4
+   */
+  cilindros?: number;
+  /**
+   * Displacement
+   * @example "2.776"
+   */
+  cilindrada?: string;
+  /**
+   * Length
+   * @example "5.365"
+   */
+  longitud?: string;
+  /**
+   * Height
+   * @example "1.809"
+   */
+  altura?: string;
+  /**
+   * Width
+   * @example "1.90"
+   */
+  ancho?: string;
+  /** List of owners */
+  propietarios: PropietarioVehiculoDto[];
   /**
    * Lista de URLs de imágenes del vehículo
    * @example ["https://res.cloudinary.com/xxx/image.jpg"]
@@ -2930,6 +3242,11 @@ export interface VehiculoViajeDto {
    */
   anio: number;
   /**
+   * Model year
+   * @example 2021
+   */
+  anioModelo?: number;
+  /**
    * VIN
    * @example "VIN1234567890ABCD"
    */
@@ -2982,10 +3299,20 @@ export interface VehiculoViajeDto {
    */
   asientos?: number;
   /**
+   * Passengers
+   * @example 4
+   */
+  pasajeros?: number;
+  /**
    * Axles
    * @example 2
    */
   ejes?: number;
+  /**
+   * Wheels
+   * @example 4
+   */
+  ruedas?: number;
   /**
    * Current mileage
    * @example 50000
@@ -2993,14 +3320,59 @@ export interface VehiculoViajeDto {
   kilometraje: number;
   /**
    * Vehicle status
-   * @example "activo"
+   * @example "disponible"
    */
-  estado: "activo" | "taller" | "retirado";
+  estado: "disponible" | "circulacion" | "taller" | "retirado";
   /**
-   * Owner ID
-   * @example 1
+   * Annotations
+   * @example "Some notes"
    */
-  propietarioId?: number;
+  anotaciones?: string;
+  /**
+   * Headquarters
+   * @example "Lima"
+   */
+  sede?: string;
+  /**
+   * Power
+   * @example "110@3400"
+   */
+  potencia?: string;
+  /**
+   * Rolling formula
+   * @example "4x4"
+   */
+  formulaRodante?: string;
+  /**
+   * Version
+   * @example "DX"
+   */
+  version?: string;
+  /**
+   * Cylinders
+   * @example 4
+   */
+  cilindros?: number;
+  /**
+   * Displacement
+   * @example "2.776"
+   */
+  cilindrada?: string;
+  /**
+   * Length
+   * @example "5.365"
+   */
+  longitud?: string;
+  /**
+   * Height
+   * @example "1.809"
+   */
+  altura?: string;
+  /**
+   * Width
+   * @example "1.90"
+   */
+  ancho?: string;
   /**
    * Lista de URLs de imágenes del vehículo
    * @example ["https://res.cloudinary.com/xxx/image.jpg"]
@@ -3306,6 +3678,11 @@ export interface ViajeVehiculoDetalleDto {
    */
   anio: number;
   /**
+   * Model year
+   * @example 2021
+   */
+  anioModelo?: number;
+  /**
    * VIN
    * @example "VIN1234567890ABCD"
    */
@@ -3358,10 +3735,20 @@ export interface ViajeVehiculoDetalleDto {
    */
   asientos?: number;
   /**
+   * Passengers
+   * @example 4
+   */
+  pasajeros?: number;
+  /**
    * Axles
    * @example 2
    */
   ejes?: number;
+  /**
+   * Wheels
+   * @example 4
+   */
+  ruedas?: number;
   /**
    * Current mileage
    * @example 50000
@@ -3369,19 +3756,61 @@ export interface ViajeVehiculoDetalleDto {
   kilometraje: number;
   /**
    * Vehicle status
-   * @example "activo"
+   * @example "disponible"
    */
-  estado: "activo" | "taller" | "retirado";
+  estado: "disponible" | "circulacion" | "taller" | "retirado";
   /**
-   * Owner ID
-   * @example 1
+   * Annotations
+   * @example "Some notes"
    */
-  propietarioId?: number;
+  anotaciones?: string;
   /**
-   * Owner Name
-   * @example "Empresa SAC"
+   * Headquarters
+   * @example "Lima"
    */
-  propietarioNombre?: string;
+  sede?: string;
+  /**
+   * Power
+   * @example "110@3400"
+   */
+  potencia?: string;
+  /**
+   * Rolling formula
+   * @example "4x4"
+   */
+  formulaRodante?: string;
+  /**
+   * Version
+   * @example "DX"
+   */
+  version?: string;
+  /**
+   * Cylinders
+   * @example 4
+   */
+  cilindros?: number;
+  /**
+   * Displacement
+   * @example "2.776"
+   */
+  cilindrada?: string;
+  /**
+   * Length
+   * @example "5.365"
+   */
+  longitud?: string;
+  /**
+   * Height
+   * @example "1.809"
+   */
+  altura?: string;
+  /**
+   * Width
+   * @example "1.90"
+   */
+  ancho?: string;
+  /** List of owners */
+  propietarios: PropietarioVehiculoDto[];
   /**
    * Lista de URLs de imágenes del vehículo
    * @example ["https://res.cloudinary.com/xxx/image.jpg"]
@@ -5260,9 +5689,9 @@ export interface VehiculosFindAllParams {
   fechaFin?: string;
   /**
    * Filtrar por estado del vehículo
-   * @example "activo"
+   * @example "disponible"
    */
-  estado?: "activo" | "taller" | "retirado";
+  estado?: "disponible" | "circulacion" | "taller" | "retirado";
 }
 
 export type VehiculosFindAllData = PaginatedVehiculoResultDto;
@@ -6550,9 +6979,9 @@ export namespace Vehiculos {
       fechaFin?: string;
       /**
        * Filtrar por estado del vehículo
-       * @example "activo"
+       * @example "disponible"
        */
-      estado?: "activo" | "taller" | "retirado";
+      estado?: "disponible" | "circulacion" | "taller" | "retirado";
     };
     export type RequestBody = never;
     export type RequestHeaders = {};
