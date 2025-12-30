@@ -1635,14 +1635,14 @@ export interface ConductorListDto {
   numeroLicencia: string;
   /**
    * Driver license class
-   * @example "Uno"
-   */
-  claseLicencia: "Uno" | "Dos" | "Tres";
-  /**
-   * Driver license category
    * @example "A"
    */
-  categoriaLicencia: "A" | "B";
+  claseLicencia: "A" | "B";
+  /**
+   * Driver license category
+   * @example "Uno"
+   */
+  categoriaLicencia: "Uno" | "Dos" | "Tres";
   /**
    * Lista de URLs de fotochecks del conductor
    * @example ["https://res.cloudinary.com/xxx/fotocheck.jpg"]
@@ -1773,14 +1773,14 @@ export interface ConductorResultDto {
   numeroLicencia: string;
   /**
    * Driver license class
-   * @example "Uno"
-   */
-  claseLicencia: "Uno" | "Dos" | "Tres";
-  /**
-   * Driver license category
    * @example "A"
    */
-  categoriaLicencia: "A" | "B";
+  claseLicencia: "A" | "B";
+  /**
+   * Driver license category
+   * @example "Uno"
+   */
+  categoriaLicencia: "Uno" | "Dos" | "Tres";
   /**
    * Lista de URLs de fotochecks del conductor
    * @example ["https://res.cloudinary.com/xxx/fotocheck.jpg"]
@@ -3173,14 +3173,14 @@ export interface ConductorViajeDto {
   numeroLicencia: string;
   /**
    * Driver license class
-   * @example "Uno"
-   */
-  claseLicencia: "Uno" | "Dos" | "Tres";
-  /**
-   * Driver license category
    * @example "A"
    */
-  categoriaLicencia: "A" | "B";
+  claseLicencia: "A" | "B";
+  /**
+   * Driver license category
+   * @example "Uno"
+   */
+  categoriaLicencia: "Uno" | "Dos" | "Tres";
   /**
    * Lista de URLs de fotochecks del conductor
    * @example ["https://res.cloudinary.com/xxx/fotocheck.jpg"]
@@ -3599,14 +3599,14 @@ export interface ViajeConductorDetalleDto {
   numeroLicencia: string;
   /**
    * Driver license class
-   * @example "Uno"
-   */
-  claseLicencia: "Uno" | "Dos" | "Tres";
-  /**
-   * Driver license category
    * @example "A"
    */
-  categoriaLicencia: "A" | "B";
+  claseLicencia: "A" | "B";
+  /**
+   * Driver license category
+   * @example "Uno"
+   */
+  categoriaLicencia: "Uno" | "Dos" | "Tres";
   /**
    * Lista de URLs de fotochecks del conductor
    * @example ["https://res.cloudinary.com/xxx/fotocheck.jpg"]

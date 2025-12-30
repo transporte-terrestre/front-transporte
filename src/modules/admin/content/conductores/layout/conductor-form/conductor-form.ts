@@ -41,8 +41,8 @@ export class ConductorForm implements OnInit {
     categoriaLicencia: ['', [Validators.required]],
   });
 
-  clases: ApiField<'conductores', 'findOne', 'claseLicencia'>[] = ['Uno', 'Dos', 'Tres'];
-  categorias: ApiField<'conductores', 'findOne', 'categoriaLicencia'>[] = ['A', 'B'];
+  clases: ApiField<'conductores', 'findOne', 'claseLicencia'>[] = ['A', 'B'];
+  categorias: ApiField<'conductores', 'findOne', 'categoriaLicencia'>[] = ['Uno', 'Dos', 'Tres'];
 
   documentTypes: {
     value: keyof ApiField<'conductores', 'findOne', 'documentos'>;
