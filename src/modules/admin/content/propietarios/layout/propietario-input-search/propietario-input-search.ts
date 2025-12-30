@@ -131,6 +131,7 @@ export class PropietarioInputSearch implements ControlValueAccessor {
     this.isOpen.set(false);
   }
 
+  // Helper for single mode ID loading
   loadInitialPropietario(id: number) {
     this.propietarioService
       .findOne(id)
@@ -146,6 +147,10 @@ export class PropietarioInputSearch implements ControlValueAccessor {
     const p = this.selectedPropietario();
     if (!p) return 'Seleccionar propietario...';
     return p.nombreCompleto;
+  }
+
+  isSelected(propietarioId: number): boolean {
+    return this.selectedPropietario()?.id === propietarioId;
   }
 
   @HostListener('document:click', ['$event'])
