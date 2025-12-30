@@ -845,11 +845,6 @@ export interface VehiculoResultDto {
    */
   anio: number;
   /**
-   * Model year
-   * @example 2021
-   */
-  anioModelo?: number;
-  /**
    * VIN
    * @example "VIN1234567890ABCD"
    */
@@ -1021,11 +1016,6 @@ export interface VehiculoCreateDto {
    */
   anio: number;
   /**
-   * Model year
-   * @example 2021
-   */
-  anioModelo?: number;
-  /**
    * Vehicle Identification Number
    * @example "VIN1234567890ABCD"
    */
@@ -1190,11 +1180,6 @@ export interface VehiculoUpdateDto {
    * @example 2020
    */
   anio?: number;
-  /**
-   * Model year
-   * @example 2021
-   */
-  anioModelo?: number;
   /**
    * Vehicle Identification Number
    * @example "VIN1234567890ABCD"
@@ -1629,6 +1614,16 @@ export interface ConductorListDto {
    */
   nombreCompleto: string;
   /**
+   * Driver email
+   * @example "juan@example.com"
+   */
+  email?: string;
+  /**
+   * Driver phone number
+   * @example "987654321"
+   */
+  celular?: string;
+  /**
    * Driver license number
    * @example "Q07864165"
    */
@@ -1693,7 +1688,16 @@ export interface ConductorDocumentoResultDto {
     | "psicosensometrico"
     | "induccion_general"
     | "manejo_defensivo"
-    | "licencia_interna";
+    | "licencia_interna"
+    | "autoriza_ssgg"
+    | "curso_seguridad_portuaria"
+    | "curso_mercancias_peligrosas"
+    | "curso_basico_pbip"
+    | "examen_medico_temporal"
+    | "induccion_visita"
+    | "em_visita"
+    | "pase_conduc"
+    | "foto_funcionario";
   /**
    * Nombre del documento
    * @example "Documento 1"
@@ -1738,6 +1742,15 @@ export interface DocumentosAgrupadosConductorDto {
   induccion_general: ConductorDocumentoResultDto[];
   manejo_defensivo: ConductorDocumentoResultDto[];
   licencia_interna: ConductorDocumentoResultDto[];
+  autoriza_ssgg: ConductorDocumentoResultDto[];
+  curso_seguridad_portuaria: ConductorDocumentoResultDto[];
+  curso_mercancias_peligrosas: ConductorDocumentoResultDto[];
+  curso_basico_pbip: ConductorDocumentoResultDto[];
+  examen_medico_temporal: ConductorDocumentoResultDto[];
+  induccion_visita: ConductorDocumentoResultDto[];
+  em_visita: ConductorDocumentoResultDto[];
+  pase_conduc: ConductorDocumentoResultDto[];
+  foto_funcionario: ConductorDocumentoResultDto[];
 }
 
 export interface ConductorResultDto {
@@ -1766,6 +1779,16 @@ export interface ConductorResultDto {
    * @example "Juan Carlos Perez Garcia"
    */
   nombreCompleto: string;
+  /**
+   * Driver email
+   * @example "juan@example.com"
+   */
+  email?: string;
+  /**
+   * Driver phone number
+   * @example "987654321"
+   */
+  celular?: string;
   /**
    * Driver license number
    * @example "Q07864165"
@@ -1897,7 +1920,16 @@ export interface ConductorDocumentoCreateDto {
     | "psicosensometrico"
     | "induccion_general"
     | "manejo_defensivo"
-    | "licencia_interna";
+    | "licencia_interna"
+    | "autoriza_ssgg"
+    | "curso_seguridad_portuaria"
+    | "curso_mercancias_peligrosas"
+    | "curso_basico_pbip"
+    | "examen_medico_temporal"
+    | "induccion_visita"
+    | "em_visita"
+    | "pase_conduc"
+    | "foto_funcionario";
   /**
    * Nombre del documento
    * @example "Documento 1"
@@ -1934,7 +1966,16 @@ export interface ConductorDocumentoUpdateDto {
     | "psicosensometrico"
     | "induccion_general"
     | "manejo_defensivo"
-    | "licencia_interna";
+    | "licencia_interna"
+    | "autoriza_ssgg"
+    | "curso_seguridad_portuaria"
+    | "curso_mercancias_peligrosas"
+    | "curso_basico_pbip"
+    | "examen_medico_temporal"
+    | "induccion_visita"
+    | "em_visita"
+    | "pase_conduc"
+    | "foto_funcionario";
   /**
    * URL del documento
    * @example "https://storage.example.com/documentos/licencia-A123456.pdf"
@@ -1993,11 +2034,6 @@ export interface VehiculoMantenimientoListDto {
    * @example 2020
    */
   anio: number;
-  /**
-   * Model year
-   * @example 2021
-   */
-  anioModelo?: number;
   /**
    * VIN
    * @example "VIN1234567890ABCD"
@@ -2335,11 +2371,6 @@ export interface VehiculoMantenimientoResultDto {
    * @example 2020
    */
   anio: number;
-  /**
-   * Model year
-   * @example 2021
-   */
-  anioModelo?: number;
   /**
    * VIN
    * @example "VIN1234567890ABCD"
@@ -3167,6 +3198,16 @@ export interface ConductorViajeDto {
    */
   nombreCompleto: string;
   /**
+   * Driver email
+   * @example "juan@example.com"
+   */
+  email?: string;
+  /**
+   * Driver phone number
+   * @example "987654321"
+   */
+  celular?: string;
+  /**
    * Driver license number
    * @example "Q07864165"
    */
@@ -3241,11 +3282,6 @@ export interface VehiculoViajeDto {
    * @example 2020
    */
   anio: number;
-  /**
-   * Model year
-   * @example 2021
-   */
-  anioModelo?: number;
   /**
    * VIN
    * @example "VIN1234567890ABCD"
@@ -3593,6 +3629,16 @@ export interface ViajeConductorDetalleDto {
    */
   nombreCompleto: string;
   /**
+   * Driver email
+   * @example "juan@example.com"
+   */
+  email?: string;
+  /**
+   * Driver phone number
+   * @example "987654321"
+   */
+  celular?: string;
+  /**
    * Driver license number
    * @example "Q07864165"
    */
@@ -3677,11 +3723,6 @@ export interface ViajeVehiculoDetalleDto {
    * @example 2020
    */
   anio: number;
-  /**
-   * Model year
-   * @example 2021
-   */
-  anioModelo?: number;
   /**
    * VIN
    * @example "VIN1234567890ABCD"
@@ -5027,6 +5068,42 @@ export interface NotificacionResultDto {
   leido: boolean;
 }
 
+export interface SendEmailDto {
+  /**
+   * Correo del destinatario
+   * @example "example@gmail.com"
+   */
+  to: string;
+  /**
+   * Asunto
+   * @example "Asunto del correo"
+   */
+  subject: string;
+  /**
+   * Cuerpo del mensaje en texto plano
+   * @example "Contenido del correo"
+   */
+  text: string;
+  /**
+   * Cuerpo del mensaje en HTML
+   * @example "<h1>Hola</h1>"
+   */
+  html?: string;
+}
+
+export interface SendConductorExpirationEmailDto {
+  /**
+   * Correo al que se enviará la lista
+   * @example "admin@empresa.com"
+   */
+  email: string;
+  /**
+   * Días de anticipación para buscar vencimientos
+   * @example 7
+   */
+  diasAnticipacion?: number;
+}
+
 export interface VencimientoResumenDto {
   /** @example 5 */
   clientes: number;
@@ -5138,6 +5215,149 @@ export interface MantenimientoDetalladoTallerDto {
   vehiculoPlaca: string;
   vehiculoMarca: string;
   vehiculoModelo: string;
+}
+
+export interface ReporteConductorDto {
+  /**
+   * ID del conductor
+   * @example 1
+   */
+  id: number;
+  /**
+   * RUC de la empresa (Hardcoded)
+   * @example "2043893327"
+   */
+  rucEmpresa: string;
+  /**
+   * OST (Hardcoded)
+   * @example "2.MAY.3298"
+   */
+  ost: string;
+  /**
+   * DNI del conductor
+   * @example "12345678"
+   */
+  dni: string;
+  /**
+   * Nombres del conductor
+   * @example "JUAN"
+   */
+  nombres: string;
+  /**
+   * Apellidos del conductor
+   * @example "PEREZ"
+   */
+  apellidos: string;
+  /**
+   * Induccion - Anexo 4
+   * @example "SI"
+   */
+  induccionAnexo4: string;
+  /**
+   * Fec.Emision Induccion
+   * @example "NA"
+   */
+  fecEmisionInduccion: string;
+  /**
+   * Manejo defensivo AAQ
+   * @example "SI"
+   */
+  manejoDefensivoAaq: string;
+  /**
+   * Fec.Vence Manejo Def
+   * @example "29-01-2026"
+   */
+  fecVenceManejoDef: string;
+  /**
+   * SCTR
+   * @example "SI"
+   */
+  sctr: string;
+  /**
+   * Vencimiento SCTR
+   * @example "31-12-2025"
+   */
+  vencimientoSctr: string;
+  /**
+   * Seguro vida Ley
+   * @example "SI"
+   */
+  seguroVidaLey: string;
+  /**
+   * Fec. Vence Seg Vida Ley
+   * @example "01-01-2026"
+   */
+  fecVenceSegVidaLey: string;
+  /**
+   * Documento de Identidad
+   * @example "SI"
+   */
+  documentoIdentidad: string;
+  /**
+   * AUTORIZA_SSGG
+   * @example "NO"
+   */
+  autorizaSsgg: string;
+  /**
+   * Curso Seguridad Portuaria
+   * @example "NO"
+   */
+  cursoSeguridadPortuaria: string;
+  /**
+   * Foto Funcionario
+   * @example "SI"
+   */
+  fotoFuncionario: string;
+  /**
+   * Curso Mercancias Peligrosas
+   * @example "NO"
+   */
+  cursoMercanciasPeligrosas: string;
+  /**
+   * Curso Basico PBIP
+   * @example "NO"
+   */
+  cursoBasicoPbip: string;
+  /**
+   * F. Venc. Examen Medico Temporal
+   * @example "NA"
+   */
+  fVencExamenMedicoTemporal: string;
+  /**
+   * F. Vence examen medico
+   * @example "29-05-2026"
+   */
+  fVenceExamenMedico: string;
+  /**
+   * Vence Examen Psicosensometrico
+   * @example "29-05-2026"
+   */
+  venceExamenPsicosensometrico: string;
+  /**
+   * Fecha induccion temporal
+   * @example "NA"
+   */
+  fechaInduccionTemporal: string;
+  /**
+   * Vence Induccion Visita
+   * @example "NA"
+   */
+  venceInduccionVisita: string;
+  /**
+   * Vence EM Visita
+   * @example "NA"
+   */
+  venceEmVisita: string;
+  /**
+   * Fecha Vencimiento Licencia
+   * @example "06-01-2027"
+   */
+  fechaVencimientoLicencia: string;
+  /**
+   * PASECONDUC
+   * @example "NO"
+   */
+  paseconduc: string;
 }
 
 export interface PropietarioListDto {
@@ -6423,6 +6643,16 @@ export interface NotificacionesMarkAsReadParams {
 
 export type NotificacionesMarkAsReadData = NotificacionResultDto;
 
+export type NotificacionesSendEmailData = any;
+
+export type NotificacionesSendConductorExpirationEmailData = any;
+
+export interface NotificacionesNotifyEachConductorParams {
+  diasAnticipacion: number;
+}
+
+export type NotificacionesNotifyEachConductorData = any;
+
 export interface NotificacionesPreviewVencimientosParams {
   /**
    * Fecha de referencia (YYYY-MM-DD). Punto de partida para la búsqueda.
@@ -6513,6 +6743,8 @@ export interface ReportesGetMantenimientosDetalladosPorTallerParams {
 
 export type ReportesGetMantenimientosDetalladosPorTallerData =
   MantenimientoDetalladoTallerDto[];
+
+export type ReportesGetReporteConductoresData = ReporteConductorDto[];
 
 export interface PropietariosFindAllParams {
   /**
@@ -8816,7 +9048,6 @@ export namespace Notificaciones {
    * @name NotificacionesFindAll
    * @summary Obtener notificaciones del usuario
    * @request GET:/notificacion/find-all
-   * @secure
    * @response `200` `NotificacionesFindAllData`
    */
   export namespace NotificacionesFindAll {
@@ -8851,7 +9082,6 @@ export namespace Notificaciones {
    * @name NotificacionesCreate
    * @summary Crear una nueva notificación general
    * @request POST:/notificacion/create
-   * @secure
    * @response `201` `NotificacionesCreateData`
    */
   export namespace NotificacionesCreate {
@@ -8868,7 +9098,6 @@ export namespace Notificaciones {
    * @name NotificacionesMarkAsRead
    * @summary Marcar notificación como leída
    * @request POST:/notificacion/leido/{id}
-   * @secure
    * @response `200` `NotificacionesMarkAsReadData`
    */
   export namespace NotificacionesMarkAsRead {
@@ -8886,10 +9115,59 @@ export namespace Notificaciones {
   /**
    * No description
    * @tags Notificaciones
+   * @name NotificacionesSendEmail
+   * @summary Enviar un correo electrónico
+   * @request POST:/notificacion/send-email
+   * @response `200` `NotificacionesSendEmailData` Correo enviado correctamente
+   */
+  export namespace NotificacionesSendEmail {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = SendEmailDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = NotificacionesSendEmailData;
+  }
+
+  /**
+   * No description
+   * @tags Notificaciones
+   * @name NotificacionesSendConductorExpirationEmail
+   * @summary Enviar lista de conductores con documentos por vencer a un correo
+   * @request POST:/notificacion/send-conductor-expiration-email
+   * @response `200` `NotificacionesSendConductorExpirationEmailData` Correo enviado con el reporte
+   */
+  export namespace NotificacionesSendConductorExpirationEmail {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = SendConductorExpirationEmailDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = NotificacionesSendConductorExpirationEmailData;
+  }
+
+  /**
+   * No description
+   * @tags Notificaciones
+   * @name NotificacionesNotifyEachConductor
+   * @summary Enviar correo personalizado a cada conductor con sus documentos por vencer
+   * @request POST:/notificacion/notify-each-conductor
+   * @response `200` `NotificacionesNotifyEachConductorData` Proceso de notificación por correo finalizado
+   */
+  export namespace NotificacionesNotifyEachConductor {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      diasAnticipacion: number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = NotificacionesNotifyEachConductorData;
+  }
+
+  /**
+   * No description
+   * @tags Notificaciones
    * @name NotificacionesPreviewVencimientos
    * @summary TEST: Previsualizar notificaciones de documentos por vencer
    * @request GET:/notificacion/vencimientos/test
-   * @secure
    * @response `200` `NotificacionesPreviewVencimientosData`
    */
   export namespace NotificacionesPreviewVencimientos {
@@ -8918,7 +9196,6 @@ export namespace Notificaciones {
    * @name NotificacionesGenerarVencimientos
    * @summary Generar y guardar notificaciones de documentos por vencer
    * @request POST:/notificacion/vencimientos/generar
-   * @secure
    * @response `201` `NotificacionesGenerarVencimientosData`
    */
   export namespace NotificacionesGenerarVencimientos {
@@ -9067,6 +9344,23 @@ export namespace Reportes {
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = ReportesGetMantenimientosDetalladosPorTallerData;
+  }
+
+  /**
+   * No description
+   * @tags Reportes
+   * @name ReportesGetReporteConductores
+   * @summary Reporte general de conductores con vencimientos
+   * @request GET:/reportes/conductores/general
+   * @secure
+   * @response `200` `ReportesGetReporteConductoresData` Lista general de conductores con vencimientos
+   */
+  export namespace ReportesGetReporteConductores {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ReportesGetReporteConductoresData;
   }
 }
 
@@ -11872,7 +12166,6 @@ export class Api<SecurityDataType extends unknown> {
      * @name NotificacionesFindAll
      * @summary Obtener notificaciones del usuario
      * @request GET:/notificacion/find-all
-     * @secure
      * @response `200` `NotificacionesFindAllData`
      */
     findAll: (
@@ -11883,7 +12176,6 @@ export class Api<SecurityDataType extends unknown> {
         path: `/notificacion/find-all`,
         method: "GET",
         query: query,
-        secure: true,
         format: "json",
         ...params,
       }),
@@ -11895,7 +12187,6 @@ export class Api<SecurityDataType extends unknown> {
      * @name NotificacionesCreate
      * @summary Crear una nueva notificación general
      * @request POST:/notificacion/create
-     * @secure
      * @response `201` `NotificacionesCreateData`
      */
     create: (
@@ -11906,7 +12197,6 @@ export class Api<SecurityDataType extends unknown> {
         path: `/notificacion/create`,
         method: "POST",
         body: data,
-        secure: true,
         type: ContentType.Json,
         format: "json",
         ...params,
@@ -11919,7 +12209,6 @@ export class Api<SecurityDataType extends unknown> {
      * @name NotificacionesMarkAsRead
      * @summary Marcar notificación como leída
      * @request POST:/notificacion/leido/{id}
-     * @secure
      * @response `200` `NotificacionesMarkAsReadData`
      */
     markAsRead: (
@@ -11930,8 +12219,66 @@ export class Api<SecurityDataType extends unknown> {
         path: `/notificacion/leido/${id}`,
         method: "POST",
         query: query,
-        secure: true,
         format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Notificaciones
+     * @name NotificacionesSendEmail
+     * @summary Enviar un correo electrónico
+     * @request POST:/notificacion/send-email
+     * @response `200` `NotificacionesSendEmailData` Correo enviado correctamente
+     */
+    sendEmail: (data: SendEmailDto, params: RequestParams = {}) =>
+      this.http.request<NotificacionesSendEmailData, any>({
+        path: `/notificacion/send-email`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Notificaciones
+     * @name NotificacionesSendConductorExpirationEmail
+     * @summary Enviar lista de conductores con documentos por vencer a un correo
+     * @request POST:/notificacion/send-conductor-expiration-email
+     * @response `200` `NotificacionesSendConductorExpirationEmailData` Correo enviado con el reporte
+     */
+    sendConductorExpirationEmail: (
+      data: SendConductorExpirationEmailDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<NotificacionesSendConductorExpirationEmailData, any>({
+        path: `/notificacion/send-conductor-expiration-email`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Notificaciones
+     * @name NotificacionesNotifyEachConductor
+     * @summary Enviar correo personalizado a cada conductor con sus documentos por vencer
+     * @request POST:/notificacion/notify-each-conductor
+     * @response `200` `NotificacionesNotifyEachConductorData` Proceso de notificación por correo finalizado
+     */
+    notifyEachConductor: (
+      query: NotificacionesNotifyEachConductorParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<NotificacionesNotifyEachConductorData, any>({
+        path: `/notificacion/notify-each-conductor`,
+        method: "POST",
+        query: query,
         ...params,
       }),
 
@@ -11942,7 +12289,6 @@ export class Api<SecurityDataType extends unknown> {
      * @name NotificacionesPreviewVencimientos
      * @summary TEST: Previsualizar notificaciones de documentos por vencer
      * @request GET:/notificacion/vencimientos/test
-     * @secure
      * @response `200` `NotificacionesPreviewVencimientosData`
      */
     previewVencimientos: (
@@ -11953,7 +12299,6 @@ export class Api<SecurityDataType extends unknown> {
         path: `/notificacion/vencimientos/test`,
         method: "GET",
         query: query,
-        secure: true,
         format: "json",
         ...params,
       }),
@@ -11965,7 +12310,6 @@ export class Api<SecurityDataType extends unknown> {
      * @name NotificacionesGenerarVencimientos
      * @summary Generar y guardar notificaciones de documentos por vencer
      * @request POST:/notificacion/vencimientos/generar
-     * @secure
      * @response `201` `NotificacionesGenerarVencimientosData`
      */
     generarVencimientos: (
@@ -11976,7 +12320,6 @@ export class Api<SecurityDataType extends unknown> {
         path: `/notificacion/vencimientos/generar`,
         method: "POST",
         query: query,
-        secure: true,
         format: "json",
         ...params,
       }),
@@ -12095,6 +12438,25 @@ export class Api<SecurityDataType extends unknown> {
         path: `/reportes/mantenimientos-detallados/taller/${id}`,
         method: "GET",
         query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Reportes
+     * @name ReportesGetReporteConductores
+     * @summary Reporte general de conductores con vencimientos
+     * @request GET:/reportes/conductores/general
+     * @secure
+     * @response `200` `ReportesGetReporteConductoresData` Lista general de conductores con vencimientos
+     */
+    getReporteConductores: (params: RequestParams = {}) =>
+      this.http.request<ReportesGetReporteConductoresData, any>({
+        path: `/reportes/conductores/general`,
+        method: "GET",
         secure: true,
         format: "json",
         ...params,

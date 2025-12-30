@@ -75,7 +75,6 @@ export class VehiculoForm implements OnInit {
     estado: ['disponible', [Validators.required]],
     propietarios: [[], []], // We keep this but manage ids manually on submit
     // New fields
-    anioModelo: ['', [Validators.min(1900), Validators.max(2100)]],
     pasajeros: ['', [Validators.min(0)]],
     ruedas: ['', [Validators.min(0)]],
     sede: ['', [Validators.maxLength(100)]],
@@ -203,7 +202,6 @@ export class VehiculoForm implements OnInit {
           kilometraje: vehiculoData.kilometraje,
           estado: vehiculoData.estado,
           // New fields mapping
-          anioModelo: vehiculoData.anioModelo,
           pasajeros: vehiculoData.pasajeros,
           ruedas: vehiculoData.ruedas,
           sede: vehiculoData.sede,
@@ -275,7 +273,6 @@ export class VehiculoForm implements OnInit {
       propietarios: this.selectedOwners().map((p) => p.id),
       imagenes: this.imagenes(),
       // New fields mapping
-      anioModelo: formValue.anioModelo ? Number(formValue.anioModelo) : undefined,
       pasajeros: formValue.pasajeros ? Number(formValue.pasajeros) : undefined,
       ruedas: formValue.ruedas ? Number(formValue.ruedas) : undefined,
       sede: formValue.sede || undefined,

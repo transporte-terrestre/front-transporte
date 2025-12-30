@@ -51,8 +51,9 @@
         type="number"
         formControlName="kilometraje"
         min="0"
-        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-        placeholder="55000"
+        readonly
+        class="w-full px-3 py-2 text-sm bg-text/10 border-2 border-transparent rounded-lg text-text/60 font-inter-medium outline-none cursor-not-allowed"
+        placeholder="Se autocompleta con el vehículo"
       />
       @if (mantenimientoForm.get('kilometraje')?.touched && mantenimientoForm.get('kilometraje')?.errors) {
         <p class="text-danger text-xs font-inter-medium mt-1">El kilometraje es requerido</p>

@@ -42,6 +42,7 @@ export class ClienteForm implements OnInit {
     email: ['', [Validators.email, Validators.maxLength(100)]],
     telefono: ['', [Validators.maxLength(20)]],
     direccion: ['', [Validators.maxLength(255)]],
+    horasContrato: ['', []],
   });
 
   documentTypes: {
@@ -73,6 +74,7 @@ export class ClienteForm implements OnInit {
           email: clienteData.email || '',
           telefono: clienteData.telefono || '',
           direccion: clienteData.direccion || '',
+          horasContrato: clienteData.horasContrato || '',
         });
         this.imagenes.set(clienteData.imagenes || []);
         this.localDocuments.set(JSON.parse(JSON.stringify(clienteData.documentos)));
@@ -147,6 +149,7 @@ export class ClienteForm implements OnInit {
     if (formData.email) cleanData.email = formData.email;
     if (formData.telefono) cleanData.telefono = formData.telefono;
     if (formData.direccion) cleanData.direccion = formData.direccion;
+    if (formData.horasContrato) cleanData.horasContrato = formData.horasContrato;
 
     if (this.editMode()) {
       this.onSubmitForm.emit(cleanData as ApiBody<'clientes', 'update'>);

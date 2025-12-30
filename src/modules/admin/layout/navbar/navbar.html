@@ -39,22 +39,78 @@
       ></span>
     </button>
 
-    <div
-      class="flex items-center gap-3 pl-2 sm:pl-4 sm:border-l border-text/10 cursor-pointer group"
-    >
-      <div class="text-right hidden sm:block">
-        <div
-          class="text-sm font-inter-semibold text-text group-hover:text-secondary transition-colors capitalize"
-        >
-          {{ userName() }}
-        </div>
-        <div class="text-xs text-text/40 font-inter-medium capitalize">{{ userRole() }}</div>
-      </div>
+    <div class="relative">
       <div
-        class="w-10 h-10 rounded-full bg-text/5 flex items-center justify-center text-secondary font-inter-bold border-2 border-background shadow-sm group-hover:shadow-md transition-all"
+        (click)="onToggleDropdown()"
+        class="flex items-center gap-3 pl-2 sm:pl-4 sm:border-l border-text/10 cursor-pointer group select-none"
       >
-        {{ userInitials() }}
+        <div class="text-right hidden sm:block">
+          <div
+            class="text-sm font-inter-semibold text-text group-hover:text-secondary transition-colors capitalize"
+          >
+            {{ userName() }}
+          </div>
+          <div class="text-xs text-text/40 font-inter-medium capitalize">{{ userRole() }}</div>
+        </div>
+        <div
+          class="w-10 h-10 rounded-full bg-text/5 flex items-center justify-center text-secondary font-inter-bold border-2 border-background shadow-sm group-hover:shadow-md transition-shadow"
+        >
+          {{ userInitials() }}
+        </div>
       </div>
+
+      <!-- Dropdown Menu -->
+      @if (isDropdownOpen()) {
+      <div class="fixed inset-0 z-40" (click)="onToggleDropdown()"></div>
+      <div
+        class="absolute right-0 top-full mt-2 w-56 bg-background rounded-xl shadow-xl border border-text/10 overflow-hidden z-50 flex flex-col py-1 animate-in fade-in slide-in-from-top-2 duration-200"
+      >
+        <div class="px-4 py-3 border-b border-text/5 block sm:hidden">
+          <p class="text-sm font-inter-bold text-text truncate">{{ userName() }}</p>
+          <p class="text-xs text-text/50 capitalize">{{ userRole() }}</p>
+        </div>
+
+        <button
+          (click)="toggleTheme()"
+          class="w-full px-4 py-3 text-left text-sm font-inter-medium text-text hover:bg-text/5 flex items-center gap-3 transition-colors"
+        >
+          @if (themeService.theme() === 'dark') {
+          <div
+            class="w-8 h-8 rounded-lg bg-warning/10 flex items-center justify-center text-warning"
+          >
+            <i class="fas fa-sun text-sm"></i>
+          </div>
+          <div class="flex flex-col">
+            <span class="leading-tight">Modo Claro</span>
+            <span class="text-[10px] text-text/40">Cambiar apariencia</span>
+          </div>
+          } @else {
+          <div
+            class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary"
+          >
+            <i class="fas fa-moon text-sm"></i>
+          </div>
+          <div class="flex flex-col">
+            <span class="leading-tight">Modo Oscuro</span>
+            <span class="text-[10px] text-text/40">Cambiar apariencia</span>
+          </div>
+          }
+        </button>
+
+        <button
+          (click)="logout()"
+          class="w-full px-4 py-3 text-left text-sm font-inter-medium text-danger hover:bg-danger/5 flex items-center gap-3 transition-colors border-t border-text/5"
+        >
+          <div class="w-8 h-8 rounded-lg bg-danger/10 flex items-center justify-center text-danger">
+            <i class="fas fa-sign-out-alt text-sm"></i>
+          </div>
+          <div class="flex flex-col">
+            <span class="leading-tight">Cerrar Sesión</span>
+            <span class="text-[10px] text-danger/50">Salir del sistema</span>
+          </div>
+        </button>
+      </div>
+      }
     </div>
   </div>
 </div>

@@ -1,43 +1,51 @@
 @if (isOpen()) {
-  <div class="fixed inset-0 bg-black/50 z-30 md:hidden transition-opacity" (click)="closeSidebar()"></div>
+<div
+  class="fixed inset-0 bg-black/50 z-30 md:hidden transition-opacity"
+  (click)="closeSidebar()"
+></div>
 }
 
-<div class="flex flex-col bg-background text-text shadow-sm transition-all duration-300 ease-in-out md:translate-x-0 fixed md:relative z-40 w-64 h-full"
+<div
+  class="flex flex-col bg-background text-text shadow-sm shadow-text/10 md:translate-x-0 fixed md:relative z-40 w-64 h-full"
   [class.translate-x-0]="isOpen()"
   [class.-translate-x-full]="!isOpen()"
   [class.md:!w-20]="isCollapsed()"
 >
-
-  <div class="h-16 flex items-center border-b border-text/10 transition-all duration-300"
+  <div
+    class="h-16 flex items-center border-b border-text/10"
     [class.px-6]="!isCollapsed()"
     [class.justify-center]="isCollapsed()"
     [class.px-3]="isCollapsed()"
   >
     <div class="flex items-center gap-3 overflow-hidden" [class.justify-center]="isCollapsed()">
-      <div class="w-8 h-8 bg-text text-background flex items-center justify-center rounded-lg shadow-md shrink-0">
+      <div
+        class="w-8 h-8 bg-text text-background flex items-center justify-center rounded-lg shadow-md shrink-0"
+      >
         <i class="fas fa-shipping-fast text-primary"></i>
       </div>
       @if (!isCollapsed()) {
-        <span class="font-anton text-xl tracking-wider text-text uppercase truncate">transporte</span>
+      <span class="font-anton text-xl tracking-wider text-text uppercase truncate">transporte</span>
       }
     </div>
   </div>
 
   <nav class="flex-1 overflow-y-auto py-6 px-3 space-y-1 overflow-hidden">
     @if (!isCollapsed()) {
-      <div class="px-3 mb-2 text-xs font-inter-bold text-text/40 uppercase tracking-wider">Menu</div>
-    }
-
-    @for (item of menuItems(); track item.label) {
+    <div class="px-3 mb-2 text-xs font-inter-bold text-text/40 uppercase tracking-wider">Menu</div>
+    } @for (item of menuItems(); track item.label) {
     <button
       (click)="navigateTo(item.path)"
       [title]="isCollapsed() ? item.label : ''"
       class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-text/50 hover:bg-text/5 hover:text-text transition-all duration-200 group overflow-hidden"
       [class.justify-center]="isCollapsed()"
     >
-      <i [class]="item.icon + ' w-5 text-center transition-colors group-hover:text-secondary shrink-0'"></i>
+      <i
+        [class]="
+          item.icon + ' w-5 text-center transition-colors group-hover:text-secondary shrink-0'
+        "
+      ></i>
       @if (!isCollapsed()) {
-        <span class="text-sm font-inter-medium truncate">{{ item.label }}</span>
+      <span class="text-sm font-inter-medium truncate">{{ item.label }}</span>
       }
     </button>
     }
@@ -52,7 +60,7 @@
     >
       <i class="fas fa-sign-out-alt w-5 text-center shrink-0"></i>
       @if (!isCollapsed()) {
-        <span class="text-sm font-inter-medium truncate">Log Out</span>
+      <span class="text-sm font-inter-medium truncate">Log Out</span>
       }
     </button>
   </div>

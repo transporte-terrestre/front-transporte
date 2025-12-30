@@ -214,6 +214,7 @@ export const generateReportePdf = (data: ReportePdfData) => {
       ? new Date(viaje.fechaSalida).toLocaleDateString('es-PE')
       : '---';
 
+    const horasContrato = viaje.horasContrato ? parseFloat(viaje.horasContrato).toFixed(2) : '-';
     const horasTotales = viaje.horasTotales ? viaje.horasTotales.toFixed(2) : '-';
     const horasExcedidas =
       viaje.horasExcedidas && viaje.horasExcedidas > 0
@@ -228,6 +229,7 @@ export const generateReportePdf = (data: ReportePdfData) => {
       kmFinal,
       diferencia,
       fechaSalida,
+      horasContrato,
       horasTotales,
       horasExcedidas,
     ];
@@ -235,7 +237,9 @@ export const generateReportePdf = (data: ReportePdfData) => {
 
   autoTable(doc, {
     startY: y,
-    head: [['ID', 'Ruta', 'Estado', 'Km Est.', 'Km Real', 'Dif.', 'Fecha', 'H. Tot', 'H. Exc']],
+    head: [
+      ['ID', 'Ruta', 'Estado', 'Km Est.', 'Km Real', 'Dif.', 'Fecha', 'H. Ctr', 'H. Tot', 'H. Exc'],
+    ],
     body: tableData,
     theme: 'grid',
     styles: {
@@ -244,7 +248,7 @@ export const generateReportePdf = (data: ReportePdfData) => {
       lineColor: [220, 220, 220],
       lineWidth: 0.1,
       textColor: [50, 50, 50],
-      minCellWidth: 10, // Ensure cells don't collapse too much
+      minCellWidth: 10,
     },
     headStyles: {
       fillColor: [31, 41, 55],
@@ -255,14 +259,15 @@ export const generateReportePdf = (data: ReportePdfData) => {
     },
     columnStyles: {
       0: { cellWidth: 12, halign: 'center' }, // ID
-      1: { cellWidth: 40 }, // Ruta - Fixed width to prevent wrapping issues impacting others
-      2: { cellWidth: 20 }, // Estado
+      1: { halign: 'left' }, // Ruta - Auto width to fill space
+      2: { cellWidth: 22 }, // Estado
       3: { cellWidth: 16, halign: 'right' }, // Km Est
       4: { cellWidth: 16, halign: 'right' }, // Km Real
       5: { cellWidth: 14, halign: 'right' }, // Dif
-      6: { cellWidth: 24, halign: 'center' }, // Fecha
-      7: { cellWidth: 14, halign: 'right' }, // H. Tot
-      8: { cellWidth: 14, halign: 'right' }, // H. Exc
+      6: { cellWidth: 22, halign: 'center' }, // Fecha
+      7: { cellWidth: 16, halign: 'right' }, // H. Ctr
+      8: { cellWidth: 16, halign: 'right' }, // H. Tot
+      9: { cellWidth: 16, halign: 'right' }, // H. Exc
     },
     alternateRowStyles: {
       fillColor: [249, 250, 251],
@@ -290,8 +295,8 @@ export const generateReportePdf = (data: ReportePdfData) => {
           cellData.cell.styles.textColor = [34, 197, 94]; // Green for negative
         }
       }
-      // Color for Exceeded hours column (Index 8 now)
-      if (cellData.column.index === 8 && cellData.section === 'body') {
+      // Color for Exceeded hours column (Index 9 now)
+      if (cellData.column.index === 9 && cellData.section === 'body') {
         const val = cellData.cell.raw as string;
         if (val.startsWith('+')) {
           cellData.cell.styles.textColor = [239, 68, 68]; // Red for exceeded
@@ -308,75 +313,10 @@ export const generateReportePdf = (data: ReportePdfData) => {
   doc.line(margin, y, pageWidth - margin, y);
   y += 6;
 
-  // Total Summary - 3 badges
-  const badgeWidth = 50;
-  const badgeHeight = 12;
-  const badgeGap = 5;
-  const badgesStartX = pageWidth - margin - (badgeWidth * 3 + badgeGap * 2);
-
-  // Badge 1: Km Estimados
-  doc.setFillColor(...infoColor);
-  doc.roundedRect(badgesStartX, y - 2, badgeWidth, badgeHeight, 2, 2, 'F');
-  doc.setFontSize(7);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(255);
-  doc.text(`Est: ${totalKmEstimados.toFixed(1)} km`, badgesStartX + badgeWidth / 2, y + 5, {
-    align: 'center',
-  });
-
-  // Badge 2: Km Finales
-  doc.setFillColor(...primaryColor);
-  doc.roundedRect(badgesStartX + badgeWidth + badgeGap, y - 2, badgeWidth, badgeHeight, 2, 2, 'F');
-  doc.text(
-    `Final: ${totalKmFinales.toFixed(1)} km`,
-    badgesStartX + badgeWidth + badgeGap + badgeWidth / 2,
-    y + 5,
-    { align: 'center' }
-  );
-
-  // Badge 3: Diferencia
-  if (totalDiferencia > 0) {
-    doc.setFillColor(...dangerColor);
-  } else if (totalDiferencia < 0) {
-    doc.setFillColor(...successColor);
-  } else {
-    doc.setFillColor(150, 150, 150);
-  }
-  doc.roundedRect(
-    badgesStartX + (badgeWidth + badgeGap) * 2,
-    y - 2,
-    badgeWidth,
-    badgeHeight,
-    2,
-    2,
-    'F'
-  );
-  const difText =
-    totalDiferencia > 0 ? `+${totalDiferencia.toFixed(1)}` : totalDiferencia.toFixed(1);
-  doc.text(
-    `Dif: ${difText} km`,
-    badgesStartX + (badgeWidth + badgeGap) * 2 + badgeWidth / 2,
-    y + 5,
-    { align: 'center' }
-  );
-
-  // Badge 4: Horas Excedidas (if > 0)
-  if (totalHorasExcedidas > 0) {
-    const badge4X = badgesStartX - (badgeWidth + badgeGap);
-    doc.setFillColor(...dangerColor);
-    doc.roundedRect(badge4X, y - 2, badgeWidth, badgeHeight, 2, 2, 'F');
-    doc.setFontSize(7);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(255);
-    doc.text(`Exc: +${totalHorasExcedidas.toFixed(1)} h`, badge4X + badgeWidth / 2, y + 5, {
-      align: 'center',
-    });
-  }
-
   doc.setTextColor(100);
   doc.setFontSize(8);
   doc.setFont('helvetica', 'normal');
-  doc.text('TRANSPORTES LINEA S.A. - Sistema de Gestion de Flota', margin, y + badgeHeight + 8);
+  doc.text('TRANSPORTES LINEA S.A. - Sistema de Gestion de Flota', margin, y + 8);
 
   // Save
   const filename = `Reporte_${data.tipoReporte}_${new Date().toISOString().split('T')[0]}.pdf`;
