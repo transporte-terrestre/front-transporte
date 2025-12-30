@@ -96,7 +96,8 @@ export const generateOrdenServicioPdf = (mantenimiento: ApiResponse<'mantenimien
   const bodyData = tareas.map((t, index) => [
     (index + 1).toString(),
     t.tarea?.codigo || '',
-    t.tarea?.descripcion || '',
+    t.tarea?.nombreTrabajo || '',
+    t.tarea?.grupo || '',
     t.responsable || '',
     '', // H.Inicio - dejado vacío para llenar manualmente
     '', // H.Fin - dejado vacío para llenar manualmente

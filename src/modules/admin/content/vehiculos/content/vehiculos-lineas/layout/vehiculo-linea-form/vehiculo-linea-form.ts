@@ -36,26 +36,23 @@ export class VehiculoLineaForm {
   });
 
   constructor() {
-    effect(
-      () => {
-        const marcaData = this.marca();
-        const isEditMode = this.editMode();
+    effect(() => {
+      const marcaData = this.marca();
+      const isEditMode = this.editMode();
 
-        console.log('Effect triggered:', { marcaData, isEditMode });
+      console.log('Effect triggered:', { marcaData, isEditMode });
 
-        if (isEditMode && marcaData) {
-          this.marcaForm.patchValue({
-            nombre: marcaData.nombre,
-          });
-          this.loadModelos(marcaData.id);
-        } else {
-          this.marcaForm.reset();
-          this.modelosArray.clear();
-          this.modelos.set([]);
-        }
-      },
-      { allowSignalWrites: true }
-    );
+      if (isEditMode && marcaData) {
+        this.marcaForm.patchValue({
+          nombre: marcaData.nombre,
+        });
+        this.loadModelos(marcaData.id);
+      } else {
+        this.marcaForm.reset();
+        this.modelosArray.clear();
+        this.modelos.set([]);
+      }
+    });
   }
 
   get modelosArray(): FormArray {

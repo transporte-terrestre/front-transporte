@@ -92,42 +92,39 @@ export class MantenimientoForm implements OnInit {
   ];
 
   constructor() {
-    effect(
-      () => {
-        const mantenimientoData = this.mantenimiento();
-        const isEditMode = this.editMode();
-        const dateSelected = this.selectedDate();
+    effect(() => {
+      const mantenimientoData = this.mantenimiento();
+      const isEditMode = this.editMode();
+      const dateSelected = this.selectedDate();
 
-        if (isEditMode && mantenimientoData) {
-          this.mantenimientoForm.patchValue({
-            vehiculo: mantenimientoData.vehiculoId,
-            taller: mantenimientoData.tallerId,
-            codigoOrden: mantenimientoData.codigoOrden,
-            tipo: mantenimientoData.tipo,
-            costoTotal: mantenimientoData.costoTotal,
-            descripcion: mantenimientoData.descripcion,
-            fechaIngreso: mantenimientoData.fechaIngreso
-              ? this.formatDateTimeForInput(mantenimientoData.fechaIngreso)
-              : '',
-            fechaSalida: mantenimientoData.fechaSalida
-              ? this.formatDateTimeForInput(mantenimientoData.fechaSalida)
-              : '',
-            kilometraje: mantenimientoData.kilometraje,
-            estado: mantenimientoData.estado,
-          });
-          this.localDocuments.set(JSON.parse(JSON.stringify(mantenimientoData.documentos)));
-        } else {
-          const fechaInicial = dateSelected ? this.formatDateTimeForInput(dateSelected) : '';
-          this.mantenimientoForm.reset({
-            tipo: 'preventivo',
-            estado: 'pendiente',
-            fechaIngreso: fechaInicial,
-          });
-          this.localDocuments.set(null);
-        }
-      },
-      { allowSignalWrites: true }
-    );
+      if (isEditMode && mantenimientoData) {
+        this.mantenimientoForm.patchValue({
+          vehiculo: mantenimientoData.vehiculoId,
+          taller: mantenimientoData.tallerId,
+          codigoOrden: mantenimientoData.codigoOrden,
+          tipo: mantenimientoData.tipo,
+          costoTotal: mantenimientoData.costoTotal,
+          descripcion: mantenimientoData.descripcion,
+          fechaIngreso: mantenimientoData.fechaIngreso
+            ? this.formatDateTimeForInput(mantenimientoData.fechaIngreso)
+            : '',
+          fechaSalida: mantenimientoData.fechaSalida
+            ? this.formatDateTimeForInput(mantenimientoData.fechaSalida)
+            : '',
+          kilometraje: mantenimientoData.kilometraje,
+          estado: mantenimientoData.estado,
+        });
+        this.localDocuments.set(JSON.parse(JSON.stringify(mantenimientoData.documentos)));
+      } else {
+        const fechaInicial = dateSelected ? this.formatDateTimeForInput(dateSelected) : '';
+        this.mantenimientoForm.reset({
+          tipo: 'preventivo',
+          estado: 'pendiente',
+          fechaIngreso: fechaInicial,
+        });
+        this.localDocuments.set(null);
+      }
+    });
   }
 
   ngOnInit() {}
@@ -213,7 +210,9 @@ export class MantenimientoForm implements OnInit {
       });
   }
 
-  private addDocumentToLocalList(doc: ApiField<'mantenimientos', 'findOne', 'documentos'>['factura'][number]) {
+  private addDocumentToLocalList(
+    doc: ApiField<'mantenimientos', 'findOne', 'documentos'>['factura'][number]
+  ) {
     const docs = this.localDocuments();
     if (docs) {
       const tipo = doc.tipo;
@@ -226,7 +225,9 @@ export class MantenimientoForm implements OnInit {
     }
   }
 
-  private updateDocumentInLocalList(doc: ApiField<'mantenimientos', 'findOne', 'documentos'>['factura'][number]) {
+  private updateDocumentInLocalList(
+    doc: ApiField<'mantenimientos', 'findOne', 'documentos'>['factura'][number]
+  ) {
     const docs = this.localDocuments();
     if (docs) {
       const tipo = doc.tipo;

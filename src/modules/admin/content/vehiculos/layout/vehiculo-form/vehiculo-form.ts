@@ -1,6 +1,12 @@
 import { Component, inject, input, output, OnInit, effect, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+  FormControl,
+} from '@angular/forms';
 import { ApiResponse, ApiBody, ApiField, VehiculoDocumentoResultDto } from 'api/backend.api';
 import { ImagesUpload } from '@module/admin/components/images-upload/images-upload';
 import {
@@ -66,12 +72,35 @@ export class VehiculoForm implements OnInit {
     asientos: ['', [Validators.min(0)]],
     ejes: ['', [Validators.min(0)]],
     kilometraje: ['', [Validators.required, Validators.min(0)]],
-    estado: ['activo', [Validators.required]],
-    propietarioId: [null, []],
+    estado: ['disponible', [Validators.required]],
+    propietarios: [[], []], // We keep this but manage ids manually on submit
+    // New fields
+    anioModelo: ['', [Validators.min(1900), Validators.max(2100)]],
+    pasajeros: ['', [Validators.min(0)]],
+    ruedas: ['', [Validators.min(0)]],
+    sede: ['', [Validators.maxLength(100)]],
+    potencia: ['', [Validators.maxLength(50)]],
+    formulaRodante: ['', [Validators.maxLength(50)]],
+    version: ['', [Validators.maxLength(50)]],
+    cilindros: ['', [Validators.min(0)]],
+    cilindrada: ['', [Validators.maxLength(50)]],
+    longitud: ['', []],
+    altura: ['', []],
+    ancho: ['', []],
+    anotaciones: ['', []],
   });
 
-  estados: Array<{ value: 'activo' | 'taller' | 'retirado'; label: string; icon: string }> = [
-    { value: 'activo', label: 'Activo', icon: 'fa-check-circle' },
+  // Temporary control for the search input
+  tempOwnerControl = new FormControl<any>(null);
+  selectedOwners = signal<any[]>([]);
+
+  estados: Array<{
+    value: 'disponible' | 'circulacion' | 'taller' | 'retirado';
+    label: string;
+    icon: string;
+  }> = [
+    { value: 'disponible', label: 'Disponible', icon: 'fa-check-circle' },
+    { value: 'circulacion', label: 'En Circulación', icon: 'fa-road' },
     { value: 'taller', label: 'En Taller', icon: 'fa-wrench' },
     { value: 'retirado', label: 'Retirado', icon: 'fa-times-circle' },
   ];
@@ -126,60 +155,95 @@ export class VehiculoForm implements OnInit {
   onImagesChange(images: string[]) {
     this.imagenes.set(images);
   }
+
+  addOwner() {
+    const owner = this.tempOwnerControl.value;
+    if (owner && typeof owner === 'object') {
+      const current = this.selectedOwners();
+      if (!current.find((p) => p.id === owner.id)) {
+        this.selectedOwners.update((prev) => [
+          ...prev,
+          {
+            ...owner,
+            nombre: owner.nombre || owner.nombreCompleto, // Normalize for display
+          },
+        ]);
+      }
+      this.tempOwnerControl.setValue(null);
+    }
+  }
+
+  removeOwner(id: number) {
+    this.selectedOwners.update((prev) => prev.filter((p) => p.id !== id));
+  }
+
   constructor() {
-    effect(
-      async () => {
-        const vehiculoData = this.vehiculo();
-        const isEditMode = this.editMode();
+    effect(async () => {
+      const vehiculoData = this.vehiculo();
+      const isEditMode = this.editMode();
 
-        if (isEditMode && vehiculoData) {
-          this.vehiculoForm.patchValue({
-            placa: vehiculoData.placa,
-            placaAnterior: vehiculoData.placaAnterior,
-            codigoInterno: vehiculoData.codigoInterno,
-            anio: vehiculoData.anio,
-            vin: vehiculoData.vin,
-            numeroMotor: vehiculoData.numeroMotor,
-            numeroSerie: vehiculoData.numeroSerie,
-            color: vehiculoData.color,
-            combustible: vehiculoData.combustible || 'diesel',
-            carroceria: vehiculoData.carroceria,
-            categoria: vehiculoData.categoria,
-            cargaUtil: vehiculoData.cargaUtil,
-            pesoBruto: vehiculoData.pesoBruto,
-            pesoNeto: vehiculoData.pesoNeto,
-            asientos: vehiculoData.asientos,
-            ejes: vehiculoData.ejes,
-            kilometraje: vehiculoData.kilometraje,
-            estado: vehiculoData.estado,
-            propietarioId: vehiculoData.propietarioId,
-          });
-          this.imagenes.set(vehiculoData.imagenes || []);
-          this.localDocuments.set(JSON.parse(JSON.stringify(vehiculoData.documentos)));
+      if (isEditMode && vehiculoData) {
+        this.vehiculoForm.patchValue({
+          placa: vehiculoData.placa,
+          placaAnterior: vehiculoData.placaAnterior,
+          codigoInterno: vehiculoData.codigoInterno,
+          anio: vehiculoData.anio,
+          vin: vehiculoData.vin,
+          numeroMotor: vehiculoData.numeroMotor,
+          numeroSerie: vehiculoData.numeroSerie,
+          color: vehiculoData.color,
+          combustible: vehiculoData.combustible || 'diesel',
+          carroceria: vehiculoData.carroceria,
+          categoria: vehiculoData.categoria,
+          cargaUtil: vehiculoData.cargaUtil,
+          pesoBruto: vehiculoData.pesoBruto,
+          pesoNeto: vehiculoData.pesoNeto,
+          asientos: vehiculoData.asientos,
+          ejes: vehiculoData.ejes,
+          kilometraje: vehiculoData.kilometraje,
+          estado: vehiculoData.estado,
+          // New fields mapping
+          anioModelo: vehiculoData.anioModelo,
+          pasajeros: vehiculoData.pasajeros,
+          ruedas: vehiculoData.ruedas,
+          sede: vehiculoData.sede,
+          potencia: vehiculoData.potencia,
+          formulaRodante: vehiculoData.formulaRodante,
+          version: vehiculoData.version,
+          cilindros: vehiculoData.cilindros,
+          cilindrada: vehiculoData.cilindrada,
+          longitud: vehiculoData.longitud,
+          altura: vehiculoData.altura,
+          ancho: vehiculoData.ancho,
+          anotaciones: vehiculoData.anotaciones,
+        });
+        this.imagenes.set(vehiculoData.imagenes || []);
+        this.localDocuments.set(JSON.parse(JSON.stringify(vehiculoData.documentos)));
+        // Load owners
+        this.selectedOwners.set(vehiculoData.propietarios || []);
 
-          // Cargar marca y modelo desde el modeloId
-          if (vehiculoData.modeloId) {
-            try {
-              const modelo = await this.vehiculoService.findOneModelo(vehiculoData.modeloId);
-              // Setear marca primero
-              this.selectedMarcaId.set(modelo.marcaId);
-              this.vehiculoForm.patchValue({
-                marca: { id: modelo.marcaId, nombre: vehiculoData.marca },
-                modelo: { id: modelo.id, nombre: modelo.nombre, marcaId: modelo.marcaId },
-              });
-            } catch (e) {
-              // ignore
-            }
+        // Cargar marca y modelo desde el modeloId
+        if (vehiculoData.modeloId) {
+          try {
+            const modelo = await this.vehiculoService.findOneModelo(vehiculoData.modeloId);
+            // Setear marca primero
+            this.selectedMarcaId.set(modelo.marcaId);
+            this.vehiculoForm.patchValue({
+              marca: { id: modelo.marcaId, nombre: vehiculoData.marca },
+              modelo: { id: modelo.id, nombre: modelo.nombre, marcaId: modelo.marcaId },
+            });
+          } catch (e) {
+            // ignore
           }
-        } else {
-          this.vehiculoForm.reset({ estado: 'activo', combustible: 'diesel' });
-          this.imagenes.set([]);
-          this.localDocuments.set(null);
-          this.selectedMarcaId.set(null);
         }
-      },
-      { allowSignalWrites: true }
-    );
+      } else {
+        this.vehiculoForm.reset({ estado: 'disponible', combustible: 'diesel' });
+        this.selectedOwners.set([]);
+        this.imagenes.set([]);
+        this.localDocuments.set(null);
+        this.selectedMarcaId.set(null);
+      }
+    });
   }
 
   submitForm() {
@@ -208,8 +272,22 @@ export class VehiculoForm implements OnInit {
       ejes: formValue.ejes ? Number(formValue.ejes) : undefined,
       kilometraje: formValue.kilometraje,
       estado: formValue.estado,
-      propietarioId: formValue.propietarioId ? Number(formValue.propietarioId) : undefined,
+      propietarios: this.selectedOwners().map((p) => p.id),
       imagenes: this.imagenes(),
+      // New fields mapping
+      anioModelo: formValue.anioModelo ? Number(formValue.anioModelo) : undefined,
+      pasajeros: formValue.pasajeros ? Number(formValue.pasajeros) : undefined,
+      ruedas: formValue.ruedas ? Number(formValue.ruedas) : undefined,
+      sede: formValue.sede || undefined,
+      potencia: formValue.potencia || undefined,
+      formulaRodante: formValue.formulaRodante || undefined,
+      version: formValue.version || undefined,
+      cilindros: formValue.cilindros ? Number(formValue.cilindros) : undefined,
+      cilindrada: formValue.cilindrada || undefined,
+      longitud: formValue.longitud ? String(formValue.longitud) : undefined,
+      altura: formValue.altura ? String(formValue.altura) : undefined,
+      ancho: formValue.ancho ? String(formValue.ancho) : undefined,
+      anotaciones: formValue.anotaciones || undefined,
     };
     this.onSubmitForm.emit(formData);
   }

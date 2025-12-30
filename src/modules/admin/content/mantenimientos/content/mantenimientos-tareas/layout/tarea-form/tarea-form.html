@@ -1,4 +1,4 @@
-<div class="space-y-4">
+<form [formGroup]="tareaForm" class="p-4 space-y-4">
   <!-- Código -->
   <div>
     <label class="block text-xs font-inter-semibold text-text mb-2">
@@ -6,7 +6,7 @@
     </label>
     <input
       type="text"
-      [formControl]="$any(tareaForm.controls['codigo'])"
+      formControlName="codigo"
       class="w-full px-3 py-2.5 text-sm bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
       placeholder="Ej: T-001"
     />
@@ -15,19 +15,35 @@
     }
   </div>
 
-  <!-- Descripción -->
+  <!-- NOMBRE DE LA TAREA -->
   <div>
     <label class="block text-xs font-inter-semibold text-text mb-2">
-      Descripción <span class="text-danger">*</span>
+      Nombre de la tarea <span class="text-danger">*</span>
     </label>
     <textarea
-      [formControl]="$any(tareaForm.controls['descripcion'])"
+      formControlName="nombreTrabajo"
       rows="3"
       class="w-full px-3 py-2.5 text-sm bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all resize-none"
-      placeholder="Describe la tarea de mantenimiento..."
+      placeholder="Nombre de la tarea..."
     ></textarea>
-    @if (tareaForm.get('descripcion')?.touched && tareaForm.get('descripcion')?.errors) {
-    <p class="text-danger text-xs font-inter-medium mt-1">La descripción es requerida</p>
+    @if (tareaForm.get('nombreTrabajo')?.touched && tareaForm.get('nombreTrabajo')?.errors) {
+    <p class="text-danger text-xs font-inter-medium mt-1">El nombre de la tarea es requerido</p>
     }
   </div>
-</div>
+
+  <!-- Grupo -->
+  <div>
+    <label class="block text-xs font-inter-semibold text-text mb-2">
+      Grupo <span class="text-danger">*</span>
+    </label>
+    <input
+      type="text"
+      formControlName="grupo"
+      class="w-full px-3 py-2.5 text-sm bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+      placeholder="Ej: Grupo 1"
+    />
+    @if (tareaForm.get('grupo')?.touched && tareaForm.get('grupo')?.errors) {
+    <p class="text-danger text-xs font-inter-medium mt-1">El grupo es requerido</p>
+    }
+  </div>
+</form>

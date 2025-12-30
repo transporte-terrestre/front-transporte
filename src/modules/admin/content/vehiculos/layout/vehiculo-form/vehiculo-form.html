@@ -14,7 +14,9 @@
         maxlength="7"
       />
       @if (vehiculoForm.get('placa')?.touched && vehiculoForm.get('placa')?.errors) {
-        <p class="text-danger text-xs font-inter-medium mt-1">La placa es requerida (6-7 caracteres alfanuméricos)</p>
+      <p class="text-danger text-xs font-inter-medium mt-1">
+        La placa es requerida (6-7 caracteres alfanuméricos)
+      </p>
       }
     </div>
 
@@ -52,7 +54,7 @@
         formControlName="modelo"
       ></app-modelo-input-search>
       @if (vehiculoForm.get('modelo')?.touched && vehiculoForm.get('modelo')?.errors) {
-        <p class="text-danger text-xs font-inter-medium mt-1">Modelo requerido</p>
+      <p class="text-danger text-xs font-inter-medium mt-1">Modelo requerido</p>
       }
     </div>
   </div>
@@ -135,68 +137,6 @@
     </div>
   </div>
 
-  <!-- Color, Combustible, Carrocería, Categoría -->
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-    <div>
-      <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
-        <i class="fas fa-palette text-secondary"></i>
-        Color
-      </label>
-      <input
-        type="text"
-        formControlName="color"
-        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-medium outline-none transition-all"
-        placeholder="Blanco..."
-      />
-    </div>
-    <div>
-      <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
-        <i class="fas fa-gas-pump text-secondary"></i>
-        Combustible
-      </label>
-      <div class="relative">
-        <select
-          formControlName="combustible"
-          class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-medium outline-none transition-all appearance-none cursor-pointer"
-        >
-          <option value="gasolina">Gasolina</option>
-          <option value="diesel">Diesel</option>
-          <option value="gnv">GNV</option>
-          <option value="glp">GLP</option>
-          <option value="electrico">Eléctrico</option>
-          <option value="hibrido">Híbrido</option>
-        </select>
-        <span class="absolute inset-y-0 right-3 flex items-center text-text/60 pointer-events-none">
-          <i class="fas fa-chevron-down text-xs"></i>
-        </span>
-      </div>
-    </div>
-    <div>
-      <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
-        <i class="fas fa-truck text-secondary"></i>
-        Carrocería
-      </label>
-      <input
-        type="text"
-        formControlName="carroceria"
-        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-medium outline-none transition-all"
-        placeholder="PICK UP..."
-      />
-    </div>
-    <div>
-      <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
-        <i class="fas fa-tags text-secondary"></i>
-        Categoría
-      </label>
-      <input
-        type="text"
-        formControlName="categoria"
-        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-medium outline-none transition-all"
-        placeholder="N1..."
-      />
-    </div>
-  </div>
-
   <!-- Pesos, Asientos y Ejes -->
   <div class="grid grid-cols-2 md:grid-cols-3 gap-3 border-t border-text/5 pt-3">
     <div>
@@ -226,79 +166,319 @@
         placeholder="0.00"
       />
     </div>
-    <div>
-      <label class="text-xs font-inter-semibold text-text mb-1.5">Asientos</label>
-      <input
-        type="number"
-        formControlName="asientos"
-        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-medium outline-none transition-all"
-        placeholder="0"
-      />
-    </div>
-    <div>
-      <label class="text-xs font-inter-semibold text-text mb-1.5">Ejes</label>
-      <input
-        type="number"
-        formControlName="ejes"
-        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-medium outline-none transition-all"
-        placeholder="0"
-      />
-    </div>
-    <div>
-      <label class="text-xs font-inter-semibold text-text mb-1.5">Placa Anterior</label>
-      <input
-        type="text"
-        formControlName="placaAnterior"
-        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-bold uppercase outline-none transition-all"
-        placeholder="ABC-123"
-      />
-    </div>
   </div>
 
   <!-- Propietario -->
+  <!-- Propietarios -->
   <div class="border-t border-text/5 pt-3">
     <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
       <i class="fas fa-user-shield text-secondary"></i>
-      Propietario
+      Propietarios
     </label>
-    <app-propietario-input-search formControlName="propietarioId"></app-propietario-input-search>
+
+    <!-- Buscador y botón agregar -->
+    <div class="flex gap-2 items-start mb-2">
+      <div class="flex-1">
+        <app-propietario-input-search
+          [formControl]="tempOwnerControl"
+        ></app-propietario-input-search>
+      </div>
+      <button
+        type="button"
+        (click)="addOwner()"
+        [disabled]="!tempOwnerControl.value"
+        class="bg-secondary text-text w-[38px] h-[38px] rounded-lg text-sm font-inter-semibold hover:bg-secondary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center shadow-sm shrink-0"
+        title="Agregar propietario"
+      >
+        <i class="fas fa-plus"></i>
+      </button>
+    </div>
+
+    <!-- Lista de propietarios seleccionados -->
+    @if (selectedOwners().length > 0) {
+    <div class="space-y-2">
+      @for (owner of selectedOwners(); track owner.id) {
+      <div
+        class="flex items-center justify-between bg-text/5 px-3 py-2.5 rounded-xl border border-text/5 transition-all hover:bg-text/10 group"
+      >
+        <div class="flex items-center gap-3 overflow-hidden">
+          <div
+            class="w-8 h-8 rounded-full bg-background flex items-center justify-center text-secondary border border-text/5"
+          >
+            <i class="fas fa-user text-xs"></i>
+          </div>
+          <div class="flex flex-col">
+            <span class="text-xs font-inter-semibold text-text truncate leading-tight">{{
+              owner.nombre
+            }}</span>
+            <span class="text-[10px] text-text/50 font-inter-medium">Propietario</span>
+          </div>
+        </div>
+        <button
+          type="button"
+          (click)="removeOwner(owner.id)"
+          class="text-text/40 hover:text-danger hover:bg-danger/10 w-7 h-7 flex items-center justify-center rounded-lg transition-all opacity-0 group-hover:opacity-100"
+          title="Quitar propietario"
+        >
+          <i class="fas fa-times text-xs"></i>
+        </button>
+      </div>
+      }
+    </div>
+    }
   </div>
 
-  <!-- Estado -->
-  <div>
+  <!-- Estado (Select) -->
+  <div class="border-t border-text/5 pt-3">
     <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
       <i class="fas fa-info-circle text-secondary"></i>
       Estado del Vehículo
     </label>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
-      @for (estado of estados; track estado.value) {
-      <label
-        class="flex items-center gap-3 px-3 py-2.5 rounded-lg border-2 cursor-pointer transition-all"
-        [class.bg-secondary/10]="vehiculoForm.get('estado')?.value === estado.value"
-        [class.border-secondary]="vehiculoForm.get('estado')?.value === estado.value"
-        [class.border-text/10]="vehiculoForm.get('estado')?.value !== estado.value"
+    <div class="relative">
+      <select
+        formControlName="estado"
+        class="w-full pl-3 pr-10 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none appearance-none cursor-pointer transition-all"
       >
-        <input
-          type="radio"
-          [value]="estado.value"
-          formControlName="estado"
-          class="w-4 h-4 text-secondary border-2 border-text/30 focus:ring-2 focus:ring-secondary/20 cursor-pointer accent-secondary"
-        />
-        <div class="flex items-center gap-2 flex-1">
-          <i
-            [class]="'fas ' + estado.icon + ' text-sm'"
-            [class.text-success]="estado.value === 'activo'"
-            [class.text-warning]="estado.value === 'taller'"
-            [class.text-danger]="estado.value === 'retirado'"
-          ></i>
-          <span class="text-sm font-inter-medium text-text">{{ estado.label }}</span>
-        </div>
-      </label>
-      }
+        @for (est of estados; track est.value) {
+        <option [value]="est.value">{{ est.label }}</option>
+        }
+      </select>
+      <i
+        class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-text/50 pointer-events-none"
+      ></i>
     </div>
     @if (vehiculoForm.get('estado')?.touched && vehiculoForm.get('estado')?.errors) {
     <p class="text-danger text-xs font-inter-medium mt-1">El estado es requerido</p>
     }
+  </div>
+
+  <!-- Detalles Técnicos Adicionales -->
+  <div class="border-t border-text/5 pt-3 mt-4">
+    <label class="text-xs font-inter-semibold text-text mb-3 flex items-center gap-2">
+      <i class="fas fa-cogs text-secondary"></i>
+      Detalles Técnicos y Adicionales
+    </label>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <!-- Nuevos campos movidos -->
+      <div>
+        <label class="text-[10px] font-inter-medium text-text/60 mb-1 block">Color</label>
+        <input
+          formControlName="color"
+          type="text"
+          placeholder="Ej: Blanco"
+          class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all placeholder:text-text/30"
+        />
+      </div>
+
+      <div>
+        <label class="text-[10px] font-inter-medium text-text/60 mb-1 block">Combustible</label>
+        <div class="relative">
+          <select
+            formControlName="combustible"
+            class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all appearance-none cursor-pointer"
+          >
+            <option value="gasolina">Gasolina</option>
+            <option value="diesel">Diesel</option>
+            <option value="gnv">GNV</option>
+            <option value="glp">GLP</option>
+            <option value="electrico">Eléctrico</option>
+            <option value="hibrido">Híbrido</option>
+          </select>
+          <span
+            class="absolute inset-y-0 right-3 flex items-center text-text/60 pointer-events-none"
+          >
+            <i class="fas fa-chevron-down text-xs"></i>
+          </span>
+        </div>
+      </div>
+
+      <div>
+        <label class="text-[10px] font-inter-medium text-text/60 mb-1 block">Carrocería</label>
+        <input
+          formControlName="carroceria"
+          type="text"
+          placeholder="Ej: Pick Up"
+          class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all placeholder:text-text/30"
+        />
+      </div>
+
+      <div>
+        <label class="text-[10px] font-inter-medium text-text/60 mb-1 block">Categoría</label>
+        <input
+          formControlName="categoria"
+          type="text"
+          placeholder="Ej: N1"
+          class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all placeholder:text-text/30"
+        />
+      </div>
+
+      <div>
+        <label class="text-[10px] font-inter-medium text-text/60 mb-1 block">Asientos</label>
+        <input
+          formControlName="asientos"
+          type="number"
+          placeholder="Ej: 4"
+          class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all placeholder:text-text/30"
+        />
+      </div>
+
+      <div>
+        <label class="text-[10px] font-inter-medium text-text/60 mb-1 block">Ejes</label>
+        <input
+          formControlName="ejes"
+          type="number"
+          placeholder="Ej: 2"
+          class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all placeholder:text-text/30"
+        />
+      </div>
+
+      <div>
+        <label class="text-[10px] font-inter-medium text-text/60 mb-1 block">Placa Anterior</label>
+        <input
+          formControlName="placaAnterior"
+          type="text"
+          placeholder="Ej: ABC-123"
+          class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all placeholder:text-text/30"
+        />
+      </div>
+      <!-- Año Modelo -->
+      <div>
+        <label class="text-[10px] font-inter-medium text-text/60 mb-1 block">Año Modelo</label>
+        <input
+          formControlName="anioModelo"
+          type="number"
+          placeholder="Ej: 2024"
+          class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all placeholder:text-text/30"
+        />
+      </div>
+
+      <!-- Versión -->
+      <div>
+        <label class="text-[10px] font-inter-medium text-text/60 mb-1 block">Versión</label>
+        <input
+          formControlName="version"
+          type="text"
+          placeholder="Ej: Full"
+          class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all placeholder:text-text/30"
+        />
+      </div>
+
+      <!-- Sede -->
+      <div>
+        <label class="text-[10px] font-inter-medium text-text/60 mb-1 block">Sede</label>
+        <input
+          formControlName="sede"
+          type="text"
+          placeholder="Sede"
+          class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all placeholder:text-text/30"
+        />
+      </div>
+
+      <!-- Potencia -->
+      <div>
+        <label class="text-[10px] font-inter-medium text-text/60 mb-1 block">Potencia</label>
+        <input
+          formControlName="potencia"
+          type="text"
+          placeholder="Ej: 150HP"
+          class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all placeholder:text-text/30"
+        />
+      </div>
+
+      <!-- Cilindrada -->
+      <div>
+        <label class="text-[10px] font-inter-medium text-text/60 mb-1 block">Cilindrada</label>
+        <input
+          formControlName="cilindrada"
+          type="text"
+          placeholder="Ej: 2.0L"
+          class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all placeholder:text-text/30"
+        />
+      </div>
+
+      <!-- Cilindros -->
+      <div>
+        <label class="text-[10px] font-inter-medium text-text/60 mb-1 block">Cilindros</label>
+        <input
+          formControlName="cilindros"
+          type="number"
+          placeholder="Ej: 4"
+          class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all placeholder:text-text/30"
+        />
+      </div>
+
+      <!-- Formula Rodante -->
+      <div>
+        <label class="text-[10px] font-inter-medium text-text/60 mb-1 block">Fórmula Rodante</label>
+        <input
+          formControlName="formulaRodante"
+          type="text"
+          placeholder="Ej: 4x2"
+          class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all placeholder:text-text/30"
+        />
+      </div>
+
+      <!-- Pasajeros -->
+      <div>
+        <label class="text-[10px] font-inter-medium text-text/60 mb-1 block">Pasajeros</label>
+        <input
+          formControlName="pasajeros"
+          type="number"
+          placeholder="Ej: 5"
+          class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all placeholder:text-text/30"
+        />
+      </div>
+
+      <!-- Ruedas -->
+      <div>
+        <label class="text-[10px] font-inter-medium text-text/60 mb-1 block">Ruedas</label>
+        <input
+          formControlName="ruedas"
+          type="number"
+          placeholder="Ej: 4"
+          class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all placeholder:text-text/30"
+        />
+      </div>
+    </div>
+
+    <!-- Dimensiones -->
+    <div class="mt-3">
+      <label class="text-[10px] font-inter-medium text-text/60 mb-1 block"
+        >Dimensiones (Largo x Ancho x Alto)</label
+      >
+      <div class="grid grid-cols-3 gap-2">
+        <input
+          formControlName="longitud"
+          type="text"
+          placeholder="Largo"
+          class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all placeholder:text-text/30"
+        />
+        <input
+          formControlName="ancho"
+          type="text"
+          placeholder="Ancho"
+          class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all placeholder:text-text/30"
+        />
+        <input
+          formControlName="altura"
+          type="text"
+          placeholder="Alto"
+          class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all placeholder:text-text/30"
+        />
+      </div>
+    </div>
+
+    <!-- Anotaciones -->
+    <div class="mt-3">
+      <label class="text-[10px] font-inter-medium text-text/60 mb-1 block">Anotaciones</label>
+      <textarea
+        formControlName="anotaciones"
+        rows="2"
+        placeholder="Información adicional..."
+        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all placeholder:text-text/30 resize-none"
+      ></textarea>
+    </div>
   </div>
 
   <!-- Imágenes -->

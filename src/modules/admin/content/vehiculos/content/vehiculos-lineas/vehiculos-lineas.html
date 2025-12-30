@@ -138,19 +138,19 @@
             </td>
             <td class="px-4 py-3">
               <div class="flex flex-wrap gap-1 max-w-xs">
-                @if (marca.modelos.length === 0) {
+                @if (marca.modelos?.length === 0) {
                 <span class="text-xs text-text/40 italic">Sin modelos</span>
-                } @else { @for (modelo of marca.modelos.slice(0, 4); track modelo) {
+                } @else { @for (modelo of marca.modelos?.slice(0, 4); track modelo) {
                 <span
                   class="px-2 py-0.5 text-xs font-inter-medium rounded-full bg-info/10 text-info"
                 >
                   {{ modelo }}
                 </span>
-                } @if (marca.modelos.length > 4) {
+                } @if ((marca.modelos?.length || 0) > 4) {
                 <span
                   class="px-2 py-0.5 text-xs font-inter-medium rounded-full bg-text/10 text-text/60"
                 >
-                  +{{ marca.modelos.length - 4 }}
+                  +{{ (marca.modelos?.length || 0) - 4 }}
                 </span>
                 } }
               </div>

@@ -106,7 +106,12 @@
             <th
               class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
             >
-              Email / Teléfono
+              Email
+            </th>
+            <th
+              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+            >
+              Teléfono
             </th>
             <th
               class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
@@ -160,11 +165,11 @@
                 </div>
               </div>
             </td>
+             <td class="px-4 py-3 whitespace-nowrap">
+               <span class="text-xs font-inter-medium text-text/70">{{ propietario.email || '-' }}</span>
+            </td>
             <td class="px-4 py-3 whitespace-nowrap">
-               <div class="flex flex-col">
-                  <span class="text-xs font-inter-medium text-text/70">{{ propietario.email || '-' }}</span>
-                  <span class="text-[10px] text-text/50">{{ propietario.telefono || '-' }}</span>
-               </div>
+               <span class="text-xs text-text/70">{{ propietario.telefono || '-' }}</span>
             </td>
             <td class="px-4 py-3 whitespace-nowrap">
               <span class="text-xs font-inter-regular text-text/60">{{
