@@ -1,7 +1,7 @@
+import { ApiResponse } from '@api/backend.api';
 import * as XLSX from 'xlsx';
-import { ReporteConductorDto } from 'api/backend.api';
 
-export const generateReporteConductoresExcel = (data: ReporteConductorDto[]) => {
+export const generateReporteConductoresExcel = (data: ApiResponse<'reportes', 'getReporteConductores'>) => {
   // Define columns based on the user's requirement (matching the image)
   const headers = [
     'rut', // DNI
