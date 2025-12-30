@@ -29,11 +29,11 @@
 
     <!-- Columna Derecha: Ciudades y Coordenadas -->
     <div class="space-y-3 flex flex-col justify-end">
-      <!-- Ciudad Origen -->
+      <!-- Lugar Origen -->
       <div>
         <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
           <i class="fas fa-location-dot text-success"></i>
-          Ciudad Origen
+          Lugar Origen
         </label>
         <input
           type="text"
@@ -42,7 +42,7 @@
           placeholder="Lima"
         />
         @if (rutaForm.get('origen')?.touched && rutaForm.get('origen')?.errors) {
-          <p class="text-danger text-xs font-inter-medium mt-1">Ciudad de origen requerida (mín. 3 caracteres)</p>
+          <p class="text-danger text-xs font-inter-medium mt-1">Lugar de origen requerido (mín. 3 caracteres)</p>
         }
       </div>
 
@@ -79,11 +79,11 @@
         <p class="text-xs text-text/50 mt-2">Ej: -12.0464, -77.0428 (Lima)</p>
       </div>
 
-      <!-- Ciudad Destino -->
+      <!-- Lugar Destino -->
       <div>
         <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
           <i class="fas fa-location-dot text-danger"></i>
-          Ciudad Destino
+          Lugar Destino
         </label>
         <input
           type="text"
@@ -92,7 +92,7 @@
           placeholder="Ica"
         />
         @if (rutaForm.get('destino')?.touched && rutaForm.get('destino')?.errors) {
-          <p class="text-danger text-xs font-inter-medium mt-1">Ciudad de destino requerida (mín. 3 caracteres)</p>
+          <p class="text-danger text-xs font-inter-medium mt-1">Lugar de destino requerido (mín. 3 caracteres)</p>
         }
       </div>
 

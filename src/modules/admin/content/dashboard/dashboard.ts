@@ -69,8 +69,15 @@ export class Dashboard implements OnInit {
   // Rutas más utilizadas
   rutasPopulares = signal<RutaPopularVM[]>([]);
 
-  // Ingresos mensuales
-  ingresosMensuales = signal<IngresoMensualVM[]>([]);
+  // Kilometraje mensual (Mock)
+  kilometrajeMensual = signal<IngresoMensualVM[]>([
+    { mes: 'Jul', monto: 12500 },
+    { mes: 'Ago', monto: 15800 },
+    { mes: 'Sep', monto: 18200 },
+    { mes: 'Oct', monto: 16900 },
+    { mes: 'Nov', monto: 19500 },
+    { mes: 'Dic', monto: 22100 },
+  ]);
 
   ngOnInit() {
     this.loadDashboardData();
@@ -85,7 +92,6 @@ export class Dashboard implements OnInit {
       this.loadViajesRecientes(),
       this.loadMantenimientosProximos(),
       this.loadRutasPopulares(),
-      this.loadIngresosMensuales(),
     ])
       .catch((error) => {
         console.error('Error loading dashboard data', error);
@@ -206,12 +212,6 @@ export class Dashboard implements OnInit {
     });
   }
 
-  private loadIngresosMensuales() {
-    return this.dashboardService.getIngresosMensuales().then((response) => {
-      this.ingresosMensuales.set(response.data || []);
-    });
-  }
-
   getPrioridadClass(prioridad: string): string {
     const classes: { [key: string]: string } = {
       alta: 'bg-red-100 text-red-600 border-red-200',
@@ -221,14 +221,14 @@ export class Dashboard implements OnInit {
     return classes[prioridad] || '';
   }
 
-  getMaxIngreso(): number {
-    const ingresos = this.ingresosMensuales();
-    if (ingresos.length === 0) return 1;
-    return Math.max(...ingresos.map((i) => i.monto));
+  getMaxKilometraje(): number {
+    const data = this.kilometrajeMensual();
+    if (data.length === 0) return 1;
+    return Math.max(...data.map((i) => i.monto));
   }
 
   getBarHeight(monto: number): number {
-    const max = this.getMaxIngreso();
+    const max = this.getMaxKilometraje();
     return (monto / max) * 100;
   }
 }

@@ -54,7 +54,7 @@ export class MantenimientoForm implements OnInit {
     descripcion: ['', [Validators.required, Validators.minLength(10)]],
     fechaIngreso: ['', [Validators.required]],
     fechaSalida: ['', [Validators.required]],
-    kilometraje: ['', [Validators.required, Validators.min(0)]],
+    kilometraje: [{ value: '', disabled: true }, [Validators.required, Validators.min(0)]],
     estado: ['pendiente', [Validators.required]],
   });
 
@@ -125,6 +125,18 @@ export class MantenimientoForm implements OnInit {
         this.localDocuments.set(null);
       }
     });
+
+    // Escuchar cambios en vehículo para setear kilometraje automáticamente
+    this.mantenimientoForm.get('vehiculo')?.valueChanges.subscribe((vehiculo) => {
+      if (vehiculo && typeof vehiculo === 'object') {
+        const vehiculoData = vehiculo as { kilometraje?: number };
+        if (vehiculoData.kilometraje !== undefined) {
+          this.mantenimientoForm.patchValue({
+            kilometraje: vehiculoData.kilometraje,
+          });
+        }
+      }
+    });
   }
 
   ngOnInit() {}
@@ -135,7 +147,7 @@ export class MantenimientoForm implements OnInit {
       return;
     }
 
-    const formValue = this.mantenimientoForm.value;
+    const formValue = this.mantenimientoForm.getRawValue();
     const formData: ApiBody<'mantenimientos', 'create'> = {
       vehiculoId: formValue.vehiculo?.id
         ? Number(formValue.vehiculo.id)
