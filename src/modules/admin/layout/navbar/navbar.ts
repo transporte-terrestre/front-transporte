@@ -16,7 +16,7 @@ export class Navbar {
   themeService = inject(ThemeService);
   isDropdownOpen = signal(false);
 
-  unreadCount = this.notificationService.unreadCount;
+  unreadCount = this.notificationService.totalUnreadCount; // Usar el total desde el backend
   user = this.authService.user;
 
   userName = computed(() => {
