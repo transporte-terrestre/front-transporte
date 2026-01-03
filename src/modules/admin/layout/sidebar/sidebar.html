@@ -33,8 +33,69 @@
     @if (!isCollapsed()) {
     <div class="px-3 mb-2 text-xs font-inter-bold text-text/40 uppercase tracking-wider">Menu</div>
     } @for (item of menuItems(); track item.label) {
+
+    <!-- Menu item con hijos -->
+    @if (item.children && item.children.length > 0) {
+    <div class="overflow-hidden">
+      <div
+        class="w-full flex items-center rounded-lg overflow-hidden group/menu hover:bg-text/5 transition-all duration-200"
+        [class.bg-text/5]="isMenuExpanded(item.label)"
+      >
+        <!-- Botón principal para navegar -->
+        <button
+          (click)="navigateTo(item.path!)"
+          [title]="isCollapsed() ? item.label : ''"
+          class="flex-1 flex items-center gap-3 px-3 py-2.5 text-text/50 group-hover/menu:text-text transition-all duration-200"
+          [class.justify-center]="isCollapsed()"
+          [class.text-text]="isMenuExpanded(item.label)"
+        >
+          <i
+            [class]="
+              item.icon + ' w-5 text-center transition-colors shrink-0 group-hover/menu:text-secondary'
+            "
+            [class.text-secondary]="isMenuExpanded(item.label)"
+          ></i>
+          @if (!isCollapsed()) {
+          <span class="text-sm font-inter-medium truncate">{{ item.label }}</span>
+          }
+        </button>
+
+        <!-- Botón para expandir/contraer -->
+        @if (!isCollapsed()) {
+        <button
+          (click)="toggleMenu(item.label)"
+          class="px-3 py-2.5 text-text/50 group-hover/menu:text-text transition-all duration-200"
+          [class.text-text]="isMenuExpanded(item.label)"
+        >
+          <i
+            class="fas fa-chevron-down text-xs transition-transform duration-200"
+            [class.rotate-180]="isMenuExpanded(item.label)"
+          ></i>
+        </button>
+        }
+      </div>
+
+      <!-- Submenú -->
+      @if (!isCollapsed() && isMenuExpanded(item.label)) {
+      <div class="mt-1 ml-4 space-y-1 border-l-2 border-text/10 pl-2">
+        @for (child of item.children; track child.label) {
+        <button
+          (click)="navigateTo(child.path!)"
+          class="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-text/40 hover:bg-text/5 hover:text-text transition-all duration-200 group"
+        >
+          <i
+            [class]="child.icon + ' w-4 text-center text-xs transition-colors group-hover:text-secondary'"
+          ></i>
+          <span class="text-xs font-inter-medium truncate">{{ child.label }}</span>
+        </button>
+        }
+      </div>
+      }
+    </div>
+    } @else {
+    <!-- Menu item sin hijos -->
     <button
-      (click)="navigateTo(item.path)"
+      (click)="navigateTo(item.path!)"
       [title]="isCollapsed() ? item.label : ''"
       class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-text/50 hover:bg-text/5 hover:text-text transition-all duration-200 group overflow-hidden"
       [class.justify-center]="isCollapsed()"
@@ -48,6 +109,7 @@
       <span class="text-sm font-inter-medium truncate">{{ item.label }}</span>
       }
     </button>
+    }
     }
   </nav>
 

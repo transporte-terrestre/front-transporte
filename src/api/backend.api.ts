@@ -670,6 +670,11 @@ export interface VehiculoListDto {
    */
   propietarios_nombres?: string[];
   /**
+   * List of suppliers names
+   * @default []
+   */
+  proveedores_nombres?: string[];
+  /**
    * Creation date
    * @format date-time
    * @example "2023-01-01T00:00:00.000Z"
@@ -710,6 +715,19 @@ export interface PropietarioVehiculoDto {
   /**
    * Owner Name
    * @example "Juan Perez"
+   */
+  nombre: string;
+}
+
+export interface ProveedorVehiculoDto {
+  /**
+   * Supplier ID
+   * @example 1
+   */
+  id: number;
+  /**
+   * Supplier Name
+   * @example "Repuestos SAC"
    */
   nombre: string;
 }
@@ -973,6 +991,8 @@ export interface VehiculoResultDto {
   ancho?: string;
   /** List of owners */
   propietarios: PropietarioVehiculoDto[];
+  /** List of suppliers */
+  proveedores: ProveedorVehiculoDto[];
   /**
    * Lista de URLs de imágenes del vehículo
    * @example ["https://res.cloudinary.com/xxx/image.jpg"]
@@ -1148,6 +1168,11 @@ export interface VehiculoCreateDto {
    */
   propietarios?: number[];
   /**
+   * List of supplier IDs
+   * @example [1,2]
+   */
+  proveedores?: number[];
+  /**
    * Lista de URLs de imágenes del vehículo
    * @example ["https://res.cloudinary.com/xxx/image.jpg"]
    */
@@ -1312,6 +1337,11 @@ export interface VehiculoUpdateDto {
    * @example [1,2]
    */
   propietarios?: number[];
+  /**
+   * List of supplier IDs
+   * @example [1,2]
+   */
+  proveedores?: number[];
   /**
    * Lista de URLs de imágenes del vehículo
    * @example ["https://res.cloudinary.com/xxx/image.jpg"]
@@ -2498,8 +2528,6 @@ export interface VehiculoMantenimientoResultDto {
    * @example "1.90"
    */
   ancho?: string;
-  /** List of owners */
-  propietarios: PropietarioVehiculoDto[];
   /**
    * Lista de URLs de imágenes del vehículo
    * @example ["https://res.cloudinary.com/xxx/image.jpg"]
@@ -3850,8 +3878,6 @@ export interface ViajeVehiculoDetalleDto {
    * @example "1.90"
    */
   ancho?: string;
-  /** List of owners */
-  propietarios: PropietarioVehiculoDto[];
   /**
    * Lista de URLs de imágenes del vehículo
    * @example ["https://res.cloudinary.com/xxx/image.jpg"]
@@ -5091,19 +5117,6 @@ export interface SendEmailDto {
   html?: string;
 }
 
-export interface SendConductorExpirationEmailDto {
-  /**
-   * Correo al que se enviará la lista
-   * @example "admin@empresa.com"
-   */
-  email: string;
-  /**
-   * Días de anticipación para buscar vencimientos
-   * @example 7
-   */
-  diasAnticipacion?: number;
-}
-
 export interface VencimientoResumenDto {
   /** @example 5 */
   clientes: number;
@@ -5748,6 +5761,397 @@ export interface PropietarioDocumentoUpdateDto {
    * @example "2023-01-15"
    */
   fechaEmision?: string;
+}
+
+export interface ProveedorListDto {
+  /**
+   * ID del proveedor
+   * @example 1
+   */
+  id: number;
+  /**
+   * DNI del proveedor
+   * @example "12345678"
+   */
+  dni: string;
+  /**
+   * Tipo de documento
+   * @example "DNI"
+   */
+  tipoDocumento: "DNI" | "RUC";
+  /**
+   * RUC del proveedor
+   * @example "20123456789"
+   */
+  ruc?: string;
+  /**
+   * Razón Social del proveedor
+   * @example "Empresa SAC"
+   */
+  razonSocial?: string;
+  /**
+   * Nombres del proveedor
+   * @example "Juan Carlos"
+   */
+  nombres: string;
+  /**
+   * Apellidos del proveedor
+   * @example "Pérez García"
+   */
+  apellidos: string;
+  /**
+   * Nombre completo del proveedor
+   * @example "Juan Carlos Pérez García"
+   */
+  nombreCompleto: string;
+  /**
+   * Email del proveedor
+   * @example "juan.perez@example.com"
+   */
+  email?: string;
+  /**
+   * Teléfono del proveedor
+   * @example "987654321"
+   */
+  telefono?: string;
+  /**
+   * Dirección del proveedor
+   * @example "Av. Principal 123"
+   */
+  direccion?: string;
+  /**
+   * Lista de URLs de imágenes del proveedor
+   * @example ["https://res.cloudinary.com/xxx/image.jpg"]
+   */
+  imagenes: string[];
+  /**
+   * Fecha de creación
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  creadoEn: string;
+  /**
+   * Fecha de actualización
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  actualizadoEn: string;
+  /**
+   * Fecha de eliminación
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  eliminadoEn?: string;
+}
+
+export interface PaginatedProveedorResultDto {
+  data: ProveedorListDto[];
+  meta: PaginationMetaDto;
+}
+
+export interface ProveedorDocumentoResultDto {
+  /**
+   * ID del documento
+   * @example 1
+   */
+  id: number;
+  /**
+   * ID del proveedor
+   * @example 1
+   */
+  proveedorId: number;
+  /**
+   * Tipo de documento
+   * @example "RUC"
+   */
+  tipo: string;
+  /**
+   * Número del documento
+   * @example "20123456789"
+   */
+  numero?: string;
+  /**
+   * Fecha de emisión del documento
+   * @example "2023-01-15"
+   */
+  fechaEmision?: string;
+  /**
+   * Fecha de vencimiento del documento
+   * @example "2025-12-31"
+   */
+  fechaVencimiento?: string;
+  /**
+   * URLs de los archivos del documento
+   * @example ["https://storage.example.com/documentos/ruc.pdf"]
+   */
+  archivos: string[];
+  /**
+   * Fecha de creación
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  creadoEn: string;
+  /**
+   * Fecha de actualización
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  actualizadoEn: string;
+  /**
+   * Fecha de eliminación
+   * @format date-time
+   * @example null
+   */
+  eliminadoEn?: string;
+}
+
+export interface ProveedorResultDto {
+  /**
+   * ID del proveedor
+   * @example 1
+   */
+  id: number;
+  /**
+   * Tipo de documento
+   * @example "DNI"
+   */
+  tipoDocumento: "DNI" | "RUC";
+  /**
+   * DNI del proveedor
+   * @example "12345678"
+   */
+  dni: string;
+  /**
+   * RUC del proveedor
+   * @example "20123456789"
+   */
+  ruc: string;
+  /**
+   * Nombres del proveedor
+   * @example "Juan Carlos"
+   */
+  nombres: string;
+  /**
+   * Apellidos del proveedor
+   * @example "Pérez García"
+   */
+  apellidos: string;
+  /**
+   * Razón Social del proveedor
+   * @example "Empresa SAC"
+   */
+  razonSocial: string;
+  /**
+   * Nombre completo del proveedor
+   * @example "Juan Carlos Pérez García"
+   */
+  nombreCompleto: string;
+  /**
+   * Email del proveedor
+   * @example "juan.perez@example.com"
+   */
+  email?: string;
+  /**
+   * Teléfono del proveedor
+   * @example "987654321"
+   */
+  telefono?: string;
+  /**
+   * Dirección del proveedor
+   * @example "Av. Principal 123"
+   */
+  direccion?: string;
+  /**
+   * Lista de URLs de imágenes del proveedor
+   * @example ["https://res.cloudinary.com/xxx/image.jpg"]
+   */
+  imagenes: string[];
+  /**
+   * Fecha de creación
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  creadoEn: string;
+  /**
+   * Fecha de actualización
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  actualizadoEn: string;
+  /** Documentos del proveedor */
+  documentos: ProveedorDocumentoResultDto[];
+}
+
+export interface ProveedorCreateDto {
+  /**
+   * Tipo de documento
+   * @default "DNI"
+   */
+  tipoDocumento: "DNI" | "RUC";
+  /**
+   * DNI del proveedor
+   * @example "12345678"
+   */
+  dni?: string;
+  /**
+   * RUC del proveedor
+   * @example "20123456789"
+   */
+  ruc?: string;
+  /**
+   * Nombres del proveedor
+   * @example "Juan Carlos"
+   */
+  nombres?: string;
+  /**
+   * Apellidos del proveedor
+   * @example "Pérez García"
+   */
+  apellidos?: string;
+  /**
+   * Razón Social del proveedor
+   * @example "Empresa SAC"
+   */
+  razonSocial?: string;
+  /**
+   * Email del proveedor
+   * @example "juan.perez@example.com"
+   */
+  email?: string;
+  /**
+   * Teléfono del proveedor
+   * @example "987654321"
+   */
+  telefono?: string;
+  /**
+   * Dirección del proveedor
+   * @example "Av. Principal 123"
+   */
+  direccion?: string;
+  /**
+   * Lista de URLs de imágenes del proveedor
+   * @example ["https://res.cloudinary.com/xxx/image.jpg"]
+   */
+  imagenes?: string[];
+}
+
+export interface ProveedorUpdateDto {
+  /**
+   * Tipo de documento
+   * @default "DNI"
+   */
+  tipoDocumento?: "DNI" | "RUC";
+  /**
+   * DNI del proveedor
+   * @example "12345678"
+   */
+  dni?: string;
+  /**
+   * RUC del proveedor
+   * @example "20123456789"
+   */
+  ruc?: string;
+  /**
+   * Nombres del proveedor
+   * @example "Juan Carlos"
+   */
+  nombres?: string;
+  /**
+   * Apellidos del proveedor
+   * @example "Pérez García"
+   */
+  apellidos?: string;
+  /**
+   * Razón Social del proveedor
+   * @example "Empresa SAC"
+   */
+  razonSocial?: string;
+  /**
+   * Email del proveedor
+   * @example "juan.perez@example.com"
+   */
+  email?: string;
+  /**
+   * Teléfono del proveedor
+   * @example "987654321"
+   */
+  telefono?: string;
+  /**
+   * Dirección del proveedor
+   * @example "Av. Principal 123"
+   */
+  direccion?: string;
+  /**
+   * Lista de URLs de imágenes del proveedor
+   * @example ["https://res.cloudinary.com/xxx/image.jpg"]
+   */
+  imagenes?: string[];
+}
+
+export interface ProveedorDocumentoCreateDto {
+  /**
+   * ID del proveedor
+   * @example 1
+   */
+  proveedorId: number;
+  /**
+   * Tipo de documento
+   * @example "RUC"
+   */
+  tipo: string;
+  /**
+   * Número del documento
+   * @example "20123456789"
+   */
+  numero?: string;
+  /**
+   * Fecha de emisión del documento
+   * @example "2023-01-15"
+   */
+  fechaEmision?: string;
+  /**
+   * Fecha de vencimiento del documento
+   * @example "2025-12-31"
+   */
+  fechaVencimiento?: string;
+  /**
+   * URLs de los archivos del documento
+   * @example ["https://storage.example.com/documentos/ruc.pdf"]
+   */
+  archivos: string[];
+}
+
+export interface ProveedorDocumentoUpdateDto {
+  /**
+   * ID del proveedor
+   * @example 1
+   */
+  proveedorId?: number;
+  /**
+   * Tipo de documento
+   * @example "RUC"
+   */
+  tipo?: string;
+  /**
+   * Número del documento
+   * @example "20123456789"
+   */
+  numero?: string;
+  /**
+   * Fecha de emisión del documento
+   * @example "2023-01-15"
+   */
+  fechaEmision?: string;
+  /**
+   * Fecha de vencimiento del documento
+   * @example "2025-12-31"
+   */
+  fechaVencimiento?: string;
+  /**
+   * URLs de los archivos del documento
+   * @example ["https://storage.example.com/documentos/ruc.pdf"]
+   */
+  archivos?: string[];
 }
 
 export interface StorageResultDto {
@@ -6645,7 +7049,11 @@ export type NotificacionesMarkAsReadData = NotificacionResultDto;
 
 export type NotificacionesSendEmailData = any;
 
-export type NotificacionesSendConductorExpirationEmailData = any;
+export interface NotificacionesNotifyEachAdminParams {
+  diasAnticipacion: number;
+}
+
+export type NotificacionesNotifyEachAdminData = any;
 
 export interface NotificacionesNotifyEachConductorParams {
   diasAnticipacion: number;
@@ -6823,6 +7231,84 @@ export interface PropietariosDeleteDocumentoParams {
 }
 
 export type PropietariosDeleteDocumentoData = PropietarioDocumentoResultDto;
+
+export interface ProveedoresFindAllParams {
+  /**
+   * Número de página
+   * @example 1
+   */
+  page?: number;
+  /**
+   * Registros por página
+   * @example 10
+   */
+  limit?: number;
+  /**
+   * Búsqueda por nombre, dni, ruc, email, teléfono
+   * @example "Juan"
+   */
+  search?: string;
+  /**
+   * Fecha inicio
+   * @example "2023-01-01"
+   */
+  fechaInicio?: string;
+  /**
+   * Fecha fin
+   * @example "2023-12-31"
+   */
+  fechaFin?: string;
+  /** Filtrar por tipo de documento */
+  tipoDocumento?: "DNI" | "RUC";
+}
+
+export type ProveedoresFindAllData = PaginatedProveedorResultDto;
+
+export interface ProveedoresFindOneParams {
+  /** ID del proveedor */
+  id: number;
+}
+
+export type ProveedoresFindOneData = ProveedorResultDto;
+
+export type ProveedoresCreateData = ProveedorResultDto;
+
+export interface ProveedoresUpdateParams {
+  /** ID del proveedor */
+  id: number;
+}
+
+export type ProveedoresUpdateData = ProveedorResultDto;
+
+export interface ProveedoresRemoveParams {
+  /** ID del proveedor */
+  id: number;
+}
+
+export type ProveedoresRemoveData = ProveedorResultDto;
+
+export interface ProveedoresFindDocumentoParams {
+  /** ID del documento */
+  id: number;
+}
+
+export type ProveedoresFindDocumentoData = ProveedorDocumentoResultDto;
+
+export type ProveedoresCreateDocumentoData = ProveedorDocumentoResultDto;
+
+export interface ProveedoresUpdateDocumentoParams {
+  /** ID del documento */
+  id: number;
+}
+
+export type ProveedoresUpdateDocumentoData = ProveedorDocumentoResultDto;
+
+export interface ProveedoresDeleteDocumentoParams {
+  /** ID del documento */
+  id: number;
+}
+
+export type ProveedoresDeleteDocumentoData = ProveedorDocumentoResultDto;
 
 export interface StorageUploadPayload {
   /** @format binary */
@@ -9131,17 +9617,19 @@ export namespace Notificaciones {
   /**
    * No description
    * @tags Notificaciones
-   * @name NotificacionesSendConductorExpirationEmail
-   * @summary Enviar lista de conductores con documentos por vencer a un correo
-   * @request POST:/notificacion/send-conductor-expiration-email
-   * @response `200` `NotificacionesSendConductorExpirationEmailData` Correo enviado con el reporte
+   * @name NotificacionesNotifyEachAdmin
+   * @summary Enviar lista de conductores con documentos por vencer a todos los administradores
+   * @request POST:/notificacion/notify-each-admin
+   * @response `200` `NotificacionesNotifyEachAdminData` Correos enviados con el reporte
    */
-  export namespace NotificacionesSendConductorExpirationEmail {
+  export namespace NotificacionesNotifyEachAdmin {
     export type RequestParams = {};
-    export type RequestQuery = {};
-    export type RequestBody = SendConductorExpirationEmailDto;
+    export type RequestQuery = {
+      diasAnticipacion: number;
+    };
+    export type RequestBody = never;
     export type RequestHeaders = {};
-    export type ResponseBody = NotificacionesSendConductorExpirationEmailData;
+    export type ResponseBody = NotificacionesNotifyEachAdminData;
   }
 
   /**
@@ -9562,6 +10050,207 @@ export namespace Propietarios {
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = PropietariosDeleteDocumentoData;
+  }
+}
+
+export namespace Proveedores {
+  /**
+   * No description
+   * @tags proveedores
+   * @name ProveedoresFindAll
+   * @summary Obtener proveedores con paginación, búsqueda y filtros
+   * @request GET:/proveedor/find-all
+   * @secure
+   * @response `200` `ProveedoresFindAllData`
+   */
+  export namespace ProveedoresFindAll {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /**
+       * Número de página
+       * @example 1
+       */
+      page?: number;
+      /**
+       * Registros por página
+       * @example 10
+       */
+      limit?: number;
+      /**
+       * Búsqueda por nombre, dni, ruc, email, teléfono
+       * @example "Juan"
+       */
+      search?: string;
+      /**
+       * Fecha inicio
+       * @example "2023-01-01"
+       */
+      fechaInicio?: string;
+      /**
+       * Fecha fin
+       * @example "2023-12-31"
+       */
+      fechaFin?: string;
+      /** Filtrar por tipo de documento */
+      tipoDocumento?: "DNI" | "RUC";
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ProveedoresFindAllData;
+  }
+
+  /**
+   * No description
+   * @tags proveedores
+   * @name ProveedoresFindOne
+   * @summary Obtener un proveedor por ID
+   * @request GET:/proveedor/find-one/{id}
+   * @secure
+   * @response `200` `ProveedoresFindOneData`
+   */
+  export namespace ProveedoresFindOne {
+    export type RequestParams = {
+      /** ID del proveedor */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ProveedoresFindOneData;
+  }
+
+  /**
+   * No description
+   * @tags proveedores
+   * @name ProveedoresCreate
+   * @summary Crear un nuevo proveedor
+   * @request POST:/proveedor/create
+   * @secure
+   * @response `200` `ProveedoresCreateData`
+   */
+  export namespace ProveedoresCreate {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = ProveedorCreateDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = ProveedoresCreateData;
+  }
+
+  /**
+   * No description
+   * @tags proveedores
+   * @name ProveedoresUpdate
+   * @summary Actualizar un proveedor
+   * @request PATCH:/proveedor/update/{id}
+   * @secure
+   * @response `200` `ProveedoresUpdateData`
+   */
+  export namespace ProveedoresUpdate {
+    export type RequestParams = {
+      /** ID del proveedor */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = ProveedorUpdateDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = ProveedoresUpdateData;
+  }
+
+  /**
+   * No description
+   * @tags proveedores
+   * @name ProveedoresRemove
+   * @summary Eliminar un proveedor
+   * @request DELETE:/proveedor/delete/{id}
+   * @secure
+   * @response `200` `ProveedoresRemoveData`
+   */
+  export namespace ProveedoresRemove {
+    export type RequestParams = {
+      /** ID del proveedor */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ProveedoresRemoveData;
+  }
+
+  /**
+   * No description
+   * @tags proveedores
+   * @name ProveedoresFindDocumento
+   * @summary Obtener un documento por ID
+   * @request GET:/proveedor/documento/{id}
+   * @secure
+   * @response `200` `ProveedoresFindDocumentoData`
+   */
+  export namespace ProveedoresFindDocumento {
+    export type RequestParams = {
+      /** ID del documento */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ProveedoresFindDocumentoData;
+  }
+
+  /**
+   * No description
+   * @tags proveedores
+   * @name ProveedoresCreateDocumento
+   * @summary Crear un nuevo documento de proveedor
+   * @request POST:/proveedor/documento/create
+   * @secure
+   * @response `201` `ProveedoresCreateDocumentoData`
+   */
+  export namespace ProveedoresCreateDocumento {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = ProveedorDocumentoCreateDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = ProveedoresCreateDocumentoData;
+  }
+
+  /**
+   * No description
+   * @tags proveedores
+   * @name ProveedoresUpdateDocumento
+   * @summary Actualizar un documento de proveedor
+   * @request PATCH:/proveedor/documento/update/{id}
+   * @secure
+   * @response `200` `ProveedoresUpdateDocumentoData`
+   */
+  export namespace ProveedoresUpdateDocumento {
+    export type RequestParams = {
+      /** ID del documento */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = ProveedorDocumentoUpdateDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = ProveedoresUpdateDocumentoData;
+  }
+
+  /**
+   * No description
+   * @tags proveedores
+   * @name ProveedoresDeleteDocumento
+   * @summary Eliminar un documento de proveedor
+   * @request DELETE:/proveedor/documento/delete/{id}
+   * @secure
+   * @response `200` `ProveedoresDeleteDocumentoData`
+   */
+  export namespace ProveedoresDeleteDocumento {
+    export type RequestParams = {
+      /** ID del documento */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ProveedoresDeleteDocumentoData;
   }
 }
 
@@ -12245,20 +12934,19 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags Notificaciones
-     * @name NotificacionesSendConductorExpirationEmail
-     * @summary Enviar lista de conductores con documentos por vencer a un correo
-     * @request POST:/notificacion/send-conductor-expiration-email
-     * @response `200` `NotificacionesSendConductorExpirationEmailData` Correo enviado con el reporte
+     * @name NotificacionesNotifyEachAdmin
+     * @summary Enviar lista de conductores con documentos por vencer a todos los administradores
+     * @request POST:/notificacion/notify-each-admin
+     * @response `200` `NotificacionesNotifyEachAdminData` Correos enviados con el reporte
      */
-    sendConductorExpirationEmail: (
-      data: SendConductorExpirationEmailDto,
+    notifyEachAdmin: (
+      query: NotificacionesNotifyEachAdminParams,
       params: RequestParams = {},
     ) =>
-      this.http.request<NotificacionesSendConductorExpirationEmailData, any>({
-        path: `/notificacion/send-conductor-expiration-email`,
+      this.http.request<NotificacionesNotifyEachAdminData, any>({
+        path: `/notificacion/notify-each-admin`,
         method: "POST",
-        body: data,
-        type: ContentType.Json,
+        query: query,
         ...params,
       }),
 
@@ -12666,6 +13354,213 @@ export class Api<SecurityDataType extends unknown> {
     ) =>
       this.http.request<PropietariosDeleteDocumentoData, any>({
         path: `/propietario/documento/delete/${id}`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+  };
+  proveedores = {
+    /**
+     * No description
+     *
+     * @tags proveedores
+     * @name ProveedoresFindAll
+     * @summary Obtener proveedores con paginación, búsqueda y filtros
+     * @request GET:/proveedor/find-all
+     * @secure
+     * @response `200` `ProveedoresFindAllData`
+     */
+    findAll: (
+      query: ProveedoresFindAllParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ProveedoresFindAllData, any>({
+        path: `/proveedor/find-all`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags proveedores
+     * @name ProveedoresFindOne
+     * @summary Obtener un proveedor por ID
+     * @request GET:/proveedor/find-one/{id}
+     * @secure
+     * @response `200` `ProveedoresFindOneData`
+     */
+    findOne: (
+      { id, ...query }: ProveedoresFindOneParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ProveedoresFindOneData, any>({
+        path: `/proveedor/find-one/${id}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags proveedores
+     * @name ProveedoresCreate
+     * @summary Crear un nuevo proveedor
+     * @request POST:/proveedor/create
+     * @secure
+     * @response `200` `ProveedoresCreateData`
+     */
+    create: (data: ProveedorCreateDto, params: RequestParams = {}) =>
+      this.http.request<ProveedoresCreateData, any>({
+        path: `/proveedor/create`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags proveedores
+     * @name ProveedoresUpdate
+     * @summary Actualizar un proveedor
+     * @request PATCH:/proveedor/update/{id}
+     * @secure
+     * @response `200` `ProveedoresUpdateData`
+     */
+    update: (
+      { id, ...query }: ProveedoresUpdateParams,
+      data: ProveedorUpdateDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ProveedoresUpdateData, any>({
+        path: `/proveedor/update/${id}`,
+        method: "PATCH",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags proveedores
+     * @name ProveedoresRemove
+     * @summary Eliminar un proveedor
+     * @request DELETE:/proveedor/delete/{id}
+     * @secure
+     * @response `200` `ProveedoresRemoveData`
+     */
+    remove: (
+      { id, ...query }: ProveedoresRemoveParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ProveedoresRemoveData, any>({
+        path: `/proveedor/delete/${id}`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags proveedores
+     * @name ProveedoresFindDocumento
+     * @summary Obtener un documento por ID
+     * @request GET:/proveedor/documento/{id}
+     * @secure
+     * @response `200` `ProveedoresFindDocumentoData`
+     */
+    findDocumento: (
+      { id, ...query }: ProveedoresFindDocumentoParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ProveedoresFindDocumentoData, any>({
+        path: `/proveedor/documento/${id}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags proveedores
+     * @name ProveedoresCreateDocumento
+     * @summary Crear un nuevo documento de proveedor
+     * @request POST:/proveedor/documento/create
+     * @secure
+     * @response `201` `ProveedoresCreateDocumentoData`
+     */
+    createDocumento: (
+      data: ProveedorDocumentoCreateDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ProveedoresCreateDocumentoData, any>({
+        path: `/proveedor/documento/create`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags proveedores
+     * @name ProveedoresUpdateDocumento
+     * @summary Actualizar un documento de proveedor
+     * @request PATCH:/proveedor/documento/update/{id}
+     * @secure
+     * @response `200` `ProveedoresUpdateDocumentoData`
+     */
+    updateDocumento: (
+      { id, ...query }: ProveedoresUpdateDocumentoParams,
+      data: ProveedorDocumentoUpdateDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ProveedoresUpdateDocumentoData, any>({
+        path: `/proveedor/documento/update/${id}`,
+        method: "PATCH",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags proveedores
+     * @name ProveedoresDeleteDocumento
+     * @summary Eliminar un documento de proveedor
+     * @request DELETE:/proveedor/documento/delete/{id}
+     * @secure
+     * @response `200` `ProveedoresDeleteDocumentoData`
+     */
+    deleteDocumento: (
+      { id, ...query }: ProveedoresDeleteDocumentoParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ProveedoresDeleteDocumentoData, any>({
+        path: `/proveedor/documento/delete/${id}`,
         method: "DELETE",
         secure: true,
         format: "json",

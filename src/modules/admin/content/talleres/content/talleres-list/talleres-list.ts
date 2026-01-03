@@ -12,6 +12,7 @@ import { ModalForm } from '../../../../components/modal-form/modal-form';
 import { TallerForm } from '../../layout/taller-form/taller-form';
 import { PaginationComponent } from '../../../../components/pagination/pagination';
 import { PATH, buildPath } from '@route/path.route';
+import { getErrorMessage } from '@helper/error.helper';
 
 @Component({
   selector: 'app-talleres-list',
@@ -157,7 +158,7 @@ export class TalleresList implements OnInit, OnDestroy {
       })
       .catch((error) => {
         console.error('Error al crear taller:', error);
-        this.toastService.error('Error al crear taller');
+        this.toastService.error(getErrorMessage(error, 'Error al crear taller'));
       })
       .finally(() => {
         this.loading.set(false);
@@ -178,7 +179,7 @@ export class TalleresList implements OnInit, OnDestroy {
           })
           .catch((error) => {
             console.error('Error al eliminar taller:', error);
-            this.toastService.error('Error al eliminar taller');
+            this.toastService.error(getErrorMessage(error, 'Error al eliminar taller'));
           })
           .finally(() => {
             this.loading.set(false);

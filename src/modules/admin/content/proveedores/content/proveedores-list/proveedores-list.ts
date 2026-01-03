@@ -4,53 +4,54 @@ import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { ClienteService } from '@service/admin/cliente.service';
+import { ProveedorService } from '@service/admin/proveedor.service';
 import { ApiResponse, ApiBody } from 'api/backend.api';
 import { ToastService } from '@service/toast.service';
 import { AlertService } from '@service/alert.service';
 import { ModalForm } from '../../../../components/modal-form/modal-form';
-import { ClienteForm } from '../../layout/cliente-form/cliente-form';
+import { ProveedorForm } from '../../layout/proveedor-form/proveedor-form';
 import { PaginationComponent } from '../../../../components/pagination/pagination';
 import { PATH, buildPath } from '@route/path.route';
 import { getErrorMessage } from '@helper/error.helper';
 
 @Component({
-  selector: 'app-clientes-list',
-  imports: [CommonModule, FormsModule, ModalForm, ClienteForm, PaginationComponent],
-  templateUrl: './clientes-list.html',
-  styleUrl: './clientes-list.css',
+  selector: 'app-proveedores-list',
+  standalone: true,
+  imports: [CommonModule, FormsModule, ModalForm, ProveedorForm, PaginationComponent],
+  templateUrl: './proveedores-list.html',
+  styleUrl: './proveedores-list.css',
 })
-export class ClientesList implements OnInit, OnDestroy {
-  private clienteService = inject(ClienteService);
+export class ProveedoresList implements OnInit, OnDestroy {
+  private proveedorService = inject(ProveedorService);
   private toastService = inject(ToastService);
   private alertService = inject(AlertService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private searchSubject = new Subject<string>();
 
-  clientes = signal<ApiResponse<'clientes', 'findAll'>['data']>([]);
+  proveedores = signal<ApiResponse<'proveedores', 'findAll'>['data']>([]);
   loading = signal(false);
   showModal = signal(false);
 
   // Paginación
   currentPage = signal(1);
   pageSize = signal(10);
-  meta = signal<ApiResponse<'clientes', 'findAll'>['meta'] | null>(null);
+  meta = signal<ApiResponse<'proveedores', 'findAll'>['meta'] | null>(null);
 
   // Filtros
   searchTerm = signal('');
   fechaInicio = signal('');
   fechaFin = signal('');
 
-  clienteFormComponent = viewChild<ClienteForm>(ClienteForm);
+  proveedorFormComponent = viewChild<ProveedorForm>(ProveedorForm);
 
   ngOnInit() {
-    this.loadClientes();
+    this.loadProveedores();
 
     // Configurar debounce para el buscador
     this.searchSubject.pipe(debounceTime(500), distinctUntilChanged()).subscribe(() => {
       this.currentPage.set(1);
-      this.loadClientes();
+      this.loadProveedores();
     });
   }
 
@@ -58,9 +59,9 @@ export class ClientesList implements OnInit, OnDestroy {
     this.searchSubject.complete();
   }
 
-  loadClientes() {
+  loadProveedores() {
     this.loading.set(true);
-    this.clienteService
+    this.proveedorService
       .findAll({
         page: this.currentPage(),
         limit: this.pageSize(),
@@ -69,13 +70,13 @@ export class ClientesList implements OnInit, OnDestroy {
         fechaFin: this.fechaFin() || undefined,
       })
       .then((response) => {
-        this.clientes.set(response.data);
+        this.proveedores.set(response.data);
         this.meta.set(response.meta);
         this.loading.set(false);
       })
       .catch((error) => {
-        console.error('Error al cargar clientes:', error);
-        this.toastService.error('Error al cargar clientes');
+        console.error('Error al cargar proveedores:', error);
+        this.toastService.error('Error al cargar proveedores');
         this.loading.set(false);
       });
   }
@@ -87,17 +88,17 @@ export class ClientesList implements OnInit, OnDestroy {
 
   onDateChange() {
     this.currentPage.set(1);
-    this.loadClientes();
+    this.loadProveedores();
   }
 
   onPageChange(page: number) {
     this.currentPage.set(page);
-    this.loadClientes();
+    this.loadProveedores();
   }
 
   onPageSizeChange() {
     this.currentPage.set(1);
-    this.loadClientes();
+    this.loadProveedores();
   }
 
   clearFilters() {
@@ -105,15 +106,15 @@ export class ClientesList implements OnInit, OnDestroy {
     this.fechaInicio.set('');
     this.fechaFin.set('');
     this.currentPage.set(1);
-    this.loadClientes();
+    this.loadProveedores();
   }
 
   openCreateModal() {
     this.showModal.set(true);
   }
 
-  navigateToEdit(cliente: ApiResponse<'clientes', 'findAll'>['data'][number]) {
-    const path = buildPath(PATH.admin.clientes.edit).replace(':id', cliente.id.toString());
+  navigateToEdit(proveedor: ApiResponse<'proveedores', 'findAll'>['data'][number]) {
+    const path = buildPath(PATH.admin.proveedores.edit).replace(':id', proveedor.id.toString());
     this.router.navigate([path]);
   }
 
@@ -121,45 +122,45 @@ export class ClientesList implements OnInit, OnDestroy {
     this.showModal.set(false);
   }
 
-  handleFormSubmit(data: ApiBody<'clientes', 'create'> | ApiBody<'clientes', 'update'>) {
-    this.createCliente(data as ApiBody<'clientes', 'create'>);
+  handleFormSubmit(data: ApiBody<'proveedores', 'create'> | ApiBody<'proveedores', 'update'>) {
+    this.createProveedor(data as ApiBody<'proveedores', 'create'>);
   }
 
   handleModalSubmit() {
-    this.clienteFormComponent()?.submitForm();
+    this.proveedorFormComponent()?.submitForm();
   }
 
-  createCliente(data: ApiBody<'clientes', 'create'>) {
+  createProveedor(data: ApiBody<'proveedores', 'create'>) {
     this.loading.set(true);
-    this.clienteService
+    this.proveedorService
       .create(data)
       .then(() => {
-        this.toastService.success('Cliente creado exitosamente');
-        this.loadClientes();
+        this.toastService.success('Proveedor creado exitosamente');
+        this.loadProveedores();
         this.closeModal();
       })
       .catch((error) => {
-        console.error('Error al crear cliente:', error);
-        this.toastService.error(getErrorMessage(error, 'Error al crear cliente'));
+        console.error('Error al crear proveedor:', error);
+        this.toastService.error(getErrorMessage(error, 'Error al crear proveedor'));
         this.loading.set(false);
       });
   }
 
-  deleteCliente(id: number) {
+  deleteProveedor(id: number) {
     this.alertService.delete(
-      'Eliminar Cliente',
-      '¿Estás seguro de que deseas eliminar este cliente? Esta acción no se puede deshacer.',
+      'Eliminar Proveedor',
+      '¿Estás seguro de que deseas eliminar este proveedor?',
       () => {
         this.loading.set(true);
-        this.clienteService
+        this.proveedorService
           .delete(id)
           .then(() => {
-            this.toastService.success('Cliente eliminado exitosamente');
-            this.loadClientes();
+            this.toastService.success('Proveedor eliminado exitosamente');
+            this.loadProveedores();
           })
           .catch((error) => {
-            console.error('Error al eliminar cliente:', error);
-            this.toastService.error(getErrorMessage(error, 'Error al eliminar cliente'));
+            console.error('Error al eliminar proveedor:', error);
+            this.toastService.error(getErrorMessage(error, 'Error al eliminar proveedor'));
             this.loading.set(false);
           });
       }

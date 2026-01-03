@@ -6,6 +6,7 @@ import { ApiResponse, ApiBody } from 'api/backend.api';
 import { ToastService } from '@service/toast.service';
 import { ConductorForm } from '../../layout/conductor-form/conductor-form';
 import { PATH, buildPath } from '@route/path.route';
+import { getErrorMessage } from '@helper/error.helper';
 
 @Component({
   selector: 'app-conductores-edit',
@@ -62,7 +63,7 @@ export class ConductoresEdit implements OnInit {
       })
       .catch((error) => {
         console.error('Error al actualizar conductor:', error);
-        this.toastService.error('Error al actualizar conductor');
+        this.toastService.error(getErrorMessage(error, 'Error al actualizar conductor'));
       })
       .finally(() => {
         this.loading.set(false);

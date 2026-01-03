@@ -12,6 +12,7 @@ import { ModalForm } from '../../../../components/modal-form/modal-form';
 import { VehiculoForm } from '../../layout/vehiculo-form/vehiculo-form';
 import { PaginationComponent } from '../../../../components/pagination/pagination';
 import { PATH, buildPath } from '@route/path.route';
+import { getErrorMessage } from '@helper/error.helper';
 
 @Component({
   selector: 'app-vehiculos-list',
@@ -73,7 +74,7 @@ export class VehiculosList implements OnInit, OnDestroy {
       this.loading.set(false);
     } catch (error) {
       console.error('Error al cargar vehículos:', error);
-      this.toastService.error('Error al cargar vehículos');
+      this.toastService.error(getErrorMessage(error, 'Error al cargar vehículos'));
       this.loading.set(false);
     }
   }
@@ -150,7 +151,7 @@ export class VehiculosList implements OnInit, OnDestroy {
       this.closeModal();
     } catch (error) {
       console.error('Error al crear vehículo:', error);
-      this.toastService.error('Error al crear vehículo');
+      this.toastService.error(getErrorMessage(error, 'Error al crear vehículo'));
       this.loading.set(false);
     }
   }
@@ -168,7 +169,7 @@ export class VehiculosList implements OnInit, OnDestroy {
           },
           (error) => {
             console.error('Error al eliminar vehículo:', error);
-            this.toastService.error('Error al eliminar vehículo');
+            this.toastService.error(getErrorMessage(error, 'Error al eliminar vehículo'));
             this.loading.set(false);
           }
         );

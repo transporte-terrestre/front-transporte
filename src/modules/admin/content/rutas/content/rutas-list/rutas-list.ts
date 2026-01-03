@@ -13,6 +13,7 @@ import { ModalForm } from '../../../../components/modal-form/modal-form';
 import { RutaForm } from '../../layout/ruta-form/ruta-form';
 import { PaginationComponent } from '../../../../components/pagination/pagination';
 import { PATH, buildPath } from '@route/path.route';
+import { getErrorMessage } from '@helper/error.helper';
 
 @Component({
   selector: 'app-rutas-list',
@@ -152,7 +153,7 @@ export class RutasList implements OnInit, OnDestroy {
       })
       .catch((error) => {
         console.error('Error al crear ruta:', error);
-        this.toastService.error('Error al crear ruta');
+        this.toastService.error(getErrorMessage(error, 'Error al crear ruta'));
       })
       .finally(() => {
         this.loading.set(false);
@@ -173,7 +174,7 @@ export class RutasList implements OnInit, OnDestroy {
           })
           .catch((error) => {
             console.error('Error al eliminar ruta:', error);
-            this.toastService.error('Error al eliminar ruta');
+            this.toastService.error(getErrorMessage(error, 'Error al eliminar ruta'));
           })
           .finally(() => {
             this.loading.set(false);

@@ -7,34 +7,34 @@ import {
   DocumentsDateUpload,
   DocumentWithDate,
 } from '../../../../components/documents-date-upload/documents-date-upload';
-import { PropietarioService } from '@service/admin/propietario.service';
+import { ProveedorService } from '@service/admin/proveedor.service';
 import { ToastService } from '@service/toast.service';
 import { getErrorMessage } from '@helper/error.helper';
 
 @Component({
-  selector: 'app-propietario-form',
+  selector: 'app-proveedor-form',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, ImagesUpload, DocumentsDateUpload],
-  templateUrl: './propietario-form.html',
-  styleUrl: './propietario-form.css',
+  templateUrl: './proveedor-form.html',
+  styleUrl: './proveedor-form.css',
 })
-export class PropietarioForm implements OnInit {
+export class ProveedorForm implements OnInit {
   private fb = inject(FormBuilder);
-  private propietarioService = inject(PropietarioService);
+  private proveedorService = inject(ProveedorService);
   private toastService = inject(ToastService);
 
   // Inputs
-  propietario = input<ApiResponse<'propietarios', 'findOne'> | null>(null);
+  proveedor = input<ApiResponse<'proveedores', 'findOne'> | null>(null);
   editMode = input<boolean>(false);
 
   // Outputs
-  onSubmitForm = output<ApiBody<'propietarios', 'create'> | ApiBody<'propietarios', 'update'>>();
+  onSubmitForm = output<ApiBody<'proveedores', 'create'> | ApiBody<'proveedores', 'update'>>();
 
   // State
   imagenes = signal<string[]>([]);
-  localDocuments = signal<ApiResponse<'propietarios', 'findOne'>['documentos'] | null>(null);
+  localDocuments = signal<ApiResponse<'proveedores', 'findOne'>['documentos'] | null>(null);
 
-  propietarioForm: FormGroup = this.fb.group({
+  proveedorForm: FormGroup = this.fb.group({
     tipoDocumento: ['DNI', [Validators.required]],
     dni: ['', [Validators.required, Validators.maxLength(20)]],
     ruc: ['', [Validators.maxLength(20)]],
@@ -47,7 +47,7 @@ export class PropietarioForm implements OnInit {
   });
 
   documentTypes: {
-    value: keyof ApiField<'propietarios', 'findOne', 'documentos'>;
+    value: string;
     label: string;
   }[] = [
     { value: 'dni', label: 'DNI' },
@@ -58,25 +58,25 @@ export class PropietarioForm implements OnInit {
 
   constructor() {
     effect(() => {
-      const propietarioData = this.propietario();
+      const proveedorData = this.proveedor();
       const isEditMode = this.editMode();
 
-      if (isEditMode && propietarioData) {
-        this.propietarioForm.patchValue({
-          tipoDocumento: propietarioData.tipoDocumento,
-          dni: propietarioData.dni || '',
-          ruc: propietarioData.ruc || '',
-          nombres: propietarioData.nombres || '',
-          apellidos: propietarioData.apellidos || '',
-          razonSocial: propietarioData.razonSocial || '',
-          email: propietarioData.email || '',
-          telefono: propietarioData.telefono || '',
-          direccion: propietarioData.direccion || '',
+      if (isEditMode && proveedorData) {
+        this.proveedorForm.patchValue({
+          tipoDocumento: proveedorData.tipoDocumento,
+          dni: proveedorData.dni || '',
+          ruc: proveedorData.ruc || '',
+          nombres: proveedorData.nombres || '',
+          apellidos: proveedorData.apellidos || '',
+          razonSocial: proveedorData.razonSocial || '',
+          email: proveedorData.email || '',
+          telefono: proveedorData.telefono || '',
+          direccion: proveedorData.direccion || '',
         });
-        this.imagenes.set(propietarioData.imagenes || []);
-        this.localDocuments.set(JSON.parse(JSON.stringify(propietarioData.documentos)));
+        this.imagenes.set(proveedorData.imagenes || []);
+        this.localDocuments.set(JSON.parse(JSON.stringify(proveedorData.documentos)));
       } else {
-        this.propietarioForm.reset({ tipoDocumento: 'DNI' });
+        this.proveedorForm.reset({ tipoDocumento: 'DNI' });
         this.imagenes.set([]);
         this.localDocuments.set(null);
       }
@@ -84,12 +84,12 @@ export class PropietarioForm implements OnInit {
   }
 
   ngOnInit() {
-    this.propietarioForm.get('tipoDocumento')?.valueChanges.subscribe((tipo) => {
-      const dniControl = this.propietarioForm.get('dni');
-      const rucControl = this.propietarioForm.get('ruc');
-      const nombresControl = this.propietarioForm.get('nombres');
-      const apellidosControl = this.propietarioForm.get('apellidos');
-      const razonSocialControl = this.propietarioForm.get('razonSocial');
+    this.proveedorForm.get('tipoDocumento')?.valueChanges.subscribe((tipo) => {
+      const dniControl = this.proveedorForm.get('dni');
+      const rucControl = this.proveedorForm.get('ruc');
+      const nombresControl = this.proveedorForm.get('nombres');
+      const apellidosControl = this.proveedorForm.get('apellidos');
+      const razonSocialControl = this.proveedorForm.get('razonSocial');
 
       if (tipo === 'DNI') {
         dniControl?.setValidators([Validators.required, Validators.maxLength(20)]);
@@ -120,12 +120,12 @@ export class PropietarioForm implements OnInit {
   }
 
   submitForm() {
-    if (this.propietarioForm.invalid) {
-      this.propietarioForm.markAllAsTouched();
+    if (this.proveedorForm.invalid) {
+      this.proveedorForm.markAllAsTouched();
       return;
     }
 
-    const formData = this.propietarioForm.value;
+    const formData = this.proveedorForm.value;
     const cleanData: any = {
       tipoDocumento: formData.tipoDocumento,
       imagenes: this.imagenes(),
@@ -145,32 +145,31 @@ export class PropietarioForm implements OnInit {
     if (formData.direccion) cleanData.direccion = formData.direccion;
 
     if (this.editMode()) {
-      this.onSubmitForm.emit(cleanData as ApiBody<'propietarios', 'update'>);
+      this.onSubmitForm.emit(cleanData as ApiBody<'proveedores', 'update'>);
     } else {
-      this.onSubmitForm.emit(cleanData as ApiBody<'propietarios', 'create'>);
+      this.onSubmitForm.emit(cleanData as ApiBody<'proveedores', 'create'>);
     }
   }
 
   handleDocumentUpload(
     event: DocumentWithDate,
-    tipo: keyof ApiField<'propietarios', 'findOne', 'documentos'>
+    tipo: string
   ) {
-    if (!this.propietario()) return;
+    if (!this.proveedor()) return;
 
-    const documento: ApiBody<'propietarios', 'createDocumento'> = {
-      propietarioId: this.propietario()!.id,
+    const documento: ApiBody<'proveedores', 'createDocumento'> = {
+      proveedorId: this.proveedor()!.id,
       tipo: tipo,
-      nombre: event.nombre,
-      url: event.url,
+      numero: event.nombre,
+      archivos: [event.url],
       fechaEmision: event.fechaEmision,
-      fechaExpiracion: event.fechaExpiracion,
+      fechaVencimiento: event.fechaExpiracion,
     };
 
-    this.propietarioService
+    this.proveedorService
       .createDocumento(documento)
-      .then((doc) => {
+      .then(() => {
         this.toastService.success('Documento guardado exitosamente');
-        this.addDocumentToLocalList(doc);
       })
       .catch((err) => {
         console.error('Error al guardar documento:', err);
@@ -179,14 +178,12 @@ export class PropietarioForm implements OnInit {
   }
 
   handleDocumentUpdate(event: { id: number; fechaEmision: string; fechaExpiracion: string }) {
-    this.propietarioService
+    this.proveedorService
       .updateDocumento(event.id, {
         fechaEmision: event.fechaEmision,
-        fechaExpiracion: event.fechaExpiracion,
       })
-      .then((doc) => {
+      .then(() => {
         this.toastService.success('Documento actualizado exitosamente');
-        this.updateDocumentInLocalList(doc);
       })
       .catch((err) => {
         console.error('Error al actualizar documento:', err);
@@ -194,12 +191,11 @@ export class PropietarioForm implements OnInit {
       });
   }
 
-  deleteDocument(id: number, tipo: keyof ApiField<'propietarios', 'findOne', 'documentos'>) {
-    this.propietarioService
+  deleteDocument(id: number, tipo: string) {
+    this.proveedorService
       .deleteDocumento(id)
       .then(() => {
         this.toastService.success('Documento eliminado exitosamente');
-        this.removeDocumentFromLocalList(id, tipo);
       })
       .catch((err) => {
         console.error('Error al eliminar documento:', err);
@@ -207,54 +203,7 @@ export class PropietarioForm implements OnInit {
       });
   }
 
-  private addDocumentToLocalList(
-    doc: ApiField<'propietarios', 'findOne', 'documentos'>['dni'][number]
-  ) {
-    const docs = this.localDocuments();
-    if (docs) {
-      const tipo = doc.tipo;
-      const newDocs = { ...docs };
-      if (!newDocs[tipo]) {
-        newDocs[tipo] = [];
-      }
-      newDocs[tipo] = [...newDocs[tipo], doc];
-      this.localDocuments.set(newDocs);
-    }
-  }
-
-  private updateDocumentInLocalList(
-    doc: ApiField<'propietarios', 'findOne', 'documentos'>['dni'][number]
-  ) {
-    const docs = this.localDocuments();
-    if (docs) {
-      const tipo = doc.tipo;
-      if (docs[tipo]) {
-        const newDocs = { ...docs };
-        newDocs[tipo] = newDocs[tipo].map((d) => (d.id === doc.id ? doc : d));
-        this.localDocuments.set(newDocs);
-      }
-    }
-  }
-
-  private removeDocumentFromLocalList(
-    id: number,
-    tipo: keyof ApiField<'propietarios', 'findOne', 'documentos'>
-  ) {
-    const docs = this.localDocuments();
-    if (docs) {
-      if (docs[tipo]) {
-        const newDocs = { ...docs };
-        newDocs[tipo] = newDocs[tipo].filter((d) => d.id !== id);
-        this.localDocuments.set(newDocs);
-      }
-    }
-  }
-
-  getDocuments(
-    tipo: keyof ApiField<'propietarios', 'findOne', 'documentos'>
-  ): ApiField<'propietarios', 'findOne', 'documentos'>['dni'] {
-    const docs = this.localDocuments();
-    if (!docs) return [];
-    return docs[tipo] || [];
+  getDocuments(tipo: string): any[] {
+    return [];
   }
 }
