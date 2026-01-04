@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  baseUrl: 'http://localhost:3000'
+  baseUrl: 'https://backend-transporte-fmcqd2abgbg5b0bj.chilecentral-01.azurewebsites.net'
 };
