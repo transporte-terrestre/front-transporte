@@ -670,6 +670,11 @@ export interface VehiculoListDto {
    */
   propietarios_nombres?: string[];
   /**
+   * List of suppliers names
+   * @default []
+   */
+  proveedores_nombres?: string[];
+  /**
    * Creation date
    * @format date-time
    * @example "2023-01-01T00:00:00.000Z"
@@ -710,6 +715,19 @@ export interface PropietarioVehiculoDto {
   /**
    * Owner Name
    * @example "Juan Perez"
+   */
+  nombre: string;
+}
+
+export interface ProveedorVehiculoDto {
+  /**
+   * Supplier ID
+   * @example 1
+   */
+  id: number;
+  /**
+   * Supplier Name
+   * @example "Repuestos SAC"
    */
   nombre: string;
 }
@@ -845,11 +863,6 @@ export interface VehiculoResultDto {
    */
   anio: number;
   /**
-   * Model year
-   * @example 2021
-   */
-  anioModelo?: number;
-  /**
    * VIN
    * @example "VIN1234567890ABCD"
    */
@@ -978,6 +991,8 @@ export interface VehiculoResultDto {
   ancho?: string;
   /** List of owners */
   propietarios: PropietarioVehiculoDto[];
+  /** List of suppliers */
+  proveedores: ProveedorVehiculoDto[];
   /**
    * Lista de URLs de imágenes del vehículo
    * @example ["https://res.cloudinary.com/xxx/image.jpg"]
@@ -1020,11 +1035,6 @@ export interface VehiculoCreateDto {
    * @example 2020
    */
   anio: number;
-  /**
-   * Model year
-   * @example 2021
-   */
-  anioModelo?: number;
   /**
    * Vehicle Identification Number
    * @example "VIN1234567890ABCD"
@@ -1158,6 +1168,11 @@ export interface VehiculoCreateDto {
    */
   propietarios?: number[];
   /**
+   * List of supplier IDs
+   * @example [1,2]
+   */
+  proveedores?: number[];
+  /**
    * Lista de URLs de imágenes del vehículo
    * @example ["https://res.cloudinary.com/xxx/image.jpg"]
    */
@@ -1190,11 +1205,6 @@ export interface VehiculoUpdateDto {
    * @example 2020
    */
   anio?: number;
-  /**
-   * Model year
-   * @example 2021
-   */
-  anioModelo?: number;
   /**
    * Vehicle Identification Number
    * @example "VIN1234567890ABCD"
@@ -1327,6 +1337,11 @@ export interface VehiculoUpdateDto {
    * @example [1,2]
    */
   propietarios?: number[];
+  /**
+   * List of supplier IDs
+   * @example [1,2]
+   */
+  proveedores?: number[];
   /**
    * Lista de URLs de imágenes del vehículo
    * @example ["https://res.cloudinary.com/xxx/image.jpg"]
@@ -1629,6 +1644,16 @@ export interface ConductorListDto {
    */
   nombreCompleto: string;
   /**
+   * Driver email
+   * @example "juan@example.com"
+   */
+  email?: string;
+  /**
+   * Driver phone number
+   * @example "987654321"
+   */
+  celular?: string;
+  /**
    * Driver license number
    * @example "Q07864165"
    */
@@ -1693,7 +1718,16 @@ export interface ConductorDocumentoResultDto {
     | "psicosensometrico"
     | "induccion_general"
     | "manejo_defensivo"
-    | "licencia_interna";
+    | "licencia_interna"
+    | "autoriza_ssgg"
+    | "curso_seguridad_portuaria"
+    | "curso_mercancias_peligrosas"
+    | "curso_basico_pbip"
+    | "examen_medico_temporal"
+    | "induccion_visita"
+    | "em_visita"
+    | "pase_conduc"
+    | "foto_funcionario";
   /**
    * Nombre del documento
    * @example "Documento 1"
@@ -1738,6 +1772,15 @@ export interface DocumentosAgrupadosConductorDto {
   induccion_general: ConductorDocumentoResultDto[];
   manejo_defensivo: ConductorDocumentoResultDto[];
   licencia_interna: ConductorDocumentoResultDto[];
+  autoriza_ssgg: ConductorDocumentoResultDto[];
+  curso_seguridad_portuaria: ConductorDocumentoResultDto[];
+  curso_mercancias_peligrosas: ConductorDocumentoResultDto[];
+  curso_basico_pbip: ConductorDocumentoResultDto[];
+  examen_medico_temporal: ConductorDocumentoResultDto[];
+  induccion_visita: ConductorDocumentoResultDto[];
+  em_visita: ConductorDocumentoResultDto[];
+  pase_conduc: ConductorDocumentoResultDto[];
+  foto_funcionario: ConductorDocumentoResultDto[];
 }
 
 export interface ConductorResultDto {
@@ -1766,6 +1809,16 @@ export interface ConductorResultDto {
    * @example "Juan Carlos Perez Garcia"
    */
   nombreCompleto: string;
+  /**
+   * Driver email
+   * @example "juan@example.com"
+   */
+  email?: string;
+  /**
+   * Driver phone number
+   * @example "987654321"
+   */
+  celular?: string;
   /**
    * Driver license number
    * @example "Q07864165"
@@ -1897,7 +1950,16 @@ export interface ConductorDocumentoCreateDto {
     | "psicosensometrico"
     | "induccion_general"
     | "manejo_defensivo"
-    | "licencia_interna";
+    | "licencia_interna"
+    | "autoriza_ssgg"
+    | "curso_seguridad_portuaria"
+    | "curso_mercancias_peligrosas"
+    | "curso_basico_pbip"
+    | "examen_medico_temporal"
+    | "induccion_visita"
+    | "em_visita"
+    | "pase_conduc"
+    | "foto_funcionario";
   /**
    * Nombre del documento
    * @example "Documento 1"
@@ -1934,7 +1996,16 @@ export interface ConductorDocumentoUpdateDto {
     | "psicosensometrico"
     | "induccion_general"
     | "manejo_defensivo"
-    | "licencia_interna";
+    | "licencia_interna"
+    | "autoriza_ssgg"
+    | "curso_seguridad_portuaria"
+    | "curso_mercancias_peligrosas"
+    | "curso_basico_pbip"
+    | "examen_medico_temporal"
+    | "induccion_visita"
+    | "em_visita"
+    | "pase_conduc"
+    | "foto_funcionario";
   /**
    * URL del documento
    * @example "https://storage.example.com/documentos/licencia-A123456.pdf"
@@ -1993,11 +2064,6 @@ export interface VehiculoMantenimientoListDto {
    * @example 2020
    */
   anio: number;
-  /**
-   * Model year
-   * @example 2021
-   */
-  anioModelo?: number;
   /**
    * VIN
    * @example "VIN1234567890ABCD"
@@ -2336,11 +2402,6 @@ export interface VehiculoMantenimientoResultDto {
    */
   anio: number;
   /**
-   * Model year
-   * @example 2021
-   */
-  anioModelo?: number;
-  /**
    * VIN
    * @example "VIN1234567890ABCD"
    */
@@ -2467,8 +2528,6 @@ export interface VehiculoMantenimientoResultDto {
    * @example "1.90"
    */
   ancho?: string;
-  /** List of owners */
-  propietarios: PropietarioVehiculoDto[];
   /**
    * Lista de URLs de imágenes del vehículo
    * @example ["https://res.cloudinary.com/xxx/image.jpg"]
@@ -3167,6 +3226,16 @@ export interface ConductorViajeDto {
    */
   nombreCompleto: string;
   /**
+   * Driver email
+   * @example "juan@example.com"
+   */
+  email?: string;
+  /**
+   * Driver phone number
+   * @example "987654321"
+   */
+  celular?: string;
+  /**
    * Driver license number
    * @example "Q07864165"
    */
@@ -3241,11 +3310,6 @@ export interface VehiculoViajeDto {
    * @example 2020
    */
   anio: number;
-  /**
-   * Model year
-   * @example 2021
-   */
-  anioModelo?: number;
   /**
    * VIN
    * @example "VIN1234567890ABCD"
@@ -3593,6 +3657,16 @@ export interface ViajeConductorDetalleDto {
    */
   nombreCompleto: string;
   /**
+   * Driver email
+   * @example "juan@example.com"
+   */
+  email?: string;
+  /**
+   * Driver phone number
+   * @example "987654321"
+   */
+  celular?: string;
+  /**
    * Driver license number
    * @example "Q07864165"
    */
@@ -3677,11 +3751,6 @@ export interface ViajeVehiculoDetalleDto {
    * @example 2020
    */
   anio: number;
-  /**
-   * Model year
-   * @example 2021
-   */
-  anioModelo?: number;
   /**
    * VIN
    * @example "VIN1234567890ABCD"
@@ -3809,8 +3878,6 @@ export interface ViajeVehiculoDetalleDto {
    * @example "1.90"
    */
   ancho?: string;
-  /** List of owners */
-  propietarios: PropietarioVehiculoDto[];
   /**
    * Lista de URLs de imágenes del vehículo
    * @example ["https://res.cloudinary.com/xxx/image.jpg"]
@@ -5027,6 +5094,29 @@ export interface NotificacionResultDto {
   leido: boolean;
 }
 
+export interface SendEmailDto {
+  /**
+   * Correo del destinatario
+   * @example "example@gmail.com"
+   */
+  to: string;
+  /**
+   * Asunto
+   * @example "Asunto del correo"
+   */
+  subject: string;
+  /**
+   * Cuerpo del mensaje en texto plano
+   * @example "Contenido del correo"
+   */
+  text: string;
+  /**
+   * Cuerpo del mensaje en HTML
+   * @example "<h1>Hola</h1>"
+   */
+  html?: string;
+}
+
 export interface VencimientoResumenDto {
   /** @example 5 */
   clientes: number;
@@ -5138,6 +5228,149 @@ export interface MantenimientoDetalladoTallerDto {
   vehiculoPlaca: string;
   vehiculoMarca: string;
   vehiculoModelo: string;
+}
+
+export interface ReporteConductorDto {
+  /**
+   * ID del conductor
+   * @example 1
+   */
+  id: number;
+  /**
+   * RUC de la empresa (Hardcoded)
+   * @example "2043893327"
+   */
+  rucEmpresa: string;
+  /**
+   * OST (Hardcoded)
+   * @example "2.MAY.3298"
+   */
+  ost: string;
+  /**
+   * DNI del conductor
+   * @example "12345678"
+   */
+  dni: string;
+  /**
+   * Nombres del conductor
+   * @example "JUAN"
+   */
+  nombres: string;
+  /**
+   * Apellidos del conductor
+   * @example "PEREZ"
+   */
+  apellidos: string;
+  /**
+   * Induccion - Anexo 4
+   * @example "SI"
+   */
+  induccionAnexo4: string;
+  /**
+   * Fec.Emision Induccion
+   * @example "NA"
+   */
+  fecEmisionInduccion: string;
+  /**
+   * Manejo defensivo AAQ
+   * @example "SI"
+   */
+  manejoDefensivoAaq: string;
+  /**
+   * Fec.Vence Manejo Def
+   * @example "29-01-2026"
+   */
+  fecVenceManejoDef: string;
+  /**
+   * SCTR
+   * @example "SI"
+   */
+  sctr: string;
+  /**
+   * Vencimiento SCTR
+   * @example "31-12-2025"
+   */
+  vencimientoSctr: string;
+  /**
+   * Seguro vida Ley
+   * @example "SI"
+   */
+  seguroVidaLey: string;
+  /**
+   * Fec. Vence Seg Vida Ley
+   * @example "01-01-2026"
+   */
+  fecVenceSegVidaLey: string;
+  /**
+   * Documento de Identidad
+   * @example "SI"
+   */
+  documentoIdentidad: string;
+  /**
+   * AUTORIZA_SSGG
+   * @example "NO"
+   */
+  autorizaSsgg: string;
+  /**
+   * Curso Seguridad Portuaria
+   * @example "NO"
+   */
+  cursoSeguridadPortuaria: string;
+  /**
+   * Foto Funcionario
+   * @example "SI"
+   */
+  fotoFuncionario: string;
+  /**
+   * Curso Mercancias Peligrosas
+   * @example "NO"
+   */
+  cursoMercanciasPeligrosas: string;
+  /**
+   * Curso Basico PBIP
+   * @example "NO"
+   */
+  cursoBasicoPbip: string;
+  /**
+   * F. Venc. Examen Medico Temporal
+   * @example "NA"
+   */
+  fVencExamenMedicoTemporal: string;
+  /**
+   * F. Vence examen medico
+   * @example "29-05-2026"
+   */
+  fVenceExamenMedico: string;
+  /**
+   * Vence Examen Psicosensometrico
+   * @example "29-05-2026"
+   */
+  venceExamenPsicosensometrico: string;
+  /**
+   * Fecha induccion temporal
+   * @example "NA"
+   */
+  fechaInduccionTemporal: string;
+  /**
+   * Vence Induccion Visita
+   * @example "NA"
+   */
+  venceInduccionVisita: string;
+  /**
+   * Vence EM Visita
+   * @example "NA"
+   */
+  venceEmVisita: string;
+  /**
+   * Fecha Vencimiento Licencia
+   * @example "06-01-2027"
+   */
+  fechaVencimientoLicencia: string;
+  /**
+   * PASECONDUC
+   * @example "NO"
+   */
+  paseconduc: string;
 }
 
 export interface PropietarioListDto {
@@ -5528,6 +5761,397 @@ export interface PropietarioDocumentoUpdateDto {
    * @example "2023-01-15"
    */
   fechaEmision?: string;
+}
+
+export interface ProveedorListDto {
+  /**
+   * ID del proveedor
+   * @example 1
+   */
+  id: number;
+  /**
+   * DNI del proveedor
+   * @example "12345678"
+   */
+  dni: string;
+  /**
+   * Tipo de documento
+   * @example "DNI"
+   */
+  tipoDocumento: "DNI" | "RUC";
+  /**
+   * RUC del proveedor
+   * @example "20123456789"
+   */
+  ruc?: string;
+  /**
+   * Razón Social del proveedor
+   * @example "Empresa SAC"
+   */
+  razonSocial?: string;
+  /**
+   * Nombres del proveedor
+   * @example "Juan Carlos"
+   */
+  nombres: string;
+  /**
+   * Apellidos del proveedor
+   * @example "Pérez García"
+   */
+  apellidos: string;
+  /**
+   * Nombre completo del proveedor
+   * @example "Juan Carlos Pérez García"
+   */
+  nombreCompleto: string;
+  /**
+   * Email del proveedor
+   * @example "juan.perez@example.com"
+   */
+  email?: string;
+  /**
+   * Teléfono del proveedor
+   * @example "987654321"
+   */
+  telefono?: string;
+  /**
+   * Dirección del proveedor
+   * @example "Av. Principal 123"
+   */
+  direccion?: string;
+  /**
+   * Lista de URLs de imágenes del proveedor
+   * @example ["https://res.cloudinary.com/xxx/image.jpg"]
+   */
+  imagenes: string[];
+  /**
+   * Fecha de creación
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  creadoEn: string;
+  /**
+   * Fecha de actualización
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  actualizadoEn: string;
+  /**
+   * Fecha de eliminación
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  eliminadoEn?: string;
+}
+
+export interface PaginatedProveedorResultDto {
+  data: ProveedorListDto[];
+  meta: PaginationMetaDto;
+}
+
+export interface ProveedorDocumentoResultDto {
+  /**
+   * ID del documento
+   * @example 1
+   */
+  id: number;
+  /**
+   * ID del proveedor
+   * @example 1
+   */
+  proveedorId: number;
+  /**
+   * Tipo de documento
+   * @example "RUC"
+   */
+  tipo: string;
+  /**
+   * Número del documento
+   * @example "20123456789"
+   */
+  numero?: string;
+  /**
+   * Fecha de emisión del documento
+   * @example "2023-01-15"
+   */
+  fechaEmision?: string;
+  /**
+   * Fecha de vencimiento del documento
+   * @example "2025-12-31"
+   */
+  fechaVencimiento?: string;
+  /**
+   * URLs de los archivos del documento
+   * @example ["https://storage.example.com/documentos/ruc.pdf"]
+   */
+  archivos: string[];
+  /**
+   * Fecha de creación
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  creadoEn: string;
+  /**
+   * Fecha de actualización
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  actualizadoEn: string;
+  /**
+   * Fecha de eliminación
+   * @format date-time
+   * @example null
+   */
+  eliminadoEn?: string;
+}
+
+export interface ProveedorResultDto {
+  /**
+   * ID del proveedor
+   * @example 1
+   */
+  id: number;
+  /**
+   * Tipo de documento
+   * @example "DNI"
+   */
+  tipoDocumento: "DNI" | "RUC";
+  /**
+   * DNI del proveedor
+   * @example "12345678"
+   */
+  dni: string;
+  /**
+   * RUC del proveedor
+   * @example "20123456789"
+   */
+  ruc: string;
+  /**
+   * Nombres del proveedor
+   * @example "Juan Carlos"
+   */
+  nombres: string;
+  /**
+   * Apellidos del proveedor
+   * @example "Pérez García"
+   */
+  apellidos: string;
+  /**
+   * Razón Social del proveedor
+   * @example "Empresa SAC"
+   */
+  razonSocial: string;
+  /**
+   * Nombre completo del proveedor
+   * @example "Juan Carlos Pérez García"
+   */
+  nombreCompleto: string;
+  /**
+   * Email del proveedor
+   * @example "juan.perez@example.com"
+   */
+  email?: string;
+  /**
+   * Teléfono del proveedor
+   * @example "987654321"
+   */
+  telefono?: string;
+  /**
+   * Dirección del proveedor
+   * @example "Av. Principal 123"
+   */
+  direccion?: string;
+  /**
+   * Lista de URLs de imágenes del proveedor
+   * @example ["https://res.cloudinary.com/xxx/image.jpg"]
+   */
+  imagenes: string[];
+  /**
+   * Fecha de creación
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  creadoEn: string;
+  /**
+   * Fecha de actualización
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  actualizadoEn: string;
+  /** Documentos del proveedor */
+  documentos: ProveedorDocumentoResultDto[];
+}
+
+export interface ProveedorCreateDto {
+  /**
+   * Tipo de documento
+   * @default "DNI"
+   */
+  tipoDocumento: "DNI" | "RUC";
+  /**
+   * DNI del proveedor
+   * @example "12345678"
+   */
+  dni?: string;
+  /**
+   * RUC del proveedor
+   * @example "20123456789"
+   */
+  ruc?: string;
+  /**
+   * Nombres del proveedor
+   * @example "Juan Carlos"
+   */
+  nombres?: string;
+  /**
+   * Apellidos del proveedor
+   * @example "Pérez García"
+   */
+  apellidos?: string;
+  /**
+   * Razón Social del proveedor
+   * @example "Empresa SAC"
+   */
+  razonSocial?: string;
+  /**
+   * Email del proveedor
+   * @example "juan.perez@example.com"
+   */
+  email?: string;
+  /**
+   * Teléfono del proveedor
+   * @example "987654321"
+   */
+  telefono?: string;
+  /**
+   * Dirección del proveedor
+   * @example "Av. Principal 123"
+   */
+  direccion?: string;
+  /**
+   * Lista de URLs de imágenes del proveedor
+   * @example ["https://res.cloudinary.com/xxx/image.jpg"]
+   */
+  imagenes?: string[];
+}
+
+export interface ProveedorUpdateDto {
+  /**
+   * Tipo de documento
+   * @default "DNI"
+   */
+  tipoDocumento?: "DNI" | "RUC";
+  /**
+   * DNI del proveedor
+   * @example "12345678"
+   */
+  dni?: string;
+  /**
+   * RUC del proveedor
+   * @example "20123456789"
+   */
+  ruc?: string;
+  /**
+   * Nombres del proveedor
+   * @example "Juan Carlos"
+   */
+  nombres?: string;
+  /**
+   * Apellidos del proveedor
+   * @example "Pérez García"
+   */
+  apellidos?: string;
+  /**
+   * Razón Social del proveedor
+   * @example "Empresa SAC"
+   */
+  razonSocial?: string;
+  /**
+   * Email del proveedor
+   * @example "juan.perez@example.com"
+   */
+  email?: string;
+  /**
+   * Teléfono del proveedor
+   * @example "987654321"
+   */
+  telefono?: string;
+  /**
+   * Dirección del proveedor
+   * @example "Av. Principal 123"
+   */
+  direccion?: string;
+  /**
+   * Lista de URLs de imágenes del proveedor
+   * @example ["https://res.cloudinary.com/xxx/image.jpg"]
+   */
+  imagenes?: string[];
+}
+
+export interface ProveedorDocumentoCreateDto {
+  /**
+   * ID del proveedor
+   * @example 1
+   */
+  proveedorId: number;
+  /**
+   * Tipo de documento
+   * @example "RUC"
+   */
+  tipo: string;
+  /**
+   * Número del documento
+   * @example "20123456789"
+   */
+  numero?: string;
+  /**
+   * Fecha de emisión del documento
+   * @example "2023-01-15"
+   */
+  fechaEmision?: string;
+  /**
+   * Fecha de vencimiento del documento
+   * @example "2025-12-31"
+   */
+  fechaVencimiento?: string;
+  /**
+   * URLs de los archivos del documento
+   * @example ["https://storage.example.com/documentos/ruc.pdf"]
+   */
+  archivos: string[];
+}
+
+export interface ProveedorDocumentoUpdateDto {
+  /**
+   * ID del proveedor
+   * @example 1
+   */
+  proveedorId?: number;
+  /**
+   * Tipo de documento
+   * @example "RUC"
+   */
+  tipo?: string;
+  /**
+   * Número del documento
+   * @example "20123456789"
+   */
+  numero?: string;
+  /**
+   * Fecha de emisión del documento
+   * @example "2023-01-15"
+   */
+  fechaEmision?: string;
+  /**
+   * Fecha de vencimiento del documento
+   * @example "2025-12-31"
+   */
+  fechaVencimiento?: string;
+  /**
+   * URLs de los archivos del documento
+   * @example ["https://storage.example.com/documentos/ruc.pdf"]
+   */
+  archivos?: string[];
 }
 
 export interface StorageResultDto {
@@ -6423,6 +7047,20 @@ export interface NotificacionesMarkAsReadParams {
 
 export type NotificacionesMarkAsReadData = NotificacionResultDto;
 
+export type NotificacionesSendEmailData = any;
+
+export interface NotificacionesNotifyEachAdminParams {
+  diasAnticipacion: number;
+}
+
+export type NotificacionesNotifyEachAdminData = any;
+
+export interface NotificacionesNotifyEachConductorParams {
+  diasAnticipacion: number;
+}
+
+export type NotificacionesNotifyEachConductorData = any;
+
 export interface NotificacionesPreviewVencimientosParams {
   /**
    * Fecha de referencia (YYYY-MM-DD). Punto de partida para la búsqueda.
@@ -6514,6 +7152,8 @@ export interface ReportesGetMantenimientosDetalladosPorTallerParams {
 export type ReportesGetMantenimientosDetalladosPorTallerData =
   MantenimientoDetalladoTallerDto[];
 
+export type ReportesGetReporteConductoresData = ReporteConductorDto[];
+
 export interface PropietariosFindAllParams {
   /**
    * Número de página
@@ -6591,6 +7231,84 @@ export interface PropietariosDeleteDocumentoParams {
 }
 
 export type PropietariosDeleteDocumentoData = PropietarioDocumentoResultDto;
+
+export interface ProveedoresFindAllParams {
+  /**
+   * Número de página
+   * @example 1
+   */
+  page?: number;
+  /**
+   * Registros por página
+   * @example 10
+   */
+  limit?: number;
+  /**
+   * Búsqueda por nombre, dni, ruc, email, teléfono
+   * @example "Juan"
+   */
+  search?: string;
+  /**
+   * Fecha inicio
+   * @example "2023-01-01"
+   */
+  fechaInicio?: string;
+  /**
+   * Fecha fin
+   * @example "2023-12-31"
+   */
+  fechaFin?: string;
+  /** Filtrar por tipo de documento */
+  tipoDocumento?: "DNI" | "RUC";
+}
+
+export type ProveedoresFindAllData = PaginatedProveedorResultDto;
+
+export interface ProveedoresFindOneParams {
+  /** ID del proveedor */
+  id: number;
+}
+
+export type ProveedoresFindOneData = ProveedorResultDto;
+
+export type ProveedoresCreateData = ProveedorResultDto;
+
+export interface ProveedoresUpdateParams {
+  /** ID del proveedor */
+  id: number;
+}
+
+export type ProveedoresUpdateData = ProveedorResultDto;
+
+export interface ProveedoresRemoveParams {
+  /** ID del proveedor */
+  id: number;
+}
+
+export type ProveedoresRemoveData = ProveedorResultDto;
+
+export interface ProveedoresFindDocumentoParams {
+  /** ID del documento */
+  id: number;
+}
+
+export type ProveedoresFindDocumentoData = ProveedorDocumentoResultDto;
+
+export type ProveedoresCreateDocumentoData = ProveedorDocumentoResultDto;
+
+export interface ProveedoresUpdateDocumentoParams {
+  /** ID del documento */
+  id: number;
+}
+
+export type ProveedoresUpdateDocumentoData = ProveedorDocumentoResultDto;
+
+export interface ProveedoresDeleteDocumentoParams {
+  /** ID del documento */
+  id: number;
+}
+
+export type ProveedoresDeleteDocumentoData = ProveedorDocumentoResultDto;
 
 export interface StorageUploadPayload {
   /** @format binary */
@@ -8816,7 +9534,6 @@ export namespace Notificaciones {
    * @name NotificacionesFindAll
    * @summary Obtener notificaciones del usuario
    * @request GET:/notificacion/find-all
-   * @secure
    * @response `200` `NotificacionesFindAllData`
    */
   export namespace NotificacionesFindAll {
@@ -8851,7 +9568,6 @@ export namespace Notificaciones {
    * @name NotificacionesCreate
    * @summary Crear una nueva notificación general
    * @request POST:/notificacion/create
-   * @secure
    * @response `201` `NotificacionesCreateData`
    */
   export namespace NotificacionesCreate {
@@ -8868,7 +9584,6 @@ export namespace Notificaciones {
    * @name NotificacionesMarkAsRead
    * @summary Marcar notificación como leída
    * @request POST:/notificacion/leido/{id}
-   * @secure
    * @response `200` `NotificacionesMarkAsReadData`
    */
   export namespace NotificacionesMarkAsRead {
@@ -8886,10 +9601,61 @@ export namespace Notificaciones {
   /**
    * No description
    * @tags Notificaciones
+   * @name NotificacionesSendEmail
+   * @summary Enviar un correo electrónico
+   * @request POST:/notificacion/send-email
+   * @response `200` `NotificacionesSendEmailData` Correo enviado correctamente
+   */
+  export namespace NotificacionesSendEmail {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = SendEmailDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = NotificacionesSendEmailData;
+  }
+
+  /**
+   * No description
+   * @tags Notificaciones
+   * @name NotificacionesNotifyEachAdmin
+   * @summary Enviar lista de conductores con documentos por vencer a todos los administradores
+   * @request POST:/notificacion/notify-each-admin
+   * @response `200` `NotificacionesNotifyEachAdminData` Correos enviados con el reporte
+   */
+  export namespace NotificacionesNotifyEachAdmin {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      diasAnticipacion: number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = NotificacionesNotifyEachAdminData;
+  }
+
+  /**
+   * No description
+   * @tags Notificaciones
+   * @name NotificacionesNotifyEachConductor
+   * @summary Enviar correo personalizado a cada conductor con sus documentos por vencer
+   * @request POST:/notificacion/notify-each-conductor
+   * @response `200` `NotificacionesNotifyEachConductorData` Proceso de notificación por correo finalizado
+   */
+  export namespace NotificacionesNotifyEachConductor {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      diasAnticipacion: number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = NotificacionesNotifyEachConductorData;
+  }
+
+  /**
+   * No description
+   * @tags Notificaciones
    * @name NotificacionesPreviewVencimientos
    * @summary TEST: Previsualizar notificaciones de documentos por vencer
    * @request GET:/notificacion/vencimientos/test
-   * @secure
    * @response `200` `NotificacionesPreviewVencimientosData`
    */
   export namespace NotificacionesPreviewVencimientos {
@@ -8918,7 +9684,6 @@ export namespace Notificaciones {
    * @name NotificacionesGenerarVencimientos
    * @summary Generar y guardar notificaciones de documentos por vencer
    * @request POST:/notificacion/vencimientos/generar
-   * @secure
    * @response `201` `NotificacionesGenerarVencimientosData`
    */
   export namespace NotificacionesGenerarVencimientos {
@@ -9067,6 +9832,23 @@ export namespace Reportes {
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = ReportesGetMantenimientosDetalladosPorTallerData;
+  }
+
+  /**
+   * No description
+   * @tags Reportes
+   * @name ReportesGetReporteConductores
+   * @summary Reporte general de conductores con vencimientos
+   * @request GET:/reportes/conductores/general
+   * @secure
+   * @response `200` `ReportesGetReporteConductoresData` Lista general de conductores con vencimientos
+   */
+  export namespace ReportesGetReporteConductores {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ReportesGetReporteConductoresData;
   }
 }
 
@@ -9268,6 +10050,207 @@ export namespace Propietarios {
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = PropietariosDeleteDocumentoData;
+  }
+}
+
+export namespace Proveedores {
+  /**
+   * No description
+   * @tags proveedores
+   * @name ProveedoresFindAll
+   * @summary Obtener proveedores con paginación, búsqueda y filtros
+   * @request GET:/proveedor/find-all
+   * @secure
+   * @response `200` `ProveedoresFindAllData`
+   */
+  export namespace ProveedoresFindAll {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /**
+       * Número de página
+       * @example 1
+       */
+      page?: number;
+      /**
+       * Registros por página
+       * @example 10
+       */
+      limit?: number;
+      /**
+       * Búsqueda por nombre, dni, ruc, email, teléfono
+       * @example "Juan"
+       */
+      search?: string;
+      /**
+       * Fecha inicio
+       * @example "2023-01-01"
+       */
+      fechaInicio?: string;
+      /**
+       * Fecha fin
+       * @example "2023-12-31"
+       */
+      fechaFin?: string;
+      /** Filtrar por tipo de documento */
+      tipoDocumento?: "DNI" | "RUC";
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ProveedoresFindAllData;
+  }
+
+  /**
+   * No description
+   * @tags proveedores
+   * @name ProveedoresFindOne
+   * @summary Obtener un proveedor por ID
+   * @request GET:/proveedor/find-one/{id}
+   * @secure
+   * @response `200` `ProveedoresFindOneData`
+   */
+  export namespace ProveedoresFindOne {
+    export type RequestParams = {
+      /** ID del proveedor */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ProveedoresFindOneData;
+  }
+
+  /**
+   * No description
+   * @tags proveedores
+   * @name ProveedoresCreate
+   * @summary Crear un nuevo proveedor
+   * @request POST:/proveedor/create
+   * @secure
+   * @response `200` `ProveedoresCreateData`
+   */
+  export namespace ProveedoresCreate {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = ProveedorCreateDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = ProveedoresCreateData;
+  }
+
+  /**
+   * No description
+   * @tags proveedores
+   * @name ProveedoresUpdate
+   * @summary Actualizar un proveedor
+   * @request PATCH:/proveedor/update/{id}
+   * @secure
+   * @response `200` `ProveedoresUpdateData`
+   */
+  export namespace ProveedoresUpdate {
+    export type RequestParams = {
+      /** ID del proveedor */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = ProveedorUpdateDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = ProveedoresUpdateData;
+  }
+
+  /**
+   * No description
+   * @tags proveedores
+   * @name ProveedoresRemove
+   * @summary Eliminar un proveedor
+   * @request DELETE:/proveedor/delete/{id}
+   * @secure
+   * @response `200` `ProveedoresRemoveData`
+   */
+  export namespace ProveedoresRemove {
+    export type RequestParams = {
+      /** ID del proveedor */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ProveedoresRemoveData;
+  }
+
+  /**
+   * No description
+   * @tags proveedores
+   * @name ProveedoresFindDocumento
+   * @summary Obtener un documento por ID
+   * @request GET:/proveedor/documento/{id}
+   * @secure
+   * @response `200` `ProveedoresFindDocumentoData`
+   */
+  export namespace ProveedoresFindDocumento {
+    export type RequestParams = {
+      /** ID del documento */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ProveedoresFindDocumentoData;
+  }
+
+  /**
+   * No description
+   * @tags proveedores
+   * @name ProveedoresCreateDocumento
+   * @summary Crear un nuevo documento de proveedor
+   * @request POST:/proveedor/documento/create
+   * @secure
+   * @response `201` `ProveedoresCreateDocumentoData`
+   */
+  export namespace ProveedoresCreateDocumento {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = ProveedorDocumentoCreateDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = ProveedoresCreateDocumentoData;
+  }
+
+  /**
+   * No description
+   * @tags proveedores
+   * @name ProveedoresUpdateDocumento
+   * @summary Actualizar un documento de proveedor
+   * @request PATCH:/proveedor/documento/update/{id}
+   * @secure
+   * @response `200` `ProveedoresUpdateDocumentoData`
+   */
+  export namespace ProveedoresUpdateDocumento {
+    export type RequestParams = {
+      /** ID del documento */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = ProveedorDocumentoUpdateDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = ProveedoresUpdateDocumentoData;
+  }
+
+  /**
+   * No description
+   * @tags proveedores
+   * @name ProveedoresDeleteDocumento
+   * @summary Eliminar un documento de proveedor
+   * @request DELETE:/proveedor/documento/delete/{id}
+   * @secure
+   * @response `200` `ProveedoresDeleteDocumentoData`
+   */
+  export namespace ProveedoresDeleteDocumento {
+    export type RequestParams = {
+      /** ID del documento */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ProveedoresDeleteDocumentoData;
   }
 }
 
@@ -11872,7 +12855,6 @@ export class Api<SecurityDataType extends unknown> {
      * @name NotificacionesFindAll
      * @summary Obtener notificaciones del usuario
      * @request GET:/notificacion/find-all
-     * @secure
      * @response `200` `NotificacionesFindAllData`
      */
     findAll: (
@@ -11883,7 +12865,6 @@ export class Api<SecurityDataType extends unknown> {
         path: `/notificacion/find-all`,
         method: "GET",
         query: query,
-        secure: true,
         format: "json",
         ...params,
       }),
@@ -11895,7 +12876,6 @@ export class Api<SecurityDataType extends unknown> {
      * @name NotificacionesCreate
      * @summary Crear una nueva notificación general
      * @request POST:/notificacion/create
-     * @secure
      * @response `201` `NotificacionesCreateData`
      */
     create: (
@@ -11906,7 +12886,6 @@ export class Api<SecurityDataType extends unknown> {
         path: `/notificacion/create`,
         method: "POST",
         body: data,
-        secure: true,
         type: ContentType.Json,
         format: "json",
         ...params,
@@ -11919,7 +12898,6 @@ export class Api<SecurityDataType extends unknown> {
      * @name NotificacionesMarkAsRead
      * @summary Marcar notificación como leída
      * @request POST:/notificacion/leido/{id}
-     * @secure
      * @response `200` `NotificacionesMarkAsReadData`
      */
     markAsRead: (
@@ -11930,8 +12908,65 @@ export class Api<SecurityDataType extends unknown> {
         path: `/notificacion/leido/${id}`,
         method: "POST",
         query: query,
-        secure: true,
         format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Notificaciones
+     * @name NotificacionesSendEmail
+     * @summary Enviar un correo electrónico
+     * @request POST:/notificacion/send-email
+     * @response `200` `NotificacionesSendEmailData` Correo enviado correctamente
+     */
+    sendEmail: (data: SendEmailDto, params: RequestParams = {}) =>
+      this.http.request<NotificacionesSendEmailData, any>({
+        path: `/notificacion/send-email`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Notificaciones
+     * @name NotificacionesNotifyEachAdmin
+     * @summary Enviar lista de conductores con documentos por vencer a todos los administradores
+     * @request POST:/notificacion/notify-each-admin
+     * @response `200` `NotificacionesNotifyEachAdminData` Correos enviados con el reporte
+     */
+    notifyEachAdmin: (
+      query: NotificacionesNotifyEachAdminParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<NotificacionesNotifyEachAdminData, any>({
+        path: `/notificacion/notify-each-admin`,
+        method: "POST",
+        query: query,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Notificaciones
+     * @name NotificacionesNotifyEachConductor
+     * @summary Enviar correo personalizado a cada conductor con sus documentos por vencer
+     * @request POST:/notificacion/notify-each-conductor
+     * @response `200` `NotificacionesNotifyEachConductorData` Proceso de notificación por correo finalizado
+     */
+    notifyEachConductor: (
+      query: NotificacionesNotifyEachConductorParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<NotificacionesNotifyEachConductorData, any>({
+        path: `/notificacion/notify-each-conductor`,
+        method: "POST",
+        query: query,
         ...params,
       }),
 
@@ -11942,7 +12977,6 @@ export class Api<SecurityDataType extends unknown> {
      * @name NotificacionesPreviewVencimientos
      * @summary TEST: Previsualizar notificaciones de documentos por vencer
      * @request GET:/notificacion/vencimientos/test
-     * @secure
      * @response `200` `NotificacionesPreviewVencimientosData`
      */
     previewVencimientos: (
@@ -11953,7 +12987,6 @@ export class Api<SecurityDataType extends unknown> {
         path: `/notificacion/vencimientos/test`,
         method: "GET",
         query: query,
-        secure: true,
         format: "json",
         ...params,
       }),
@@ -11965,7 +12998,6 @@ export class Api<SecurityDataType extends unknown> {
      * @name NotificacionesGenerarVencimientos
      * @summary Generar y guardar notificaciones de documentos por vencer
      * @request POST:/notificacion/vencimientos/generar
-     * @secure
      * @response `201` `NotificacionesGenerarVencimientosData`
      */
     generarVencimientos: (
@@ -11976,7 +13008,6 @@ export class Api<SecurityDataType extends unknown> {
         path: `/notificacion/vencimientos/generar`,
         method: "POST",
         query: query,
-        secure: true,
         format: "json",
         ...params,
       }),
@@ -12095,6 +13126,25 @@ export class Api<SecurityDataType extends unknown> {
         path: `/reportes/mantenimientos-detallados/taller/${id}`,
         method: "GET",
         query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Reportes
+     * @name ReportesGetReporteConductores
+     * @summary Reporte general de conductores con vencimientos
+     * @request GET:/reportes/conductores/general
+     * @secure
+     * @response `200` `ReportesGetReporteConductoresData` Lista general de conductores con vencimientos
+     */
+    getReporteConductores: (params: RequestParams = {}) =>
+      this.http.request<ReportesGetReporteConductoresData, any>({
+        path: `/reportes/conductores/general`,
+        method: "GET",
         secure: true,
         format: "json",
         ...params,
@@ -12304,6 +13354,213 @@ export class Api<SecurityDataType extends unknown> {
     ) =>
       this.http.request<PropietariosDeleteDocumentoData, any>({
         path: `/propietario/documento/delete/${id}`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+  };
+  proveedores = {
+    /**
+     * No description
+     *
+     * @tags proveedores
+     * @name ProveedoresFindAll
+     * @summary Obtener proveedores con paginación, búsqueda y filtros
+     * @request GET:/proveedor/find-all
+     * @secure
+     * @response `200` `ProveedoresFindAllData`
+     */
+    findAll: (
+      query: ProveedoresFindAllParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ProveedoresFindAllData, any>({
+        path: `/proveedor/find-all`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags proveedores
+     * @name ProveedoresFindOne
+     * @summary Obtener un proveedor por ID
+     * @request GET:/proveedor/find-one/{id}
+     * @secure
+     * @response `200` `ProveedoresFindOneData`
+     */
+    findOne: (
+      { id, ...query }: ProveedoresFindOneParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ProveedoresFindOneData, any>({
+        path: `/proveedor/find-one/${id}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags proveedores
+     * @name ProveedoresCreate
+     * @summary Crear un nuevo proveedor
+     * @request POST:/proveedor/create
+     * @secure
+     * @response `200` `ProveedoresCreateData`
+     */
+    create: (data: ProveedorCreateDto, params: RequestParams = {}) =>
+      this.http.request<ProveedoresCreateData, any>({
+        path: `/proveedor/create`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags proveedores
+     * @name ProveedoresUpdate
+     * @summary Actualizar un proveedor
+     * @request PATCH:/proveedor/update/{id}
+     * @secure
+     * @response `200` `ProveedoresUpdateData`
+     */
+    update: (
+      { id, ...query }: ProveedoresUpdateParams,
+      data: ProveedorUpdateDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ProveedoresUpdateData, any>({
+        path: `/proveedor/update/${id}`,
+        method: "PATCH",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags proveedores
+     * @name ProveedoresRemove
+     * @summary Eliminar un proveedor
+     * @request DELETE:/proveedor/delete/{id}
+     * @secure
+     * @response `200` `ProveedoresRemoveData`
+     */
+    remove: (
+      { id, ...query }: ProveedoresRemoveParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ProveedoresRemoveData, any>({
+        path: `/proveedor/delete/${id}`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags proveedores
+     * @name ProveedoresFindDocumento
+     * @summary Obtener un documento por ID
+     * @request GET:/proveedor/documento/{id}
+     * @secure
+     * @response `200` `ProveedoresFindDocumentoData`
+     */
+    findDocumento: (
+      { id, ...query }: ProveedoresFindDocumentoParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ProveedoresFindDocumentoData, any>({
+        path: `/proveedor/documento/${id}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags proveedores
+     * @name ProveedoresCreateDocumento
+     * @summary Crear un nuevo documento de proveedor
+     * @request POST:/proveedor/documento/create
+     * @secure
+     * @response `201` `ProveedoresCreateDocumentoData`
+     */
+    createDocumento: (
+      data: ProveedorDocumentoCreateDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ProveedoresCreateDocumentoData, any>({
+        path: `/proveedor/documento/create`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags proveedores
+     * @name ProveedoresUpdateDocumento
+     * @summary Actualizar un documento de proveedor
+     * @request PATCH:/proveedor/documento/update/{id}
+     * @secure
+     * @response `200` `ProveedoresUpdateDocumentoData`
+     */
+    updateDocumento: (
+      { id, ...query }: ProveedoresUpdateDocumentoParams,
+      data: ProveedorDocumentoUpdateDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ProveedoresUpdateDocumentoData, any>({
+        path: `/proveedor/documento/update/${id}`,
+        method: "PATCH",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags proveedores
+     * @name ProveedoresDeleteDocumento
+     * @summary Eliminar un documento de proveedor
+     * @request DELETE:/proveedor/documento/delete/{id}
+     * @secure
+     * @response `200` `ProveedoresDeleteDocumentoData`
+     */
+    deleteDocumento: (
+      { id, ...query }: ProveedoresDeleteDocumentoParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ProveedoresDeleteDocumentoData, any>({
+        path: `/proveedor/documento/delete/${id}`,
         method: "DELETE",
         secure: true,
         format: "json",

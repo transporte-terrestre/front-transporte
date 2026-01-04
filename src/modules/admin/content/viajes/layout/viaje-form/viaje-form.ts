@@ -60,6 +60,7 @@ export class ViajeForm implements OnInit {
     rutaOcasional: [''],
     distanciaEstimada: ['', [Validators.required]],
     distanciaFinal: [{ value: '', disabled: true }],
+    horasContrato: [''],
     modalidadServicio: [
       'regular' as ApiResponse<'viajes', 'findOne'>['modalidadServicio'],
       [Validators.required],
@@ -119,6 +120,7 @@ export class ViajeForm implements OnInit {
           modalidadServicio: viajeData.modalidadServicio,
           vehiculo: viajeData.vehiculoPrincipal?.id,
           conductor: viajeData.conductorPrincipal?.id,
+          horasContrato: viajeData.horasContrato,
           fechaSalida: this.formatDateTimeForInput(viajeData.fechaSalida),
           fechaLlegada: viajeData.fechaLlegada
             ? this.formatDateTimeForInput(viajeData.fechaLlegada)
@@ -143,6 +145,22 @@ export class ViajeForm implements OnInit {
         this.tripulantesArray.clear();
         // Desactivar distanciaFinal por defecto (estado = programado)
         this.updateDistanciaFinalState('programado');
+      }
+    });
+
+    // Auto-set horasContrato based on Cliente
+    this.viajeForm.get('cliente')?.valueChanges.subscribe((cliente) => {
+      if (cliente && typeof cliente === 'object') {
+        const clienteData = cliente as { horasContrato?: number };
+        if (clienteData.horasContrato !== undefined) {
+          this.viajeForm.patchValue({
+            horasContrato: clienteData.horasContrato,
+          });
+        }
+      } else {
+        this.viajeForm.patchValue({
+          horasContrato: '',
+        });
       }
     });
   }
@@ -243,6 +261,7 @@ export class ViajeForm implements OnInit {
       rutaOcasional: formValue.rutaOcasional || undefined,
       distanciaEstimada: formValue.distanciaEstimada || undefined,
       distanciaFinal: formValue.distanciaFinal || undefined,
+      horasContrato: formValue.horasContrato || undefined,
       tipoRuta: formValue.tipoRuta || 'fija',
       modalidadServicio: formValue.modalidadServicio || 'regular',
       estado: formValue.estado || 'programado',

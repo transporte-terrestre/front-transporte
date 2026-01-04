@@ -8,6 +8,7 @@ import { ToastService } from '@service/toast.service';
 import { AlertService } from '@service/alert.service';
 import { ViajeForm } from '../../layout/viaje-form/viaje-form';
 import { PATH, buildPath } from '@route/path.route';
+import { getErrorMessage } from '@helper/error.helper';
 
 @Component({
   selector: 'app-viajes-edit',
@@ -89,7 +90,7 @@ export class ViajesEdit implements OnInit {
       this.loadViaje(this.viaje()!.id);
     } catch (error) {
       console.error('Error al actualizar viaje:', error);
-      this.toastService.error('Error al actualizar viaje');
+      this.toastService.error(getErrorMessage(error, 'Error al actualizar viaje'));
       this.loading.set(false);
     }
   }

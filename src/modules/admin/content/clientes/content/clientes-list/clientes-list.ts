@@ -12,6 +12,7 @@ import { ModalForm } from '../../../../components/modal-form/modal-form';
 import { ClienteForm } from '../../layout/cliente-form/cliente-form';
 import { PaginationComponent } from '../../../../components/pagination/pagination';
 import { PATH, buildPath } from '@route/path.route';
+import { getErrorMessage } from '@helper/error.helper';
 
 @Component({
   selector: 'app-clientes-list',
@@ -139,7 +140,7 @@ export class ClientesList implements OnInit, OnDestroy {
       })
       .catch((error) => {
         console.error('Error al crear cliente:', error);
-        this.toastService.error('Error al crear cliente');
+        this.toastService.error(getErrorMessage(error, 'Error al crear cliente'));
         this.loading.set(false);
       });
   }
@@ -158,7 +159,7 @@ export class ClientesList implements OnInit, OnDestroy {
           })
           .catch((error) => {
             console.error('Error al eliminar cliente:', error);
-            this.toastService.error('Error al eliminar cliente');
+            this.toastService.error(getErrorMessage(error, 'Error al eliminar cliente'));
             this.loading.set(false);
           });
       }

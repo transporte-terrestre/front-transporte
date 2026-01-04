@@ -6,6 +6,7 @@ import { ApiResponse, ApiBody } from 'api/backend.api';
 import { ToastService } from '@service/toast.service';
 import { VehiculoForm } from '../../layout/vehiculo-form/vehiculo-form';
 import { PATH, buildPath } from '@route/path.route';
+import { getErrorMessage } from '@helper/error.helper';
 
 @Component({
   selector: 'app-vehiculos-edit',
@@ -41,7 +42,7 @@ export class VehiculosEdit implements OnInit {
       this.loading.set(false);
     } catch (error) {
       console.error('Error al cargar vehículo:', error);
-      this.toastService.error('Error al cargar vehículo');
+      this.toastService.error(getErrorMessage(error, 'Error al cargar vehículo'));
       this.router.navigate([buildPath(PATH.admin.vehiculos.list)]);
     }
   }
@@ -59,7 +60,7 @@ export class VehiculosEdit implements OnInit {
       this.router.navigate([buildPath(PATH.admin.vehiculos.list)]);
     } catch (error) {
       console.error('Error al actualizar vehículo:', error);
-      this.toastService.error('Error al actualizar vehículo');
+      this.toastService.error(getErrorMessage(error, 'Error al actualizar vehículo'));
       this.loading.set(false);
     }
   }

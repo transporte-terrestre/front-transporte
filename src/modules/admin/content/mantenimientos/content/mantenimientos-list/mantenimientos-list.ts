@@ -9,6 +9,7 @@ import { AlertService } from '@service/alert.service';
 import { ModalForm } from '../../../../components/modal-form/modal-form';
 import { MantenimientoForm } from '../../layout/mantenimiento-form/mantenimiento-form';
 import { PATH, buildPath } from '@route/path.route';
+import { getErrorMessage } from '@helper/error.helper';
 
 interface CalendarDay {
   date: Date;
@@ -316,7 +317,7 @@ export class MantenimientosList implements OnInit {
       })
       .catch((error) => {
         console.error('Error al crear mantenimiento:', error);
-        this.toastService.error('Error al registrar mantenimiento');
+        this.toastService.error(getErrorMessage(error, 'Error al registrar mantenimiento'));
         this.loading.set(false);
       });
   }
@@ -336,7 +337,7 @@ export class MantenimientosList implements OnInit {
           })
           .catch((error) => {
             console.error('Error al eliminar mantenimiento:', error);
-            this.toastService.error('Error al eliminar mantenimiento');
+            this.toastService.error(getErrorMessage(error, 'Error al eliminar mantenimiento'));
             this.loading.set(false);
           });
       }

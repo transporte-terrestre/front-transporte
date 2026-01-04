@@ -6,6 +6,7 @@ import { ApiResponse, ApiBody } from 'api/backend.api';
 import { ToastService } from '@service/toast.service';
 import { RutaForm } from '../../layout/ruta-form/ruta-form';
 import { PATH, buildPath } from '@route/path.route';
+import { getErrorMessage } from '@helper/error.helper';
 
 @Component({
   selector: 'app-rutas-edit',
@@ -62,7 +63,7 @@ export class RutasEdit implements OnInit {
       })
       .catch((error) => {
         console.error('Error al actualizar ruta:', error);
-        this.toastService.error('Error al actualizar ruta');
+        this.toastService.error(getErrorMessage(error, 'Error al actualizar ruta'));
       })
       .finally(() => {
         this.loading.set(false);

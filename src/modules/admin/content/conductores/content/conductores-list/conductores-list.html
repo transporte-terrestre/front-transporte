@@ -101,6 +101,16 @@
             <th
               class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
             >
+              Email
+            </th>
+            <th
+              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+            >
+              Celular
+            </th>
+            <th
+              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+            >
               N° Licencia
             </th>
             <th
@@ -148,6 +158,16 @@
                   {{ conductor.nombres }} {{ conductor.apellidos }}
                 </p>
               </div>
+            </td>
+            <td class="px-4 py-3 whitespace-nowrap">
+              <span class="text-xs font-inter-medium text-text/70">{{
+                conductor.email || '-'
+              }}</span>
+            </td>
+            <td class="px-4 py-3 whitespace-nowrap">
+              <span class="text-xs font-inter-medium text-text/70">{{
+                conductor.celular || '-'
+              }}</span>
             </td>
             <td class="px-4 py-3 whitespace-nowrap">
               <span class="text-xs font-inter-medium text-text/70">{{

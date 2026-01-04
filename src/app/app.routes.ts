@@ -204,6 +204,28 @@ export const routes: Routes = [
         ],
       },
       {
+        path: getPath(PATH.admin.proveedores),
+        loadComponent: () =>
+          import('@module/admin/content/proveedores/proveedores').then((m) => m.Proveedores),
+        children: [
+          {
+            path: getPath(PATH.admin.proveedores.list),
+            loadComponent: () =>
+              import(
+                '@module/admin/content/proveedores/content/proveedores-list/proveedores-list'
+              ).then((m) => m.ProveedoresList),
+          },
+          {
+            path: getPath(PATH.admin.proveedores.edit),
+            loadComponent: () =>
+              import(
+                '@module/admin/content/proveedores/content/proveedores-edit/proveedores-edit'
+              ).then((m) => m.ProveedoresEdit),
+          },
+          { path: '**', redirectTo: getPath(PATH.admin.proveedores.list), pathMatch: 'full' },
+        ],
+      },
+      {
         path: getPath(PATH.admin.talleres),
         loadComponent: () =>
           import('@module/admin/content/talleres/talleres').then((m) => m.Talleres),

@@ -9,6 +9,7 @@ import {
 } from '../../../../components/documents-date-upload/documents-date-upload';
 import { ConductorService } from '@service/admin/conductor.service';
 import { ToastService } from '@service/toast.service';
+import { getErrorMessage } from '@helper/error.helper';
 
 @Component({
   selector: 'app-conductor-form',
@@ -36,6 +37,8 @@ export class ConductorForm implements OnInit {
     dni: ['', [Validators.required, Validators.pattern(/^\d{8}$/)]],
     nombres: ['', [Validators.required, Validators.minLength(2)]],
     apellidos: ['', [Validators.required, Validators.minLength(2)]],
+    email: [''],
+    celular: [''],
     numeroLicencia: ['', [Validators.required, Validators.minLength(5)]],
     claseLicencia: ['', [Validators.required]],
     categoriaLicencia: ['', [Validators.required]],
@@ -53,10 +56,19 @@ export class ConductorForm implements OnInit {
     { value: 'seguro_vida_ley', label: 'Seguro Vida Ley' },
     { value: 'sctr', label: 'SCTR' },
     { value: 'examen_medico', label: 'Examen Médico' },
+    { value: 'examen_medico_temporal', label: 'Examen Médico Temporal' },
     { value: 'psicosensometrico', label: 'Psicosensométrico' },
-    { value: 'induccion_general', label: 'Inducción General' },
-    { value: 'manejo_defensivo', label: 'Manejo Defensivo' },
+    { value: 'induccion_general', label: 'Inducción General - Anexo 4' },
+    { value: 'induccion_visita', label: 'Inducción Visita' },
+    { value: 'manejo_defensivo', label: 'Manejo Defensivo AAQ' },
     { value: 'licencia_interna', label: 'Licencia Interna' },
+    { value: 'autoriza_ssgg', label: 'Autoriza SSGG' },
+    { value: 'curso_seguridad_portuaria', label: 'Curso Seguridad Portuaria' },
+    { value: 'curso_mercancias_peligrosas', label: 'Curso Mercancías Peligrosas' },
+    { value: 'curso_basico_pbip', label: 'Curso Básico PBIP' },
+    { value: 'em_visita', label: 'EM Visita' },
+    { value: 'pase_conduc', label: 'Pase Conduc' },
+    { value: 'foto_funcionario', label: 'Foto Funcionario' },
   ];
 
   constructor() {
@@ -70,6 +82,8 @@ export class ConductorForm implements OnInit {
           dni: conductorData.dni,
           nombres: conductorData.nombres,
           apellidos: conductorData.apellidos,
+          email: conductorData.email,
+          celular: conductorData.celular,
           numeroLicencia: conductorData.numeroLicencia,
           claseLicencia: conductorData.claseLicencia,
           categoriaLicencia: conductorData.categoriaLicencia,
@@ -149,7 +163,7 @@ export class ConductorForm implements OnInit {
       })
       .catch((err) => {
         console.error('Error al actualizar documento:', err);
-        this.toastService.error('Error al actualizar documento');
+        this.toastService.error(getErrorMessage(err, 'Error al actualizar documento'));
       });
   }
 
@@ -162,7 +176,7 @@ export class ConductorForm implements OnInit {
       })
       .catch((err) => {
         console.error('Error al eliminar documento:', err);
-        this.toastService.error('Error al eliminar documento');
+        this.toastService.error(getErrorMessage(err, 'Error al eliminar documento'));
       });
   }
 

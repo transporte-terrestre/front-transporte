@@ -7,8 +7,8 @@ export interface ReporteMantenimientoPdfData {
   entidadNombre: string;
   fechaInicio: string;
   fechaFin: string;
-  mantenimientosVehiculo?: ApiResponse<"reportes","getMantenimientosDetalladosPorVehiculo">;
-  mantenimientosTaller?: ApiResponse<"reportes","getMantenimientosDetalladosPorTaller">;
+  mantenimientosVehiculo?: ApiResponse<'reportes', 'getMantenimientosDetalladosPorVehiculo'>;
+  mantenimientosTaller?: ApiResponse<'reportes', 'getMantenimientosDetalladosPorTaller'>;
   totalCosto: number;
 }
 
@@ -292,55 +292,11 @@ export const generateReporteMantenimientoPdf = (data: ReporteMantenimientoPdfDat
   doc.line(margin, y, pageWidth - margin, y);
   y += 6;
 
-  // Summary badges
-  const badgeWidth = 50;
-  const badgeHeight = 12;
-  const badgeGap = 5;
-  const badgesStartX = pageWidth - margin - (badgeWidth * 3 + badgeGap * 2);
-
-  // Badge 1: Preventivos
-  doc.setFillColor(...infoColor);
-  doc.roundedRect(badgesStartX, y - 2, badgeWidth, badgeHeight, 2, 2, 'F');
-  doc.setFontSize(7);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(255);
-  doc.text(`Preventivos: ${totalPreventivos}`, badgesStartX + badgeWidth / 2, y + 5, {
-    align: 'center',
-  });
-
-  // Badge 2: Correctivos
-  doc.setFillColor(...primaryColor);
-  doc.roundedRect(badgesStartX + badgeWidth + badgeGap, y - 2, badgeWidth, badgeHeight, 2, 2, 'F');
-  doc.text(
-    `Correctivos: ${totalCorrectivos}`,
-    badgesStartX + badgeWidth + badgeGap + badgeWidth / 2,
-    y + 5,
-    { align: 'center' }
-  );
-
-  // Badge 3: Total Costo
-  doc.setFillColor(...successColor);
-  doc.roundedRect(
-    badgesStartX + (badgeWidth + badgeGap) * 2,
-    y - 2,
-    badgeWidth,
-    badgeHeight,
-    2,
-    2,
-    'F'
-  );
-  doc.text(
-    `Total: S/${totalCosto.toFixed(0)}`,
-    badgesStartX + (badgeWidth + badgeGap) * 2 + badgeWidth / 2,
-    y + 5,
-    { align: 'center' }
-  );
-
   // Footer text
   doc.setTextColor(100);
   doc.setFontSize(8);
   doc.setFont('helvetica', 'normal');
-  doc.text('TRANSPORTES LINEA S.A. - Sistema de Gestion de Flota', margin, y + badgeHeight + 8);
+  doc.text('TRANSPORTES LINEA S.A. - Sistema de Gestion de Flota', margin, y + 8);
 
   // Save
   const filename = `Reporte_Mantenimientos_${data.tipoReporte.split('-')[1]}_${

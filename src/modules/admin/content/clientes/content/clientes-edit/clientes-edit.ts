@@ -6,6 +6,7 @@ import { ApiResponse, ApiBody } from 'api/backend.api';
 import { ToastService } from '@service/toast.service';
 import { ClienteForm } from '../../layout/cliente-form/cliente-form';
 import { PATH, buildPath } from '@route/path.route';
+import { getErrorMessage } from '@helper/error.helper';
 
 @Component({
   selector: 'app-clientes-edit',
@@ -62,7 +63,7 @@ export class ClientesEdit implements OnInit {
       })
       .catch((error) => {
         console.error('Error al actualizar cliente:', error);
-        this.toastService.error('Error al actualizar cliente');
+        this.toastService.error(getErrorMessage(error, 'Error al actualizar cliente'));
       })
       .finally(() => {
         this.loading.set(false);

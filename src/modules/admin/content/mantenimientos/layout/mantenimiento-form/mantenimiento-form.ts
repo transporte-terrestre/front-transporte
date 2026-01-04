@@ -12,6 +12,7 @@ import {
 } from '../../../../components/documents-date-upload/documents-date-upload';
 import { MantenimientoService } from '@service/admin/mantenimiento.service';
 import { ToastService } from '@service/toast.service';
+import { getErrorMessage } from '@helper/error.helper';
 
 @Component({
   selector: 'app-mantenimiento-form',
@@ -54,7 +55,7 @@ export class MantenimientoForm implements OnInit {
     descripcion: ['', [Validators.required, Validators.minLength(10)]],
     fechaIngreso: ['', [Validators.required]],
     fechaSalida: ['', [Validators.required]],
-    kilometraje: ['', [Validators.required, Validators.min(0)]],
+    kilometraje: [{ value: '', disabled: true }, [Validators.required, Validators.min(0)]],
     estado: ['pendiente', [Validators.required]],
   });
 
@@ -125,6 +126,18 @@ export class MantenimientoForm implements OnInit {
         this.localDocuments.set(null);
       }
     });
+
+    // Escuchar cambios en vehículo para setear kilometraje automáticamente
+    this.mantenimientoForm.get('vehiculo')?.valueChanges.subscribe((vehiculo) => {
+      if (vehiculo && typeof vehiculo === 'object') {
+        const vehiculoData = vehiculo as { kilometraje?: number };
+        if (vehiculoData.kilometraje !== undefined) {
+          this.mantenimientoForm.patchValue({
+            kilometraje: vehiculoData.kilometraje,
+          });
+        }
+      }
+    });
   }
 
   ngOnInit() {}
@@ -135,7 +148,7 @@ export class MantenimientoForm implements OnInit {
       return;
     }
 
-    const formValue = this.mantenimientoForm.value;
+    const formValue = this.mantenimientoForm.getRawValue();
     const formData: ApiBody<'mantenimientos', 'create'> = {
       vehiculoId: formValue.vehiculo?.id
         ? Number(formValue.vehiculo.id)
@@ -193,7 +206,7 @@ export class MantenimientoForm implements OnInit {
       })
       .catch((err) => {
         console.error('Error al actualizar documento:', err);
-        this.toastService.error('Error al actualizar documento');
+        this.toastService.error(getErrorMessage(err, 'Error al actualizar documento'));
       });
   }
 
@@ -206,7 +219,7 @@ export class MantenimientoForm implements OnInit {
       })
       .catch((err) => {
         console.error('Error al eliminar documento:', err);
-        this.toastService.error('Error al eliminar documento');
+        this.toastService.error(getErrorMessage(err, 'Error al eliminar documento'));
       });
   }
 

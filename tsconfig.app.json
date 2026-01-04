@@ -21,7 +21,8 @@
       "@route/*": ["routes/*"],
       "@interceptor/*": ["interceptors/*"],
       "@environment/*": ["environments/*"],
-      "@template/*": ["templates/*"]
+      "@template/*": ["templates/*"],
+      "@helper/*": ["helpers/*"]
     }
   },
   "include": ["src/**/*.ts"],

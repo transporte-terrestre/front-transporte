@@ -5,15 +5,16 @@ import {
   ReportesMantenimiento,
   MantenimientoReportMode,
 } from './layout/reportes-mantenimiento/reportes-mantenimiento';
+import { ReportesConductores } from './layout/reportes-conductores/reportes-conductores';
 
-type ReportCategory = 'viajes' | 'mantenimientos';
+type ReportCategory = 'viajes' | 'mantenimientos' | 'conductores';
 
 type ReportMode = ViajeReportMode | MantenimientoReportMode;
 
 @Component({
   selector: 'app-reportes',
   standalone: true,
-  imports: [CommonModule, ReportesViaje, ReportesMantenimiento],
+  imports: [CommonModule, ReportesViaje, ReportesMantenimiento, ReportesConductores],
   templateUrl: './reportes.html',
   styleUrl: './reportes.css',
 })
@@ -29,7 +30,7 @@ export class Reportes {
     // Auto-select first mode of the category
     if (category === 'viajes') {
       this.activeMode.set('vehiculo');
-    } else {
+    } else if (category === 'mantenimientos') {
       this.activeMode.set('mantenimientos-vehiculo');
     }
   }

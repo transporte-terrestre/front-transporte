@@ -143,12 +143,12 @@
               Estado
             </th>
             <th
-              class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase tracking-wider min-w-[90px]"
+              class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase tracking-wider min-w-[100px]"
             >
               Km Est.
             </th>
             <th
-              class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase tracking-wider min-w-[90px]"
+              class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase tracking-wider min-w-[100px]"
             >
               Km Final
             </th>
@@ -158,22 +158,27 @@
               Dif.
             </th>
             <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider min-w-[130px]"
+              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider min-w-[140px]"
             >
               Fecha Salida
             </th>
             <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider min-w-[130px]"
+              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider min-w-[140px]"
             >
               Fecha Llegada
             </th>
             <th
-              class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase tracking-wider min-w-[90px]"
+              class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase tracking-wider min-w-[100px]"
+            >
+              Hrs Ctr.
+            </th>
+            <th
+              class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase tracking-wider min-w-[100px]"
             >
               Hrs Tot.
             </th>
             <th
-              class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase tracking-wider min-w-[90px]"
+              class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase tracking-wider min-w-[100px]"
             >
               Hrs Exc.
             </th>
@@ -257,6 +262,16 @@
             </td>
             <td class="px-4 py-3 whitespace-nowrap text-xs font-inter-regular text-text/60">
               {{ viaje.fechaLlegada ? (viaje.fechaLlegada | date : 'dd/MM/yyyy HH:mm') : '—' }}
+            </td>
+            <td class="px-4 py-3 whitespace-nowrap text-right">
+              @if (viaje.horasContrato) {
+              <span class="text-xs font-inter-semibold text-secondary">{{
+                viaje.horasContrato | number : '1.2-2'
+              }}</span>
+              <span class="text-[10px] text-secondary/40"> h</span>
+              } @else {
+              <span class="text-xs text-secondary/30">—</span>
+              }
             </td>
             <td class="px-4 py-3 whitespace-nowrap text-right">
               @if (viaje.horasTotales) {

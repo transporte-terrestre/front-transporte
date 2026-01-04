@@ -9,6 +9,7 @@ import {
 } from '../../../../components/documents-date-upload/documents-date-upload';
 import { ClienteService } from '@service/admin/cliente.service';
 import { ToastService } from '@service/toast.service';
+import { getErrorMessage } from '@helper/error.helper';
 
 @Component({
   selector: 'app-cliente-form',
@@ -42,6 +43,7 @@ export class ClienteForm implements OnInit {
     email: ['', [Validators.email, Validators.maxLength(100)]],
     telefono: ['', [Validators.maxLength(20)]],
     direccion: ['', [Validators.maxLength(255)]],
+    horasContrato: ['', []],
   });
 
   documentTypes: {
@@ -73,6 +75,7 @@ export class ClienteForm implements OnInit {
           email: clienteData.email || '',
           telefono: clienteData.telefono || '',
           direccion: clienteData.direccion || '',
+          horasContrato: clienteData.horasContrato || '',
         });
         this.imagenes.set(clienteData.imagenes || []);
         this.localDocuments.set(JSON.parse(JSON.stringify(clienteData.documentos)));
@@ -147,6 +150,7 @@ export class ClienteForm implements OnInit {
     if (formData.email) cleanData.email = formData.email;
     if (formData.telefono) cleanData.telefono = formData.telefono;
     if (formData.direccion) cleanData.direccion = formData.direccion;
+    if (formData.horasContrato) cleanData.horasContrato = formData.horasContrato;
 
     if (this.editMode()) {
       this.onSubmitForm.emit(cleanData as ApiBody<'clientes', 'update'>);
@@ -196,7 +200,7 @@ export class ClienteForm implements OnInit {
       })
       .catch((err) => {
         console.error('Error al actualizar documento:', err);
-        this.toastService.error('Error al actualizar documento');
+        this.toastService.error(getErrorMessage(err, 'Error al actualizar documento'));
       });
   }
 
@@ -209,7 +213,7 @@ export class ClienteForm implements OnInit {
       })
       .catch((err) => {
         console.error('Error al eliminar documento:', err);
-        this.toastService.error('Error al eliminar documento');
+        this.toastService.error(getErrorMessage(err, 'Error al eliminar documento'));
       });
   }
 

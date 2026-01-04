@@ -1,0 +1,22 @@
+<div
+  class="bg-background border border-text/10 rounded-2xl p-8 shadow-sm flex flex-col items-center justify-center text-center space-y-4"
+>
+  <div class="w-16 h-16 bg-success/10 rounded-full flex items-center justify-center mb-2">
+    <i class="fas fa-file-excel text-3xl text-success"></i>
+  </div>
+
+  <h2 class="text-xl font-anton text-text lowercase">Reporte General de Conductores</h2>
+
+  <p class="text-xs text-text/60 font-inter-regular max-w-md">
+    Descarga un archivo Excel con la información detallada de todos los conductores registrados en
+    el sistema, incluyendo sus datos personales, licencias y estado actual.
+  </p>
+
+  <button
+    (click)="downloadExcel()"
+    class="text-sm mt-4 px-6 py-3 bg-success hover:bg-success/90 text-white rounded-xl font-inter-semibold flex items-center gap-2 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+  >
+    <i class="fas fa-download"></i>
+    Descargar Excel (.xlsx)
+  </button>
+</div>

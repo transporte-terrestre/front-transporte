@@ -17,8 +17,10 @@ import {
 import { VehiculoService } from '@service/admin/vehiculo.service';
 import { ToastService } from '@service/toast.service';
 import { MarcaInputSearch } from '../../content/vehiculos-lineas/layout/marca-input-search/marca-input-search';
+import { getErrorMessage } from '@helper/error.helper';
 import { ModeloInputSearch } from '../../content/vehiculos-lineas/layout/modelo-input-search/modelo-input-search';
 import { PropietarioInputSearch } from '../../../propietarios/layout/propietario-input-search/propietario-input-search';
+import { ProveedorInputSearch } from '../../../proveedores/layout/proveedor-input-search/proveedor-input-search';
 
 @Component({
   selector: 'app-vehiculo-form',
@@ -31,6 +33,7 @@ import { PropietarioInputSearch } from '../../../propietarios/layout/propietario
     MarcaInputSearch,
     ModeloInputSearch,
     PropietarioInputSearch,
+    ProveedorInputSearch,
   ],
   templateUrl: './vehiculo-form.html',
   styleUrl: './vehiculo-form.css',
@@ -53,7 +56,7 @@ export class VehiculoForm implements OnInit {
   selectedMarcaId = signal<number | null>(null);
 
   vehiculoForm: FormGroup = this.fb.group({
-    placa: ['', [Validators.required, Validators.pattern(/^[A-Z0-9-]{6,8}$/)]],
+    placa: ['', [Validators.required]],
     placaAnterior: ['', [Validators.maxLength(20)]],
     codigoInterno: [{ value: '', disabled: true }],
     marca: [null, []],
@@ -74,8 +77,8 @@ export class VehiculoForm implements OnInit {
     kilometraje: ['', [Validators.required, Validators.min(0)]],
     estado: ['disponible', [Validators.required]],
     propietarios: [[], []], // We keep this but manage ids manually on submit
+    proveedores: [[], []], // We keep this but manage ids manually on submit
     // New fields
-    anioModelo: ['', [Validators.min(1900), Validators.max(2100)]],
     pasajeros: ['', [Validators.min(0)]],
     ruedas: ['', [Validators.min(0)]],
     sede: ['', [Validators.maxLength(100)]],
@@ -93,6 +96,10 @@ export class VehiculoForm implements OnInit {
   // Temporary control for the search input
   tempOwnerControl = new FormControl<any>(null);
   selectedOwners = signal<any[]>([]);
+
+  // Temporary control for providers search input
+  tempProviderControl = new FormControl<any>(null);
+  selectedProviders = signal<any[]>([]);
 
   estados: Array<{
     value: 'disponible' | 'circulacion' | 'taller' | 'retirado';
@@ -177,6 +184,27 @@ export class VehiculoForm implements OnInit {
     this.selectedOwners.update((prev) => prev.filter((p) => p.id !== id));
   }
 
+  addProvider() {
+    const provider = this.tempProviderControl.value;
+    if (provider && typeof provider === 'object') {
+      const current = this.selectedProviders();
+      if (!current.find((p) => p.id === provider.id)) {
+        this.selectedProviders.update((prev) => [
+          ...prev,
+          {
+            ...provider,
+            nombre: provider.nombre || provider.nombreCompleto, // Normalize for display
+          },
+        ]);
+      }
+      this.tempProviderControl.setValue(null);
+    }
+  }
+
+  removeProvider(id: number) {
+    this.selectedProviders.update((prev) => prev.filter((p) => p.id !== id));
+  }
+
   constructor() {
     effect(async () => {
       const vehiculoData = this.vehiculo();
@@ -203,7 +231,6 @@ export class VehiculoForm implements OnInit {
           kilometraje: vehiculoData.kilometraje,
           estado: vehiculoData.estado,
           // New fields mapping
-          anioModelo: vehiculoData.anioModelo,
           pasajeros: vehiculoData.pasajeros,
           ruedas: vehiculoData.ruedas,
           sede: vehiculoData.sede,
@@ -221,6 +248,8 @@ export class VehiculoForm implements OnInit {
         this.localDocuments.set(JSON.parse(JSON.stringify(vehiculoData.documentos)));
         // Load owners
         this.selectedOwners.set(vehiculoData.propietarios || []);
+        // Load providers
+        this.selectedProviders.set(vehiculoData.proveedores || []);
 
         // Cargar marca y modelo desde el modeloId
         if (vehiculoData.modeloId) {
@@ -239,6 +268,7 @@ export class VehiculoForm implements OnInit {
       } else {
         this.vehiculoForm.reset({ estado: 'disponible', combustible: 'diesel' });
         this.selectedOwners.set([]);
+        this.selectedProviders.set([]);
         this.imagenes.set([]);
         this.localDocuments.set(null);
         this.selectedMarcaId.set(null);
@@ -273,9 +303,9 @@ export class VehiculoForm implements OnInit {
       kilometraje: formValue.kilometraje,
       estado: formValue.estado,
       propietarios: this.selectedOwners().map((p) => p.id),
+      proveedores: this.selectedProviders().map((p) => p.id),
       imagenes: this.imagenes(),
       // New fields mapping
-      anioModelo: formValue.anioModelo ? Number(formValue.anioModelo) : undefined,
       pasajeros: formValue.pasajeros ? Number(formValue.pasajeros) : undefined,
       ruedas: formValue.ruedas ? Number(formValue.ruedas) : undefined,
       sede: formValue.sede || undefined,
@@ -314,7 +344,7 @@ export class VehiculoForm implements OnInit {
       this.addDocumentToLocalList(doc);
     } catch (err) {
       console.error('Error al guardar documento:', err);
-      this.toastService.error('Error al guardar documento');
+      this.toastService.error(getErrorMessage(err, 'Error al guardar documento'));
     }
   }
 
@@ -328,7 +358,7 @@ export class VehiculoForm implements OnInit {
       this.updateDocumentInLocalList(doc);
     } catch (err) {
       console.error('Error al actualizar documento:', err);
-      this.toastService.error('Error al actualizar documento');
+      this.toastService.error(getErrorMessage(err, 'Error al actualizar documento'));
     }
   }
 
@@ -339,7 +369,7 @@ export class VehiculoForm implements OnInit {
       this.removeDocumentFromLocalList(id, tipo);
     } catch (err) {
       console.error('Error al eliminar documento:', err);
-      this.toastService.error('Error al eliminar documento');
+      this.toastService.error(getErrorMessage(err, 'Error al eliminar documento'));
     }
   }
 

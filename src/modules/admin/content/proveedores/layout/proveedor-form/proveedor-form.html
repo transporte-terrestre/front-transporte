@@ -1,0 +1,199 @@
+<form [formGroup]="proveedorForm" (ngSubmit)="submitForm()" class="p-4 space-y-3">
+  <!-- Tipo de Documento -->
+  <div>
+    <label class="block text-xs font-inter-semibold text-text mb-1.5">Tipo de Documento</label>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+      <label
+        class="flex items-center gap-3 px-3 py-2 rounded-lg border-2 cursor-pointer transition-all"
+        [class.bg-secondary/10]="proveedorForm.get('tipoDocumento')?.value === 'DNI'"
+        [class.border-secondary]="proveedorForm.get('tipoDocumento')?.value === 'DNI'"
+        [class.border-text/10]="proveedorForm.get('tipoDocumento')?.value !== 'DNI'"
+      >
+        <input
+          type="radio"
+          formControlName="tipoDocumento"
+          value="DNI"
+          class="w-4 h-4 border-2 border-text/30 checked:bg-secondary checked:border-secondary focus:ring-2 focus:ring-secondary/20 cursor-pointer accent-secondary"
+        />
+        <div class="flex items-center gap-2 flex-1">
+          <i
+            class="fas fa-id-card text-sm"
+            [class.text-secondary]="proveedorForm.get('tipoDocumento')?.value === 'DNI'"
+            [class.text-text/70]="proveedorForm.get('tipoDocumento')?.value !== 'DNI'"
+          ></i>
+          <span class="text-sm font-inter-medium text-text">DNI</span>
+        </div>
+      </label>
+      <label
+        class="flex items-center gap-3 px-3 py-2 rounded-lg border-2 cursor-pointer transition-all"
+        [class.bg-secondary/10]="proveedorForm.get('tipoDocumento')?.value === 'RUC'"
+        [class.border-secondary]="proveedorForm.get('tipoDocumento')?.value === 'RUC'"
+        [class.border-text/10]="proveedorForm.get('tipoDocumento')?.value !== 'RUC'"
+      >
+        <input
+          type="radio"
+          formControlName="tipoDocumento"
+          value="RUC"
+          class="w-4 h-4 border-2 border-text/30 checked:bg-secondary checked:border-secondary focus:ring-2 focus:ring-secondary/20 cursor-pointer accent-secondary"
+        />
+        <div class="flex items-center gap-2 flex-1">
+          <i
+            class="fas fa-building text-sm"
+            [class.text-secondary]="proveedorForm.get('tipoDocumento')?.value === 'RUC'"
+            [class.text-text/70]="proveedorForm.get('tipoDocumento')?.value !== 'RUC'"
+          ></i>
+          <span class="text-sm font-inter-medium text-text">RUC</span>
+        </div>
+      </label>
+    </div>
+  </div>
+
+  <!-- DNI Fields -->
+  @if (proveedorForm.get('tipoDocumento')?.value === 'DNI') {
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+    <div>
+      <label class="block text-xs font-inter-semibold text-text mb-1.5">DNI</label>
+      <input
+        type="text"
+        formControlName="dni"
+        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+        placeholder="12345678"
+        maxlength="8"
+      />
+      @if (proveedorForm.get('dni')?.touched && proveedorForm.get('dni')?.errors) {
+      <p class="text-danger text-xs font-inter-medium mt-1">
+        El DNI es requerido (8 dígitos)
+      </p>
+      }
+    </div>
+
+    <div>
+      <label class="block text-xs font-inter-semibold text-text mb-1.5">Nombres</label>
+      <input
+        type="text"
+        formControlName="nombres"
+        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+        placeholder="Juan Carlos"
+      />
+      @if (proveedorForm.get('nombres')?.touched && proveedorForm.get('nombres')?.errors) {
+      <p class="text-danger text-xs font-inter-medium mt-1">Los nombres son requeridos</p>
+      }
+    </div>
+  </div>
+
+  <div>
+    <label class="block text-xs font-inter-semibold text-text mb-1.5">Apellidos</label>
+    <input
+      type="text"
+      formControlName="apellidos"
+      class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+      placeholder="Pérez López"
+    />
+    @if (proveedorForm.get('apellidos')?.touched && proveedorForm.get('apellidos')?.errors) {
+    <p class="text-danger text-xs font-inter-medium mt-1">Los apellidos son requeridos</p>
+    }
+  </div>
+  }
+
+  <!-- RUC Fields -->
+  @if (proveedorForm.get('tipoDocumento')?.value === 'RUC') {
+  <div>
+    <label class="block text-xs font-inter-semibold text-text mb-1.5">RUC</label>
+    <input
+      type="text"
+      formControlName="ruc"
+      class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+      placeholder="20123456789"
+      maxlength="11"
+    />
+    @if (proveedorForm.get('ruc')?.touched && proveedorForm.get('ruc')?.errors) {
+    <p class="text-danger text-xs font-inter-medium mt-1">
+      El RUC es requerido (11 dígitos)
+    </p>
+    }
+  </div>
+
+  <div>
+    <label class="block text-xs font-inter-semibold text-text mb-1.5">Razón Social</label>
+    <input
+      type="text"
+      formControlName="razonSocial"
+      class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+      placeholder="Empresa S.A.C."
+    />
+    @if (proveedorForm.get('razonSocial')?.touched && proveedorForm.get('razonSocial')?.errors) {
+    <p class="text-danger text-xs font-inter-medium mt-1">La razón social es requerida</p>
+    }
+  </div>
+  }
+
+  <div>
+    <label class="block text-xs font-inter-semibold text-text mb-1.5">Email (opcional)</label>
+    <input
+      type="email"
+      formControlName="email"
+      class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+      placeholder="contacto@empresa.com"
+    />
+    @if (proveedorForm.get('email')?.touched && proveedorForm.get('email')?.errors) {
+    <p class="text-danger text-xs font-inter-medium mt-1">Email inválido</p>
+    }
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+    <div>
+      <label class="block text-xs font-inter-semibold text-text mb-1.5">Teléfono (opcional)</label>
+      <input
+        type="text"
+        formControlName="telefono"
+        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+        placeholder="987654321"
+      />
+      @if (proveedorForm.get('telefono')?.touched && proveedorForm.get('telefono')?.errors) {
+      <p class="text-danger text-xs font-inter-medium mt-1">
+        Teléfono inválido (máx. 20 caracteres)
+      </p>
+      }
+    </div>
+
+    <div>
+      <label class="block text-xs font-inter-semibold text-text mb-1.5">Dirección (opcional)</label>
+      <input
+        type="text"
+        formControlName="direccion"
+        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+        placeholder="Av. Principal 123"
+      />
+    </div>
+  </div>
+
+  <!-- Imágenes -->
+  <app-images-upload
+    [images]="imagenes()"
+    [folder]="'proveedores'"
+    [maxImages]="5"
+    [label]="'Imágenes del proveedor'"
+    (imagesChange)="onImagesChange($event)"
+  />
+
+  <!-- Documentos -->
+  @if (editMode() && proveedor()) {
+  <div class="space-y-4 mt-6">
+    <h3 class="text-sm font-inter-bold text-text mb-4">Documentos</h3>
+    <div class="grid grid-cols-1 gap-4">
+      @for (docType of documentTypes; track docType.value) {
+      <div class="bg-background rounded-lg p-4 border border-text/10">
+        <app-documents-date-upload
+          [label]="docType.label"
+          [documents]="getDocuments(docType.value)"
+          [maxDocuments]="10"
+          (onUpload)="handleDocumentUpload($event, docType.value)"
+          (onUpdate)="handleDocumentUpdate($event)"
+          (onDelete)="deleteDocument($event, docType.value)"
+        ></app-documents-date-upload>
+      </div>
+      }
+    </div>
+  </div>
+  }
+</form>
