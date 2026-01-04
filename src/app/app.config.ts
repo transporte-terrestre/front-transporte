@@ -11,6 +11,7 @@ import { routes } from './app.routes';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 import { Api, HttpClient } from '@api/backend.api';
 import { AuthService } from '@service/auth/auth.service';
+import { environment } from '../environments/environment';
 
 import localeEsPE from '@angular/common/locales/es-PE';
 registerLocaleData(localeEsPE, 'es-PE');
@@ -30,7 +31,7 @@ export const appConfig: ApplicationConfig = {
 
         return new Api(
           new HttpClient({
-            baseUrl: 'http://localhost:3000',
+            baseUrl: environment.baseUrl,
 
             // 1. SECURITY WORKER: Se encarga SOLO de poner el token si existe
             securityWorker: async () => {
