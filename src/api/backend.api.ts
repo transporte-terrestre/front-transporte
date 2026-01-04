@@ -5836,12 +5836,6 @@ export interface ProveedorListDto {
    * @example "2023-01-01T00:00:00.000Z"
    */
   actualizadoEn: string;
-  /**
-   * Fecha de eliminación
-   * @format date-time
-   * @example "2023-01-01T00:00:00.000Z"
-   */
-  eliminadoEn?: string;
 }
 
 export interface PaginatedProveedorResultDto {
@@ -5862,47 +5856,46 @@ export interface ProveedorDocumentoResultDto {
   proveedorId: number;
   /**
    * Tipo de documento
-   * @example "RUC"
+   * @example "contrato"
    */
-  tipo: string;
+  tipo: "dni" | "ruc" | "contrato" | "otros";
   /**
-   * Número del documento
-   * @example "20123456789"
+   * Nombre del documento
+   * @example "Contrato de Proveedor"
    */
-  numero?: string;
+  nombre: string;
   /**
-   * Fecha de emisión del documento
-   * @example "2023-01-15"
+   * URL del documento
+   * @example "https://res.cloudinary.com/xxx/doc.pdf"
+   */
+  url: string;
+  /**
+   * Fecha de expiración (YYYY-MM-DD)
+   * @example "2025-12-31"
+   */
+  fechaExpiracion?: string;
+  /**
+   * Fecha de emisión (YYYY-MM-DD)
+   * @example "2023-01-01"
    */
   fechaEmision?: string;
   /**
-   * Fecha de vencimiento del documento
-   * @example "2025-12-31"
-   */
-  fechaVencimiento?: string;
-  /**
-   * URLs de los archivos del documento
-   * @example ["https://storage.example.com/documentos/ruc.pdf"]
-   */
-  archivos: string[];
-  /**
    * Fecha de creación
    * @format date-time
-   * @example "2023-01-01T00:00:00.000Z"
    */
   creadoEn: string;
   /**
    * Fecha de actualización
    * @format date-time
-   * @example "2023-01-01T00:00:00.000Z"
    */
   actualizadoEn: string;
-  /**
-   * Fecha de eliminación
-   * @format date-time
-   * @example null
-   */
-  eliminadoEn?: string;
+}
+
+export interface DocumentosAgrupadosProveedorDto {
+  dni: ProveedorDocumentoResultDto[];
+  ruc: ProveedorDocumentoResultDto[];
+  contrato: ProveedorDocumentoResultDto[];
+  otros: ProveedorDocumentoResultDto[];
 }
 
 export interface ProveedorResultDto {
@@ -5978,8 +5971,8 @@ export interface ProveedorResultDto {
    * @example "2023-01-01T00:00:00.000Z"
    */
   actualizadoEn: string;
-  /** Documentos del proveedor */
-  documentos: ProveedorDocumentoResultDto[];
+  /** Proveedor documents grouped by type */
+  documentos: DocumentosAgrupadosProveedorDto;
 }
 
 export interface ProveedorCreateDto {
@@ -6096,29 +6089,29 @@ export interface ProveedorDocumentoCreateDto {
   proveedorId: number;
   /**
    * Tipo de documento
-   * @example "RUC"
+   * @default "dni"
    */
-  tipo: string;
+  tipo: "dni" | "ruc" | "contrato" | "otros";
   /**
-   * Número del documento
-   * @example "20123456789"
+   * Nombre del documento
+   * @example "Documento 1"
    */
-  numero?: string;
+  nombre: string;
+  /**
+   * URL del documento
+   * @example "https://storage.example.com/documentos/dni-12345678.pdf"
+   */
+  url: string;
+  /**
+   * Fecha de expiración del documento
+   * @example "2025-12-31"
+   */
+  fechaExpiracion?: string;
   /**
    * Fecha de emisión del documento
    * @example "2023-01-15"
    */
   fechaEmision?: string;
-  /**
-   * Fecha de vencimiento del documento
-   * @example "2025-12-31"
-   */
-  fechaVencimiento?: string;
-  /**
-   * URLs de los archivos del documento
-   * @example ["https://storage.example.com/documentos/ruc.pdf"]
-   */
-  archivos: string[];
 }
 
 export interface ProveedorDocumentoUpdateDto {
@@ -6129,29 +6122,29 @@ export interface ProveedorDocumentoUpdateDto {
   proveedorId?: number;
   /**
    * Tipo de documento
-   * @example "RUC"
+   * @default "dni"
    */
-  tipo?: string;
+  tipo?: "dni" | "ruc" | "contrato" | "otros";
   /**
-   * Número del documento
-   * @example "20123456789"
+   * Nombre del documento
+   * @example "Documento 1"
    */
-  numero?: string;
+  nombre?: string;
+  /**
+   * URL del documento
+   * @example "https://storage.example.com/documentos/dni-12345678.pdf"
+   */
+  url?: string;
+  /**
+   * Fecha de expiración del documento
+   * @example "2025-12-31"
+   */
+  fechaExpiracion?: string;
   /**
    * Fecha de emisión del documento
    * @example "2023-01-15"
    */
   fechaEmision?: string;
-  /**
-   * Fecha de vencimiento del documento
-   * @example "2025-12-31"
-   */
-  fechaVencimiento?: string;
-  /**
-   * URLs de los archivos del documento
-   * @example ["https://storage.example.com/documentos/ruc.pdf"]
-   */
-  archivos?: string[];
 }
 
 export interface StorageResultDto {

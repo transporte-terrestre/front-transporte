@@ -47,7 +47,7 @@ export class ProveedorForm implements OnInit {
   });
 
   documentTypes: {
-    value: string;
+    value: keyof ApiField<'proveedores', 'findOne', 'documentos'>;
     label: string;
   }[] = [
     { value: 'dni', label: 'DNI' },
@@ -153,23 +153,24 @@ export class ProveedorForm implements OnInit {
 
   handleDocumentUpload(
     event: DocumentWithDate,
-    tipo: string
+    tipo: keyof ApiField<'proveedores', 'findOne', 'documentos'>
   ) {
     if (!this.proveedor()) return;
 
     const documento: ApiBody<'proveedores', 'createDocumento'> = {
       proveedorId: this.proveedor()!.id,
       tipo: tipo,
-      numero: event.nombre,
-      archivos: [event.url],
+      nombre: event.nombre,
+      url: event.url,
       fechaEmision: event.fechaEmision,
-      fechaVencimiento: event.fechaExpiracion,
+      fechaExpiracion: event.fechaExpiracion,
     };
 
     this.proveedorService
       .createDocumento(documento)
-      .then(() => {
+      .then((doc) => {
         this.toastService.success('Documento guardado exitosamente');
+        this.addDocumentToLocalList(doc);
       })
       .catch((err) => {
         console.error('Error al guardar documento:', err);
@@ -181,9 +182,11 @@ export class ProveedorForm implements OnInit {
     this.proveedorService
       .updateDocumento(event.id, {
         fechaEmision: event.fechaEmision,
+        fechaExpiracion: event.fechaExpiracion,
       })
-      .then(() => {
+      .then((doc) => {
         this.toastService.success('Documento actualizado exitosamente');
+        this.updateDocumentInLocalList(doc);
       })
       .catch((err) => {
         console.error('Error al actualizar documento:', err);
@@ -191,11 +194,12 @@ export class ProveedorForm implements OnInit {
       });
   }
 
-  deleteDocument(id: number, tipo: string) {
+  deleteDocument(id: number, tipo: keyof ApiField<'proveedores', 'findOne', 'documentos'>) {
     this.proveedorService
       .deleteDocumento(id)
       .then(() => {
         this.toastService.success('Documento eliminado exitosamente');
+        this.removeDocumentFromLocalList(id, tipo);
       })
       .catch((err) => {
         console.error('Error al eliminar documento:', err);
@@ -203,7 +207,54 @@ export class ProveedorForm implements OnInit {
       });
   }
 
-  getDocuments(tipo: string): any[] {
-    return [];
+  private addDocumentToLocalList(
+    doc: ApiField<'proveedores', 'findOne', 'documentos'>['dni'][number]
+  ) {
+    const docs = this.localDocuments();
+    if (docs) {
+      const tipo = doc.tipo;
+      const newDocs = { ...docs };
+      if (!newDocs[tipo]) {
+        newDocs[tipo] = [];
+      }
+      newDocs[tipo] = [...newDocs[tipo], doc];
+      this.localDocuments.set(newDocs);
+    }
+  }
+
+  private updateDocumentInLocalList(
+    doc: ApiField<'proveedores', 'findOne', 'documentos'>['dni'][number]
+  ) {
+    const docs = this.localDocuments();
+    if (docs) {
+      const tipo = doc.tipo;
+      if (docs[tipo]) {
+        const newDocs = { ...docs };
+        newDocs[tipo] = newDocs[tipo].map((d) => (d.id === doc.id ? doc : d));
+        this.localDocuments.set(newDocs);
+      }
+    }
+  }
+
+  private removeDocumentFromLocalList(
+    id: number,
+    tipo: keyof ApiField<'proveedores', 'findOne', 'documentos'>
+  ) {
+    const docs = this.localDocuments();
+    if (docs) {
+      if (docs[tipo]) {
+        const newDocs = { ...docs };
+        newDocs[tipo] = newDocs[tipo].filter((d) => d.id !== id);
+        this.localDocuments.set(newDocs);
+      }
+    }
+  }
+
+  getDocuments(
+    tipo: keyof ApiField<'proveedores', 'findOne', 'documentos'>
+  ): ApiField<'proveedores', 'findOne', 'documentos'>['dni'] {
+    const docs = this.localDocuments();
+    if (!docs) return [];
+    return docs[tipo] || [];
   }
 }
