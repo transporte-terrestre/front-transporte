@@ -1,7 +1,5 @@
-// Este archivo es generado automáticamente por set-env.js
-// NO EDITAR MANUALMENTE - Los cambios se perderán
-
+// Usando import.meta.env (Angular 17+ con Vite/esbuild)
 export const environment = {
-  baseUrl: 'backend-transporte-fmcqd2abgbg5b0bj.chilecentral-01.azurewebsites.net',
+  baseUrl: import.meta.env?.['NG_APP_BASE_URL'],
   production: false
 };

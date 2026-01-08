@@ -7,14 +7,13 @@
   },
   "scripts": {
     "ng": "ng",
-    "config": "node set-env.js",
-    "start": "npm run config && ng serve",
-    "build": "npm run config && ng build && cp dist/front-transporte/browser/index.csr.html dist/front-transporte/browser/index.html",
+    "start": "ng serve",
+    "build": "ng build && cp dist/front-transporte/browser/index.csr.html dist/front-transporte/browser/index.html",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "serve:ssr:front-transporte": "node dist/front-transporte/server/server.mjs",
-    "vercel:deploy": "npm run config && vercel --prod",
-    "vercel:dev": "npm run config && vercel dev"
+    "vercel:deploy": "vercel --prod",
+    "vercel:dev": "vercel dev"
   },
   "prettier": {
     "printWidth": 100,
@@ -54,10 +53,10 @@
     "@angular/build": "^20.3.10",
     "@angular/cli": "^20.3.10",
     "@angular/compiler-cli": "^20.3.0",
+    "@ngx-env/builder": "^20.1.1",
     "@types/express": "^5.0.1",
     "@types/jasmine": "~5.1.0",
     "@types/node": "^20.17.19",
-    "dotenv": "^17.2.3",
     "jasmine-core": "~5.9.0",
     "karma": "~6.4.0",
     "karma-chrome-launcher": "~3.2.0",
