@@ -48,7 +48,7 @@ export class ViajesList implements OnInit, OnDestroy {
   viajes = signal<ApiResponse<'viajes', 'findAll'>['data']>([]);
   loading = signal(false);
   showModal = signal(false);
-  viewMode = signal<'table' | 'calendar'>('calendar');
+  viewMode = signal<'table' | 'calendar'>('table');
 
   // Paginación
   currentPage = signal(1);

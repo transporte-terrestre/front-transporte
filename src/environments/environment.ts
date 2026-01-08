@@ -1,4 +1,7 @@
+// Este archivo es generado automáticamente por set-env.js
+// NO EDITAR MANUALMENTE - Los cambios se perderán
+
 export const environment = {
-  production: true,
-  baseUrl: 'https://backend-transporte-fmcqd2abgbg5b0bj.chilecentral-01.azurewebsites.net'
+  baseUrl: 'backend-transporte-fmcqd2abgbg5b0bj.chilecentral-01.azurewebsites.net',
+  production: true
 };
