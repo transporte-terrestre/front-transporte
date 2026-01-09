@@ -5,7 +5,7 @@ import {
   PLATFORM_ID,
   inject,
 } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import { registerLocaleData, isPlatformBrowser } from '@angular/common';
 import { routes } from './app.routes';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
@@ -45,7 +45,7 @@ export const appConfig: ApplicationConfig = {
             },
 
             // 2. CUSTOM FETCH: Aquí está la magia del interceptor
-            customFetch: (input, init) => {
+            customFetch: async (input, init) => {
               // Si estamos en el SERVIDOR (SSR), bloqueamos la petición
               if (!isPlatformBrowser(platformId)) {
                 // Retornamos una promesa "falsa" que resuelve nada.
@@ -58,7 +58,17 @@ export const appConfig: ApplicationConfig = {
               }
 
               // Si estamos en el NAVEGADOR, hacemos el fetch real
-              return fetch(input, init);
+              const response = await fetch(input, init);
+
+              // Detectar error 401 y cerrar sesión
+              if (response.status === 401) {
+                const authService = inject(AuthService);
+                const router = inject(Router);
+                authService.logout();
+                router.navigate(['/auth/sign-in']);
+              }
+
+              return response;
             }
           })
         );
