@@ -12,6 +12,7 @@ import { ModalForm } from '../../../../components/modal-form/modal-form';
 import { ConductorForm } from '../../layout/conductor-form/conductor-form';
 import { PaginationComponent } from '../../../../components/pagination/pagination';
 import { PATH, buildPath } from '@route/path.route';
+import { getErrorMessage } from '@helper/error.helper';
 
 @Component({
   selector: 'app-conductores-list',
@@ -144,7 +145,7 @@ export class ConductoresList implements OnInit, OnDestroy {
       })
       .catch((error) => {
         console.error('Error al crear conductor:', error);
-        this.toastService.error('Error al crear conductor');
+        this.toastService.error(getErrorMessage(error, 'Error al crear conductor'));
         this.loading.set(false);
       });
   }
@@ -163,7 +164,7 @@ export class ConductoresList implements OnInit, OnDestroy {
           })
           .catch((error) => {
             console.error('Error al eliminar conductor:', error);
-            this.toastService.error('Error al eliminar conductor');
+            this.toastService.error(getErrorMessage(error, 'Error al eliminar conductor'));
             this.loading.set(false);
           });
       }

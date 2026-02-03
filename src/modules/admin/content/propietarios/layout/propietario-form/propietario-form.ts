@@ -9,6 +9,7 @@ import {
 } from '../../../../components/documents-date-upload/documents-date-upload';
 import { PropietarioService } from '@service/admin/propietario.service';
 import { ToastService } from '@service/toast.service';
+import { getErrorMessage } from '@helper/error.helper';
 
 @Component({
   selector: 'app-propietario-form',
@@ -173,7 +174,7 @@ export class PropietarioForm implements OnInit {
       })
       .catch((err) => {
         console.error('Error al guardar documento:', err);
-        this.toastService.error('Error al guardar documento');
+        this.toastService.error(getErrorMessage(err, 'Error al guardar documento'));
       });
   }
 
@@ -189,7 +190,7 @@ export class PropietarioForm implements OnInit {
       })
       .catch((err) => {
         console.error('Error al actualizar documento:', err);
-        this.toastService.error('Error al actualizar documento');
+        this.toastService.error(getErrorMessage(err, 'Error al actualizar documento'));
       });
   }
 
@@ -202,7 +203,7 @@ export class PropietarioForm implements OnInit {
       })
       .catch((err) => {
         console.error('Error al eliminar documento:', err);
-        this.toastService.error('Error al eliminar documento');
+        this.toastService.error(getErrorMessage(err, 'Error al eliminar documento'));
       });
   }
 

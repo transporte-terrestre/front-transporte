@@ -8,8 +8,9 @@ import { PATH, buildPath } from '@route/path.route';
 
 interface MenuItem {
   label: string;
-  path: string;
+  path?: string;
   icon: string;
+  children?: MenuItem[];
 }
 
 @Component({
@@ -27,27 +28,54 @@ export class Sidebar {
   isCollapsed = input(false);
   close = output<void>();
 
+  expandedMenus = signal<Set<string>>(new Set());
+
   menuItems = signal<MenuItem[]>([
     {
       label: 'Dashboard',
       path: buildPath(PATH.admin.dashboard),
       icon: 'fas fa-home',
     },
-
     {
       label: 'Viajes',
       path: buildPath(PATH.admin.viajes),
       icon: 'fas fa-shipping-fast',
+      children: [
+        {
+          label: 'Rutas',
+          path: buildPath(PATH.admin.rutas),
+          icon: 'fas fa-route',
+        },
+      ],
     },
     {
       label: 'Mantenimientos',
       path: buildPath(PATH.admin.mantenimientos),
       icon: 'fas fa-tools',
+      children: [
+        {
+          label: 'Talleres',
+          path: buildPath(PATH.admin.talleres),
+          icon: 'fas fa-building',
+        },
+      ],
     },
     {
       label: 'Vehículos',
       path: buildPath(PATH.admin.vehiculos),
       icon: 'fas fa-car',
+      children: [
+        {
+          label: 'Propietarios',
+          path: buildPath(PATH.admin.propietarios),
+          icon: 'fas fa-user-shield',
+        },
+        {
+          label: 'Proveedores',
+          path: buildPath(PATH.admin.proveedores),
+          icon: 'fas fa-truck',
+        },
+      ],
     },
     {
       label: 'Conductores',
@@ -55,24 +83,9 @@ export class Sidebar {
       icon: 'fas fa-id-card',
     },
     {
-      label: 'Talleres',
-      path: buildPath(PATH.admin.talleres),
-      icon: 'fas fa-building',
-    },
-    {
-      label: 'Rutas',
-      path: buildPath(PATH.admin.rutas),
-      icon: 'fas fa-route',
-    },
-    {
       label: 'Clientes',
       path: buildPath(PATH.admin.clientes),
       icon: 'fas fa-user-tie',
-    },
-    {
-      label: 'Propietarios',
-      path: buildPath(PATH.admin.propietarios),
-      icon: 'fas fa-user-shield',
     },
     {
       label: 'Usuarios',
@@ -98,5 +111,21 @@ export class Sidebar {
   navigateTo(path: string) {
     this.router.navigate([path]);
     this.closeSidebar();
+  }
+
+  toggleMenu(label: string) {
+    this.expandedMenus.update((expanded) => {
+      const newSet = new Set(expanded);
+      if (newSet.has(label)) {
+        newSet.delete(label);
+      } else {
+        newSet.add(label);
+      }
+      return newSet;
+    });
+  }
+
+  isMenuExpanded(label: string): boolean {
+    return this.expandedMenus().has(label);
   }
 }

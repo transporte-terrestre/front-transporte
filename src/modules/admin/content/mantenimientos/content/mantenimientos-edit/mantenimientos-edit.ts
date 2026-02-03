@@ -6,6 +6,7 @@ import { ApiResponse, ApiBody } from 'api/backend.api';
 import { ToastService } from '@service/toast.service';
 import { MantenimientoForm } from '../../layout/mantenimiento-form/mantenimiento-form';
 import { PATH, buildPath } from '@route/path.route';
+import { getErrorMessage } from '@helper/error.helper';
 
 @Component({
   selector: 'app-mantenimientos-edit',
@@ -75,7 +76,7 @@ export class MantenimientosEdit implements OnInit {
       })
       .catch((error) => {
         console.error('Error al actualizar mantenimiento:', error);
-        this.toastService.error('Error al actualizar mantenimiento');
+        this.toastService.error(getErrorMessage(error, 'Error al actualizar mantenimiento'));
         this.loading.set(false);
       });
   }

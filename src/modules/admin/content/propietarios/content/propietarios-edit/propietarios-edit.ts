@@ -6,6 +6,7 @@ import { ApiResponse, ApiBody } from 'api/backend.api';
 import { ToastService } from '@service/toast.service';
 import { PropietarioForm } from '../../layout/propietario-form/propietario-form';
 import { PATH, buildPath } from '@route/path.route';
+import { getErrorMessage } from '@helper/error.helper';
 
 @Component({
   selector: 'app-propietarios-edit',
@@ -42,7 +43,7 @@ export class PropietariosEdit implements OnInit {
       })
       .catch((error) => {
         console.error('Error al cargar propietario:', error);
-        this.toastService.error('Error al cargar propietario');
+        this.toastService.error(getErrorMessage(error, 'Error al cargar propietario'));
         this.router.navigate([buildPath(PATH.admin.propietarios.list)]);
       })
       .finally(() => {
@@ -62,7 +63,7 @@ export class PropietariosEdit implements OnInit {
       })
       .catch((error) => {
         console.error('Error al actualizar propietario:', error);
-        this.toastService.error('Error al actualizar propietario');
+        this.toastService.error(getErrorMessage(error, 'Error al actualizar propietario'));
       })
       .finally(() => {
         this.loading.set(false);

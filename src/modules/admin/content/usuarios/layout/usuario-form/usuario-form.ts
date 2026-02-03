@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { ApiResponse, ApiBody, ApiField } from 'api/backend.api';
 import { UsuarioService } from '@service/admin/usuario.service';
 import { ToastService } from '@service/toast.service';
+import { getErrorMessage } from '@helper/error.helper';
 
 import {
   DocumentsDateUpload,
@@ -157,7 +158,7 @@ export class UsuarioForm implements OnInit {
       })
       .catch((err) => {
         console.error('Error al actualizar documento:', err);
-        this.toastService.error('Error al actualizar documento');
+        this.toastService.error(getErrorMessage(err, 'Error al actualizar documento'));
       });
   }
 
@@ -170,7 +171,7 @@ export class UsuarioForm implements OnInit {
       })
       .catch((err) => {
         console.error('Error al eliminar documento:', err);
-        this.toastService.error('Error al eliminar documento');
+        this.toastService.error(getErrorMessage(err, 'Error al eliminar documento'));
       });
   }
 

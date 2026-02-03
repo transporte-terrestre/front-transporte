@@ -12,6 +12,7 @@ import { ModalForm } from '../../../../components/modal-form/modal-form';
 import { PropietarioForm } from '../../layout/propietario-form/propietario-form';
 import { PaginationComponent } from '../../../../components/pagination/pagination';
 import { PATH, buildPath } from '@route/path.route';
+import { getErrorMessage } from '@helper/error.helper';
 
 @Component({
   selector: 'app-propietarios-list',
@@ -75,7 +76,7 @@ export class PropietariosList implements OnInit, OnDestroy {
       })
       .catch((error) => {
         console.error('Error al cargar propietarios:', error);
-        this.toastService.error('Error al cargar propietarios');
+        this.toastService.error(getErrorMessage(error, 'Error al cargar propietarios'));
         this.loading.set(false);
       });
   }
@@ -140,7 +141,7 @@ export class PropietariosList implements OnInit, OnDestroy {
       })
       .catch((error) => {
         console.error('Error al crear propietario:', error);
-        this.toastService.error('Error al crear propietario');
+        this.toastService.error(getErrorMessage(error, 'Error al crear propietario'));
         this.loading.set(false);
       });
   }
@@ -159,7 +160,7 @@ export class PropietariosList implements OnInit, OnDestroy {
           })
           .catch((error) => {
             console.error('Error al eliminar propietario:', error);
-            this.toastService.error('Error al eliminar propietario');
+            this.toastService.error(getErrorMessage(error, 'Error al eliminar propietario'));
             this.loading.set(false);
           });
       }

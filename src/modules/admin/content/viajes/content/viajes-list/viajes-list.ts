@@ -12,6 +12,7 @@ import { ModalForm } from '../../../../components/modal-form/modal-form';
 import { ViajeForm } from '../../layout/viaje-form/viaje-form';
 import { PaginationComponent } from '../../../../components/pagination/pagination';
 import { PATH, buildPath } from '@route/path.route';
+import { getErrorMessage } from '@helper/error.helper';
 
 interface WeekDay {
   date: Date;
@@ -47,7 +48,7 @@ export class ViajesList implements OnInit, OnDestroy {
   viajes = signal<ApiResponse<'viajes', 'findAll'>['data']>([]);
   loading = signal(false);
   showModal = signal(false);
-  viewMode = signal<'table' | 'calendar'>('calendar');
+  viewMode = signal<'table' | 'calendar'>('table');
 
   // Paginación
   currentPage = signal(1);
@@ -451,7 +452,7 @@ export class ViajesList implements OnInit, OnDestroy {
       this.loadViajesForCalendar();
     } catch (error) {
       console.error('Error al crear viaje:', error);
-      this.toastService.error('Error al crear viaje');
+      this.toastService.error(getErrorMessage(error, 'Error al crear viaje'));
       this.loading.set(false);
     }
   }
@@ -469,7 +470,7 @@ export class ViajesList implements OnInit, OnDestroy {
           },
           (error) => {
             console.error('Error al eliminar viaje:', error);
-            this.toastService.error('Error al eliminar viaje');
+            this.toastService.error(getErrorMessage(error, 'Error al eliminar viaje'));
             this.loading.set(false);
           }
         );

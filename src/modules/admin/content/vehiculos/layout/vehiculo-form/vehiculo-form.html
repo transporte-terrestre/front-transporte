@@ -228,6 +228,65 @@
     }
   </div>
 
+  <!-- Proveedores -->
+  <div class="border-t border-text/5 pt-3">
+    <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+      <i class="fas fa-truck text-secondary"></i>
+      Proveedores
+    </label>
+
+    <!-- Buscador y botón agregar -->
+    <div class="flex gap-2 items-start mb-2">
+      <div class="flex-1">
+        <app-proveedor-input-search
+          [formControl]="tempProviderControl"
+        ></app-proveedor-input-search>
+      </div>
+      <button
+        type="button"
+        (click)="addProvider()"
+        [disabled]="!tempProviderControl.value"
+        class="bg-secondary text-text w-[38px] h-[38px] rounded-lg text-sm font-inter-semibold hover:bg-secondary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center shadow-sm shrink-0"
+        title="Agregar proveedor"
+      >
+        <i class="fas fa-plus"></i>
+      </button>
+    </div>
+
+    <!-- Lista de proveedores seleccionados -->
+    @if (selectedProviders().length > 0) {
+    <div class="space-y-2">
+      @for (provider of selectedProviders(); track provider.id) {
+      <div
+        class="flex items-center justify-between bg-text/5 px-3 py-2.5 rounded-xl border border-text/5 transition-all hover:bg-text/10 group"
+      >
+        <div class="flex items-center gap-3 overflow-hidden">
+          <div
+            class="w-8 h-8 rounded-full bg-background flex items-center justify-center text-secondary border border-text/5"
+          >
+            <i class="fas fa-truck text-xs"></i>
+          </div>
+          <div class="flex flex-col">
+            <span class="text-xs font-inter-semibold text-text truncate leading-tight">{{
+              provider.nombre
+            }}</span>
+            <span class="text-[10px] text-text/50 font-inter-medium">Proveedor</span>
+          </div>
+        </div>
+        <button
+          type="button"
+          (click)="removeProvider(provider.id)"
+          class="text-text/40 hover:text-danger hover:bg-danger/10 w-7 h-7 flex items-center justify-center rounded-lg transition-all opacity-0 group-hover:opacity-100"
+          title="Quitar proveedor"
+        >
+          <i class="fas fa-times text-xs"></i>
+        </button>
+      </div>
+      }
+    </div>
+    }
+  </div>
+
   <!-- Estado (Select) -->
   <div class="border-t border-text/5 pt-3">
     <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">

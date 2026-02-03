@@ -12,6 +12,7 @@ import { ModalForm } from '../../../../components/modal-form/modal-form';
 import { UsuarioForm } from '../../layout/usuario-form/usuario-form';
 import { PaginationComponent } from '../../../../components/pagination/pagination';
 import { PATH, buildPath } from '@route/path.route';
+import { getErrorMessage } from '@helper/error.helper';
 
 @Component({
   selector: 'app-usuarios-list',
@@ -140,7 +141,7 @@ export class UsuariosList implements OnInit, OnDestroy {
       })
       .catch((error) => {
         console.error('Error al crear usuario:', error);
-        this.toastService.error('Error al crear usuario');
+        this.toastService.error(getErrorMessage(error, 'Error al crear usuario'));
         this.loading.set(false);
       });
   }
@@ -159,7 +160,7 @@ export class UsuariosList implements OnInit, OnDestroy {
           })
           .catch((error) => {
             console.error('Error al eliminar usuario:', error);
-            this.toastService.error('Error al eliminar usuario');
+            this.toastService.error(getErrorMessage(error, 'Error al eliminar usuario'));
             this.loading.set(false);
           });
       }

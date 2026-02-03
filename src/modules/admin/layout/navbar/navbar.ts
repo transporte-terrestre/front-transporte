@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from '@service/auth/auth.service';
 import { NotificacionService } from '@service/admin/notificacion.service';
 import { ThemeService } from '@service/theme.service';
+import { buildPath, PATH } from '@route/path.route';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-navbar',
@@ -12,11 +14,12 @@ import { ThemeService } from '@service/theme.service';
 })
 export class Navbar {
   authService = inject(AuthService);
+  private router = inject(Router);
   notificationService = inject(NotificacionService);
   themeService = inject(ThemeService);
   isDropdownOpen = signal(false);
 
-  unreadCount = this.notificationService.unreadCount;
+  unreadCount = this.notificationService.totalUnreadCount; // Usar el total desde el backend
   user = this.authService.user;
 
   userName = computed(() => {
@@ -66,6 +69,7 @@ export class Navbar {
 
   logout() {
     this.authService.logout();
+    this.router.navigate([buildPath(PATH.auth.signIn)]);
     this.isDropdownOpen.set(false);
   }
 }

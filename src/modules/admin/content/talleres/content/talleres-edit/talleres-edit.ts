@@ -6,6 +6,7 @@ import { ApiResponse, ApiBody } from 'api/backend.api';
 import { ToastService } from '@service/toast.service';
 import { TallerForm } from '../../layout/taller-form/taller-form';
 import { PATH, buildPath } from '@route/path.route';
+import { getErrorMessage } from '@helper/error.helper';
 
 @Component({
   selector: 'app-talleres-edit',
@@ -62,7 +63,7 @@ export class TalleresEdit implements OnInit {
       })
       .catch((error) => {
         console.error('Error al actualizar taller:', error);
-        this.toastService.error('Error al actualizar taller');
+        this.toastService.error(getErrorMessage(error, 'Error al actualizar taller'));
       })
       .finally(() => {
         this.loading.set(false);

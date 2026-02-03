@@ -6,6 +6,7 @@ import { ApiResponse, ApiBody } from 'api/backend.api';
 import { ToastService } from '@service/toast.service';
 import { UsuarioForm } from '../../layout/usuario-form/usuario-form';
 import { PATH, buildPath } from '@route/path.route';
+import { getErrorMessage } from '@helper/error.helper';
 
 @Component({
   selector: 'app-usuarios-edit',
@@ -60,7 +61,7 @@ export class UsuariosEdit implements OnInit {
       })
       .catch((error) => {
         console.error('Error al actualizar usuario:', error);
-        this.toastService.error('Error al actualizar usuario');
+        this.toastService.error(getErrorMessage(error, 'Error al actualizar usuario'));
         this.loading.set(false);
       });
   }

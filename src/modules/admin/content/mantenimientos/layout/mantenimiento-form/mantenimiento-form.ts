@@ -12,6 +12,7 @@ import {
 } from '../../../../components/documents-date-upload/documents-date-upload';
 import { MantenimientoService } from '@service/admin/mantenimiento.service';
 import { ToastService } from '@service/toast.service';
+import { getErrorMessage } from '@helper/error.helper';
 
 @Component({
   selector: 'app-mantenimiento-form',
@@ -205,7 +206,7 @@ export class MantenimientoForm implements OnInit {
       })
       .catch((err) => {
         console.error('Error al actualizar documento:', err);
-        this.toastService.error('Error al actualizar documento');
+        this.toastService.error(getErrorMessage(err, 'Error al actualizar documento'));
       });
   }
 
@@ -218,7 +219,7 @@ export class MantenimientoForm implements OnInit {
       })
       .catch((err) => {
         console.error('Error al eliminar documento:', err);
-        this.toastService.error('Error al eliminar documento');
+        this.toastService.error(getErrorMessage(err, 'Error al eliminar documento'));
       });
   }
 

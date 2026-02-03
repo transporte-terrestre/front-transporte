@@ -97,6 +97,11 @@ export const PATH = {
       list: { _path: 'list' },
       edit: { _path: 'edit/:id' },
     },
+    proveedores: {
+      _path: 'proveedores',
+      list: { _path: 'list' },
+      edit: { _path: 'edit/:id' },
+    },
     talleres: {
       _path: 'talleres',
       list: { _path: 'list' },
@@ -135,6 +140,7 @@ export const ROUTE_CONFIG = {
     [buildPath(PATH.admin.usuarios)]: ['admin'],
     [buildPath(PATH.admin.clientes)]: ['admin', 'empleado'],
     [buildPath(PATH.admin.propietarios)]: ['admin', 'empleado'],
+    [buildPath(PATH.admin.proveedores)]: ['admin', 'empleado'],
     [buildPath(PATH.admin.talleres)]: ['admin', 'empleado'],
     [buildPath(PATH.admin.talleres.edit)]: ['admin', 'empleado'],
     [buildPath(PATH.admin.reportes)]: ['admin', 'empleado'],

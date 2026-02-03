@@ -85,9 +85,10 @@ export const generateOrdenServicioPdf = (mantenimiento: ApiResponse<'mantenimien
     columnStyles: {
       0: { cellWidth: 15, halign: 'center' as const }, // Item
       1: { cellWidth: 20 }, // Cod
-      3: { cellWidth: 40 }, // Responsable
-      4: { cellWidth: 15 }, // H.Inicio
-      5: { cellWidth: 15 }, // H.Fin
+      2: { cellWidth: 60 }, // Requerimientos/Trabajos
+      3: { cellWidth: 30 }, // Responsable
+      4: { cellWidth: 18 }, // H.Inicio
+      5: { cellWidth: 18 }, // H.Fin
       6: { cellWidth: 20 }, // Firma
     },
   };
@@ -97,7 +98,6 @@ export const generateOrdenServicioPdf = (mantenimiento: ApiResponse<'mantenimien
     (index + 1).toString(),
     t.tarea?.codigo || '',
     t.tarea?.nombreTrabajo || '',
-    t.tarea?.grupo || '',
     t.responsable || '',
     '', // H.Inicio - dejado vacío para llenar manualmente
     '', // H.Fin - dejado vacío para llenar manualmente
