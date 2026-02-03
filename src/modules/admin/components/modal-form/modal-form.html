@@ -1,5 +1,12 @@
-<div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" (click)="handleClose()">
-  <div class="bg-background rounded-xl shadow-2xl w-full flex flex-col max-h-[90vh]" [ngClass]="getMaxWidthClass()" (click)="$event.stopPropagation()">
+<div
+  class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+  (click)="handleClose()"
+>
+  <div
+    class="bg-background rounded-xl shadow-2xl w-full flex flex-col max-h-[90vh]"
+    [ngClass]="getMaxWidthClass()"
+    (click)="$event.stopPropagation()"
+  >
     <!-- Header -->
     <div class="flex items-center justify-between p-4 border-b border-text/10 shrink-0">
       <h2 class="text-lg font-inter-bold text-text">{{ title() }}</h2>

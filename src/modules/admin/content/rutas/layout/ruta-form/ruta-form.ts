@@ -3,10 +3,11 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ApiResponse, ApiBody } from 'api/backend.api';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { RutaParadasForm } from '../ruta-paradas-form/ruta-paradas-form';
 
 @Component({
   selector: 'app-ruta-form',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RutaParadasForm],
   templateUrl: './ruta-form.html',
   styleUrl: './ruta-form.css',
 })

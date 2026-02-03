@@ -21,4 +21,44 @@ export class RutaService {
   async delete(id: ApiParam<'rutas', 'remove', 'id'>) {
     return await this.api.rutas.remove({ id }).then((response) => response.data);
   }
+
+  // Paradas
+  async findParadas(rutaId: ApiParam<'rutas', 'findParadas', 'rutaId'>) {
+    return await this.api.rutas.findParadas({ rutaId }).then((response) => response.data);
+  }
+
+  async createParada(
+    rutaId: ApiParam<'rutas', 'createParada', 'rutaId'>,
+    data: ApiBody<'rutas', 'createParada'>,
+  ) {
+    return await this.api.rutas.createParada({ rutaId }, data).then((response) => response.data);
+  }
+
+  async updateParada(
+    rutaId: ApiParam<'rutas', 'updateParada', 'rutaId'>,
+    paradaId: ApiParam<'rutas', 'updateParada', 'paradaId'>,
+    data: ApiBody<'rutas', 'updateParada'>,
+  ) {
+    return await this.api.rutas
+      .updateParada({ rutaId, paradaId }, data)
+      .then((response) => response.data);
+  }
+
+  async deleteParada(
+    rutaId: ApiParam<'rutas', 'deleteParada', 'rutaId'>,
+    paradaId: ApiParam<'rutas', 'deleteParada', 'paradaId'>,
+  ) {
+    return await this.api.rutas
+      .deleteParada({ rutaId, paradaId })
+      .then((response) => response.data);
+  }
+
+  async reordenarParadas(
+    rutaId: ApiParam<'rutas', 'reordenarParadas', 'rutaId'>,
+    data: ApiBody<'rutas', 'reordenarParadas'>,
+  ) {
+    return await this.api.rutas
+      .reordenarParadas({ rutaId }, data)
+      .then((response) => response.data);
+  }
 }

@@ -71,6 +71,8 @@ export class ViajeForm implements OnInit {
     fechaSalida: ['', [Validators.required]],
     fechaLlegada: ['', [Validators.required]],
     estado: ['programado' as ApiResponse<'viajes', 'findOne'>['estado'], [Validators.required]],
+    turno: ['dia' as ApiResponse<'viajes', 'findOne'>['turno'], [Validators.required]],
+    sentido: ['ida' as ApiResponse<'viajes', 'findOne'>['sentido'], [Validators.required]],
   });
 
   estados: Array<{
@@ -104,6 +106,24 @@ export class ViajeForm implements OnInit {
     { value: 'corporativo', label: 'Corporativo', icon: 'fa-briefcase', color: 'text-primary' },
   ];
 
+  turnos: Array<{
+    value: NonNullable<ApiResponse<'viajes', 'findOne'>['turno']>;
+    label: string;
+    icon: string;
+  }> = [
+    { value: 'dia', label: 'Día', icon: 'fa-sun' },
+    { value: 'noche', label: 'Noche', icon: 'fa-moon' },
+  ];
+
+  sentidos: Array<{
+    value: ApiResponse<'viajes', 'findOne'>['sentido'];
+    label: string;
+    icon: string;
+  }> = [
+    { value: 'ida', label: 'Ida', icon: 'fa-arrow-right' },
+    { value: 'vuelta', label: 'Vuelta', icon: 'fa-arrow-left' },
+  ];
+
   constructor() {
     effect(() => {
       const viajeData = this.viaje();
@@ -126,6 +146,8 @@ export class ViajeForm implements OnInit {
             ? this.formatDateTimeForInput(viajeData.fechaLlegada)
             : '',
           estado: viajeData.estado,
+          turno: viajeData.turno,
+          sentido: viajeData.sentido,
         });
 
         // Cargar tripulantes
@@ -141,6 +163,8 @@ export class ViajeForm implements OnInit {
           estado: 'programado',
           tipoRuta: 'fija',
           modalidadServicio: 'regular',
+          turno: 'dia',
+          sentido: 'ida',
         });
         this.tripulantesArray.clear();
         // Desactivar distanciaFinal por defecto (estado = programado)
@@ -265,6 +289,8 @@ export class ViajeForm implements OnInit {
       tipoRuta: formValue.tipoRuta || 'fija',
       modalidadServicio: formValue.modalidadServicio || 'regular',
       estado: formValue.estado || 'programado',
+      turno: formValue.turno || 'dia',
+      sentido: formValue.sentido || 'ida',
 
       rutaId: formValue.ruta?.id ? Number(formValue.ruta.id) : Number(formValue.ruta),
       vehiculoId: formValue.vehiculo?.id
