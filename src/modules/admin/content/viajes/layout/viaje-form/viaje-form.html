@@ -13,9 +13,7 @@
       <i class="fas fa-user-tie text-secondary"></i>
       Cliente
     </label>
-    <app-cliente-input-search
-      formControlName="cliente">
-    </app-cliente-input-search>
+    <app-cliente-input-search formControlName="cliente"> </app-cliente-input-search>
     @if (viajeForm.get('cliente')?.touched && viajeForm.get('cliente')?.errors) {
       <p class="text-danger text-xs font-inter-medium mt-1">El cliente es requerido</p>
     }
@@ -97,9 +95,7 @@
         <i class="fas fa-route text-secondary"></i>
         Ruta
       </label>
-      <app-ruta-input-search
-        formControlName="ruta">
-      </app-ruta-input-search>
+      <app-ruta-input-search formControlName="ruta"> </app-ruta-input-search>
       @if (viajeForm.get('ruta')?.touched && viajeForm.get('ruta')?.errors) {
         <p class="text-danger text-xs font-inter-medium mt-1">La ruta es requerida</p>
       }
@@ -118,7 +114,9 @@
         placeholder="Ej: Lima - Ica (Servicio Especial)"
       />
       @if (viajeForm.get('rutaOcasional')?.touched && viajeForm.get('rutaOcasional')?.errors) {
-        <p class="text-danger text-xs font-inter-medium mt-1">La descripción de la ruta es requerida</p>
+        <p class="text-danger text-xs font-inter-medium mt-1">
+          La descripción de la ruta es requerida
+        </p>
       }
     </div>
   }
@@ -138,9 +136,13 @@
       [class.bg-text/10]="viajeForm.get('tipoRuta')?.value === 'fija'"
       [class.cursor-not-allowed]="viajeForm.get('tipoRuta')?.value === 'fija'"
       [readonly]="viajeForm.get('tipoRuta')?.value === 'fija'"
-      [placeholder]="viajeForm.get('tipoRuta')?.value === 'fija' ? 'Se autocompleta con la ruta' : 'Ej: 450.00'"
+      [placeholder]="
+        viajeForm.get('tipoRuta')?.value === 'fija' ? 'Se autocompleta con la ruta' : 'Ej: 450.00'
+      "
     />
-    @if (viajeForm.get('distanciaEstimada')?.touched && viajeForm.get('distanciaEstimada')?.errors) {
+    @if (
+      viajeForm.get('distanciaEstimada')?.touched && viajeForm.get('distanciaEstimada')?.errors
+    ) {
       <p class="text-danger text-xs font-inter-medium mt-1">La distancia estimada es requerida</p>
     }
   </div>
@@ -161,9 +163,15 @@
       [class.text-text]="viajeForm.get('estado')?.value === 'completado'"
       [class.text-text/40]="viajeForm.get('estado')?.value !== 'completado'"
       [class.cursor-not-allowed]="viajeForm.get('estado')?.value !== 'completado'"
-      [placeholder]="viajeForm.get('estado')?.value === 'completado' ? 'Ej: 455.50' : 'Viaje no completado'"
+      [placeholder]="
+        viajeForm.get('estado')?.value === 'completado' ? 'Ej: 455.50' : 'Viaje no completado'
+      "
     />
-    @if (viajeForm.get('distanciaFinal')?.touched && viajeForm.get('distanciaFinal')?.errors && viajeForm.get('estado')?.value === 'completado') {
+    @if (
+      viajeForm.get('distanciaFinal')?.touched &&
+      viajeForm.get('distanciaFinal')?.errors &&
+      viajeForm.get('estado')?.value === 'completado'
+    ) {
       <p class="text-danger text-xs font-inter-medium mt-1">La distancia final es requerida</p>
     }
   </div>
@@ -188,9 +196,80 @@
         <i class="fas fa-chevron-down text-xs"></i>
       </span>
     </div>
-    @if (viajeForm.get('modalidadServicio')?.touched && viajeForm.get('modalidadServicio')?.errors) {
+    @if (
+      viajeForm.get('modalidadServicio')?.touched && viajeForm.get('modalidadServicio')?.errors
+    ) {
       <p class="text-danger text-xs font-inter-medium mt-1">La modalidad es requerida</p>
     }
+  </div>
+
+  <!-- Turno y Sentido -->
+  <div class="col-span-1 lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <!-- Turno -->
+    <div>
+      <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+        <i class="fas fa-sun text-warning"></i>
+        Turno
+      </label>
+      <div class="grid grid-cols-2 gap-2">
+        @for (turno of turnos; track turno.value) {
+          <label
+            class="flex items-center justify-center gap-2 px-3 py-2 rounded-lg border-2 cursor-pointer transition-all hover:bg-text/5"
+            [class.border-secondary]="viajeForm.get('turno')?.value === turno.value"
+            [class.border-text/10]="viajeForm.get('turno')?.value !== turno.value"
+            [class.bg-text/5]="viajeForm.get('turno')?.value === turno.value"
+          >
+            <input type="radio" [value]="turno.value" formControlName="turno" class="hidden" />
+            <i
+              class="fas {{ turno.icon }} text-xs"
+              [class.text-secondary]="viajeForm.get('turno')?.value === turno.value"
+              [class.text-text/60]="viajeForm.get('turno')?.value !== turno.value"
+            >
+            </i>
+            <span
+              class="text-sm font-inter-medium"
+              [class.text-text]="viajeForm.get('turno')?.value === turno.value"
+              [class.text-text/60]="viajeForm.get('turno')?.value !== turno.value"
+            >
+              {{ turno.label }}
+            </span>
+          </label>
+        }
+      </div>
+    </div>
+
+    <!-- Sentido -->
+    <div>
+      <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+        <i class="fas fa-exchange-alt text-info"></i>
+        Sentido
+      </label>
+      <div class="grid grid-cols-2 gap-2">
+        @for (sentido of sentidos; track sentido.value) {
+          <label
+            class="flex items-center justify-center gap-2 px-3 py-2 rounded-lg border-2 cursor-pointer transition-all hover:bg-text/5"
+            [class.border-secondary]="viajeForm.get('sentido')?.value === sentido.value"
+            [class.border-text/10]="viajeForm.get('sentido')?.value !== sentido.value"
+            [class.bg-text/5]="viajeForm.get('sentido')?.value === sentido.value"
+          >
+            <input type="radio" [value]="sentido.value" formControlName="sentido" class="hidden" />
+            <i
+              class="fas {{ sentido.icon }} text-xs"
+              [class.text-secondary]="viajeForm.get('sentido')?.value === sentido.value"
+              [class.text-text/60]="viajeForm.get('sentido')?.value !== sentido.value"
+            >
+            </i>
+            <span
+              class="text-sm font-inter-medium"
+              [class.text-text]="viajeForm.get('sentido')?.value === sentido.value"
+              [class.text-text/60]="viajeForm.get('sentido')?.value !== sentido.value"
+            >
+              {{ sentido.label }}
+            </span>
+          </label>
+        }
+      </div>
+    </div>
   </div>
 
   <!-- Tripulantes -->
@@ -228,7 +307,9 @@
         </div>
       }
       @if (tripulantesArray.controls.length === 0) {
-        <div class="text-xs text-text/40 text-center py-2 border-2 border-dashed border-text/10 rounded-lg">
+        <div
+          class="text-xs text-text/40 text-center py-2 border-2 border-dashed border-text/10 rounded-lg"
+        >
           No hay tripulantes asignados
         </div>
       }
@@ -292,28 +373,22 @@
     }
   </div>
 
-    <!-- SECCIONES DE EDICIÓN: CONDUCTORES, VEHÍCULOS, COMENTARIOS -->
+  <!-- SECCIONES DE EDICIÓN: CONDUCTORES, VEHÍCULOS, COMENTARIOS -->
   @if (editMode() && viaje()) {
     <div class="col-span-1 lg:col-span-2 space-y-6 mt-4 pt-4 border-t border-text/10">
       <div>
         <!-- Conductores -->
-        <app-viaje-conductores-form
-          [viaje]="viaje()!"
-          (onDataChange)="onDataChange.emit()">
+        <app-viaje-conductores-form [viaje]="viaje()!" (onDataChange)="onDataChange.emit()">
         </app-viaje-conductores-form>
       </div>
       <div>
         <!-- Vehículos -->
-        <app-viaje-vehiculos-form
-          [viaje]="viaje()!"
-          (onDataChange)="onDataChange.emit()">
+        <app-viaje-vehiculos-form [viaje]="viaje()!" (onDataChange)="onDataChange.emit()">
         </app-viaje-vehiculos-form>
       </div>
       <div>
         <!-- Comentarios -->
-        <app-viaje-comentarios-form
-          [viaje]="viaje()!"
-          (onDataChange)="onDataChange.emit()">
+        <app-viaje-comentarios-form [viaje]="viaje()!" (onDataChange)="onDataChange.emit()">
         </app-viaje-comentarios-form>
       </div>
     </div>
