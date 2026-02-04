@@ -15,6 +15,7 @@ import { ConductorInputSearch } from '@module/admin/content/conductores/layout/c
 import { ViajeConductoresForm } from './content/viaje-conductores-form/viaje-conductores-form';
 import { ViajeVehiculosForm } from './content/viaje-vehiculos-form/viaje-vehiculos-form';
 import { ViajeComentariosForm } from './content/viaje-comentarios-form/viaje-comentarios-form';
+import { ViajeServiciosFormComponent } from './content/viaje-servicios-form/viaje-servicios-form';
 import { FormGroup } from '@angular/forms';
 
 @Component({
@@ -29,6 +30,7 @@ import { FormGroup } from '@angular/forms';
     ViajeConductoresForm,
     ViajeVehiculosForm,
     ViajeComentariosForm,
+    ViajeServiciosFormComponent,
   ],
   templateUrl: './viaje-form.html',
   styleUrl: './viaje-form.css',
