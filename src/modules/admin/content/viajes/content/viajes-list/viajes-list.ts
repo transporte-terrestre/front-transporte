@@ -448,8 +448,11 @@ export class ViajesList implements OnInit, OnDestroy {
       await this.viajeService.create(data as ApiBody<'viajes', 'create'>);
       this.toastService.success('Viaje creado exitosamente');
       this.closeModal();
-      this.loadViajes();
-      this.loadViajesForCalendar();
+      if (this.viewMode() === 'calendar') {
+        this.loadViajesForCalendar();
+      } else {
+        this.loadViajes();
+      }
     } catch (error) {
       console.error('Error al crear viaje:', error);
       this.toastService.error(getErrorMessage(error, 'Error al crear viaje'));
@@ -466,15 +469,19 @@ export class ViajesList implements OnInit, OnDestroy {
         this.viajeService.delete(id).then(
           () => {
             this.toastService.success('Viaje eliminado exitosamente');
-            this.loadViajes();
+            if (this.viewMode() === 'calendar') {
+              this.loadViajesForCalendar();
+            } else {
+              this.loadViajes();
+            }
           },
           (error) => {
             console.error('Error al eliminar viaje:', error);
             this.toastService.error(getErrorMessage(error, 'Error al eliminar viaje'));
             this.loading.set(false);
-          }
+          },
         );
-      }
+      },
     );
   }
 
