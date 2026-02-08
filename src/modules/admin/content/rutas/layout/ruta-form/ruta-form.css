@@ -1,0 +1,12 @@
+/* Leaflet Marker Color Filters */
+::ng-deep .marker-green {
+  filter: hue-rotate(260deg) saturate(1.5) brightness(1.1);
+}
+
+::ng-deep .marker-red {
+  filter: hue-rotate(150deg) saturate(1.5) brightness(0.9);
+}
+
+#map {
+  z-index: 10;
+}

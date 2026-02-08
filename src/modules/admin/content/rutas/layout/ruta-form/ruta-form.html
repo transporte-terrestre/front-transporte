@@ -1,159 +1,35 @@
-<form [formGroup]="rutaForm" class="p-4 space-y-3">
-  <!-- Contenedor Principal: Mapa + Coordenadas -->
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-    <!-- Columna Izquierda: Mapa -->
-    <div class="space-y-2 flex flex-col">
+<form [formGroup]="rutaForm" class="p-4 space-y-6">
+  <!-- Mapa Full Width -->
+  <div class="space-y-2 flex flex-col">
+    <div class="flex justify-between items-center">
       <label class="text-xs font-inter-bold text-text uppercase flex items-center gap-2">
         <i class="fas fa-map text-secondary"></i>
         Mapa de la Ruta
       </label>
-      <div class="bg-text/5 rounded-lg border border-text/10 overflow-hidden h-[300px] flex-1">
-        @if (mapUrl()) {
-          <iframe
-            [src]="mapUrl()"
-            class="w-full h-full"
-            frameborder="0"
-            style="border: 0"
-            allowfullscreen
-          ></iframe>
-        } @else {
-          <div class="w-full h-full flex items-center justify-center">
-            <div class="text-center">
-              <i class="fas fa-map-marked-alt text-4xl text-text/20 mb-2"></i>
-              <p class="text-xs text-text/50 font-inter-regular">
-                Ingresa las coordenadas para ver el mapa
-              </p>
-            </div>
-          </div>
-        }
-      </div>
+      <span class="text-xs text-text/60 font-inter-regular">
+        <i class="fas fa-hand-pointer mr-1"></i> Arrastra los marcadores para definir la ruta
+      </span>
     </div>
 
-    <!-- Columna Derecha: Ciudades y Coordenadas -->
-    <div class="space-y-3 flex flex-col justify-end">
-      <!-- Lugar Origen -->
-      <div>
-        <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
-          <i class="fas fa-location-dot text-success"></i>
-          Lugar Origen
-        </label>
-        <input
-          type="text"
-          formControlName="origen"
-          class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-          placeholder="Lima"
-        />
-        @if (rutaForm.get('origen')?.touched && rutaForm.get('origen')?.errors) {
-          <p class="text-danger text-xs font-inter-medium mt-1">
-            Lugar de origen requerido (mín. 3 caracteres)
-          </p>
-        }
-      </div>
-
-      <!-- Coordenadas Origen -->
-      <div class="bg-text/5 p-4 rounded-lg border border-text/10">
-        <label class="text-xs font-inter-bold text-text uppercase mb-2 flex items-center gap-2">
-          <i class="fas fa-map-marker-alt text-success"></i>
-          Coordenadas del Origen
-        </label>
-        <div class="grid grid-cols-2 gap-2">
-          <div>
-            <input
-              type="text"
-              formControlName="origenLat"
-              placeholder="Latitud"
-              class="w-full px-3 py-2 text-sm bg-background border border-text/20 focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-            />
-            @if (rutaForm.get('origenLat')?.touched && rutaForm.get('origenLat')?.errors) {
-              <p class="text-danger text-xs font-inter-medium mt-1">Latitud válida requerida</p>
-            }
-          </div>
-          <div>
-            <input
-              type="text"
-              formControlName="origenLng"
-              placeholder="Longitud"
-              class="w-full px-3 py-2 text-sm bg-background border border-text/20 focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-            />
-            @if (rutaForm.get('origenLng')?.touched && rutaForm.get('origenLng')?.errors) {
-              <p class="text-danger text-xs font-inter-medium mt-1">Longitud válida requerida</p>
-            }
-          </div>
-        </div>
-        <p class="text-xs text-text/50 mt-2">Ej: -12.0464, -77.0428 (Lima)</p>
-      </div>
-
-      <!-- Lugar Destino -->
-      <div>
-        <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
-          <i class="fas fa-location-dot text-danger"></i>
-          Lugar Destino
-        </label>
-        <input
-          type="text"
-          formControlName="destino"
-          class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-          placeholder="Ica"
-        />
-        @if (rutaForm.get('destino')?.touched && rutaForm.get('destino')?.errors) {
-          <p class="text-danger text-xs font-inter-medium mt-1">
-            Lugar de destino requerido (mín. 3 caracteres)
-          </p>
-        }
-      </div>
-
-      <!-- Coordenadas Destino -->
-      <div class="bg-text/5 p-4 rounded-lg border border-text/10">
-        <label class="text-xs font-inter-bold text-text uppercase mb-2 flex items-center gap-2">
-          <i class="fas fa-map-marker-alt text-danger"></i>
-          Coordenadas del Destino
-        </label>
-        <div class="grid grid-cols-2 gap-2">
-          <div>
-            <input
-              type="text"
-              formControlName="destinoLat"
-              placeholder="Latitud"
-              class="w-full px-3 py-2 text-sm bg-background border border-text/20 focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-            />
-            @if (rutaForm.get('destinoLat')?.touched && rutaForm.get('destinoLat')?.errors) {
-              <p class="text-danger text-xs font-inter-medium mt-1">Latitud válida requerida</p>
-            }
-          </div>
-          <div>
-            <input
-              type="text"
-              formControlName="destinoLng"
-              placeholder="Longitud"
-              class="w-full px-3 py-2 text-sm bg-background border border-text/20 focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-            />
-            @if (rutaForm.get('destinoLng')?.touched && rutaForm.get('destinoLng')?.errors) {
-              <p class="text-danger text-xs font-inter-medium mt-1">Longitud válida requerida</p>
-            }
-          </div>
-        </div>
-        <p class="text-xs text-text/50 mt-2">Ej: -14.0678, -75.7286 (Ica)</p>
-      </div>
+    <div class="bg-text/5 rounded-lg border border-text/10 overflow-hidden h-[450px] relative z-0">
+      <div id="map" class="w-full h-full z-0"></div>
     </div>
   </div>
 
   <!-- Distancia y Costo -->
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     <div>
       <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
         <i class="fas fa-road text-info"></i>
-        Distancia (km) - Calculada automáticamente
+        Distancia (km) - Calculada
       </label>
       <input
         type="text"
         formControlName="distancia"
         readonly
         class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent rounded-lg text-text font-inter-semibold outline-none"
-        placeholder="300.00"
+        placeholder="0.00"
       />
-      @if (rutaForm.get('distancia')?.touched && rutaForm.get('distancia')?.errors) {
-        <p class="text-danger text-xs font-inter-medium mt-1">Distancia válida requerida</p>
-      }
     </div>
 
     <div>
@@ -165,18 +41,170 @@
         type="text"
         formControlName="costoBase"
         class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-        placeholder="150.00"
+        placeholder="0.00"
       />
-      @if (rutaForm.get('costoBase')?.touched && rutaForm.get('costoBase')?.errors) {
-        <p class="text-danger text-xs font-inter-medium mt-1">Costo base válido requerido</p>
-      }
     </div>
   </div>
 
-  <!-- Paradas (Solo en Edición) -->
-  @if (editMode() && ruta()) {
-    <div class="border-t border-text/10 pt-4 mt-6">
-      <app-ruta-paradas-form [ruta]="ruta()!"></app-ruta-paradas-form>
+  <!-- Hidden Fields (Coordinates, Cities) -->
+  <div class="hidden">
+    <input type="text" formControlName="origen" />
+    <input type="text" formControlName="destino" />
+    <input type="text" formControlName="origenLat" />
+    <input type="text" formControlName="origenLng" />
+    <input type="text" formControlName="destinoLat" />
+    <input type="text" formControlName="destinoLng" />
+  </div>
+
+  <!-- Paradas List (Integrated) -->
+  <div class="border-t border-text/10 pt-4 mt-6">
+    <div class="flex items-center justify-between pb-2 mb-4">
+      <div class="flex items-center gap-2">
+        <i class="fas fa-map-marked-alt text-secondary"></i>
+        <h3 class="text-sm font-inter-bold text-text uppercase">Paradas de la Ruta</h3>
+      </div>
     </div>
-  }
+
+    <!-- Loading -->
+    @if (loadingParadas()) {
+      <div class="flex justify-center py-8">
+        <i class="fas fa-spinner fa-spin text-2xl text-secondary"></i>
+      </div>
+    } @else {
+      <div class="relative space-y-0">
+        @for (
+          parada of paradas();
+          track parada.id;
+          let i = $index;
+          let first = $first;
+          let last = $last
+        ) {
+          <div
+            class="relative flex items-center gap-4 py-4 group transition-all duration-300 ease-out"
+          >
+            <!-- Line -->
+            @if (!last) {
+              <div
+                class="absolute left-[11px] top-1/2 h-full border-l-2 border-dashed border-text/20"
+              ></div>
+              <!-- Distance on line -->
+              @if (paradas()[i + 1]?.distanciaPreviaParada) {
+                <div
+                  class="absolute left-[11px] top-full -translate-y-1/2 -translate-x-1/2 z-20 bg-background border border-text/10 px-1 py-0.5 rounded text-[9px] text-text/60 font-inter-bold shadow-sm whitespace-nowrap"
+                >
+                  {{ paradas()[i + 1].distanciaPreviaParada }} km
+                </div>
+              }
+            }
+
+            <!-- Icon -->
+            <div
+              class="relative z-10 shrink-0 w-6 h-6 rounded-full border-2 bg-background flex items-center justify-center transition-colors"
+              [class.border-success]="first"
+              [class.border-danger]="last"
+              [class.border-info]="!first && !last"
+            >
+              @if (first) {
+                <i class="fas fa-play text-[10px] text-success ml-0.5"></i>
+              } @else if (last) {
+                <i class="fas fa-flag-checkered text-[10px] text-danger"></i>
+              } @else {
+                <span class="text-[10px] font-inter-bold text-info">{{ i }}</span>
+              }
+            </div>
+
+            <!-- Content Card -->
+            <div class="flex-1 bg-text/5 border border-text/10 rounded-lg p-3 transition-all">
+              <div class="flex items-center justify-between gap-2">
+                <div class="flex-1">
+                  <!-- Inline Name Edit -->
+                  <div class="flex items-center gap-2 mb-1">
+                    <input
+                      type="text"
+                      [value]="parada.nombre"
+                      (input)="updateParadaName(parada.id, $any($event.target).value)"
+                      class="bg-transparent border-b border-dashed border-text/10 focus:border-text/40 outline-none font-inter-semibold text-text text-sm w-full transition-colors pb-1 mb-1"
+                      placeholder="Nombre de la parada"
+                    />
+                    @if (first) {
+                      <span class="text-xs font-inter-regular text-success whitespace-nowrap"
+                        >(Origen)</span
+                      >
+                    }
+                    @if (last) {
+                      <span class="text-xs font-inter-regular text-danger whitespace-nowrap"
+                        >(Destino)</span
+                      >
+                    }
+                  </div>
+
+                  <div class="flex items-center gap-4 text-xs text-text/50 font-inter-regular">
+                    @if (parada.ubicacionLat && parada.ubicacionLng) {
+                      <span>
+                        <i class="fas fa-location-crosshairs text-[10px] mr-1"></i>
+                        {{ parada.ubicacionLat }}, {{ parada.ubicacionLng }}
+                      </span>
+                    }
+                  </div>
+                </div>
+
+                @if (!isExtremo(i)) {
+                  <div class="flex items-center gap-1">
+                    <div class="flex flex-col gap-0.5">
+                      <button
+                        (click)="moveParada(i, 'up')"
+                        [disabled]="i <= 1"
+                        class="p-0.5 rounded transition-colors hover:bg-secondary/10 w-6 h-4 flex items-center justify-center"
+                        [class.text-text/30]="i <= 1"
+                        [class.hover:text-secondary]="i > 1"
+                      >
+                        <i class="fas fa-caret-up text-xs"></i>
+                      </button>
+                      <button
+                        (click)="moveParada(i, 'down')"
+                        [disabled]="i >= paradas().length - 2"
+                        class="p-0.5 rounded transition-colors hover:bg-secondary/10 w-6 h-4 flex items-center justify-center"
+                        [class.text-text/30]="i >= paradas().length - 2"
+                        [class.hover:text-secondary]="i < paradas().length - 2"
+                      >
+                        <i class="fas fa-caret-down text-xs"></i>
+                      </button>
+                    </div>
+                    <div class="w-px h-4 bg-text/10 mx-1"></div>
+                    <button
+                      (click)="deleteParada(parada.id)"
+                      class="p-1.5 text-text/40 hover:text-danger hover:bg-danger/10 rounded"
+                      title="Eliminar"
+                    >
+                      <i class="fas fa-trash-alt text-xs"></i>
+                    </button>
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- Add Trigger -->
+            @if (!last) {
+              <button
+                type="button"
+                class="absolute left-[40px] -bottom-[16px] w-[calc(100%-40px)] h-8 flex items-center z-20 opacity-0 group-hover:opacity-100 transition-all cursor-pointer border-none bg-transparent outline-none"
+                (click)="addDefaultParada(i + 1)"
+                title="Insertar parada rápida"
+              >
+                <div
+                  class="flex-1 h-0.5 bg-secondary/20 group-hover:bg-secondary/50 transition-colors relative"
+                >
+                  <div
+                    class="absolute right-0 -top-2.5 w-5 h-5 rounded-full bg-secondary text-background flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
+                  >
+                    <i class="fas fa-plus text-[8px]"></i>
+                  </div>
+                </div>
+              </button>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
 </form>
