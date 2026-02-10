@@ -3190,7 +3190,7 @@ export interface DocumentoItemDto {
   observacion?: string;
   /**
    * Fecha de Vencimiento Inicial/Por defecto
-   * @example "2026-02-10T06:04:59.180Z"
+   * @example "2026-02-10T07:30:27.868Z"
    */
   fechaVencimiento?: string;
 }
@@ -3373,17 +3373,17 @@ export interface BotiquinItemDto {
   habilitado: boolean;
   /**
    * Fecha de Vencimiento actual
-   * @example "2026-02-10T06:04:59.189Z"
+   * @example "2026-02-10T07:30:27.874Z"
    */
   fechaVencimiento?: string;
   /**
    * Fecha de Salida
-   * @example "2026-02-10T06:04:59.189Z"
+   * @example "2026-02-10T07:30:27.874Z"
    */
   fechaSalida?: string;
   /**
    * Fecha de Reposición
-   * @example "2026-02-10T06:04:59.189Z"
+   * @example "2026-02-10T07:30:27.874Z"
    */
   fechaReposicion?: string;
 }
@@ -6140,32 +6140,22 @@ export interface ViajeServicioResultDto {
    */
   orden: number;
   /**
-   * ID de la parada de partida (si es fija)
+   * ID de la parada de partida
    * @example 1
    */
   paradaPartidaId?: number;
   /**
-   * Nombre de la parada de partida ocasional
-   * @example "Cochera Chorrillos"
-   */
-  paradaPartidaOcasional?: string;
-  /**
-   * Nombre resuelto de la parada de partida
+   * Nombre de la parada de partida
    * @example "Cochera Chorrillos"
    */
   paradaPartidaNombre?: string;
   /**
-   * ID de la parada de llegada (si es fija)
+   * ID de la parada de llegada
    * @example 2
    */
   paradaLlegadaId?: number;
   /**
-   * Nombre de la parada de llegada ocasional
-   * @example "PEIP - Educans"
-   */
-  paradaLlegadaOcasional?: string;
-  /**
-   * Nombre resuelto de la parada de llegada
+   * Nombre de la parada de llegada
    * @example "PEIP - Educans"
    */
   paradaLlegadaNombre?: string;
@@ -6221,27 +6211,75 @@ export interface ViajeServicioResultDto {
   actualizadoEn: string;
 }
 
-export interface ViajeServicioCreateDto {
+export interface ViajeServicioNextStepResultDto {
   /**
-   * ID de la parada de partida (si es fija)
+   * Siguiente número de orden
    * @example 1
    */
-  paradaPartidaId?: number;
+  orden: number;
   /**
-   * Nombre de la parada de partida ocasional
-   * @example "Cochera Chorrillos"
+   * ID de la parada de partida sugerida
+   * @example 1
    */
-  paradaPartidaOcasional?: string;
+  paradaPartidaId: number;
   /**
-   * ID de la parada de llegada (si es fija)
+   * ID de la parada de llegada sugerida
    * @example 2
    */
-  paradaLlegadaId?: number;
+  paradaLlegadaId: number;
   /**
-   * Nombre de la parada de llegada ocasional
-   * @example "PEIP - Educans"
+   * Nombre de la parada de partida sugerida
+   * @example "Cochera"
    */
-  paradaLlegadaOcasional?: string;
+  paradaPartidaNombre: string;
+  /**
+   * Nombre de la parada de llegada sugerida
+   * @example "Almacén"
+   */
+  paradaLlegadaNombre: string;
+  /**
+   * Hora de salida sugerida
+   * @example "08:30"
+   */
+  horaSalida: string;
+  /**
+   * Kilometraje inicial sugerido
+   * @example 10500
+   */
+  kmInicial: number;
+  /**
+   * Número de pasajeros (siempre null por defecto)
+   * @example null
+   */
+  numeroPasajeros: number;
+  /**
+   * Progreso de paradas
+   * @example "1/4"
+   */
+  progreso: string;
+  /**
+   * Indica si es el primer tramo
+   * @example true
+   */
+  isStart: boolean;
+  /**
+   * Indica si es el último tramo
+   * @example false
+   */
+  isFinal: boolean;
+}
+
+export interface ViajeServicioCreateDto {
+  /**
+   * ID de la parada de partida
+   * @example 1
+   */
+  paradaPartidaId: number;
+  /**
+   * ID de la parada de llegada
+   * @example 2
+   */
+  paradaLlegadaId: number;
   /**
    * Hora de salida (formato HH:mm)
    * @example "06:45"
@@ -6276,25 +6314,15 @@ export interface ViajeServicioCreateDto {
 
 export interface ViajeServicioUpdateDto {
   /**
-   * ID de la parada de partida (si es fija)
+   * ID de la parada de partida
    * @example 1
    */
   paradaPartidaId?: number;
   /**
-   * Nombre de la parada de partida ocasional
-   * @example "Cochera Chorrillos"
-   */
-  paradaPartidaOcasional?: string;
-  /**
-   * ID de la parada de llegada (si es fija)
+   * ID de la parada de llegada
    * @example 2
    */
   paradaLlegadaId?: number;
-  /**
-   * Nombre de la parada de llegada ocasional
-   * @example "PEIP - Educans"
-   */
-  paradaLlegadaOcasional?: string;
   /**
    * Hora de salida (formato HH:mm)
    * @example "06:45"
@@ -6325,24 +6353,6 @@ export interface ViajeServicioUpdateDto {
    * @example "Servicio sin novedad"
    */
   observaciones?: string;
-}
-
-export interface ServicioOrdenDto {
-  /**
-   * ID del servicio
-   * @example 1
-   */
-  id: number;
-  /**
-   * Nuevo orden del servicio
-   * @example 1
-   */
-  orden: number;
-}
-
-export interface ViajeServicioReordenarDto {
-  /** Lista de servicios con su nuevo orden */
-  servicios: ServicioOrdenDto[];
 }
 
 export interface ViajePasajeroDetalleDto {
@@ -9302,12 +9312,12 @@ export interface ViajesFindServiciosParams {
 
 export type ViajesFindServiciosData = ViajeServicioResultDto[];
 
-export interface ViajesFindServicioParams {
-  /** ID del servicio */
-  id: number;
+export interface ViajesGetNextStepParams {
+  /** ID del viaje */
+  viajeId: number;
 }
 
-export type ViajesFindServicioData = ViajeServicioResultDto;
+export type ViajesGetNextStepData = ViajeServicioNextStepResultDto;
 
 export interface ViajesCreateServicioParams {
   /** ID del viaje */
@@ -9329,13 +9339,6 @@ export interface ViajesDeleteServicioParams {
 }
 
 export type ViajesDeleteServicioData = ViajeServicioResultDto;
-
-export interface ViajesReordenarServiciosParams {
-  /** ID del viaje */
-  viajeId: number;
-}
-
-export type ViajesReordenarServiciosData = ViajeServicioResultDto[];
 
 export interface ViajesFindPasajerosParams {
   /** ID del viaje */
@@ -12355,21 +12358,21 @@ export namespace Viajes {
   /**
    * No description
    * @tags viajes
-   * @name ViajesFindServicio
-   * @summary Obtener un servicio/tramo por ID
-   * @request GET:/viaje/servicio/{id}
+   * @name ViajesGetNextStep
+   * @summary Obtener sugerencia para el siguiente tramo del viaje
+   * @request GET:/viaje/{viajeId}/servicio/next-step
    * @secure
-   * @response `200` `ViajesFindServicioData`
+   * @response `200` `ViajesGetNextStepData`
    */
-  export namespace ViajesFindServicio {
+  export namespace ViajesGetNextStep {
     export type RequestParams = {
-      /** ID del servicio */
-      id: number;
+      /** ID del viaje */
+      viajeId: number;
     };
     export type RequestQuery = {};
     export type RequestBody = never;
     export type RequestHeaders = {};
-    export type ResponseBody = ViajesFindServicioData;
+    export type ResponseBody = ViajesGetNextStepData;
   }
 
   /**
@@ -12430,26 +12433,6 @@ export namespace Viajes {
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = ViajesDeleteServicioData;
-  }
-
-  /**
-   * No description
-   * @tags viajes
-   * @name ViajesReordenarServicios
-   * @summary Reordenar los servicios/tramos de un viaje
-   * @request PUT:/viaje/{viajeId}/servicios/reordenar
-   * @secure
-   * @response `200` `ViajesReordenarServiciosData`
-   */
-  export namespace ViajesReordenarServicios {
-    export type RequestParams = {
-      /** ID del viaje */
-      viajeId: number;
-    };
-    export type RequestQuery = {};
-    export type RequestBody = ViajeServicioReordenarDto;
-    export type RequestHeaders = {};
-    export type ResponseBody = ViajesReordenarServiciosData;
   }
 
   /**
@@ -16634,18 +16617,18 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags viajes
-     * @name ViajesFindServicio
-     * @summary Obtener un servicio/tramo por ID
-     * @request GET:/viaje/servicio/{id}
+     * @name ViajesGetNextStep
+     * @summary Obtener sugerencia para el siguiente tramo del viaje
+     * @request GET:/viaje/{viajeId}/servicio/next-step
      * @secure
-     * @response `200` `ViajesFindServicioData`
+     * @response `200` `ViajesGetNextStepData`
      */
-    findServicio: (
-      { id, ...query }: ViajesFindServicioParams,
+    getNextStep: (
+      { viajeId, ...query }: ViajesGetNextStepParams,
       params: RequestParams = {},
     ) =>
-      this.http.request<ViajesFindServicioData, any>({
-        path: `/viaje/servicio/${id}`,
+      this.http.request<ViajesGetNextStepData, any>({
+        path: `/viaje/${viajeId}/servicio/next-step`,
         method: "GET",
         secure: true,
         format: "json",
@@ -16720,31 +16703,6 @@ export class Api<SecurityDataType extends unknown> {
         path: `/viaje/servicio/delete/${id}`,
         method: "DELETE",
         secure: true,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags viajes
-     * @name ViajesReordenarServicios
-     * @summary Reordenar los servicios/tramos de un viaje
-     * @request PUT:/viaje/{viajeId}/servicios/reordenar
-     * @secure
-     * @response `200` `ViajesReordenarServiciosData`
-     */
-    reordenarServicios: (
-      { viajeId, ...query }: ViajesReordenarServiciosParams,
-      data: ViajeServicioReordenarDto,
-      params: RequestParams = {},
-    ) =>
-      this.http.request<ViajesReordenarServiciosData, any>({
-        path: `/viaje/${viajeId}/servicios/reordenar`,
-        method: "PUT",
-        body: data,
-        secure: true,
-        type: ContentType.Json,
         format: "json",
         ...params,
       }),

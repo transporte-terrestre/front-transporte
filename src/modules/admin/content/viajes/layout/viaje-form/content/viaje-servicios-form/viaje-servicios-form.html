@@ -72,39 +72,40 @@
                   <div class="flex items-center gap-2">
                     <span
                       class="text-sm font-inter-medium text-text truncate max-w-[140px]"
-                      [title]="servicio.paradaPartidaNombre || servicio.paradaPartidaOcasional"
+                      [title]="servicio.paradaPartidaNombre"
                     >
-                      {{
-                        servicio.paradaPartidaNombre || servicio.paradaPartidaOcasional || 'Manual'
-                      }}
+                      {{ servicio.paradaPartidaNombre }}
                     </span>
 
                     <i class="fas fa-long-arrow-alt-right text-text/30"></i>
 
                     <span
                       class="text-sm font-inter-medium text-text truncate max-w-[140px]"
-                      [title]="servicio.paradaLlegadaNombre || servicio.paradaLlegadaOcasional"
+                      [title]="servicio.paradaLlegadaNombre"
                     >
-                      {{
-                        servicio.paradaLlegadaNombre || servicio.paradaLlegadaOcasional || 'Manual'
-                      }}
+                      {{ servicio.paradaLlegadaNombre }}
                     </span>
                   </div>
-
-                  @if (!servicio.paradaPartidaId || !servicio.paradaLlegadaId) {
-                    <span class="text-[10px] text-text/40 italic">Ubicación manual</span>
-                  }
                 </div>
               </td>
 
               <!-- Horarios -->
               <td class="px-4 py-3">
-                <div class="flex items-center gap-2 text-sm text-text">
-                  <i class="far fa-clock text-text/40 text-xs"></i>
-                  <span>{{ servicio.horaSalida }}</span>
-                  @if (servicio.horaTermino) {
-                    <span class="text-text/40">-</span>
-                    <span>{{ servicio.horaTermino }}</span>
+                <div class="flex flex-col gap-0.5">
+                  <div class="flex items-center gap-2 text-sm text-text">
+                    <i class="far fa-clock text-text/40 text-[10px]"></i>
+                    <span class="font-inter-medium">{{ servicio.horaSalida.substring(0, 5) }}</span>
+                    @if (servicio.horaTermino) {
+                      <span class="text-text/40">-</span>
+                      <span class="font-inter-medium">{{
+                        servicio.horaTermino.substring(0, 5)
+                      }}</span>
+                    }
+                  </div>
+                  @if (servicio.tiempoServicioMinutos) {
+                    <span class="text-[10px] text-secondary font-inter-semibold"
+                      >({{ servicio.tiempoServicioMinutos }} min)</span
+                    >
                   }
                 </div>
               </td>
@@ -130,7 +131,7 @@
                     km
                   </span>
                   @if (servicio.kmServicio) {
-                    <span class="text-secondary font-inter-medium"
+                    <span class="text-secondary font-inter-semibold text-[10px]"
                       >({{ servicio.kmServicio }} km)</span
                     >
                   }
@@ -142,26 +143,6 @@
                 <div
                   class="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
                 >
-                  <!-- Move Up/Down -->
-                  <button
-                    (click)="moveServicio(i, 'up')"
-                    [disabled]="first"
-                    class="w-7 h-7 flex items-center justify-center rounded text-text/40 hover:text-secondary hover:bg-secondary/10 disabled:opacity-20 disabled:cursor-not-allowed"
-                    title="Mover arriba"
-                  >
-                    <i class="fas fa-arrow-up text-xs"></i>
-                  </button>
-                  <button
-                    (click)="moveServicio(i, 'down')"
-                    [disabled]="last"
-                    class="w-7 h-7 flex items-center justify-center rounded text-text/40 hover:text-secondary hover:bg-secondary/10 disabled:opacity-20 disabled:cursor-not-allowed"
-                    title="Mover abajo"
-                  >
-                    <i class="fas fa-arrow-down text-xs"></i>
-                  </button>
-
-                  <div class="w-px h-4 bg-text/10 mx-1"></div>
-
                   <!-- Edit/Delete -->
                   <button
                     (click)="prepareEditServicio(servicio)"
@@ -196,48 +177,23 @@
         <form [formGroup]="servicioForm" class="p-4 space-y-4">
           <!-- Selector Origen -->
           <div class="space-y-1">
-            <div class="flex justify-between items-center">
-              <label class="text-xs font-inter-semibold text-text">Punto de Partida</label>
-              <button
-                type="button"
-                (click)="isPartidaManual.set(!isPartidaManual())"
-                class="text-[10px] text-secondary hover:underline"
+            <label class="text-xs font-inter-semibold text-text">Punto de Partida</label>
+            <div class="relative group">
+              <select
+                formControlName="paradaPartidaId"
+                class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all appearance-none cursor-pointer disabled:cursor-not-allowed"
               >
-                {{ isPartidaManual() ? 'Seleccionar de Ruta' : 'Ingresar Manualmente' }}
-              </button>
+                <option [value]="null">Seleccione una parada...</option>
+                @for (parada of paradasRuta(); track parada.id) {
+                  <option [value]="parada.id">{{ parada.nombre }}</option>
+                }
+              </select>
+              <span
+                class="absolute inset-y-0 right-3 flex items-center text-text/60 pointer-events-none group-has-disabled:opacity-30"
+              >
+                <i class="fas fa-chevron-down text-xs"></i>
+              </span>
             </div>
-
-            @if (isPartidaManual()) {
-              <input
-                type="text"
-                formControlName="paradaPartidaOcasional"
-                placeholder="Ej: Av. Principal 123 (Frente al grifo)"
-                class="w-full px-3 py-2 text-sm bg-text/5 border border-transparent focus:border-secondary rounded-lg outline-none"
-              />
-            } @else {
-              <div class="relative">
-                <select
-                  formControlName="paradaPartidaId"
-                  class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all appearance-none cursor-pointer"
-                >
-                  <option [value]="null">Seleccione una parada...</option>
-                  @for (parada of paradasRuta(); track parada.id) {
-                    <option [value]="parada.id">{{ parada.nombre }}</option>
-                  }
-                </select>
-                <span
-                  class="absolute inset-y-0 right-3 flex items-center text-text/60 pointer-events-none"
-                >
-                  <i class="fas fa-chevron-down text-xs"></i>
-                </span>
-              </div>
-              @if (paradasRuta().length === 0) {
-                <p class="text-[10px] text-warning mt-1">
-                  <i class="fas fa-exclamation-triangle"></i> No hay paradas registradas en la ruta.
-                  Use ingreso manual.
-                </p>
-              }
-            }
           </div>
 
           <!-- Arrow Divider -->
@@ -247,42 +203,23 @@
 
           <!-- Selector Destino -->
           <div class="space-y-1">
-            <div class="flex justify-between items-center">
-              <label class="text-xs font-inter-semibold text-text">Punto de Llegada</label>
-              <button
-                type="button"
-                (click)="isLlegadaManual.set(!isLlegadaManual())"
-                class="text-[10px] text-secondary hover:underline"
+            <label class="text-xs font-inter-semibold text-text">Punto de Llegada</label>
+            <div class="relative group">
+              <select
+                formControlName="paradaLlegadaId"
+                class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all appearance-none cursor-pointer disabled:cursor-not-allowed"
               >
-                {{ isLlegadaManual() ? 'Seleccionar de Ruta' : 'Ingresar Manualmente' }}
-              </button>
+                <option [value]="null">Seleccione una parada...</option>
+                @for (parada of paradasRuta(); track parada.id) {
+                  <option [value]="parada.id">{{ parada.nombre }}</option>
+                }
+              </select>
+              <span
+                class="absolute inset-y-0 right-3 flex items-center text-text/60 pointer-events-none group-has-disabled:opacity-30"
+              >
+                <i class="fas fa-chevron-down text-xs"></i>
+              </span>
             </div>
-
-            @if (isLlegadaManual()) {
-              <input
-                type="text"
-                formControlName="paradaLlegadaOcasional"
-                placeholder="Ej: Terminal Terrestre (Anden 5)"
-                class="w-full px-3 py-2 text-sm bg-text/5 border border-transparent focus:border-secondary rounded-lg outline-none"
-              />
-            } @else {
-              <div class="relative">
-                <select
-                  formControlName="paradaLlegadaId"
-                  class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all appearance-none cursor-pointer"
-                >
-                  <option [value]="null">Seleccione una parada...</option>
-                  @for (parada of paradasRuta(); track parada.id) {
-                    <option [value]="parada.id">{{ parada.nombre }}</option>
-                  }
-                </select>
-                <span
-                  class="absolute inset-y-0 right-3 flex items-center text-text/60 pointer-events-none"
-                >
-                  <i class="fas fa-chevron-down text-xs"></i>
-                </span>
-              </div>
-            }
           </div>
 
           <div class="h-px bg-text/10 my-4"></div>
@@ -294,7 +231,7 @@
               <input
                 type="time"
                 formControlName="horaSalida"
-                class="w-full px-3 py-2 text-sm bg-text/5 border border-transparent focus:border-secondary rounded-lg outline-none"
+                class="w-full px-3 py-2 text-sm bg-text/5 border border-transparent focus:border-secondary rounded-lg outline-none disabled:cursor-not-allowed"
               />
             </div>
             <div>
@@ -302,7 +239,7 @@
               <input
                 type="time"
                 formControlName="horaTermino"
-                class="w-full px-3 py-2 text-sm bg-text/5 border border-transparent focus:border-secondary rounded-lg outline-none"
+                class="w-full px-3 py-2 text-sm bg-text/5 border border-transparent focus:border-secondary rounded-lg outline-none disabled:cursor-not-allowed"
               />
             </div>
           </div>
@@ -315,7 +252,7 @@
                 type="number"
                 min="0"
                 formControlName="kmInicial"
-                class="w-full px-3 py-2 text-sm bg-text/5 border border-transparent focus:border-secondary rounded-lg outline-none"
+                class="w-full px-3 py-2 text-sm bg-text/5 border border-transparent focus:border-secondary rounded-lg outline-none disabled:cursor-not-allowed"
               />
             </div>
             <div>
@@ -324,7 +261,7 @@
                 type="number"
                 min="0"
                 formControlName="kmFinal"
-                class="w-full px-3 py-2 text-sm bg-text/5 border border-transparent focus:border-secondary rounded-lg outline-none"
+                class="w-full px-3 py-2 text-sm bg-text/5 border border-transparent focus:border-secondary rounded-lg outline-none disabled:cursor-not-allowed"
               />
             </div>
           </div>
@@ -336,7 +273,7 @@
               type="number"
               min="0"
               formControlName="numeroPasajeros"
-              class="w-full px-3 py-2 text-sm bg-text/5 border border-transparent focus:border-secondary rounded-lg outline-none"
+              class="w-full px-3 py-2 text-sm bg-text/5 border border-transparent focus:border-secondary rounded-lg outline-none disabled:cursor-not-allowed"
             />
           </div>
 
@@ -345,7 +282,7 @@
             <textarea
               formControlName="observaciones"
               rows="2"
-              class="w-full px-3 py-2 text-sm bg-text/5 border border-transparent focus:border-secondary rounded-lg outline-none resize-none"
+              class="w-full px-3 py-2 text-sm bg-text/5 border border-transparent focus:border-secondary rounded-lg outline-none resize-none disabled:cursor-not-allowed"
               placeholder="Notas adicionales del tramo..."
             ></textarea>
           </div>

@@ -40,19 +40,10 @@ export class ViajeServiciosFormComponent {
   // Form
   servicioForm: FormGroup;
 
-  // UI State for form
-  isPartidaManual = signal(false);
-  isLlegadaManual = signal(false);
-
   constructor() {
     this.servicioForm = this.fb.group({
-      // Origen
-      paradaPartidaId: [null],
-      paradaPartidaOcasional: [''],
-      // Destino
-      paradaLlegadaId: [null],
-      paradaLlegadaOcasional: [''],
-      // Datos
+      paradaPartidaId: [null, [Validators.required]],
+      paradaLlegadaId: [null, [Validators.required]],
       horaSalida: ['', [Validators.required]],
       horaTermino: [''],
       kmInicial: [null, [Validators.required, Validators.min(0)]],
@@ -61,7 +52,6 @@ export class ViajeServiciosFormComponent {
       observaciones: [''],
     });
 
-    // Effect to reload services when viaje ID changes
     effect(() => {
       const v = this.viaje();
       if (v?.id) {
@@ -76,7 +66,6 @@ export class ViajeServiciosFormComponent {
       const viajeId = this.viaje().id;
       const promises: Promise<any>[] = [this.api.viajes.findServicios({ viajeId })];
 
-      // Load route stops only if it's a fixed route or has a route ID
       if (this.viaje().rutaId) {
         promises.push(this.api.rutas.findParadas({ rutaId: this.viaje().rutaId! }));
       }
@@ -86,7 +75,6 @@ export class ViajeServiciosFormComponent {
       this.servicios.set(serviciosRes.data);
 
       if (results[1]) {
-        // Sort paradas by order
         const paradas = (results[1].data as RutaParadaResultDto[]).sort(
           (a, b) => a.orden - b.orden,
         );
@@ -96,52 +84,52 @@ export class ViajeServiciosFormComponent {
       }
     } catch (error) {
       console.error('Error loading data:', error);
-      // Don't show error toast on simple load failure to avoid spam, maybe log it
     } finally {
       this.loading.set(false);
     }
   }
 
-  // ... (prepare methods remain unchanged)
-
-  prepareAddServicio() {
+  async prepareAddServicio() {
     this.editingServicioId.set(null);
-    // Intentar pre-llenar basándose en el último servicio
-    const lastServicio =
-      this.servicios().length > 0 ? this.servicios()[this.servicios().length - 1] : null;
+    this.loading.set(true);
 
-    // Si hay último servicio, el origen del nuevo es el destino del anterior
-    let nextOrigenId = lastServicio?.paradaLlegadaId || null;
-    let nextOrigenManual = lastServicio?.paradaLlegadaOcasional || '';
+    try {
+      const resp = await this.api.viajes.getNextStep({ viajeId: this.viaje().id });
+      const nextStep = resp.data;
 
-    // Si no hay último servicio y hay paradas, el origen es la primera parada
-    if (!lastServicio && this.paradasRuta().length > 0) {
-      nextOrigenId = this.paradasRuta()[0].id;
+      // Habilitar controles antes de resetear
+      this.servicioForm.enable();
+
+      this.servicioForm.reset({
+        paradaPartidaId: nextStep.paradaPartidaId,
+        paradaLlegadaId: nextStep.paradaLlegadaId,
+        horaSalida: nextStep.horaSalida,
+        kmInicial: nextStep.kmInicial,
+        numeroPasajeros: nextStep.numeroPasajeros || 0,
+        observaciones: '',
+      });
+
+      // Al AGREGAR, bloqueamos lo que viene sugerido para guiar al usuario
+      this.disablePreFilledFields();
+
+      this.showForm.set(true);
+    } catch (error) {
+      console.error('Error getting next step:', error);
+      this.toastService.error('Error al obtener sugerencia para el siguiente tramo');
+    } finally {
+      this.loading.set(false);
     }
-
-    this.servicioForm.reset({
-      numeroPasajeros: lastServicio?.numeroPasajeros || 0,
-      kmInicial: lastServicio?.kmFinal || null,
-      paradaPartidaId: nextOrigenId,
-      paradaPartidaOcasional: nextOrigenManual,
-      // Sugerir hora de salida si el anterior tuvo hora termino
-      horaSalida: lastServicio?.horaTermino || '',
-    });
-
-    // Set manual types logic
-    this.isPartidaManual.set(!!nextOrigenManual || !nextOrigenId);
-    this.isLlegadaManual.set(false); // Default to route stop if possible
-
-    this.showForm.set(true);
   }
 
   prepareEditServicio(servicio: ViajeServicioResultDto) {
     this.editingServicioId.set(servicio.id);
+
+    // Al EDITAR, permitimos cambiar todo por si hubo errores previos
+    this.servicioForm.enable();
+
     this.servicioForm.patchValue({
       paradaPartidaId: servicio.paradaPartidaId,
-      paradaPartidaOcasional: servicio.paradaPartidaOcasional,
       paradaLlegadaId: servicio.paradaLlegadaId,
-      paradaLlegadaOcasional: servicio.paradaLlegadaOcasional,
       horaSalida: servicio.horaSalida,
       horaTermino: servicio.horaTermino,
       kmInicial: servicio.kmInicial,
@@ -150,10 +138,27 @@ export class ViajeServiciosFormComponent {
       observaciones: servicio.observaciones,
     });
 
-    this.isPartidaManual.set(!!servicio.paradaPartidaOcasional || !servicio.paradaPartidaId);
-    this.isLlegadaManual.set(!!servicio.paradaLlegadaOcasional || !servicio.paradaLlegadaId);
-
     this.showForm.set(true);
+  }
+
+  private disablePreFilledFields() {
+    Object.keys(this.servicioForm.controls).forEach((key) => {
+      const control = this.servicioForm.get(key);
+      const value = control?.value;
+
+      // Excepciones: pasajeros y observaciones siempre editables si son valores base
+      if (key === 'numeroPasajeros' || key === 'observaciones') {
+        control?.enable();
+        return;
+      }
+
+      // Si el dato ya fue obtenido (no es nulo o vacío), se bloquea
+      if (value !== null && value !== undefined && value !== '') {
+        control?.disable();
+      } else {
+        control?.enable();
+      }
+    });
   }
 
   async saveServicio() {
@@ -163,35 +168,13 @@ export class ViajeServiciosFormComponent {
     }
 
     this.submitting.set(true);
-    const formValues = this.servicioForm.value;
+    // Usar getRawValue para incluir los campos deshabilitados en el payload
+    const formValues = this.servicioForm.getRawValue();
     const isEditing = !!this.editingServicioId();
     const viajeId = this.viaje().id;
 
-    // Prepare payload handling switching between Manual/Fixed
-    const startId = this.isPartidaManual() ? null : formValues.paradaPartidaId;
-    const startText = this.isPartidaManual() ? formValues.paradaPartidaOcasional : null;
-
-    const endId = this.isLlegadaManual() ? null : formValues.paradaLlegadaId;
-    const endText = this.isLlegadaManual() ? formValues.paradaLlegadaOcasional : null;
-
-    if (!startId && !startText) {
-      this.toastService.warning('Debe especificar un punto de partida');
-      this.submitting.set(false);
-      return;
-    }
-
-    if (!endId && !endText) {
-      this.toastService.warning('Debe especificar un punto de llegada');
-      this.submitting.set(false);
-      return;
-    }
-
     const payload = {
       ...formValues,
-      paradaPartidaId: startId,
-      paradaPartidaOcasional: startText,
-      paradaLlegadaId: endId,
-      paradaLlegadaOcasional: endText,
       kmFinal: formValues.kmFinal || null,
       horaTermino: formValues.horaTermino || null,
       observaciones: formValues.observaciones || null,
@@ -232,34 +215,5 @@ export class ViajeServiciosFormComponent {
         }
       },
     );
-  }
-
-  async moveServicio(index: number, direction: 'up' | 'down') {
-    const currentList = this.servicios();
-    if (
-      (direction === 'up' && index === 0) ||
-      (direction === 'down' && index === currentList.length - 1)
-    ) {
-      return;
-    }
-
-    const neighborIndex = direction === 'up' ? index - 1 : index + 1;
-    const current = currentList[index];
-    const neighbor = currentList[neighborIndex];
-
-    const payload = {
-      servicios: [
-        { id: current.id, orden: neighbor.orden },
-        { id: neighbor.id, orden: current.orden },
-      ],
-    };
-
-    try {
-      await this.api.viajes.reordenarServicios({ viajeId: this.viaje().id }, payload);
-      this.loadData();
-    } catch (error) {
-      console.error('Error reordering servicios:', error);
-      this.toastService.error('Error al mover el tramo');
-    }
   }
 }
