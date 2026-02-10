@@ -12,7 +12,9 @@ export class VehiculoService {
   }
 
   async findAllEstadoDocumentos(query: ApiQuery<'vehiculos', 'findAllEstadoDocumentos'>) {
-    return await this.api.vehiculos.findAllEstadoDocumentos(query).then((response) => response.data);
+    return await this.api.vehiculos
+      .findAllEstadoDocumentos(query)
+      .then((response) => response.data);
   }
   async findOne(id: ApiParam<'vehiculos', 'findOne', 'id'>) {
     return await this.api.vehiculos.findOne({ id }).then((response) => response.data);
@@ -22,7 +24,7 @@ export class VehiculoService {
   }
   async update(
     id: ApiParam<'vehiculos', 'update', 'id'>,
-    vehiculo: ApiBody<'vehiculos', 'update'>
+    vehiculo: ApiBody<'vehiculos', 'update'>,
   ) {
     return await this.api.vehiculos.update({ id }, vehiculo).then((response) => response.data);
   }
@@ -38,7 +40,7 @@ export class VehiculoService {
   }
   async updateDocumento(
     id: ApiParam<'vehiculos', 'updateDocumento', 'id'>,
-    documento: ApiBody<'vehiculos', 'updateDocumento'>
+    documento: ApiBody<'vehiculos', 'updateDocumento'>,
   ) {
     return await this.api.vehiculos
       .updateDocumento({ id }, documento)
@@ -57,7 +59,10 @@ export class VehiculoService {
   async createMarca(marca: ApiBody<'vehiculos', 'createMarca'>) {
     return await this.api.vehiculos.createMarca(marca).then((response) => response.data);
   }
-  async updateMarca(id: ApiParam<'vehiculos', 'updateMarca', 'id'>, marca: ApiBody<'vehiculos', 'updateMarca'>) {
+  async updateMarca(
+    id: ApiParam<'vehiculos', 'updateMarca', 'id'>,
+    marca: ApiBody<'vehiculos', 'updateMarca'>,
+  ) {
     return await this.api.vehiculos.updateMarca({ id }, marca).then((response) => response.data);
   }
   async deleteMarca(id: ApiParam<'vehiculos', 'deleteMarca', 'id'>) {
@@ -75,11 +80,37 @@ export class VehiculoService {
   }
   async updateModelo(
     id: ApiParam<'vehiculos', 'updateModelo', 'id'>,
-    modelo: ApiBody<'vehiculos', 'updateModelo'>
+    modelo: ApiBody<'vehiculos', 'updateModelo'>,
   ) {
     return await this.api.vehiculos.updateModelo({ id }, modelo).then((response) => response.data);
   }
   async deleteModelo(id: ApiParam<'vehiculos', 'deleteModelo', 'id'>) {
     return await this.api.vehiculos.deleteModelo({ id }).then((response) => response.data);
+  }
+  // ========== CHECKLIST ==========
+
+  async findChecklistHistory(
+    vehiculoId: number,
+    checklistItemId: number,
+    page: number,
+    limit: number,
+  ) {
+    return await (this.api as any).http
+      .request({
+        path: `/vehiculo/${vehiculoId}/checklist-document/history`,
+        method: 'GET',
+        query: {
+          checklistItemId,
+          page,
+          limit,
+        },
+        secure: true,
+        format: 'json',
+      })
+      .then((response: any) => response.data);
+  }
+
+  async findAllCheckListItems() {
+    return await this.api.viajes.findAllChecklistItems().then((response) => response.data);
   }
 }

@@ -21,6 +21,7 @@ import { getErrorMessage } from '@helper/error.helper';
 import { ModeloInputSearch } from '../../content/vehiculos-lineas/layout/modelo-input-search/modelo-input-search';
 import { PropietarioInputSearch } from '../../../propietarios/layout/propietario-input-search/propietario-input-search';
 import { ProveedorInputSearch } from '../../../proveedores/layout/proveedor-input-search/proveedor-input-search';
+import { VehiculoChecklistDocumentComponent } from './layout/vehiculo-checklist-document/vehiculo-checklist-document.component';
 
 @Component({
   selector: 'app-vehiculo-form',
@@ -34,6 +35,7 @@ import { ProveedorInputSearch } from '../../../proveedores/layout/proveedor-inpu
     ModeloInputSearch,
     PropietarioInputSearch,
     ProveedorInputSearch,
+    VehiculoChecklistDocumentComponent,
   ],
   templateUrl: './vehiculo-form.html',
   styleUrl: './vehiculo-form.css',
@@ -325,7 +327,7 @@ export class VehiculoForm implements OnInit {
   // Document Management
   async handleDocumentUpload(
     event: DocumentWithDate,
-    tipo: keyof ApiField<'vehiculos', 'findOne', 'documentos'>
+    tipo: keyof ApiField<'vehiculos', 'findOne', 'documentos'>,
   ) {
     if (!this.vehiculo()) return;
 
@@ -400,7 +402,7 @@ export class VehiculoForm implements OnInit {
 
   private removeDocumentFromLocalList(
     id: number,
-    tipo: keyof ApiField<'vehiculos', 'findOne', 'documentos'>
+    tipo: keyof ApiField<'vehiculos', 'findOne', 'documentos'>,
   ) {
     const docs = this.localDocuments();
     if (docs) {

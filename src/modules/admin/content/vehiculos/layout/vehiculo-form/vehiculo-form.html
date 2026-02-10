@@ -14,9 +14,9 @@
         maxlength="7"
       />
       @if (vehiculoForm.get('placa')?.touched && vehiculoForm.get('placa')?.errors) {
-      <p class="text-danger text-xs font-inter-medium mt-1">
-        La placa es requerida (6-7 caracteres alfanuméricos)
-      </p>
+        <p class="text-danger text-xs font-inter-medium mt-1">
+          La placa es requerida (6-7 caracteres alfanuméricos)
+        </p>
       }
     </div>
 
@@ -54,7 +54,7 @@
         formControlName="modelo"
       ></app-modelo-input-search>
       @if (vehiculoForm.get('modelo')?.touched && vehiculoForm.get('modelo')?.errors) {
-      <p class="text-danger text-xs font-inter-medium mt-1">Modelo requerido</p>
+        <p class="text-danger text-xs font-inter-medium mt-1">Modelo requerido</p>
       }
     </div>
   </div>
@@ -75,7 +75,7 @@
         max="2100"
       />
       @if (vehiculoForm.get('anio')?.touched && vehiculoForm.get('anio')?.errors) {
-      <p class="text-danger text-xs font-inter-medium mt-1">Año válido requerido</p>
+        <p class="text-danger text-xs font-inter-medium mt-1">Año válido requerido</p>
       }
     </div>
 
@@ -92,7 +92,7 @@
         min="0"
       />
       @if (vehiculoForm.get('kilometraje')?.touched && vehiculoForm.get('kilometraje')?.errors) {
-      <p class="text-danger text-xs font-inter-medium mt-1">Kilometraje válido requerido</p>
+        <p class="text-danger text-xs font-inter-medium mt-1">Kilometraje válido requerido</p>
       }
     </div>
   </div>
@@ -196,35 +196,35 @@
 
     <!-- Lista de propietarios seleccionados -->
     @if (selectedOwners().length > 0) {
-    <div class="space-y-2">
-      @for (owner of selectedOwners(); track owner.id) {
-      <div
-        class="flex items-center justify-between bg-text/5 px-3 py-2.5 rounded-xl border border-text/5 transition-all hover:bg-text/10 group"
-      >
-        <div class="flex items-center gap-3 overflow-hidden">
+      <div class="space-y-2">
+        @for (owner of selectedOwners(); track owner.id) {
           <div
-            class="w-8 h-8 rounded-full bg-background flex items-center justify-center text-secondary border border-text/5"
+            class="flex items-center justify-between bg-text/5 px-3 py-2.5 rounded-xl border border-text/5 transition-all hover:bg-text/10 group"
           >
-            <i class="fas fa-user text-xs"></i>
+            <div class="flex items-center gap-3 overflow-hidden">
+              <div
+                class="w-8 h-8 rounded-full bg-background flex items-center justify-center text-secondary border border-text/5"
+              >
+                <i class="fas fa-user text-xs"></i>
+              </div>
+              <div class="flex flex-col">
+                <span class="text-xs font-inter-semibold text-text truncate leading-tight">{{
+                  owner.nombre
+                }}</span>
+                <span class="text-[10px] text-text/50 font-inter-medium">Propietario</span>
+              </div>
+            </div>
+            <button
+              type="button"
+              (click)="removeOwner(owner.id)"
+              class="text-text/40 hover:text-danger hover:bg-danger/10 w-7 h-7 flex items-center justify-center rounded-lg transition-all opacity-0 group-hover:opacity-100"
+              title="Quitar propietario"
+            >
+              <i class="fas fa-times text-xs"></i>
+            </button>
           </div>
-          <div class="flex flex-col">
-            <span class="text-xs font-inter-semibold text-text truncate leading-tight">{{
-              owner.nombre
-            }}</span>
-            <span class="text-[10px] text-text/50 font-inter-medium">Propietario</span>
-          </div>
-        </div>
-        <button
-          type="button"
-          (click)="removeOwner(owner.id)"
-          class="text-text/40 hover:text-danger hover:bg-danger/10 w-7 h-7 flex items-center justify-center rounded-lg transition-all opacity-0 group-hover:opacity-100"
-          title="Quitar propietario"
-        >
-          <i class="fas fa-times text-xs"></i>
-        </button>
+        }
       </div>
-      }
-    </div>
     }
   </div>
 
@@ -255,35 +255,35 @@
 
     <!-- Lista de proveedores seleccionados -->
     @if (selectedProviders().length > 0) {
-    <div class="space-y-2">
-      @for (provider of selectedProviders(); track provider.id) {
-      <div
-        class="flex items-center justify-between bg-text/5 px-3 py-2.5 rounded-xl border border-text/5 transition-all hover:bg-text/10 group"
-      >
-        <div class="flex items-center gap-3 overflow-hidden">
+      <div class="space-y-2">
+        @for (provider of selectedProviders(); track provider.id) {
           <div
-            class="w-8 h-8 rounded-full bg-background flex items-center justify-center text-secondary border border-text/5"
+            class="flex items-center justify-between bg-text/5 px-3 py-2.5 rounded-xl border border-text/5 transition-all hover:bg-text/10 group"
           >
-            <i class="fas fa-truck text-xs"></i>
+            <div class="flex items-center gap-3 overflow-hidden">
+              <div
+                class="w-8 h-8 rounded-full bg-background flex items-center justify-center text-secondary border border-text/5"
+              >
+                <i class="fas fa-truck text-xs"></i>
+              </div>
+              <div class="flex flex-col">
+                <span class="text-xs font-inter-semibold text-text truncate leading-tight">{{
+                  provider.nombre
+                }}</span>
+                <span class="text-[10px] text-text/50 font-inter-medium">Proveedor</span>
+              </div>
+            </div>
+            <button
+              type="button"
+              (click)="removeProvider(provider.id)"
+              class="text-text/40 hover:text-danger hover:bg-danger/10 w-7 h-7 flex items-center justify-center rounded-lg transition-all opacity-0 group-hover:opacity-100"
+              title="Quitar proveedor"
+            >
+              <i class="fas fa-times text-xs"></i>
+            </button>
           </div>
-          <div class="flex flex-col">
-            <span class="text-xs font-inter-semibold text-text truncate leading-tight">{{
-              provider.nombre
-            }}</span>
-            <span class="text-[10px] text-text/50 font-inter-medium">Proveedor</span>
-          </div>
-        </div>
-        <button
-          type="button"
-          (click)="removeProvider(provider.id)"
-          class="text-text/40 hover:text-danger hover:bg-danger/10 w-7 h-7 flex items-center justify-center rounded-lg transition-all opacity-0 group-hover:opacity-100"
-          title="Quitar proveedor"
-        >
-          <i class="fas fa-times text-xs"></i>
-        </button>
+        }
       </div>
-      }
-    </div>
     }
   </div>
 
@@ -299,7 +299,7 @@
         class="w-full pl-3 pr-10 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none appearance-none cursor-pointer transition-all"
       >
         @for (est of estados; track est.value) {
-        <option [value]="est.value">{{ est.label }}</option>
+          <option [value]="est.value">{{ est.label }}</option>
         }
       </select>
       <i
@@ -307,7 +307,7 @@
       ></i>
     </div>
     @if (vehiculoForm.get('estado')?.touched && vehiculoForm.get('estado')?.errors) {
-    <p class="text-danger text-xs font-inter-medium mt-1">El estado es requerido</p>
+      <p class="text-danger text-xs font-inter-medium mt-1">El estado es requerido</p>
     }
   </div>
 
@@ -545,24 +545,33 @@
     />
   </div>
 
+  <!-- Checklist History -->
+  @if (editMode() && vehiculo()) {
+    <div class="mb-3 border-t border-text/5 pt-3">
+      <app-vehiculo-checklist-document
+        [vehiculoId]="vehiculo()!.id"
+      ></app-vehiculo-checklist-document>
+    </div>
+  }
+
   <!-- Documentos -->
   @if (editMode() && vehiculo()) {
-  <div class="space-y-4 mt-6">
-    <h3 class="text-sm font-inter-bold text-text mb-4">Documentos</h3>
-    <div class="grid grid-cols-1 gap-4">
-      @for (docType of documentTypes; track docType.value) {
-      <div class="bg-background rounded-lg p-4 border border-text/10">
-        <app-documents-date-upload
-          [label]="docType.label"
-          [documents]="getDocuments(docType.value)"
-          [maxDocuments]="10"
-          (onUpload)="handleDocumentUpload($event, docType.value)"
-          (onUpdate)="handleDocumentUpdate($event)"
-          (onDelete)="deleteDocument($event, docType.value)"
-        ></app-documents-date-upload>
+    <div class="space-y-4 mt-6">
+      <h3 class="text-sm font-inter-bold text-text mb-4">Documentos</h3>
+      <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
+        @for (docType of documentTypes; track docType.value) {
+          <div class="bg-background rounded-lg p-4 border border-text/10">
+            <app-documents-date-upload
+              [label]="docType.label"
+              [documents]="getDocuments(docType.value)"
+              [maxDocuments]="10"
+              (onUpload)="handleDocumentUpload($event, docType.value)"
+              (onUpdate)="handleDocumentUpdate($event)"
+              (onDelete)="deleteDocument($event, docType.value)"
+            ></app-documents-date-upload>
+          </div>
+        }
       </div>
-      }
     </div>
-  </div>
   }
 </form>

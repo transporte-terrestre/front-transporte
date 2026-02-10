@@ -1,0 +1,107 @@
+<div class="space-y-4">
+  <div class="flex items-center justify-between">
+    <h3 class="text-sm font-inter-bold text-text">Checklist</h3>
+  </div>
+
+  <!-- Horizontal Scrollable Items (Types) -->
+  <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-thin">
+    @for (item of checklistItems(); track item.id) {
+      <button
+        type="button"
+        (click)="selectItem(item)"
+        [class.bg-secondary]="selectedItem()?.id === item.id"
+        [class.text-white]="selectedItem()?.id === item.id"
+        [class.bg-text-5]="selectedItem()?.id !== item.id"
+        [class.text-text]="selectedItem()?.id !== item.id"
+        class="px-4 py-2 rounded-lg text-xs font-inter-medium whitespace-nowrap transition-colors hover:bg-secondary/10 hover:text-secondary shrink-0"
+      >
+        {{ item.nombre }}
+      </button>
+    }
+  </div>
+
+  <!-- History List (Versions) -->
+  <div class="border rounded-lg border-text/10 bg-background overflow-hidden">
+    <!-- Header -->
+    <div
+      class="grid grid-cols-4 gap-4 px-4 py-2 bg-text/5 text-xs font-inter-semibold text-text/60 border-b border-text/5"
+    >
+      <div>Viaje</div>
+      <div>Fecha</div>
+      <div>Tipo</div>
+      <div>Estado</div>
+    </div>
+
+    @if (loading()) {
+      <div class="flex items-center justify-center p-8 bg-background">
+        <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-secondary"></div>
+      </div>
+    } @else if (history().length === 0) {
+      <div class="flex flex-col items-center justify-center p-8 text-center bg-background">
+        <i class="fas fa-file-contract text-2xl text-text/20 mb-2"></i>
+        <p class="text-xs text-text/40 font-inter-medium">
+          No se encontraron versiones para este checklist.
+        </p>
+      </div>
+    } @else {
+      <!-- List Items -->
+      <div class="divide-y divide-text/5 bg-background max-h-[300px] overflow-y-auto">
+        @for (doc of history(); track doc.id) {
+          <div
+            class="grid grid-cols-4 gap-4 px-4 py-3 text-xs text-text hover:bg-text/5 transition-colors items-center"
+          >
+            <!-- Viaje -->
+            <div class="font-inter-semibold truncate">
+              @if (doc.viajeId) {
+                Viaje #{{ doc.viajeId }}
+              } @else {
+                {{ doc.version }}
+              }
+            </div>
+
+            <!-- Fecha -->
+            <div class="text-text/60 truncate">
+              {{ doc.creadoEn | date: 'dd/MM/yyyy HH:mm' }}
+            </div>
+
+            <!-- Tipo -->
+            <div>
+              <span
+                [class.bg-info-10]="doc.viajeTipo === 'salida'"
+                [class.text-info]="doc.viajeTipo === 'salida'"
+                [class.bg-success-10]="doc.viajeTipo === 'llegada'"
+                [class.text-success]="doc.viajeTipo === 'llegada'"
+                class="px-2 py-0.5 rounded text-[10px] font-inter-bold uppercase inline-block"
+              >
+                {{ doc.viajeTipo }}
+              </span>
+            </div>
+
+            <!-- Estado (Activo/Inactivo) -->
+            <div>
+              <span
+                [class.bg-success-10]="doc.activo"
+                [class.text-success]="doc.activo"
+                [class.bg-text-10]="!doc.activo"
+                [class.text-text-40]="!doc.activo"
+                class="px-2 py-0.5 rounded-full text-[10px] font-inter-bold inline-flex items-center gap-1"
+              >
+                <i
+                  class="fas"
+                  [class.fa-check]="doc.activo"
+                  [class.fa-rotate-left]="!doc.activo"
+                ></i>
+                {{ doc.activo ? 'Vigente' : 'Histórico' }}
+              </span>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Footer with simple pagination if needed, or total count -->
+  <div class="text-[10px] text-text/40 text-right px-1">
+    Mostrando {{ history().length }} de {{ total() }} versiones
+  </div>
+</div>
