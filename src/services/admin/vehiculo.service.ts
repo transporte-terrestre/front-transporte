@@ -10,6 +10,10 @@ export class VehiculoService {
   async findAll(query: ApiQuery<'vehiculos', 'findAll'>) {
     return await this.api.vehiculos.findAll(query).then((response) => response.data);
   }
+
+  async findAllEstadoDocumentos(query: ApiQuery<'vehiculos', 'findAllEstadoDocumentos'>) {
+    return await this.api.vehiculos.findAllEstadoDocumentos(query).then((response) => response.data);
+  }
   async findOne(id: ApiParam<'vehiculos', 'findOne', 'id'>) {
     return await this.api.vehiculos.findOne({ id }).then((response) => response.data);
   }

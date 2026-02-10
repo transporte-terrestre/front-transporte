@@ -9,6 +9,9 @@ export class ConductorService {
   async findAll(query: ApiQuery<'conductores', 'findAll'>) {
     return await this.api.conductores.findAll(query).then((response) => response.data);
   }
+  async findAllEstadoDocumentos(query: ApiQuery<'conductores', 'findAllEstadoDocumentos'>) {
+    return await this.api.conductores.findAllEstadoDocumentos(query).then((response) => response.data);
+  }
   async findOne(id: ApiParam<'conductores', 'findOne', 'id'>) {
     return await this.api.conductores.findOne({ id }).then((response) => response.data);
   }

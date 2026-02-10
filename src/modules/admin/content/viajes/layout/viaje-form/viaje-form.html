@@ -272,50 +272,6 @@
     </div>
   </div>
 
-  <!-- Tripulantes -->
-  <div class="col-span-1 lg:col-span-2">
-    <div class="flex items-center justify-between mb-1.5">
-      <label class="text-xs font-inter-semibold text-text flex items-center gap-2">
-        <i class="fas fa-users text-text/60"></i>
-        Tripulantes
-      </label>
-      <button
-        type="button"
-        (click)="addTripulante()"
-        class="text-xs font-inter-medium text-secondary hover:text-secondary/80 flex items-center gap-1 transition-colors"
-      >
-        <i class="fas fa-plus"></i> Agregar
-      </button>
-    </div>
-
-    <div formArrayName="tripulantes" class="space-y-2">
-      @for (control of tripulantesArray.controls; track $index) {
-        <div class="flex items-center gap-2">
-          <input
-            [formControlName]="$index"
-            type="text"
-            placeholder="Nombre completo del tripulante"
-            class="flex-1 px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-          />
-          <button
-            type="button"
-            (click)="removeTripulante($index)"
-            class="w-9 h-9 flex items-center justify-center rounded-lg bg-danger/10 text-danger hover:bg-danger/20 transition-colors"
-          >
-            <i class="fas fa-trash-alt text-sm"></i>
-          </button>
-        </div>
-      }
-      @if (tripulantesArray.controls.length === 0) {
-        <div
-          class="text-xs text-text/40 text-center py-2 border-2 border-dashed border-text/10 rounded-lg"
-        >
-          No hay tripulantes asignados
-        </div>
-      }
-    </div>
-  </div>
-
   <!-- Fechas -->
   <div class="col-span-1 lg:col-span-2 grid grid-cols-2 gap-4">
     <div>
@@ -385,6 +341,11 @@
         <!-- Vehículos -->
         <app-viaje-vehiculos-form [viaje]="viaje()!" (onDataChange)="onDataChange.emit()">
         </app-viaje-vehiculos-form>
+      </div>
+      <div>
+        <!-- Pasajeros -->
+        <app-viaje-pasajeros-form [viaje]="viaje()!" (onDataChange)="onDataChange.emit()">
+        </app-viaje-pasajeros-form>
       </div>
       <div>
         <!-- Servicios / Tramos -->

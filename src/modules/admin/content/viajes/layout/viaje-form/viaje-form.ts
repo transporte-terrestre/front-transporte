@@ -16,6 +16,7 @@ import { ViajeConductoresForm } from './content/viaje-conductores-form/viaje-con
 import { ViajeVehiculosForm } from './content/viaje-vehiculos-form/viaje-vehiculos-form';
 import { ViajeComentariosForm } from './content/viaje-comentarios-form/viaje-comentarios-form';
 import { ViajeServiciosFormComponent } from './content/viaje-servicios-form/viaje-servicios-form';
+import { ViajePasajerosForm } from './content/viaje-pasajeros-form/viaje-pasajeros-form';
 import { FormGroup } from '@angular/forms';
 
 @Component({
@@ -29,6 +30,7 @@ import { FormGroup } from '@angular/forms';
     ConductorInputSearch,
     ViajeConductoresForm,
     ViajeVehiculosForm,
+    ViajePasajerosForm,
     ViajeComentariosForm,
     ViajeServiciosFormComponent,
   ],
@@ -69,7 +71,6 @@ export class ViajeForm implements OnInit {
     ],
     vehiculo: [null, [Validators.required]],
     conductor: [null, [Validators.required]],
-    tripulantes: this.fb.array([]),
     fechaSalida: ['', [Validators.required]],
     fechaLlegada: ['', [Validators.required]],
     estado: ['programado' as ApiResponse<'viajes', 'findOne'>['estado'], [Validators.required]],
@@ -152,12 +153,6 @@ export class ViajeForm implements OnInit {
           sentido: viajeData.sentido,
         });
 
-        // Cargar tripulantes
-        this.tripulantesArray.clear();
-        if (viajeData.tripulantes && viajeData.tripulantes.length > 0) {
-          viajeData.tripulantes.forEach((t) => this.addTripulante(t));
-        }
-
         // Aplicar estado de distanciaFinal después de cargar datos
         this.updateDistanciaFinalState(viajeData.estado);
       } else {
@@ -168,7 +163,6 @@ export class ViajeForm implements OnInit {
           turno: 'dia',
           sentido: 'ida',
         });
-        this.tripulantesArray.clear();
         // Desactivar distanciaFinal por defecto (estado = programado)
         this.updateDistanciaFinalState('programado');
       }
@@ -189,10 +183,6 @@ export class ViajeForm implements OnInit {
         });
       }
     });
-  }
-
-  get tripulantesArray(): FormArray {
-    return this.viajeForm.get('tripulantes') as FormArray;
   }
 
   ngOnInit() {
@@ -251,14 +241,6 @@ export class ViajeForm implements OnInit {
     distanciaFinalControl?.updateValueAndValidity();
   }
 
-  addTripulante(nombre: string = '') {
-    this.tripulantesArray.push(this.fb.control(nombre, Validators.required));
-  }
-
-  removeTripulante(index: number) {
-    this.tripulantesArray.removeAt(index);
-  }
-
   formatDateTimeForInput(date: Date | string): string {
     // Si es string y parece formato ISO, cortar para preservar la hora "tal cual" del JSON/Backend
     if (typeof date === 'string' && date.indexOf('T') > -1) {
@@ -305,7 +287,6 @@ export class ViajeForm implements OnInit {
 
       fechaSalida: formValue.fechaSalida ? `${formValue.fechaSalida}:00.000Z` : '',
       fechaLlegada: formValue.fechaLlegada ? `${formValue.fechaLlegada}:00.000Z` : undefined,
-      tripulantes: (formValue.tripulantes || []).filter((t: string | null): t is string => !!t),
 
       ruta: undefined,
       vehiculo: undefined,

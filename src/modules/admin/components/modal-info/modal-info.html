@@ -1,7 +1,4 @@
-<div
-  class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-  (click)="handleClose()"
->
+<div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
   <div
     class="bg-background rounded-xl shadow-2xl w-full flex flex-col max-h-[90vh]"
     [ngClass]="getMaxWidthClass()"
@@ -21,7 +18,7 @@
     </div>
 
     <!-- Body (Scrollable) -->
-    <div class="overflow-y-auto flex-1 flex items-center justify-center p-4">
+    <div class="overflow-y-auto flex-1 p-4">
       <ng-content></ng-content>
     </div>
   </div>

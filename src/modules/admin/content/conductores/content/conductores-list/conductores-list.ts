@@ -1,4 +1,4 @@
-import { Component, signal, inject, OnInit, OnDestroy, viewChild } from '@angular/core';
+import { Component, signal, inject, OnInit, OnDestroy, viewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -13,10 +13,20 @@ import { ConductorForm } from '../../layout/conductor-form/conductor-form';
 import { PaginationComponent } from '../../../../components/pagination/pagination';
 import { PATH, buildPath } from '@route/path.route';
 import { getErrorMessage } from '@helper/error.helper';
+import { ModalInfo } from '@module/admin/components/modal-info/modal-info';
+import { ConductorDetail } from '../../layout/conductor-detail/conductor-detail';
 
 @Component({
   selector: 'app-conductores-list',
-  imports: [CommonModule, FormsModule, ModalForm, ConductorForm, PaginationComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ModalForm,
+    ConductorForm,
+    PaginationComponent,
+    ModalInfo,
+    ConductorDetail,
+  ],
   templateUrl: './conductores-list.html',
   styleUrl: './conductores-list.css',
 })
@@ -30,8 +40,14 @@ export class ConductoresList implements OnInit, OnDestroy {
   private searchSubject = new Subject<string>();
 
   conductores = signal<ApiResponse<'conductores', 'findAll'>['data']>([]);
+  conductoresEstadoDocumentos = signal<ApiResponse<'conductores', 'findAllEstadoDocumentos'>['data']>([]);
   loading = signal(false);
   showModal = signal(false);
+  filtroDocumentos = signal<'completo' | 'incompleto' | null>(null);
+
+  // Detail Modal
+  showDetailModal = signal(false);
+  selectedConductorId = signal<number | null>(null);
 
   // Paginación
   currentPage = signal(1);
@@ -44,6 +60,11 @@ export class ConductoresList implements OnInit, OnDestroy {
   fechaFin = signal('');
 
   conductorFormComponent = viewChild<ConductorForm>(ConductorForm);
+  tableContainer = viewChild<ElementRef>('tableContainer');
+
+  private isDown = false;
+  private startX = 0;
+  private scrollLeft = 0;
 
   ngOnInit() {
     this.loadConductores();
@@ -58,26 +79,84 @@ export class ConductoresList implements OnInit, OnDestroy {
     this.searchSubject.complete();
   }
 
-  loadConductores() {
+  onMouseDown(e: MouseEvent) {
+    const target = e.target as HTMLElement;
+    if (target.closest('td:first-child')) {
+      return;
+    }
+
+    const container = this.tableContainer()?.nativeElement;
+    if (!container) return;
+    this.isDown = true;
+    container.style.cursor = 'grabbing';
+    container.querySelector('tbody')!.style.cursor = 'grabbing';
+    this.startX = e.pageX - container.offsetLeft;
+    this.scrollLeft = container.scrollLeft;
+  }
+
+  onMouseLeave() {
+    this.isDown = false;
+    const container = this.tableContainer()?.nativeElement;
+    if (container) {
+      container.style.cursor = 'auto';
+      const tbody = container.querySelector('tbody');
+      if (tbody) tbody.style.cursor = 'grab';
+    }
+  }
+
+  onMouseUp() {
+    this.isDown = false;
+    const container = this.tableContainer()?.nativeElement;
+    if (container) {
+      container.style.cursor = 'auto';
+      const tbody = container.querySelector('tbody');
+      if (tbody) tbody.style.cursor = 'grab';
+    }
+  }
+
+  onMouseMove(e: MouseEvent) {
+    if (!this.isDown) return;
+    e.preventDefault();
+    const container = this.tableContainer()?.nativeElement;
+    if (!container) return;
+    const x = e.pageX - container.offsetLeft;
+    const walk = (x - this.startX) * 2;
+    container.scrollLeft = this.scrollLeft - walk;
+  }
+
+  async loadConductores() {
     this.loading.set(true);
-    this.conductorService
-      .findAll({
-        page: this.currentPage(),
-        limit: this.pageSize(),
-        search: this.searchTerm() || undefined,
-        fechaInicio: this.fechaInicio() || undefined,
-        fechaFin: this.fechaFin() || undefined,
-      })
-      .then((response) => {
-        this.conductores.set(response.data);
+    try {
+      const filtroDoc = this.filtroDocumentos();
+
+      if (filtroDoc) {
+        const response = await this.conductorService.findAllEstadoDocumentos({
+          page: this.currentPage(),
+          limit: this.pageSize(),
+          filtro: filtroDoc,
+        });
+        this.conductoresEstadoDocumentos.set(response.data);
+        this.conductores.set([]);
         this.meta.set(response.meta);
-        this.loading.set(false);
-      })
-      .catch((error) => {
-        console.error('Error al cargar conductores:', error);
-        this.toastService.error('Error al cargar conductores');
-        this.loading.set(false);
-      });
+      } else {
+        const response = await this.conductorService.findAll({
+          page: this.currentPage(),
+          limit: this.pageSize(),
+          search: this.searchTerm() || undefined,
+          fechaInicio: this.fechaInicio() || undefined,
+          fechaFin: this.fechaFin() || undefined,
+        });
+        this.conductores.set(response.data);
+        this.conductoresEstadoDocumentos.set([]);
+        this.meta.set(response.meta);
+      }
+
+      this.loading.set(false);
+    } catch (error) {
+      console.error('Error al cargar conductores:', error);
+      this.toastService.error(getErrorMessage(error, 'Error al cargar conductores'));
+      this.loading.set(false);
+    }
   }
 
   onSearch() {
@@ -117,9 +196,76 @@ export class ConductoresList implements OnInit, OnDestroy {
     this.showModal.set(true);
   }
 
+  toggleFiltroDocumentos() {
+    const current = this.filtroDocumentos();
+    if (current === null) {
+      this.filtroDocumentos.set('incompleto');
+    } else {
+      this.filtroDocumentos.set(null);
+    }
+    this.currentPage.set(1);
+    this.loadConductores();
+  }
+
+  toggleCompletoIncompleto() {
+    const current = this.filtroDocumentos();
+    if (current === 'incompleto') {
+      this.filtroDocumentos.set('completo');
+    } else {
+      this.filtroDocumentos.set('incompleto');
+    }
+    this.currentPage.set(1);
+    this.loadConductores();
+  }
+
+  getFiltroLabel(): string {
+    const filtro = this.filtroDocumentos();
+    if (filtro === 'incompleto') return 'Incompletos';
+    if (filtro === 'completo') return 'Completos';
+    return 'Todos';
+  }
+
+  getFiltroIcon(): string {
+    const filtro = this.filtroDocumentos();
+    if (filtro === 'incompleto') return 'fa-exclamation-triangle';
+    if (filtro === 'completo') return 'fa-check-circle';
+    return 'fa-file-alt';
+  }
+
+  getDocumentoEstadoClass(estado: string): string {
+    switch (estado) {
+      case 'activo':
+        return 'text-success';
+      case 'caducado':
+        return 'text-warning';
+      case 'nulo':
+        return 'text-danger';
+      default:
+        return 'text-text/40';
+    }
+  }
+
+  getDocumentoEstadoIcon(estado: string): string {
+    switch (estado) {
+      case 'activo':
+        return 'fa-check-circle';
+      case 'caducado':
+        return 'fa-clock';
+      case 'nulo':
+        return 'fa-times-circle';
+      default:
+        return 'fa-question-circle';
+    }
+  }
+
   navigateToEdit(conductor: ApiResponse<'conductores', 'findAll'>['data'][number]) {
     const path = buildPath(PATH.admin.conductores.edit).replace(':id', conductor.id.toString());
     this.router.navigate([path]);
+  }
+
+  viewDetails(id: number) {
+    this.selectedConductorId.set(id);
+    this.showDetailModal.set(true);
   }
 
   closeModal() {
@@ -167,7 +313,7 @@ export class ConductoresList implements OnInit, OnDestroy {
             this.toastService.error(getErrorMessage(error, 'Error al eliminar conductor'));
             this.loading.set(false);
           });
-      }
+      },
     );
   }
 }

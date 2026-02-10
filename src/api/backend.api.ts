@@ -598,6 +598,75 @@ export interface PaginatedConductorResultDto {
   meta: PaginationMetaDto;
 }
 
+export interface ConductorEstadoDocumentosDto {
+  /**
+   * ID del conductor
+   * @example 1
+   */
+  id: number;
+  /**
+   * Nombres del conductor
+   * @example "Juan Carlos"
+   */
+  nombres: string;
+  /**
+   * Apellidos del conductor
+   * @example "Pérez López"
+   */
+  apellidos: string;
+  /**
+   * Fotos del conductor
+   * @example ["https://..."]
+   */
+  fotocheck: string[];
+  /**
+   * Estado del documento
+   * @example "activo"
+   */
+  dni: string;
+  /** @example "activo" */
+  licencia_mtc: string;
+  /** @example "nulo" */
+  seguro_vida_ley: string;
+  /** @example "activo" */
+  sctr: string;
+  /** @example "caducado" */
+  examen_medico: string;
+  /** @example "activo" */
+  psicosensometrico: string;
+  /** @example "nulo" */
+  induccion_general: string;
+  /** @example "activo" */
+  manejo_defensivo: string;
+  /** @example "nulo" */
+  licencia_interna: string;
+  /** @example "activo" */
+  autoriza_ssgg: string;
+  /** @example "nulo" */
+  curso_seguridad_portuaria: string;
+  /** @example "activo" */
+  curso_mercancias_peligrosas: string;
+  /** @example "nulo" */
+  curso_basico_pbip: string;
+  /** @example "activo" */
+  examen_medico_temporal: string;
+  /** @example "nulo" */
+  induccion_visita: string;
+  /** @example "activo" */
+  em_visita: string;
+  /** @example "nulo" */
+  pase_conduc: string;
+  /** @example "activo" */
+  foto_funcionario: string;
+}
+
+export interface PaginatedConductorEstadoDocumentosResultDto {
+  /** Lista de conductores con sus estados de documentos */
+  data: ConductorEstadoDocumentosDto[];
+  /** Metadatos de paginación */
+  meta: PaginationMetaDto;
+}
+
 export interface ConductorDocumentoResultDto {
   /**
    * ID del documento
@@ -1238,6 +1307,68 @@ export interface VehiculoListDto {
 export interface PaginatedVehiculoResultDto {
   /** Lista de vehículos en la página actual */
   data: VehiculoListDto[];
+  /** Metadatos de la paginación */
+  meta: PaginationMetaDto;
+}
+
+export interface VehiculoEstadoDocumentosDto {
+  /**
+   * ID del vehículo
+   * @example 1
+   */
+  id: number;
+  /**
+   * Placa del vehículo
+   * @example "ABC-123"
+   */
+  placa: string;
+  /**
+   * Imágenes del vehículo
+   * @example ["https://ejemplo.com/imagen1.jpg"]
+   */
+  imagenes: string[];
+  /**
+   * Estado del documento: activo (existe y vigente), caducado (existe pero vencido), nulo (no existe)
+   * @example "activo"
+   */
+  tarjeta_propiedad: string;
+  /** @example "caducado" */
+  tarjeta_unica_circulacion: string;
+  /** @example "activo" */
+  citv: string;
+  /** @example "nulo" */
+  soat: string;
+  /** @example "activo" */
+  poliza: string;
+  /** @example "nulo" */
+  certificado_operatividad_factura: string;
+  /** @example "activo" */
+  plan_mantenimiento_historico: string;
+  /** @example "nulo" */
+  certificado_instalacion_gps: string;
+  /** @example "activo" */
+  certificado_valor_anadido: string;
+  /** @example "nulo" */
+  constancia_gps: string;
+  /** @example "caducado" */
+  certificado_tacos: string;
+  /** @example "activo" */
+  certificado_extintores_hidrostatica: string;
+  /** @example "nulo" */
+  certificado_norma_r66: string;
+  /** @example "activo" */
+  certificado_laminados_lunas: string;
+  /** @example "nulo" */
+  certificado_carroceria: string;
+  /** @example "activo" */
+  certificado_caracteristicas_tecnicas: string;
+  /** @example "nulo" */
+  certificado_adas: string;
+}
+
+export interface PaginatedVehiculoEstadoDocumentosResultDto {
+  /** Lista de vehículos con el estado de sus documentos */
+  data: VehiculoEstadoDocumentosDto[];
   /** Metadatos de la paginación */
   meta: PaginationMetaDto;
 }
@@ -3059,7 +3190,7 @@ export interface DocumentoItemDto {
   observacion?: string;
   /**
    * Fecha de Vencimiento Inicial/Por defecto
-   * @example "2026-02-08T21:39:48.178Z"
+   * @example "2026-02-10T06:04:59.180Z"
    */
   fechaVencimiento?: string;
 }
@@ -3242,17 +3373,17 @@ export interface BotiquinItemDto {
   habilitado: boolean;
   /**
    * Fecha de Vencimiento actual
-   * @example "2026-02-08T21:39:48.186Z"
+   * @example "2026-02-10T06:04:59.189Z"
    */
   fechaVencimiento?: string;
   /**
    * Fecha de Salida
-   * @example "2026-02-08T21:39:48.186Z"
+   * @example "2026-02-10T06:04:59.189Z"
    */
   fechaSalida?: string;
   /**
    * Fecha de Reposición
-   * @example "2026-02-08T21:39:48.186Z"
+   * @example "2026-02-10T06:04:59.189Z"
    */
   fechaReposicion?: string;
 }
@@ -5007,11 +5138,6 @@ export interface ViajeListDto {
    */
   clienteId: number;
   /**
-   * Lista de tripulantes
-   * @example ["Juan Pérez","María García"]
-   */
-  tripulantes?: string[];
-  /**
    * Modalidad de servicio
    * @example "regular"
    */
@@ -5519,11 +5645,6 @@ export interface ViajeResultDto {
    */
   clienteId: number;
   /**
-   * Lista de tripulantes
-   * @example ["Juan Pérez","María García"]
-   */
-  tripulantes?: string[];
-  /**
    * Modalidad de servicio
    * @example "regular"
    */
@@ -5632,11 +5753,6 @@ export interface ViajeCreateDto {
    */
   clienteId: number;
   /**
-   * Lista de tripulantes
-   * @example ["Juan Pérez","María García"]
-   */
-  tripulantes?: string[];
-  /**
    * Modalidad de servicio
    * @default "regular"
    */
@@ -5727,11 +5843,6 @@ export interface ViajeUpdateDto {
    * @example 1
    */
   clienteId?: number;
-  /**
-   * Lista de tripulantes
-   * @example ["Juan Pérez","María García"]
-   */
-  tripulantes?: string[];
   /**
    * Modalidad de servicio
    * @default "regular"
@@ -6232,6 +6343,70 @@ export interface ServicioOrdenDto {
 export interface ViajeServicioReordenarDto {
   /** Lista de servicios con su nuevo orden */
   servicios: ServicioOrdenDto[];
+}
+
+export interface ViajePasajeroDetalleDto {
+  /**
+   * ID del pasajero
+   * @example 1
+   */
+  id: number;
+  /**
+   * DNI del pasajero
+   * @example "12345678"
+   */
+  dni: string;
+  /**
+   * Nombres del pasajero
+   * @example "Juan"
+   */
+  nombres: string;
+  /**
+   * Apellidos del pasajero
+   * @example "Pérez"
+   */
+  apellidos: string;
+}
+
+export interface ViajePasajeroResultDto {
+  /**
+   * ID del viaje
+   * @example 1
+   */
+  viajeId: number;
+  /**
+   * ID del pasajero
+   * @example 1
+   */
+  pasajeroId: number;
+  /**
+   * Asistencia del pasajero
+   * @example false
+   */
+  asistencia: boolean;
+  /**
+   * Fecha de creación
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  creadoEn: string;
+  /**
+   * Fecha de actualización
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  actualizadoEn: string;
+  pasajero: ViajePasajeroDetalleDto;
+}
+
+export type PasajeroItemDto = object;
+
+export interface ViajePasajeroFillDto {
+  /**
+   * Lista de pasajeros con su estado de asistencia
+   * @example [{"pasajeroId":1,"asistencia":true},{"pasajeroId":2,"asistencia":false}]
+   */
+  pasajeros: PasajeroItemDto[];
 }
 
 export interface ChecklistItemResultDto {
@@ -6934,6 +7109,74 @@ export interface ClienteDocumentoUpdateDto {
    * @example "2023-01-15"
    */
   fechaEmision?: string;
+}
+
+export interface PasajeroResultDto {
+  /** @example 1 */
+  id: number;
+  /** @example 1 */
+  clienteId: number;
+  /** @example "12345678" */
+  dni: string;
+  /** @example "Juan" */
+  nombres: string;
+  /** @example "Pérez" */
+  apellidos: string;
+  /** @format date-time */
+  creadoEn: string;
+  /** @format date-time */
+  actualizadoEn: string;
+}
+
+export interface PaginatedPasajeroResultDto {
+  data: PasajeroResultDto[];
+  meta: object;
+}
+
+export interface PasajeroCreateDto {
+  /**
+   * ID del cliente propietario
+   * @example 1
+   */
+  clienteId: number;
+  /**
+   * DNI del pasajero
+   * @example "12345678"
+   */
+  dni: string;
+  /**
+   * Nombres del pasajero
+   * @example "Juan"
+   */
+  nombres: string;
+  /**
+   * Apellidos del pasajero
+   * @example "Pérez"
+   */
+  apellidos: string;
+}
+
+export interface PasajeroUpdateDto {
+  /**
+   * ID del cliente propietario
+   * @example 1
+   */
+  clienteId?: number;
+  /**
+   * DNI del pasajero
+   * @example "12345678"
+   */
+  dni?: string;
+  /**
+   * Nombres del pasajero
+   * @example "Juan"
+   */
+  nombres?: string;
+  /**
+   * Apellidos del pasajero
+   * @example "Pérez"
+   */
+  apellidos?: string;
 }
 
 export interface TallerCreateDto {
@@ -8205,6 +8448,29 @@ export interface ConductoresFindAllParams {
 
 export type ConductoresFindAllData = PaginatedConductorResultDto;
 
+export interface ConductoresFindAllEstadoDocumentosParams {
+  /**
+   * Número de página (comienza en 1)
+   * @default 1
+   * @example 1
+   */
+  page?: number;
+  /**
+   * Cantidad de elementos por página
+   * @default 10
+   * @example 10
+   */
+  limit?: number;
+  /**
+   * Filtrar por estado de documentos
+   * @example "incompleto"
+   */
+  filtro?: "completo" | "incompleto";
+}
+
+export type ConductoresFindAllEstadoDocumentosData =
+  PaginatedConductorEstadoDocumentosResultDto;
+
 export interface ConductoresFindOneParams {
   /** Driver ID */
   id: number;
@@ -8290,6 +8556,29 @@ export interface VehiculosFindAllParams {
 }
 
 export type VehiculosFindAllData = PaginatedVehiculoResultDto;
+
+export interface VehiculosFindAllEstadoDocumentosParams {
+  /**
+   * Número de página (comienza en 1)
+   * @default 1
+   * @example 1
+   */
+  page?: number;
+  /**
+   * Cantidad de elementos por página
+   * @default 10
+   * @example 10
+   */
+  limit?: number;
+  /**
+   * Filtrar por estado de documentos
+   * @example "incompleto"
+   */
+  filtro?: "completo" | "incompleto";
+}
+
+export type VehiculosFindAllEstadoDocumentosData =
+  PaginatedVehiculoEstadoDocumentosResultDto;
 
 export interface VehiculosFindOneParams {
   /** Vehicle ID */
@@ -9048,6 +9337,20 @@ export interface ViajesReordenarServiciosParams {
 
 export type ViajesReordenarServiciosData = ViajeServicioResultDto[];
 
+export interface ViajesFindPasajerosParams {
+  /** ID del viaje */
+  viajeId: number;
+}
+
+export type ViajesFindPasajerosData = ViajePasajeroResultDto[];
+
+export interface ViajesUpsertPasajerosParams {
+  /** ID del viaje */
+  viajeId: number;
+}
+
+export type ViajesUpsertPasajerosData = ViajePasajeroResultDto[];
+
 export type ViajesFindAllChecklistItemsData = ChecklistItemResultDto[];
 
 export interface ViajesFindChecklistItemParams {
@@ -9256,6 +9559,51 @@ export interface ClientesDeleteDocumentoParams {
 }
 
 export type ClientesDeleteDocumentoData = ClienteDocumentoResultDto;
+
+export interface ClientesFindAllPasajerosParams {
+  /**
+   * Número de página
+   * @example 1
+   */
+  page?: number;
+  /**
+   * Límite de items por página
+   * @example 10
+   */
+  limit?: number;
+  /** Término de búsqueda (DNI, nombres, apellidos) */
+  search?: string;
+  /**
+   * ID del cliente para filtrar
+   * @example 1
+   */
+  clienteId?: number;
+}
+
+export type ClientesFindAllPasajerosData = PaginatedPasajeroResultDto;
+
+export interface ClientesFindPasajeroParams {
+  /** ID del pasajero */
+  id: number;
+}
+
+export type ClientesFindPasajeroData = PasajeroResultDto;
+
+export type ClientesCreatePasajeroData = PasajeroResultDto;
+
+export interface ClientesUpdatePasajeroParams {
+  /** ID del pasajero */
+  id: number;
+}
+
+export type ClientesUpdatePasajeroData = PasajeroResultDto;
+
+export interface ClientesDeletePasajeroParams {
+  /** ID del pasajero */
+  id: number;
+}
+
+export type ClientesDeletePasajeroData = PasajeroResultDto;
 
 export type TalleresCreateData = any;
 
@@ -9837,6 +10185,41 @@ export namespace Conductores {
   /**
    * No description
    * @tags conductores
+   * @name ConductoresFindAllEstadoDocumentos
+   * @summary Obtener estado de documentos de conductores (activo/caducado/nulo)
+   * @request GET:/conductor/estado-documentos
+   * @secure
+   * @response `200` `ConductoresFindAllEstadoDocumentosData`
+   */
+  export namespace ConductoresFindAllEstadoDocumentos {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /**
+       * Número de página (comienza en 1)
+       * @default 1
+       * @example 1
+       */
+      page?: number;
+      /**
+       * Cantidad de elementos por página
+       * @default 10
+       * @example 10
+       */
+      limit?: number;
+      /**
+       * Filtrar por estado de documentos
+       * @example "incompleto"
+       */
+      filtro?: "completo" | "incompleto";
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ConductoresFindAllEstadoDocumentosData;
+  }
+
+  /**
+   * No description
+   * @tags conductores
    * @name ConductoresFindOne
    * @summary Get a driver by ID
    * @request GET:/conductor/find-one/{id}
@@ -10133,6 +10516,41 @@ export namespace Vehiculos {
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = VehiculosFindAllData;
+  }
+
+  /**
+   * No description
+   * @tags vehiculos
+   * @name VehiculosFindAllEstadoDocumentos
+   * @summary Obtener estado de documentos de vehículos (activo/caducado/nulo)
+   * @request GET:/vehiculo/estado-documentos
+   * @secure
+   * @response `200` `VehiculosFindAllEstadoDocumentosData`
+   */
+  export namespace VehiculosFindAllEstadoDocumentos {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /**
+       * Número de página (comienza en 1)
+       * @default 1
+       * @example 1
+       */
+      page?: number;
+      /**
+       * Cantidad de elementos por página
+       * @default 10
+       * @example 10
+       */
+      limit?: number;
+      /**
+       * Filtrar por estado de documentos
+       * @example "incompleto"
+       */
+      filtro?: "completo" | "incompleto";
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = VehiculosFindAllEstadoDocumentosData;
   }
 
   /**
@@ -12037,6 +12455,46 @@ export namespace Viajes {
   /**
    * No description
    * @tags viajes
+   * @name ViajesFindPasajeros
+   * @summary Obtener todos los pasajeros de un viaje
+   * @request GET:/viaje/{viajeId}/pasajeros
+   * @secure
+   * @response `200` `ViajesFindPasajerosData`
+   */
+  export namespace ViajesFindPasajeros {
+    export type RequestParams = {
+      /** ID del viaje */
+      viajeId: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ViajesFindPasajerosData;
+  }
+
+  /**
+   * No description
+   * @tags viajes
+   * @name ViajesUpsertPasajeros
+   * @summary Agregar o actualizar pasajeros en un viaje
+   * @request POST:/viaje/{viajeId}/pasajeros/upsert
+   * @secure
+   * @response `201` `ViajesUpsertPasajerosData`
+   */
+  export namespace ViajesUpsertPasajeros {
+    export type RequestParams = {
+      /** ID del viaje */
+      viajeId: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = ViajePasajeroFillDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = ViajesUpsertPasajerosData;
+  }
+
+  /**
+   * No description
+   * @tags viajes
    * @name ViajesFindAllChecklistItems
    * @summary Obtener todos los items del catálogo de checklist
    * @request GET:/viaje/checklist-item/find-all
@@ -12575,6 +13033,118 @@ export namespace Clientes {
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = ClientesDeleteDocumentoData;
+  }
+
+  /**
+   * No description
+   * @tags clientes
+   * @name ClientesFindAllPasajeros
+   * @summary Obtener pasajeros con paginación, búsqueda y filtro por cliente
+   * @request GET:/cliente/pasajero/find-all
+   * @secure
+   * @response `200` `ClientesFindAllPasajerosData`
+   */
+  export namespace ClientesFindAllPasajeros {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /**
+       * Número de página
+       * @example 1
+       */
+      page?: number;
+      /**
+       * Límite de items por página
+       * @example 10
+       */
+      limit?: number;
+      /** Término de búsqueda (DNI, nombres, apellidos) */
+      search?: string;
+      /**
+       * ID del cliente para filtrar
+       * @example 1
+       */
+      clienteId?: number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ClientesFindAllPasajerosData;
+  }
+
+  /**
+   * No description
+   * @tags clientes
+   * @name ClientesFindPasajero
+   * @summary Obtener un pasajero por ID
+   * @request GET:/cliente/pasajero/find-one/{id}
+   * @secure
+   * @response `200` `ClientesFindPasajeroData`
+   */
+  export namespace ClientesFindPasajero {
+    export type RequestParams = {
+      /** ID del pasajero */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ClientesFindPasajeroData;
+  }
+
+  /**
+   * No description
+   * @tags clientes
+   * @name ClientesCreatePasajero
+   * @summary Crear un nuevo pasajero
+   * @request POST:/cliente/pasajero/create
+   * @secure
+   * @response `201` `ClientesCreatePasajeroData`
+   */
+  export namespace ClientesCreatePasajero {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = PasajeroCreateDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = ClientesCreatePasajeroData;
+  }
+
+  /**
+   * No description
+   * @tags clientes
+   * @name ClientesUpdatePasajero
+   * @summary Actualizar un pasajero
+   * @request PATCH:/cliente/pasajero/update/{id}
+   * @secure
+   * @response `200` `ClientesUpdatePasajeroData`
+   */
+  export namespace ClientesUpdatePasajero {
+    export type RequestParams = {
+      /** ID del pasajero */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = PasajeroUpdateDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = ClientesUpdatePasajeroData;
+  }
+
+  /**
+   * No description
+   * @tags clientes
+   * @name ClientesDeletePasajero
+   * @summary Eliminar un pasajero
+   * @request DELETE:/cliente/pasajero/delete/{id}
+   * @secure
+   * @response `200` `ClientesDeletePasajeroData`
+   */
+  export namespace ClientesDeletePasajero {
+    export type RequestParams = {
+      /** ID del pasajero */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ClientesDeletePasajeroData;
   }
 }
 
@@ -13843,6 +14413,29 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags conductores
+     * @name ConductoresFindAllEstadoDocumentos
+     * @summary Obtener estado de documentos de conductores (activo/caducado/nulo)
+     * @request GET:/conductor/estado-documentos
+     * @secure
+     * @response `200` `ConductoresFindAllEstadoDocumentosData`
+     */
+    findAllEstadoDocumentos: (
+      query: ConductoresFindAllEstadoDocumentosParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ConductoresFindAllEstadoDocumentosData, any>({
+        path: `/conductor/estado-documentos`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags conductores
      * @name ConductoresFindOne
      * @summary Get a driver by ID
      * @request GET:/conductor/find-one/{id}
@@ -14154,6 +14747,29 @@ export class Api<SecurityDataType extends unknown> {
     ) =>
       this.http.request<VehiculosFindAllData, any>({
         path: `/vehiculo/find-all`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags vehiculos
+     * @name VehiculosFindAllEstadoDocumentos
+     * @summary Obtener estado de documentos de vehículos (activo/caducado/nulo)
+     * @request GET:/vehiculo/estado-documentos
+     * @secure
+     * @response `200` `VehiculosFindAllEstadoDocumentosData`
+     */
+    findAllEstadoDocumentos: (
+      query: VehiculosFindAllEstadoDocumentosParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<VehiculosFindAllEstadoDocumentosData, any>({
+        path: `/vehiculo/estado-documentos`,
         method: "GET",
         query: query,
         secure: true,
@@ -16137,6 +16753,53 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags viajes
+     * @name ViajesFindPasajeros
+     * @summary Obtener todos los pasajeros de un viaje
+     * @request GET:/viaje/{viajeId}/pasajeros
+     * @secure
+     * @response `200` `ViajesFindPasajerosData`
+     */
+    findPasajeros: (
+      { viajeId, ...query }: ViajesFindPasajerosParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ViajesFindPasajerosData, any>({
+        path: `/viaje/${viajeId}/pasajeros`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags viajes
+     * @name ViajesUpsertPasajeros
+     * @summary Agregar o actualizar pasajeros en un viaje
+     * @request POST:/viaje/{viajeId}/pasajeros/upsert
+     * @secure
+     * @response `201` `ViajesUpsertPasajerosData`
+     */
+    upsertPasajeros: (
+      { viajeId, ...query }: ViajesUpsertPasajerosParams,
+      data: ViajePasajeroFillDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ViajesUpsertPasajerosData, any>({
+        path: `/viaje/${viajeId}/pasajeros/upsert`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags viajes
      * @name ViajesFindAllChecklistItems
      * @summary Obtener todos los items del catálogo de checklist
      * @request GET:/viaje/checklist-item/find-all
@@ -16679,6 +17342,122 @@ export class Api<SecurityDataType extends unknown> {
     ) =>
       this.http.request<ClientesDeleteDocumentoData, any>({
         path: `/cliente/documento/delete/${id}`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags clientes
+     * @name ClientesFindAllPasajeros
+     * @summary Obtener pasajeros con paginación, búsqueda y filtro por cliente
+     * @request GET:/cliente/pasajero/find-all
+     * @secure
+     * @response `200` `ClientesFindAllPasajerosData`
+     */
+    findAllPasajeros: (
+      query: ClientesFindAllPasajerosParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ClientesFindAllPasajerosData, any>({
+        path: `/cliente/pasajero/find-all`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags clientes
+     * @name ClientesFindPasajero
+     * @summary Obtener un pasajero por ID
+     * @request GET:/cliente/pasajero/find-one/{id}
+     * @secure
+     * @response `200` `ClientesFindPasajeroData`
+     */
+    findPasajero: (
+      { id, ...query }: ClientesFindPasajeroParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ClientesFindPasajeroData, any>({
+        path: `/cliente/pasajero/find-one/${id}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags clientes
+     * @name ClientesCreatePasajero
+     * @summary Crear un nuevo pasajero
+     * @request POST:/cliente/pasajero/create
+     * @secure
+     * @response `201` `ClientesCreatePasajeroData`
+     */
+    createPasajero: (
+      data: PasajeroCreateDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ClientesCreatePasajeroData, any>({
+        path: `/cliente/pasajero/create`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags clientes
+     * @name ClientesUpdatePasajero
+     * @summary Actualizar un pasajero
+     * @request PATCH:/cliente/pasajero/update/{id}
+     * @secure
+     * @response `200` `ClientesUpdatePasajeroData`
+     */
+    updatePasajero: (
+      { id, ...query }: ClientesUpdatePasajeroParams,
+      data: PasajeroUpdateDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ClientesUpdatePasajeroData, any>({
+        path: `/cliente/pasajero/update/${id}`,
+        method: "PATCH",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags clientes
+     * @name ClientesDeletePasajero
+     * @summary Eliminar un pasajero
+     * @request DELETE:/cliente/pasajero/delete/{id}
+     * @secure
+     * @response `200` `ClientesDeletePasajeroData`
+     */
+    deletePasajero: (
+      { id, ...query }: ClientesDeletePasajeroParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ClientesDeletePasajeroData, any>({
+        path: `/cliente/pasajero/delete/${id}`,
         method: "DELETE",
         secure: true,
         format: "json",

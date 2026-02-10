@@ -10,10 +10,13 @@ import {
 import { ClienteService } from '@service/admin/cliente.service';
 import { ToastService } from '@service/toast.service';
 import { getErrorMessage } from '@helper/error.helper';
+import { AlertService } from '@service/alert.service';
+
+import { PasajeroForm, PasajeroData } from './layout/pasajero-form/pasajero-form';
 
 @Component({
   selector: 'app-cliente-form',
-  imports: [CommonModule, ReactiveFormsModule, ImagesUpload, DocumentsDateUpload],
+  imports: [CommonModule, ReactiveFormsModule, ImagesUpload, DocumentsDateUpload, PasajeroForm],
   templateUrl: './cliente-form.html',
   styleUrl: './cliente-form.css',
 })
@@ -21,6 +24,7 @@ export class ClienteForm implements OnInit {
   private fb = inject(FormBuilder);
   private clienteService = inject(ClienteService);
   private toastService = inject(ToastService);
+  private alertService = inject(AlertService);
 
   // Inputs
   cliente = input<ApiResponse<'clientes', 'findOne'> | null>(null);
@@ -32,6 +36,9 @@ export class ClienteForm implements OnInit {
   // State
   imagenes = signal<string[]>([]);
   localDocuments = signal<ApiResponse<'clientes', 'findOne'>['documentos'] | null>(null);
+  pasajeros = signal<PasajeroData[]>([]);
+  showPasajeroModal = signal(false);
+  selectedPasajero = signal<PasajeroData | null>(null);
 
   clienteForm: FormGroup = this.fb.group({
     tipoDocumento: ['DNI', [Validators.required]],
@@ -79,6 +86,7 @@ export class ClienteForm implements OnInit {
         });
         this.imagenes.set(clienteData.imagenes || []);
         this.localDocuments.set(JSON.parse(JSON.stringify(clienteData.documentos)));
+        this.loadPasajeros(clienteData.id);
       } else {
         this.clienteForm.reset({ tipoDocumento: 'DNI' });
         this.imagenes.set([]);
@@ -162,7 +170,7 @@ export class ClienteForm implements OnInit {
   // Document Management
   handleDocumentUpload(
     event: DocumentWithDate,
-    tipo: keyof ApiField<'clientes', 'findOne', 'documentos'>
+    tipo: keyof ApiField<'clientes', 'findOne', 'documentos'>,
   ) {
     if (!this.cliente()) return;
 
@@ -218,7 +226,7 @@ export class ClienteForm implements OnInit {
   }
 
   private addDocumentToLocalList(
-    doc: ApiField<'clientes', 'findOne', 'documentos'>['dni'][number]
+    doc: ApiField<'clientes', 'findOne', 'documentos'>['dni'][number],
   ) {
     const docs = this.localDocuments();
     if (docs) {
@@ -233,7 +241,7 @@ export class ClienteForm implements OnInit {
   }
 
   private updateDocumentInLocalList(
-    doc: ApiField<'clientes', 'findOne', 'documentos'>['dni'][number]
+    doc: ApiField<'clientes', 'findOne', 'documentos'>['dni'][number],
   ) {
     const docs = this.localDocuments();
     if (docs) {
@@ -248,7 +256,7 @@ export class ClienteForm implements OnInit {
 
   private removeDocumentFromLocalList(
     id: number,
-    tipo: keyof ApiField<'clientes', 'findOne', 'documentos'>
+    tipo: keyof ApiField<'clientes', 'findOne', 'documentos'>,
   ) {
     const docs = this.localDocuments();
     if (docs) {
@@ -261,10 +269,72 @@ export class ClienteForm implements OnInit {
   }
 
   getDocuments(
-    tipo: keyof ApiField<'clientes', 'findOne', 'documentos'>
+    tipo: keyof ApiField<'clientes', 'findOne', 'documentos'>,
   ): ApiField<'clientes', 'findOne', 'documentos'>['dni'] {
     const docs = this.localDocuments();
     if (!docs) return [];
     return docs[tipo] || [];
+  }
+
+  // Pasajeros Management
+  loadPasajeros(clienteId: number) {
+    this.clienteService
+      .findAllPasajeros({ clienteId, limit: 100, page: 1 })
+      .then((res) => {
+        this.pasajeros.set(res.data);
+      })
+      .catch((err) => {
+        console.error('Error al cargar pasajeros:', err);
+      });
+  }
+
+  openPasajeroModal(pasajero: PasajeroData | null = null) {
+    this.selectedPasajero.set(pasajero);
+    this.showPasajeroModal.set(true);
+  }
+
+  closePasajeroModal() {
+    this.showPasajeroModal.set(false);
+    this.selectedPasajero.set(null);
+  }
+
+  handleSavePasajero(data: PasajeroData) {
+    const promise = data.id
+      ? this.clienteService.updatePasajero(data.id, data)
+      : this.clienteService.createPasajero(data);
+
+    promise
+      .then(() => {
+        this.toastService.success(
+          data.id ? 'Pasajero actualizado exitosamente' : 'Pasajero creado exitosamente',
+        );
+        this.loadPasajeros(this.cliente()!.id);
+        this.closePasajeroModal();
+      })
+      .catch((err) => {
+        console.error('Error al guardar pasajero:', err);
+        this.toastService.error('Error al guardar pasajero');
+      });
+  }
+
+  deletePasajero(id: number | undefined) {
+    if (!id) return;
+
+    this.alertService.delete(
+      'Eliminar pasajero',
+      '¿Estás seguro de eliminar este pasajero?',
+      () => {
+        this.clienteService
+          .deletePasajero(id)
+          .then(() => {
+            this.toastService.success('Pasajero eliminado exitosamente');
+            this.loadPasajeros(this.cliente()!.id);
+          })
+          .catch((err) => {
+            console.error('Error al eliminar pasajero:', err);
+            this.toastService.error('Error al eliminar pasajero');
+          });
+      },
+    );
   }
 }
