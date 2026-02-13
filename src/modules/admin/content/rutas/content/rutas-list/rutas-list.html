@@ -75,267 +75,205 @@
 
   <!-- Vista Grid/Table Selector -->
   @if (loading()) {
-  <div class="flex items-center justify-center py-12">
-    <div class="flex flex-col items-center gap-3">
-      <i class="fas fa-spinner fa-spin text-3xl text-secondary"></i>
-      <p class="text-text/60 font-inter-medium">Cargando rutas...</p>
+    <div class="flex items-center justify-center py-12">
+      <div class="flex flex-col items-center gap-3">
+        <i class="fas fa-spinner fa-spin text-3xl text-secondary"></i>
+        <p class="text-text/60 font-inter-medium">Cargando rutas...</p>
+      </div>
     </div>
-  </div>
   }
 
   <!-- Empty State -->
   @else if (rutas().length === 0) {
-  <div
-    class="flex flex-col items-center justify-center py-12 text-text/60 bg-background border border-text/10 rounded-xl"
-  >
-    <i class="fas fa-route text-5xl mb-4 text-text/20"></i>
-    <p class="font-inter-semibold text-lg">No hay rutas registradas</p>
-    <p class="font-inter-regular text-sm mt-1">Comienza agregando una nueva ruta</p>
-  </div>
-  }
-
-  <!-- Grid View -->
-  @else if (viewMode() === 'grid') {
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-    @for (ruta of rutas(); track ruta.id) {
     <div
-      class="bg-background border border-text/10 rounded-xl shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col h-full group"
+      class="flex flex-col items-center justify-center py-12 text-text/60 bg-background border border-text/10 rounded-xl"
     >
-      <!-- Route Header with Map -->
-      <div class="relative overflow-hidden">
-        <!-- OpenStreetMap Embed -->
-        <div class="relative h-48 w-full bg-text/5">
-          <iframe [src]="getMapUrl(ruta)" class="w-full h-full border-0" loading="lazy"></iframe>
-        </div>
-
-        <!-- Overlay with route info -->
-        <div
-          class="absolute top-0 left-0 right-0 p-3 bg-linear-to-b from-background/50 to-transparent"
-        >
-          <div class="flex items-start justify-between">
-            <div class="flex items-center gap-2">
-              <div
-                class="w-10 h-10 bg-background/95 rounded-lg flex items-center justify-center shadow-lg"
-              >
-                <i class="fas fa-route text-lg text-primary"></i>
-              </div>
-              <div>
-                <h3 class="text-sm font-inter-bold text-text">
-                  {{ ruta.origen }} → {{ ruta.destino }}
-                </h3>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Route Details -->
-      <div class="p-4 space-y-3 flex-1">
-        <!-- Origen -->
-        <div class="flex items-start gap-2 text-text">
-          <i class="fas fa-location-dot text-success text-sm w-5 mt-0.5"></i>
-          <div class="flex-1">
-            <p class="text-xs font-inter-medium text-text/60">Origen</p>
-            <p class="text-sm font-inter-bold">{{ ruta.origen }}</p>
-            <p class="text-xs font-inter-regular text-text/50 mt-0.5">
-              {{ ruta.origenLat }}, {{ ruta.origenLng }}
-            </p>
-          </div>
-        </div>
-
-        <!-- Destino -->
-        <div class="flex items-start gap-2 text-text">
-          <i class="fas fa-location-dot text-danger text-sm w-5 mt-0.5"></i>
-          <div class="flex-1">
-            <p class="text-xs font-inter-medium text-text/60">Destino</p>
-            <p class="text-sm font-inter-bold">{{ ruta.destino }}</p>
-            <p class="text-xs font-inter-regular text-text/50 mt-0.5">
-              {{ ruta.destinoLat }}, {{ ruta.destinoLng }}
-            </p>
-          </div>
-        </div>
-
-        <!-- Distancia y Costo -->
-        <div class="grid grid-cols-2 gap-3 pt-2 border-t border-text/10">
-          <div class="flex items-center gap-2">
-            <i class="fas fa-road text-info text-sm"></i>
-            <div class="flex-1">
-              <p class="text-xs font-inter-medium text-text/60">Distancia</p>
-              <p class="text-sm font-inter-bold text-text">{{ ruta.distancia }} km</p>
-            </div>
-          </div>
-          <div class="flex items-center gap-2">
-            <i class="fas fa-dollar-sign text-success text-sm"></i>
-            <div class="flex-1">
-              <p class="text-xs font-inter-medium text-text/60">Costo Base</p>
-              <p class="text-sm font-inter-bold text-text">S/ {{ ruta.costoBase }}</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Actions -->
-        <div class="pt-3 border-t border-text/10 flex items-center justify-end gap-2">
-          <button
-            (click)="navigateToEdit(ruta)"
-            class="flex items-center gap-1.5 px-3 py-1.5 text-info hover:bg-info/10 rounded-lg transition-colors text-xs font-inter-semibold"
-            title="Editar"
-          >
-            <i class="fas fa-edit"></i>
-            <span>Editar</span>
-          </button>
-          <button
-            (click)="deleteRuta(ruta.id)"
-            class="flex items-center gap-1.5 px-3 py-1.5 text-danger hover:bg-danger/10 rounded-lg transition-colors text-xs font-inter-semibold"
-            title="Eliminar"
-          >
-            <i class="fas fa-trash"></i>
-            <span>Eliminar</span>
-          </button>
-        </div>
-      </div>
+      <i class="fas fa-route text-5xl mb-4 text-text/20"></i>
+      <p class="font-inter-semibold text-lg">No hay circuitos registrados</p>
+      <p class="font-inter-regular text-sm mt-1">Comienza agregando un nuevo circuito</p>
     </div>
-    }
-  </div>
-
-  <!-- Paginación Grid -->
-  <app-pagination
-    [meta]="meta()"
-    [currentPage]="currentPage()"
-    [pageSize]="pageSize()"
-    (pageChange)="onPageChange($event)"
-    (pageSizeChange)="onPageSizeChange($event)"
-  />
   }
 
   <!-- Table View -->
   @else {
-  <div class="bg-background border border-text/10 rounded-xl shadow-sm overflow-hidden">
-    <div class="overflow-x-auto">
-      <table class="w-full">
-        <thead class="bg-text/5 border-b border-text/10">
-          <tr>
-            <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
-            >
-              ID
-            </th>
-            <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
-            >
-              Origen
-            </th>
-            <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
-            >
-              Destino
-            </th>
-            <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
-            >
-              Coordenadas Origen
-            </th>
-            <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
-            >
-              Coordenadas Destino
-            </th>
-            <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
-            >
-              Distancia
-            </th>
-            <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
-            >
-              Costo Base
-            </th>
-            <th
-              class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase tracking-wider"
-            >
-              Acciones
-            </th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-text/10">
-          @for (ruta of rutas(); track ruta.id) {
-          <tr class="hover:bg-text/5 transition-colors">
-            <td class="px-4 py-3 whitespace-nowrap">
-              <span class="text-xs font-inter-semibold text-text">{{ ruta.id }}</span>
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap">
-              <div class="flex items-center gap-2">
-                <i class="fas fa-location-dot text-success text-sm"></i>
-                <span class="text-xs font-inter-bold text-text">{{ ruta.origen }}</span>
-              </div>
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap">
-              <div class="flex items-center gap-2">
-                <i class="fas fa-location-dot text-danger text-sm"></i>
-                <span class="text-xs font-inter-bold text-text">{{ ruta.destino }}</span>
-              </div>
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap">
-              <span class="text-xs font-inter-regular text-text/70"
-                >{{ ruta.origenLat }}, {{ ruta.origenLng }}</span
+    <div class="bg-background border border-text/10 rounded-xl shadow-sm overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-text/5 border-b border-text/10">
+            <tr>
+              <th
+                class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
               >
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap">
-              <span class="text-xs font-inter-regular text-text/70"
-                >{{ ruta.destinoLat }}, {{ ruta.destinoLng }}</span
+                ID
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
               >
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap">
-              <span class="text-xs font-inter-semibold text-text">{{ ruta.distancia }} km</span>
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap">
-              <span class="text-xs font-inter-semibold text-success">S/ {{ ruta.costoBase }}</span>
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap text-right">
-              <div class="flex items-center justify-end gap-1">
-                <button
-                  (click)="navigateToEdit(ruta)"
-                  class="p-1.5 text-info hover:bg-info/10 rounded-lg transition-colors text-sm"
-                  title="Editar"
-                >
-                  <i class="fas fa-edit"></i>
-                </button>
-                <button
-                  (click)="deleteRuta(ruta.id)"
-                  class="p-1.5 text-danger hover:bg-danger/10 rounded-lg transition-colors text-sm"
-                  title="Eliminar"
-                >
-                  <i class="fas fa-trash"></i>
-                </button>
-              </div>
-            </td>
-          </tr>
-          }
-        </tbody>
-      </table>
-    </div>
+                Circuito
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              >
+                Sentido
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              >
+                Origen
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              >
+                Destino
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              >
+                Coords. Origen
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              >
+                Coords. Destino
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              >
+                Distancia
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              >
+                Costo
+              </th>
+              <th
+                class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              >
+                Acciones
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-text/10">
+            @for (row of processedRows(); track row) {
+              <tr class="hover:bg-text/5 transition-colors group">
+                <!-- Celdas agrupadas (Circuito) -->
+                @if (row.isFirst) {
+                  <td
+                    [attr.rowspan]="row.rowSpan"
+                    class="px-4 py-3 align-middle bg-background border-r border-text/5 text-xs text-text/50 font-inter-medium"
+                  >
+                    #{{ row.circuito.id }}
+                  </td>
+                  <td
+                    [attr.rowspan]="row.rowSpan"
+                    class="px-4 py-3 align-middle bg-background border-r border-text/5 min-w-[100px]"
+                  >
+                    <span class="text-xs font-inter-bold text-text">{{ row.circuito.nombre }}</span>
+                  </td>
+                }
 
-    <!-- Paginación Tabla -->
-    <app-pagination
-      [meta]="meta()"
-      [currentPage]="currentPage()"
-      [pageSize]="pageSize()"
-      (pageChange)="onPageChange($event)"
-      (pageSizeChange)="onPageSizeChange($event)"
-    />
-  </div>
+                <!-- Celdas individuales (Ruta) -->
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <span
+                    class="px-2 py-0.5 rounded text-[10px] font-inter-bold uppercase border"
+                    [class]="
+                      row.tipo === 'ida'
+                        ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
+                        : 'bg-blue-500/10 text-blue-600 border-blue-500/20'
+                    "
+                  >
+                    {{ row.tipo }}
+                  </span>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <div class="flex items-center gap-2">
+                    <i class="fas fa-location-dot text-[10px] text-text/40"></i>
+                    <span class="text-xs font-inter-regular text-text">{{
+                      row.ruta?.origen || '-'
+                    }}</span>
+                  </div>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <div class="flex items-center gap-2">
+                    <i class="fas fa-flag text-[10px] text-text/40"></i>
+                    <span class="text-xs font-inter-regular text-text">{{
+                      row.ruta?.destino || '-'
+                    }}</span>
+                  </div>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <span class="text-xs font-inter-regular text-text/50"
+                    >{{ row.ruta?.origenLat }}, {{ row.ruta?.origenLng }}</span
+                  >
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <span class="text-xs font-inter-regular text-text/50"
+                    >{{ row.ruta?.destinoLat }}, {{ row.ruta?.destinoLng }}</span
+                  >
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <span class="text-xs font-inter-semibold text-text"
+                    >{{ row.ruta?.distancia || 0 }} km</span
+                  >
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <span class="text-xs font-inter-semibold text-success"
+                    >S/ {{ row.ruta?.costoBase || '0.00' }}</span
+                  >
+                </td>
+
+                <!-- Acciones agrupadas (Circuito) -->
+                @if (row.isFirst) {
+                  <td
+                    [attr.rowspan]="row.rowSpan"
+                    class="px-4 py-3 align-middle text-right bg-background border-l border-text/5"
+                  >
+                    <div class="flex items-center justify-end gap-1">
+                      <button
+                        (click)="navigateToEdit(row.circuito)"
+                        class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-info/10 text-info transition-colors"
+                        title="Editar"
+                      >
+                        <i class="fas fa-edit text-xs"></i>
+                      </button>
+                      <button
+                        (click)="deleteRuta(row.circuito.id)"
+                        class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-danger/10 text-danger transition-colors"
+                        title="Eliminar"
+                      >
+                        <i class="fas fa-trash text-xs"></i>
+                      </button>
+                    </div>
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Paginación Tabla -->
+      <app-pagination
+        [meta]="meta()"
+        [currentPage]="currentPage()"
+        [pageSize]="pageSize()"
+        (pageChange)="onPageChange($event)"
+        (pageSizeChange)="onPageSizeChange($event)"
+      />
+    </div>
   }
 </div>
 
 <!-- Modal -->
 @if (showModal()) {
-<app-modal-form
-  title="Nueva Ruta"
-  submitText="Crear"
-  [loading]="loading()"
-  [maxWidth]="'4xl'"
-  (onSubmit)="handleModalSubmit()"
-  (onClose)="closeModal()"
->
-  <app-ruta-form [editMode]="false" (onSubmitForm)="handleFormSubmit($event)" />
-</app-modal-form>
+  <app-modal-form
+    title="Nueva Ruta"
+    submitText="Crear"
+    [loading]="loading()"
+    [maxWidth]="'6xl'"
+    (onSubmit)="handleModalSubmit()"
+    (onClose)="closeModal()"
+  >
+    <app-ruta-form [editMode]="false" (onSubmitForm)="handleFormSubmit($event)" />
+  </app-modal-form>
 }

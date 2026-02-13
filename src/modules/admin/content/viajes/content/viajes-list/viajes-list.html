@@ -32,391 +32,403 @@
 
     <!-- Buscador y Filtros (Solo para grid/table) -->
     @if (viewMode() !== 'calendar') {
-    <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
-      <!-- Búsqueda -->
-      <div class="relative sm:col-span-4 lg:col-span-2">
-        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"></i>
-        <input
-          type="text"
-          [ngModel]="searchTerm()"
-          (ngModelChange)="onSearchChange($event)"
-          placeholder="Buscar por ruta ocasional"
-          class="w-full pl-10 pr-4 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all"
-        />
-      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+        <!-- Búsqueda -->
+        <div class="relative sm:col-span-4 lg:col-span-2">
+          <i
+            class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"
+          ></i>
+          <input
+            type="text"
+            [ngModel]="searchTerm()"
+            (ngModelChange)="onSearchChange($event)"
+            placeholder="Buscar por ruta ocasional"
+            class="w-full pl-10 pr-4 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all"
+          />
+        </div>
 
-      <!-- Fecha Inicio -->
-      <div class="relative sm:col-span-2 lg:col-span-1">
-        <i
-          class="fas fa-calendar absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"
-        ></i>
-        <input
-          type="date"
-          [ngModel]="fechaInicio()"
-          (ngModelChange)="fechaInicio.set($event); onDateChange()"
-          placeholder="Fecha inicio"
-          class="w-full pl-10 pr-4 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all"
-        />
-      </div>
+        <!-- Fecha Inicio -->
+        <div class="relative sm:col-span-2 lg:col-span-1">
+          <i
+            class="fas fa-calendar absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"
+          ></i>
+          <input
+            type="date"
+            [ngModel]="fechaInicio()"
+            (ngModelChange)="fechaInicio.set($event); onDateChange()"
+            placeholder="Fecha inicio"
+            class="w-full pl-10 pr-4 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all"
+          />
+        </div>
 
-      <!-- Fecha Fin -->
-      <div class="relative sm:col-span-2 lg:col-span-1">
-        <i
-          class="fas fa-calendar absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"
-        ></i>
-        <input
-          type="date"
-          [ngModel]="fechaFin()"
-          (ngModelChange)="fechaFin.set($event); onDateChange()"
-          placeholder="Fecha fin"
-          class="w-full pl-10 pr-4 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all"
-        />
+        <!-- Fecha Fin -->
+        <div class="relative sm:col-span-2 lg:col-span-1">
+          <i
+            class="fas fa-calendar absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"
+          ></i>
+          <input
+            type="date"
+            [ngModel]="fechaFin()"
+            (ngModelChange)="fechaFin.set($event); onDateChange()"
+            placeholder="Fecha fin"
+            class="w-full pl-10 pr-4 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all"
+          />
+        </div>
       </div>
-    </div>
     }
   </div>
 
   <!-- Vista Grid/Table Selector -->
   @if (loading()) {
-  <div class="flex items-center justify-center py-12">
-    <div class="flex flex-col items-center gap-3">
-      <i class="fas fa-spinner fa-spin text-3xl text-secondary"></i>
-      <p class="text-text/60 font-inter-medium">Cargando viajes...</p>
+    <div class="flex items-center justify-center py-12">
+      <div class="flex flex-col items-center gap-3">
+        <i class="fas fa-spinner fa-spin text-3xl text-secondary"></i>
+        <p class="text-text/60 font-inter-medium">Cargando viajes...</p>
+      </div>
     </div>
-  </div>
   }
 
   <!-- Empty State -->
   @else if (viajes().length === 0 && viewMode() !== 'calendar') {
-  <div
-    class="flex flex-col items-center justify-center py-12 text-text/60 bg-background border border-text/10 rounded-xl"
-  >
-    <i class="fas fa-route text-5xl mb-4 text-text/20"></i>
-    <p class="font-inter-semibold text-lg">No hay viajes registrados</p>
-    <p class="font-inter-regular text-sm mt-1">Comienza programando un nuevo viaje</p>
-  </div>
+    <div
+      class="flex flex-col items-center justify-center py-12 text-text/60 bg-background border border-text/10 rounded-xl"
+    >
+      <i class="fas fa-route text-5xl mb-4 text-text/20"></i>
+      <p class="font-inter-semibold text-lg">No hay viajes registrados</p>
+      <p class="font-inter-regular text-sm mt-1">Comienza programando un nuevo viaje</p>
+    </div>
   }
 
   <!-- Calendar View -->
   @else if (viewMode() === 'calendar') {
-  <div class="bg-background border border-text/10 rounded-xl shadow-sm overflow-hidden">
-    <!-- Calendar Header -->
-    <div class="flex items-center justify-between px-3 py-2 border-b border-text/10 bg-text/5">
-      <div class="flex items-center gap-1">
-        <button
-          (click)="previousWeek()"
-          class="p-1.5 hover:bg-text/10 rounded-lg transition-colors"
-          title="Semana anterior"
-        >
-          <i class="fas fa-chevron-left text-text/60 text-sm"></i>
-        </button>
-        <button
-          (click)="nextWeek()"
-          class="p-1.5 hover:bg-text/10 rounded-lg transition-colors"
-          title="Semana siguiente"
-        >
-          <i class="fas fa-chevron-right text-text/60 text-sm"></i>
-        </button>
-        <button
-          (click)="goToToday()"
-          class="px-2 py-1 bg-secondary/10 text-secondary rounded-lg text-xs font-inter-semibold hover:bg-secondary/20 transition-colors"
-        >
-          Hoy
-        </button>
-      </div>
-      <span class="text-xs font-inter-bold text-text">{{ getWeekRange() }}</span>
-      <div class="flex items-center gap-1">
-        <input
-          type="date"
-          [value]="getSelectedDateForInput()"
-          (change)="onDateInputChange($event)"
-          class="px-2 py-1 bg-background border border-text/10 rounded-lg text-xs text-text font-inter-medium outline-none focus:border-secondary transition-all cursor-pointer"
-        />
-      </div>
-    </div>
-
-    <!-- Calendar Grid -->
-    <div class="overflow-x-auto">
-      <div class="min-w-[900px]">
-        <!-- Days Header -->
-        <div class="grid border-b border-text/10 grid-cols-[70px_repeat(7,1fr)]">
-          <!-- Time column header -->
-          <div class="p-2 border-r border-text/10 bg-text/5"></div>
-          <!-- Day headers -->
-          @for (day of weekDays(); track day.date.getTime(); let i = $index) {
-          <div
-            class="p-2 text-center border-r border-text/10 last:border-r-0"
-            [class.bg-secondary/5]="day.isToday"
+    <div class="bg-background border border-text/10 rounded-xl shadow-sm overflow-hidden">
+      <!-- Calendar Header -->
+      <div class="flex items-center justify-between px-3 py-2 border-b border-text/10 bg-text/5">
+        <div class="flex items-center gap-1">
+          <button
+            (click)="previousWeek()"
+            class="p-1.5 hover:bg-text/10 rounded-lg transition-colors"
+            title="Semana anterior"
           >
-            <p
-              class="text-xs font-inter-semibold uppercase"
-              [class.text-secondary]="day.isToday"
-              [class.text-text/60]="!day.isToday"
-            >
-              {{ day.dayName }}
-            </p>
-            <p
-              class="text-lg font-inter-bold"
-              [class.text-secondary]="day.isToday"
-              [class.text-text]="!day.isToday"
-            >
-              {{ day.dayNumber }}
-            </p>
-          </div>
-          }
+            <i class="fas fa-chevron-left text-text/60 text-sm"></i>
+          </button>
+          <button
+            (click)="nextWeek()"
+            class="p-1.5 hover:bg-text/10 rounded-lg transition-colors"
+            title="Semana siguiente"
+          >
+            <i class="fas fa-chevron-right text-text/60 text-sm"></i>
+          </button>
+          <button
+            (click)="goToToday()"
+            class="px-2 py-1 bg-secondary/10 text-secondary rounded-lg text-xs font-inter-semibold hover:bg-secondary/20 transition-colors"
+          >
+            Hoy
+          </button>
         </div>
+        <span class="text-xs font-inter-bold text-text">{{ getWeekRange() }}</span>
+        <div class="flex items-center gap-1">
+          <input
+            type="date"
+            [value]="getSelectedDateForInput()"
+            (change)="onDateInputChange($event)"
+            class="px-2 py-1 bg-background border border-text/10 rounded-lg text-xs text-text font-inter-medium outline-none focus:border-secondary transition-all cursor-pointer"
+          />
+        </div>
+      </div>
 
-        <!-- Time rows -->
-        <div class="relative">
-          @for (hour of calendarHours; track hour) {
-          <div class="grid border-b border-text/10 last:border-b-0 grid-cols-[70px_repeat(7,1fr)]">
-            <!-- Time label -->
-            <div class="px-2 py-1 border-r border-text/10 bg-text/5 h-[40px] flex items-center justify-end">
-              <span class="text-[10px] font-inter-medium text-text/40">{{ formatHour(hour) }}</span>
-            </div>
-            <!-- Day cells -->
-            @for (day of weekDays(); track day.date.getTime(); let dayIndex = $index) {
-            <div
-              class="border-r border-text/10 last:border-r-0 h-[40px] relative"
-              [class.bg-secondary/5]="day.isToday"
-            ></div>
+      <!-- Calendar Grid -->
+      <div class="overflow-x-auto">
+        <div class="min-w-[900px]">
+          <!-- Days Header -->
+          <div class="grid border-b border-text/10 grid-cols-[70px_repeat(7,1fr)]">
+            <!-- Time column header -->
+            <div class="p-2 border-r border-text/10 bg-text/5"></div>
+            <!-- Day headers -->
+            @for (day of weekDays(); track day.date.getTime(); let i = $index) {
+              <div
+                class="p-2 text-center border-r border-text/10 last:border-r-0"
+                [class.bg-secondary/5]="day.isToday"
+              >
+                <p
+                  class="text-xs font-inter-semibold uppercase"
+                  [class.text-secondary]="day.isToday"
+                  [class.text-text/60]="!day.isToday"
+                >
+                  {{ day.dayName }}
+                </p>
+                <p
+                  class="text-lg font-inter-bold"
+                  [class.text-secondary]="day.isToday"
+                  [class.text-text]="!day.isToday"
+                >
+                  {{ day.dayNumber }}
+                </p>
+              </div>
             }
           </div>
-          }
 
-          <!-- Events overlay -->
-          <div class="absolute inset-0 grid pointer-events-none grid-cols-[70px_repeat(7,1fr)]">
-            <!-- Empty time column -->
-            <div class="border-r border-text/10"></div>
-            <!-- Day columns with events -->
-            @for (day of weekDays(); track day.date.getTime(); let dayIndex = $index) {
-            <div class="border-r border-text/10 last:border-r-0 relative">
-              @for (event of getEventsForDay(dayIndex); track event.viaje.id) {
+          <!-- Time rows -->
+          <div class="relative">
+            @for (hour of calendarHours; track hour) {
               <div
-                class="absolute left-0.5 right-0.5 rounded-md px-1.5 py-1 overflow-hidden cursor-pointer pointer-events-auto shadow-sm hover:shadow-md transition-shadow"
-                [class]="getEventColor(event.viaje.estado)"
-                [style.top.px]="event.top"
-                [style.height.px]="event.height"
-                [style.min-height.px]="24"
-                (click)="navigateToEdit(event.viaje)"
-                [title]="getRutaDisplay(event.viaje)"
+                class="grid border-b border-text/10 last:border-b-0 grid-cols-[70px_repeat(7,1fr)]"
               >
-                <div class="flex flex-col h-full overflow-hidden">
-                  <span class="text-[10px] font-inter-bold truncate">
-                    {{ formatTimeShort(event.viaje.fechaSalida) }}
-                  </span>
-                  <span class="text-xs font-inter-semibold truncate flex-1">
-                    {{ getRutaDisplay(event.viaje) }}
-                  </span>
-                  @if (event.height > 40) {
-                  <span class="text-[10px] font-inter-medium truncate opacity-80">
-                    {{ getClienteDisplay(event.viaje) }}
-                  </span>
+                <!-- Time label -->
+                <div
+                  class="px-2 py-1 border-r border-text/10 bg-text/5 h-[40px] flex items-center justify-end"
+                >
+                  <span class="text-[10px] font-inter-medium text-text/40">{{
+                    formatHour(hour)
+                  }}</span>
+                </div>
+                <!-- Day cells -->
+                @for (day of weekDays(); track day.date.getTime(); let dayIndex = $index) {
+                  <div
+                    class="border-r border-text/10 last:border-r-0 h-[40px] relative"
+                    [class.bg-secondary/5]="day.isToday"
+                  ></div>
+                }
+              </div>
+            }
+
+            <!-- Events overlay -->
+            <div class="absolute inset-0 grid pointer-events-none grid-cols-[70px_repeat(7,1fr)]">
+              <!-- Empty time column -->
+              <div class="border-r border-text/10"></div>
+              <!-- Day columns with events -->
+              @for (day of weekDays(); track day.date.getTime(); let dayIndex = $index) {
+                <div class="border-r border-text/10 last:border-r-0 relative">
+                  @for (event of getEventsForDay(dayIndex); track event.viaje.id) {
+                    <div
+                      class="absolute left-0.5 right-0.5 rounded-md px-1.5 py-1 overflow-hidden cursor-pointer pointer-events-auto shadow-sm hover:shadow-md transition-shadow"
+                      [class]="getEventColor(event.viaje.estado)"
+                      [style.top.px]="event.top"
+                      [style.height.px]="event.height"
+                      [style.min-height.px]="24"
+                      (click)="navigateToEdit(event.viaje)"
+                      [title]="getRutaDisplay(event.viaje)"
+                    >
+                      <div class="flex flex-col h-full overflow-hidden">
+                        <span class="text-[10px] font-inter-bold truncate">
+                          {{ formatTimeShort(event.viaje.fechaSalida) }}
+                        </span>
+                        <span class="text-xs font-inter-semibold truncate flex-1">
+                          {{ getRutaDisplay(event.viaje) }}
+                        </span>
+                        @if (event.height > 40) {
+                          <span class="text-[10px] font-inter-medium truncate opacity-80">
+                            {{ getClienteDisplay(event.viaje) }}
+                          </span>
+                        }
+                      </div>
+                    </div>
                   }
                 </div>
-              </div>
               }
             </div>
-            }
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Legend -->
-    <div class="p-4 border-t border-text/10 bg-text/5">
-      <div class="flex flex-wrap items-center gap-4">
-        <span class="text-xs font-inter-semibold text-text/60">Estados:</span>
-        <div class="flex items-center gap-2">
-          <span class="w-3 h-3 rounded-full bg-info"></span>
-          <span class="text-xs font-inter-medium text-text/70">Programado</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <span class="w-3 h-3 rounded-full bg-warning"></span>
-          <span class="text-xs font-inter-medium text-text/70">En Progreso</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <span class="w-3 h-3 rounded-full bg-success"></span>
-          <span class="text-xs font-inter-medium text-text/70">Completado</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <span class="w-3 h-3 rounded-full bg-danger"></span>
-          <span class="text-xs font-inter-medium text-text/70">Cancelado</span>
+      <!-- Legend -->
+      <div class="p-4 border-t border-text/10 bg-text/5">
+        <div class="flex flex-wrap items-center gap-4">
+          <span class="text-xs font-inter-semibold text-text/60">Estados:</span>
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-info"></span>
+            <span class="text-xs font-inter-medium text-text/70">Programado</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-warning"></span>
+            <span class="text-xs font-inter-medium text-text/70">En Progreso</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-success"></span>
+            <span class="text-xs font-inter-medium text-text/70">Completado</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-danger"></span>
+            <span class="text-xs font-inter-medium text-text/70">Cancelado</span>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Empty state for calendar -->
-    @if (viajes().length === 0) {
-    <div class="p-8 text-center">
-      <i class="fas fa-calendar-times text-4xl text-text/20 mb-3"></i>
-      <p class="text-text/60 font-inter-medium">No hay viajes programados para esta semana</p>
-      <p class="text-text/40 text-sm font-inter-regular mt-1">Usa las flechas para navegar a otra semana</p>
+      <!-- Empty state for calendar -->
+      @if (viajes().length === 0) {
+        <div class="p-8 text-center">
+          <i class="fas fa-calendar-times text-4xl text-text/20 mb-3"></i>
+          <p class="text-text/60 font-inter-medium">No hay viajes programados para esta semana</p>
+          <p class="text-text/40 text-sm font-inter-regular mt-1">
+            Usa las flechas para navegar a otra semana
+          </p>
+        </div>
+      }
     </div>
-    }
-  </div>
   }
 
   <!-- Table View -->
   @else {
-  <div class="bg-background border border-text/10 rounded-xl shadow-sm overflow-hidden">
-    <div class="overflow-x-auto">
-      <table class="w-full">
-        <thead class="bg-text/5 border-b border-text/10">
-          <tr>
-            <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
-            >
-              ID
-            </th>
-            <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
-            >
-              Cliente
-            </th>
-            <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
-            >
-              Ruta
-            </th>
-            <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
-            >
-              Vehículo
-            </th>
-            <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
-            >
-              Conductor
-            </th>
-            <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
-            >
-              Salida
-            </th>
-            <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
-            >
-              Llegada
-            </th>
-            <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
-            >
-              Estado
-            </th>
-            <th
-              class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase tracking-wider"
-            >
-              Acciones
-            </th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-text/10">
-          @for (viaje of viajes(); track viaje.id) {
-          <tr class="hover:bg-text/5 transition-colors">
-            <td class="px-4 py-3 whitespace-nowrap">
-              <span class="text-xs font-inter-semibold text-text">{{ viaje.id }}</span>
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap">
-              <div class="flex items-center gap-2">
-                <div
-                  class="w-8 h-8 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary text-xs"
-                >
-                  <i class="fas fa-user-tie"></i>
-                </div>
-                <span class="text-xs font-inter-bold text-text">{{
-                  getClienteDisplay(viaje)
-                }}</span>
-              </div>
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap">
-              <div class="flex items-center gap-2">
-                <div
-                  class="w-8 h-8 rounded-lg bg-info/10 flex items-center justify-center text-info text-xs"
-                >
-                  <i class="fas fa-route"></i>
-                </div>
-                <span class="text-xs font-inter-bold text-text">{{ getRutaDisplay(viaje) }}</span>
-              </div>
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap">
-              <span class="text-xs font-inter-medium text-text">{{
-                getVehiculoDisplay(viaje)
-              }}</span>
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap">
-              <span class="text-xs font-inter-medium text-text">{{
-                getConductorDisplay(viaje)
-              }}</span>
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap">
-              <span class="text-xs font-inter-medium text-text">{{
-                formatDate(viaje.fechaSalida)
-              }}</span>
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap">
-              <span class="text-xs font-inter-medium text-text">
-                @if (viaje.fechaLlegada) {
-                {{ formatDate(viaje.fechaLlegada) }}
-                } @else {
-                <span class="text-text/40">-</span>
-                }
-              </span>
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap">
-              <span
-                class="px-2 py-1 text-xs font-inter-bold rounded-full"
-                [ngClass]="getEstadoBadgeClass(viaje.estado)"
+    <div class="bg-background border border-text/10 rounded-xl shadow-sm overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-text/5 border-b border-text/10">
+            <tr>
+              <th
+                class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
               >
-                {{ getEstadoLabel(viaje.estado) }}
-              </span>
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap text-right">
-              <div class="flex items-center justify-end gap-1">
-                <button
-                  (click)="navigateToEdit(viaje)"
-                  class="p-1.5 text-info hover:bg-info/10 rounded-lg transition-colors"
-                  title="Editar"
-                >
-                  <i class="fas fa-edit text-xs"></i>
-                </button>
-                <button
-                  (click)="deleteViaje(viaje.id)"
-                  class="p-1.5 text-danger hover:bg-danger/10 rounded-lg transition-colors"
-                  title="Eliminar"
-                >
-                  <i class="fas fa-trash text-xs"></i>
-                </button>
-              </div>
-            </td>
-          </tr>
-          }
-        </tbody>
-      </table>
-    </div>
+                ID
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              >
+                Cliente
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              >
+                Ruta
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              >
+                Vehículo
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              >
+                Conductor
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              >
+                Salida
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              >
+                Llegada
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              >
+                Estado
+              </th>
+              <th
+                class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              >
+                Acciones
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-text/10">
+            @for (viaje of viajes(); track viaje.id) {
+              <tr class="hover:bg-text/5 transition-colors">
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <span class="text-xs font-inter-semibold text-text">{{ viaje.id }}</span>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <div class="flex items-center gap-2">
+                    <div
+                      class="w-8 h-8 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary text-xs"
+                    >
+                      <i class="fas fa-user-tie"></i>
+                    </div>
+                    <span class="text-xs font-inter-bold text-text">{{
+                      getClienteDisplay(viaje)
+                    }}</span>
+                  </div>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <div class="flex items-center gap-2">
+                    <div
+                      class="w-8 h-8 rounded-lg bg-info/10 flex items-center justify-center text-info text-xs"
+                    >
+                      <i class="fas fa-route"></i>
+                    </div>
+                    <span class="text-xs font-inter-bold text-text">{{
+                      getRutaDisplay(viaje)
+                    }}</span>
+                  </div>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <span class="text-xs font-inter-medium text-text">{{
+                    getVehiculoDisplay(viaje)
+                  }}</span>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <span class="text-xs font-inter-medium text-text">{{
+                    getConductorDisplay(viaje)
+                  }}</span>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <span class="text-xs font-inter-medium text-text">{{
+                    formatDate(viaje.fechaSalida)
+                  }}</span>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <span class="text-xs font-inter-medium text-text">
+                    @if (viaje.fechaLlegada) {
+                      {{ formatDate(viaje.fechaLlegada) }}
+                    } @else {
+                      <span class="text-text/40">-</span>
+                    }
+                  </span>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <span
+                    class="px-2 py-1 text-xs font-inter-bold rounded-full"
+                    [ngClass]="getEstadoBadgeClass(viaje.estado)"
+                  >
+                    {{ getEstadoLabel(viaje.estado) }}
+                  </span>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-right">
+                  <div class="flex items-center justify-end gap-1">
+                    <button
+                      (click)="navigateToEdit(viaje)"
+                      class="p-1.5 text-info hover:bg-info/10 rounded-lg transition-colors"
+                      title="Editar"
+                    >
+                      <i class="fas fa-edit text-xs"></i>
+                    </button>
+                    <button
+                      (click)="deleteViaje(viaje.id)"
+                      class="p-1.5 text-danger hover:bg-danger/10 rounded-lg transition-colors"
+                      title="Eliminar"
+                    >
+                      <i class="fas fa-trash text-xs"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
 
-    <!-- Paginación Tabla -->
-    <app-pagination
-      [meta]="meta()"
-      [currentPage]="currentPage()"
-      [pageSize]="pageSize()"
-      (pageChange)="onPageChange($event)"
-      (pageSizeChange)="onPageSizeChange($event)"
-    />
-  </div>
+      <!-- Paginación Tabla -->
+      <app-pagination
+        [meta]="meta()"
+        [currentPage]="currentPage()"
+        [pageSize]="pageSize()"
+        (pageChange)="onPageChange($event)"
+        (pageSizeChange)="onPageSizeChange($event)"
+      />
+    </div>
   }
 </div>
 
 <!-- Modal Form -->
 @if (showModal()) {
-<app-modal-form
-  title="Nuevo Viaje"
-  submitText="Crear"
-  [maxWidth]="'2xl'"
-  [loading]="loading()"
-  (onSubmit)="handleModalSubmit()"
-  (onClose)="closeModal()"
->
-  <app-viaje-form [editMode]="false" (onSubmitForm)="handleFormSubmit($event)" />
-</app-modal-form>
+  <app-modal-form
+    title="Nuevo Viaje"
+    submitText="Crear"
+    [maxWidth]="'5xl'"
+    [loading]="loading()"
+    (onSubmit)="handleModalSubmit()"
+    (onClose)="closeModal()"
+  >
+    <app-viaje-form [editMode]="false" (onSubmitForm)="handleFormSubmit($event)" />
+  </app-modal-form>
 }

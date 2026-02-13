@@ -13,7 +13,7 @@ export class ModalForm {
   submitText = input<string>('Guardar');
   cancelText = input<string>('Cancelar');
   loading = input<boolean>(false);
-  maxWidth = input<'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl'>('md');
+  maxWidth = input<'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | '6xl' | '7xl'>('md');
 
   // Outputs
   onSubmit = output<void>();
@@ -28,14 +28,17 @@ export class ModalForm {
   }
 
   getMaxWidthClass(): string {
-    const widthMap = {
-      'sm': 'max-w-sm',
-      'md': 'max-w-md',
-      'lg': 'max-w-lg',
-      'xl': 'max-w-xl',
+    const widthMap: Record<string, string> = {
+      sm: 'max-w-sm',
+      md: 'max-w-md',
+      lg: 'max-w-lg',
+      xl: 'max-w-xl',
       '2xl': 'max-w-2xl',
       '3xl': 'max-w-3xl',
-      '4xl': 'max-w-4xl'
+      '4xl': 'max-w-4xl',
+      '5xl': 'max-w-5xl',
+      '6xl': 'max-w-6xl',
+      '7xl': 'max-w-7xl',
     };
     return widthMap[this.maxWidth()];
   }

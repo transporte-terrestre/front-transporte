@@ -2284,6 +2284,33 @@ export interface ModeloUpdateDto {
   nombre?: string;
 }
 
+export interface VehiculoChecklistHistoryItemDto {
+  /** @example 1 */
+  id: number;
+  /** @example 1 */
+  vehiculoId: number;
+  /** @example 1 */
+  checklistItemId: number;
+  /** @example "v00001_001_..." */
+  version: string;
+  /** @example true */
+  activo: boolean;
+  /**
+   * @format date-time
+   * @example "2024-01-01T12:00:00Z"
+   */
+  creadoEn: string;
+  /** @example 1 */
+  viajeId: number | null;
+  /** @example "salida" */
+  viajeTipo: "salida" | "llegada";
+}
+
+export interface PaginatedVehiculoChecklistHistoryResultDto {
+  data: VehiculoChecklistHistoryItemDto[];
+  meta: PaginationMetaDto;
+}
+
 export interface PhotoResultDto {
   /**
    * URL de la imagen
@@ -3190,7 +3217,7 @@ export interface DocumentoItemDto {
   observacion?: string;
   /**
    * Fecha de Vencimiento Inicial/Por defecto
-   * @example "2026-02-10T07:30:27.868Z"
+   * @example "2026-02-13T03:54:12.591Z"
    */
   fechaVencimiento?: string;
 }
@@ -3373,17 +3400,17 @@ export interface BotiquinItemDto {
   habilitado: boolean;
   /**
    * Fecha de Vencimiento actual
-   * @example "2026-02-10T07:30:27.874Z"
+   * @example "2026-02-13T03:54:12.623Z"
    */
   fechaVencimiento?: string;
   /**
    * Fecha de Salida
-   * @example "2026-02-10T07:30:27.874Z"
+   * @example "2026-02-13T03:54:12.623Z"
    */
   fechaSalida?: string;
   /**
    * Fecha de Reposición
-   * @example "2026-02-10T07:30:27.874Z"
+   * @example "2026-02-13T03:54:12.623Z"
    */
   fechaReposicion?: string;
 }
@@ -4159,6 +4186,11 @@ export interface MantenimientoResultDto {
    */
   kilometraje: number;
   /**
+   * Next Maintenance Mileage
+   * @example 60000
+   */
+  kilometrajeProximoMantenimiento: number | null;
+  /**
    * Status
    * @example "pendiente"
    */
@@ -4231,6 +4263,11 @@ export interface MantenimientoCreateDto {
    */
   kilometraje: number;
   /**
+   * Next maintenance mileage
+   * @example 60000
+   */
+  kilometrajeProximoMantenimiento: number;
+  /**
    * Status
    * @default "pendiente"
    */
@@ -4280,6 +4317,11 @@ export interface MantenimientoUpdateDto {
    * @example 55000
    */
   kilometraje?: number;
+  /**
+   * Next maintenance mileage
+   * @example 60000
+   */
+  kilometrajeProximoMantenimiento?: number;
   /**
    * Status
    * @default "pendiente"
@@ -4519,6 +4561,50 @@ export interface MantenimientoDocumentoUpdateDto {
   fechaExpiracion?: string;
 }
 
+export interface MantenimientoReporteEstadoDto {
+  /**
+   * ID del vehículo
+   * @example 1
+   */
+  vehiculoId: number;
+  /**
+   * Placa del vehículo
+   * @example "ABC-123"
+   */
+  placa: string;
+  /**
+   * Kilometraje actual del vehículo
+   * @example 50000
+   */
+  kilometrajeActual: number;
+  /**
+   * Fecha del último mantenimiento
+   * @format date-time
+   * @example "2025-01-01"
+   */
+  ultimoMantenimientoFecha: string | null;
+  /**
+   * Kilometraje en el último mantenimiento
+   * @example 45000
+   */
+  ultimoMantenimientoKm: number | null;
+  /**
+   * Kilometraje programado para el próximo mantenimiento
+   * @example 55000
+   */
+  proxMantenimientoKm: number | null;
+  /**
+   * Kilómetros restantes para el próximo mantenimiento
+   * @example 5000
+   */
+  restante: number | null;
+  /**
+   * Estado del mantenimiento (verde, amarillo, rojo)
+   * @example "verde"
+   */
+  estado: "verde" | "amarillo" | "rojo" | "n/a";
+}
+
 export interface RutaResultDto {
   /**
    * Route ID
@@ -4586,130 +4672,6 @@ export interface PaginatedRutaResultDto {
   meta: PaginationMetaDto;
 }
 
-export interface RutaParadaCreateDto {
-  /**
-   * ID de la parada (opcional para updates)
-   * @example 1
-   */
-  id?: number;
-  /**
-   * Nombre de la parada
-   * @example "PEIP - Educans"
-   */
-  nombre: string;
-  /**
-   * Latitud de la ubicación
-   * @example "-12.0464"
-   */
-  ubicacionLat?: string;
-  /**
-   * Longitud de la ubicación
-   * @example "-77.0428"
-   */
-  ubicacionLng?: string;
-  /**
-   * Orden de la parada
-   * @default 0
-   * @example 1
-   */
-  orden?: number;
-  /**
-   * Distancia desde la parada anterior
-   * @example "10.5"
-   */
-  distanciaPreviaParada?: string;
-}
-
-export interface RutaCreateDto {
-  /**
-   * Origin city
-   * @example "Lima"
-   */
-  origen: string;
-  /**
-   * Destination city
-   * @example "Ica"
-   */
-  destino: string;
-  /**
-   * Origin latitude
-   * @example "-12.0464"
-   */
-  origenLat: string;
-  /**
-   * Origin longitude
-   * @example "-77.0428"
-   */
-  origenLng: string;
-  /**
-   * Destination latitude
-   * @example "-14.0678"
-   */
-  destinoLat: string;
-  /**
-   * Destination longitude
-   * @example "-75.7286"
-   */
-  destinoLng: string;
-  /**
-   * Distance in km
-   * @example "300.5"
-   */
-  distancia: string;
-  /**
-   * Base cost
-   * @example "50.0"
-   */
-  costoBase: string;
-  /** List of stops */
-  paradas?: RutaParadaCreateDto[];
-}
-
-export interface RutaUpdateDto {
-  /**
-   * Origin city
-   * @example "Lima"
-   */
-  origen?: string;
-  /**
-   * Destination city
-   * @example "Ica"
-   */
-  destino?: string;
-  /**
-   * Origin latitude
-   * @example "-12.0464"
-   */
-  origenLat?: string;
-  /**
-   * Origin longitude
-   * @example "-77.0428"
-   */
-  origenLng?: string;
-  /**
-   * Destination latitude
-   * @example "-14.0678"
-   */
-  destinoLat?: string;
-  /**
-   * Destination longitude
-   * @example "-75.7286"
-   */
-  destinoLng?: string;
-  /**
-   * Distance in km
-   * @example "300.5"
-   */
-  distancia?: string;
-  /**
-   * Base cost
-   * @example "50.0"
-   */
-  costoBase?: string;
-  /** List of stops */
-  paradas?: RutaParadaCreateDto[];
-}
-
 export interface RutaParadaResultDto {
   /**
    * ID de la parada
@@ -4756,6 +4718,150 @@ export interface RutaParadaResultDto {
    * @format date-time
    */
   actualizadoEn: string;
+}
+
+export interface RutaCircuitoResultDto {
+  /**
+   * ID del circuito
+   * @example 1
+   */
+  id: number;
+  /**
+   * Nombre del circuito
+   * @example "Lima - Ica"
+   */
+  nombre: string;
+  /** Ruta de ida */
+  rutaIda: RutaResultDto;
+  /** Ruta de vuelta */
+  rutaVuelta: RutaResultDto;
+  /**
+   * Indica si la ruta de ida y vuelta son la misma
+   * @example true
+   */
+  esIgual: boolean;
+  /**
+   * Fecha de creación
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  creadoEn: string;
+  /**
+   * Fecha de actualización
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  actualizadoEn: string;
+}
+
+export interface PaginatedRutaCircuitoResultDto {
+  /** Lista de circuitos en la página actual */
+  data: RutaCircuitoResultDto[];
+  /** Metadatos de la paginación */
+  meta: PaginationMetaDto;
+}
+
+export interface RutaParadaCreateDto {
+  /**
+   * ID de la parada (opcional para updates)
+   * @example 1
+   */
+  id?: number;
+  /**
+   * Nombre de la parada
+   * @example "PEIP - Educans"
+   */
+  nombre: string;
+  /**
+   * Latitud de la ubicación
+   * @example "-12.0464"
+   */
+  ubicacionLat?: string;
+  /**
+   * Longitud de la ubicación
+   * @example "-77.0428"
+   */
+  ubicacionLng?: string;
+  /**
+   * Orden de la parada
+   * @default 0
+   * @example 1
+   */
+  orden?: number;
+  /**
+   * Distancia desde la parada anterior
+   * @example "10.5"
+   */
+  distanciaPreviaParada?: string;
+}
+
+export interface RutaCircuitoDetalleDto {
+  /**
+   * Ciudad de origen
+   * @example "Lima"
+   */
+  origen: string;
+  /**
+   * Ciudad de destino
+   * @example "Ica"
+   */
+  destino: string;
+  /**
+   * Latitud del origen
+   * @example "-12.0464"
+   */
+  origenLat: string;
+  /**
+   * Longitud del origen
+   * @example "-77.0428"
+   */
+  origenLng: string;
+  /**
+   * Latitud del destino
+   * @example "-14.0678"
+   */
+  destinoLat: string;
+  /**
+   * Longitud del destino
+   * @example "-75.7286"
+   */
+  destinoLng: string;
+  /**
+   * Distancia en km
+   * @example "300.5"
+   */
+  distancia: string;
+  /**
+   * Costo base
+   * @example "50.00"
+   */
+  costoBase: string;
+  /** Lista de paradas */
+  paradas: RutaParadaCreateDto[];
+}
+
+export interface RutaCircuitoCreateDto {
+  /**
+   * Nombre del circuito
+   * @example "Lima - Ica"
+   */
+  nombre: string;
+  /** Detalle de la ruta de ida */
+  ida: RutaCircuitoDetalleDto;
+  /** Detalle de la ruta de vuelta (opcional) */
+  vuelta?: RutaCircuitoDetalleDto;
+}
+
+export interface RutaCircuitoUpdateDto {
+  /**
+   * Nombre del circuito
+   * @example "Lima - Ica"
+   */
+  nombre?: string;
+  /** Detalle de la ruta de ida */
+  ida?: RutaCircuitoDetalleDto;
+  /** Detalle de la ruta de vuelta (opcional) */
+  vuelta?: RutaCircuitoDetalleDto;
 }
 
 export interface ConductorViajeDto {
@@ -8730,6 +8836,31 @@ export interface VehiculosDeleteModeloParams {
 
 export type VehiculosDeleteModeloData = ModeloResultDto;
 
+export interface VehiculosFindChecklistHistoryParams {
+  /**
+   * ID del ChecklistItem (Tipo de documento)
+   * @example 1
+   */
+  checklistItemId: number;
+  /**
+   * Página/Offset
+   * @default 1
+   * @example 1
+   */
+  page?: number;
+  /**
+   * Límite por página
+   * @default 10
+   * @example 10
+   */
+  limit?: number;
+  /** ID del Vehículo */
+  id: number;
+}
+
+export type VehiculosFindChecklistHistoryData =
+  PaginatedVehiculoChecklistHistoryResultDto;
+
 export interface VehiculosFindIpercContinuoParams {
   /** ID específico del documento (opcional) */
   documentId?: number;
@@ -9079,6 +9210,9 @@ export interface MantenimientosDeleteDocumentoParams {
 
 export type MantenimientosDeleteDocumentoData = MantenimientoDocumentoResultDto;
 
+export type MantenimientosGetReporteEstadoVehiculosData =
+  MantenimientoReporteEstadoDto[];
+
 export interface RutasFindAllParams {
   /**
    * Número de página (comienza en 1)
@@ -9109,22 +9243,6 @@ export interface RutasFindOneParams {
 
 export type RutasFindOneData = RutaResultDto;
 
-export type RutasCreateData = RutaResultDto;
-
-export interface RutasUpdateParams {
-  /** ID de la ruta */
-  id: number;
-}
-
-export type RutasUpdateData = RutaResultDto;
-
-export interface RutasRemoveParams {
-  /** ID de la ruta */
-  id: number;
-}
-
-export type RutasRemoveData = RutaResultDto;
-
 export interface RutasFindParadasParams {
   /** Buscar por nombre de parada */
   search?: string;
@@ -9133,6 +9251,52 @@ export interface RutasFindParadasParams {
 }
 
 export type RutasFindParadasData = RutaParadaResultDto[];
+
+export interface RutasFindAllCircuitosParams {
+  /**
+   * Número de página (comienza en 1)
+   * @default 1
+   * @example 1
+   */
+  page?: number;
+  /**
+   * Cantidad de elementos por página
+   * @default 10
+   * @example 10
+   */
+  limit?: number;
+  /** Búsqueda por nombre del circuito */
+  search?: string;
+  /** Fecha de inicio para filtrar por rango (formato: YYYY-MM-DD) */
+  fechaInicio?: string;
+  /** Fecha de fin para filtrar por rango (formato: YYYY-MM-DD) */
+  fechaFin?: string;
+}
+
+export type RutasFindAllCircuitosData = PaginatedRutaCircuitoResultDto;
+
+export interface RutasFindOneCircuitoParams {
+  /** ID del circuito */
+  id: number;
+}
+
+export type RutasFindOneCircuitoData = RutaCircuitoResultDto;
+
+export type RutasCreateCircuitoData = RutaCircuitoResultDto;
+
+export interface RutasUpdateCircuitoParams {
+  /** ID del circuito */
+  id: number;
+}
+
+export type RutasUpdateCircuitoData = RutaCircuitoResultDto;
+
+export interface RutasRemoveCircuitoParams {
+  /** ID del circuito */
+  id: number;
+}
+
+export type RutasRemoveCircuitoData = any;
 
 export interface ViajesFindAllParams {
   /**
@@ -10941,6 +11105,44 @@ export namespace Vehiculos {
   /**
    * No description
    * @tags vehiculos
+   * @name VehiculosFindChecklistHistory
+   * @summary Obtener historial de documentos de checklist
+   * @request GET:/vehiculo/{id}/checklist-document/history
+   * @secure
+   * @response `200` `VehiculosFindChecklistHistoryData`
+   */
+  export namespace VehiculosFindChecklistHistory {
+    export type RequestParams = {
+      /** ID del Vehículo */
+      id: number;
+    };
+    export type RequestQuery = {
+      /**
+       * ID del ChecklistItem (Tipo de documento)
+       * @example 1
+       */
+      checklistItemId: number;
+      /**
+       * Página/Offset
+       * @default 1
+       * @example 1
+       */
+      page?: number;
+      /**
+       * Límite por página
+       * @default 10
+       * @example 10
+       */
+      limit?: number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = VehiculosFindChecklistHistoryData;
+  }
+
+  /**
+   * No description
+   * @tags vehiculos
    * @name VehiculosFindIpercContinuo
    * @summary Obtener configuración: IPERC continuo
    * @request GET:/vehiculo/{id}/checklist-document/iperc-continuo/find
@@ -11755,6 +11957,23 @@ export namespace Mantenimientos {
     export type RequestHeaders = {};
     export type ResponseBody = MantenimientosDeleteDocumentoData;
   }
+
+  /**
+   * No description
+   * @tags mantenimientos
+   * @name MantenimientosGetReporteEstadoVehiculos
+   * @summary Obtener reporte de estado de mantenimiento de vehículos
+   * @request GET:/mantenimiento/reporte-estado-vehiculos
+   * @secure
+   * @response `200` `MantenimientosGetReporteEstadoVehiculosData`
+   */
+  export namespace MantenimientosGetReporteEstadoVehiculos {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = MantenimientosGetReporteEstadoVehiculosData;
+  }
 }
 
 export namespace Rutas {
@@ -11817,63 +12036,6 @@ export namespace Rutas {
   /**
    * No description
    * @tags rutas
-   * @name RutasCreate
-   * @summary Crear una nueva ruta
-   * @request POST:/ruta/create
-   * @secure
-   * @response `200` `RutasCreateData`
-   */
-  export namespace RutasCreate {
-    export type RequestParams = {};
-    export type RequestQuery = {};
-    export type RequestBody = RutaCreateDto;
-    export type RequestHeaders = {};
-    export type ResponseBody = RutasCreateData;
-  }
-
-  /**
-   * No description
-   * @tags rutas
-   * @name RutasUpdate
-   * @summary Actualizar una ruta
-   * @request PATCH:/ruta/update/{id}
-   * @secure
-   * @response `200` `RutasUpdateData`
-   */
-  export namespace RutasUpdate {
-    export type RequestParams = {
-      /** ID de la ruta */
-      id: number;
-    };
-    export type RequestQuery = {};
-    export type RequestBody = RutaUpdateDto;
-    export type RequestHeaders = {};
-    export type ResponseBody = RutasUpdateData;
-  }
-
-  /**
-   * No description
-   * @tags rutas
-   * @name RutasRemove
-   * @summary Eliminar una ruta
-   * @request DELETE:/ruta/delete/{id}
-   * @secure
-   * @response `200` `RutasRemoveData`
-   */
-  export namespace RutasRemove {
-    export type RequestParams = {
-      /** ID de la ruta */
-      id: number;
-    };
-    export type RequestQuery = {};
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = RutasRemoveData;
-  }
-
-  /**
-   * No description
-   * @tags rutas
    * @name RutasFindParadas
    * @summary Obtener todas las paradas de una ruta
    * @request GET:/ruta/{rutaId}/paradas
@@ -11892,6 +12054,119 @@ export namespace Rutas {
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = RutasFindParadasData;
+  }
+
+  /**
+   * No description
+   * @tags rutas
+   * @name RutasFindAllCircuitos
+   * @summary Obtener circuitos con paginación, búsqueda y filtros
+   * @request GET:/ruta/circuito/find-all
+   * @secure
+   * @response `200` `RutasFindAllCircuitosData`
+   */
+  export namespace RutasFindAllCircuitos {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /**
+       * Número de página (comienza en 1)
+       * @default 1
+       * @example 1
+       */
+      page?: number;
+      /**
+       * Cantidad de elementos por página
+       * @default 10
+       * @example 10
+       */
+      limit?: number;
+      /** Búsqueda por nombre del circuito */
+      search?: string;
+      /** Fecha de inicio para filtrar por rango (formato: YYYY-MM-DD) */
+      fechaInicio?: string;
+      /** Fecha de fin para filtrar por rango (formato: YYYY-MM-DD) */
+      fechaFin?: string;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = RutasFindAllCircuitosData;
+  }
+
+  /**
+   * No description
+   * @tags rutas
+   * @name RutasFindOneCircuito
+   * @summary Obtener un circuito por ID con sus rutas y paradas
+   * @request GET:/ruta/circuito/find-one/{id}
+   * @secure
+   * @response `200` `RutasFindOneCircuitoData`
+   */
+  export namespace RutasFindOneCircuito {
+    export type RequestParams = {
+      /** ID del circuito */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = RutasFindOneCircuitoData;
+  }
+
+  /**
+   * No description
+   * @tags rutas
+   * @name RutasCreateCircuito
+   * @summary Crear un nuevo circuito con rutas de ida y vuelta
+   * @request POST:/ruta/circuito/create
+   * @secure
+   * @response `200` `RutasCreateCircuitoData`
+   */
+  export namespace RutasCreateCircuito {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = RutaCircuitoCreateDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = RutasCreateCircuitoData;
+  }
+
+  /**
+   * No description
+   * @tags rutas
+   * @name RutasUpdateCircuito
+   * @summary Actualizar un circuito y sus rutas (reemplazo inteligente)
+   * @request PATCH:/ruta/circuito/update/{id}
+   * @secure
+   * @response `200` `RutasUpdateCircuitoData`
+   */
+  export namespace RutasUpdateCircuito {
+    export type RequestParams = {
+      /** ID del circuito */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = RutaCircuitoUpdateDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = RutasUpdateCircuitoData;
+  }
+
+  /**
+   * No description
+   * @tags rutas
+   * @name RutasRemoveCircuito
+   * @summary Eliminar un circuito y sus rutas asociadas
+   * @request DELETE:/ruta/circuito/delete/{id}
+   * @secure
+   * @response `200` `RutasRemoveCircuitoData` Mensaje de confirmación
+   */
+  export namespace RutasRemoveCircuito {
+    export type RequestParams = {
+      /** ID del circuito */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = RutasRemoveCircuitoData;
   }
 }
 
@@ -15176,6 +15451,29 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags vehiculos
+     * @name VehiculosFindChecklistHistory
+     * @summary Obtener historial de documentos de checklist
+     * @request GET:/vehiculo/{id}/checklist-document/history
+     * @secure
+     * @response `200` `VehiculosFindChecklistHistoryData`
+     */
+    findChecklistHistory: (
+      { id, ...query }: VehiculosFindChecklistHistoryParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<VehiculosFindChecklistHistoryData, any>({
+        path: `/vehiculo/${id}/checklist-document/history`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags vehiculos
      * @name VehiculosFindIpercContinuo
      * @summary Obtener configuración: IPERC continuo
      * @request GET:/vehiculo/{id}/checklist-document/iperc-continuo/find
@@ -16000,6 +16298,25 @@ export class Api<SecurityDataType extends unknown> {
         format: "json",
         ...params,
       }),
+
+    /**
+     * No description
+     *
+     * @tags mantenimientos
+     * @name MantenimientosGetReporteEstadoVehiculos
+     * @summary Obtener reporte de estado de mantenimiento de vehículos
+     * @request GET:/mantenimiento/reporte-estado-vehiculos
+     * @secure
+     * @response `200` `MantenimientosGetReporteEstadoVehiculosData`
+     */
+    getReporteEstadoVehiculos: (params: RequestParams = {}) =>
+      this.http.request<MantenimientosGetReporteEstadoVehiculosData, any>({
+        path: `/mantenimiento/reporte-estado-vehiculos`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
   };
   rutas = {
     /**
@@ -16048,74 +16365,6 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags rutas
-     * @name RutasCreate
-     * @summary Crear una nueva ruta
-     * @request POST:/ruta/create
-     * @secure
-     * @response `200` `RutasCreateData`
-     */
-    create: (data: RutaCreateDto, params: RequestParams = {}) =>
-      this.http.request<RutasCreateData, any>({
-        path: `/ruta/create`,
-        method: "POST",
-        body: data,
-        secure: true,
-        type: ContentType.Json,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags rutas
-     * @name RutasUpdate
-     * @summary Actualizar una ruta
-     * @request PATCH:/ruta/update/{id}
-     * @secure
-     * @response `200` `RutasUpdateData`
-     */
-    update: (
-      { id, ...query }: RutasUpdateParams,
-      data: RutaUpdateDto,
-      params: RequestParams = {},
-    ) =>
-      this.http.request<RutasUpdateData, any>({
-        path: `/ruta/update/${id}`,
-        method: "PATCH",
-        body: data,
-        secure: true,
-        type: ContentType.Json,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags rutas
-     * @name RutasRemove
-     * @summary Eliminar una ruta
-     * @request DELETE:/ruta/delete/{id}
-     * @secure
-     * @response `200` `RutasRemoveData`
-     */
-    remove: (
-      { id, ...query }: RutasRemoveParams,
-      params: RequestParams = {},
-    ) =>
-      this.http.request<RutasRemoveData, any>({
-        path: `/ruta/delete/${id}`,
-        method: "DELETE",
-        secure: true,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags rutas
      * @name RutasFindParadas
      * @summary Obtener todas las paradas de una ruta
      * @request GET:/ruta/{rutaId}/paradas
@@ -16132,6 +16381,121 @@ export class Api<SecurityDataType extends unknown> {
         query: query,
         secure: true,
         format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags rutas
+     * @name RutasFindAllCircuitos
+     * @summary Obtener circuitos con paginación, búsqueda y filtros
+     * @request GET:/ruta/circuito/find-all
+     * @secure
+     * @response `200` `RutasFindAllCircuitosData`
+     */
+    findAllCircuitos: (
+      query: RutasFindAllCircuitosParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<RutasFindAllCircuitosData, any>({
+        path: `/ruta/circuito/find-all`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags rutas
+     * @name RutasFindOneCircuito
+     * @summary Obtener un circuito por ID con sus rutas y paradas
+     * @request GET:/ruta/circuito/find-one/{id}
+     * @secure
+     * @response `200` `RutasFindOneCircuitoData`
+     */
+    findOneCircuito: (
+      { id, ...query }: RutasFindOneCircuitoParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<RutasFindOneCircuitoData, any>({
+        path: `/ruta/circuito/find-one/${id}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags rutas
+     * @name RutasCreateCircuito
+     * @summary Crear un nuevo circuito con rutas de ida y vuelta
+     * @request POST:/ruta/circuito/create
+     * @secure
+     * @response `200` `RutasCreateCircuitoData`
+     */
+    createCircuito: (
+      data: RutaCircuitoCreateDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<RutasCreateCircuitoData, any>({
+        path: `/ruta/circuito/create`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags rutas
+     * @name RutasUpdateCircuito
+     * @summary Actualizar un circuito y sus rutas (reemplazo inteligente)
+     * @request PATCH:/ruta/circuito/update/{id}
+     * @secure
+     * @response `200` `RutasUpdateCircuitoData`
+     */
+    updateCircuito: (
+      { id, ...query }: RutasUpdateCircuitoParams,
+      data: RutaCircuitoUpdateDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<RutasUpdateCircuitoData, any>({
+        path: `/ruta/circuito/update/${id}`,
+        method: "PATCH",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags rutas
+     * @name RutasRemoveCircuito
+     * @summary Eliminar un circuito y sus rutas asociadas
+     * @request DELETE:/ruta/circuito/delete/{id}
+     * @secure
+     * @response `200` `RutasRemoveCircuitoData` Mensaje de confirmación
+     */
+    removeCircuito: (
+      { id, ...query }: RutasRemoveCircuitoParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<RutasRemoveCircuitoData, any>({
+        path: `/ruta/circuito/delete/${id}`,
+        method: "DELETE",
+        secure: true,
         ...params,
       }),
   };

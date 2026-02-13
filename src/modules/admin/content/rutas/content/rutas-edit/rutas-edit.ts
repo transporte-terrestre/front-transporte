@@ -20,7 +20,7 @@ export class RutasEdit implements OnInit {
   private rutaService = inject(RutaService);
   private toastService = inject(ToastService);
 
-  ruta = signal<ApiResponse<'rutas', 'findOne'> | null>(null);
+  ruta = signal<ApiResponse<'rutas', 'findOneCircuito'> | null>(null);
   loading = signal(false);
 
   rutaFormComponent = viewChild<RutaForm>(RutaForm);
@@ -37,7 +37,7 @@ export class RutasEdit implements OnInit {
   loadRuta(id: number) {
     this.loading.set(true);
     this.rutaService
-      .findOne(id)
+      .findOneCircuito(id)
       .then((ruta) => {
         this.ruta.set(ruta);
       })
@@ -51,12 +51,12 @@ export class RutasEdit implements OnInit {
       });
   }
 
-  handleFormSubmit(data: ApiBody<'rutas', 'create'> | ApiBody<'rutas', 'update'>) {
+  handleFormSubmit(data: ApiBody<'rutas', 'createCircuito'> | ApiBody<'rutas', 'updateCircuito'>) {
     if (!this.ruta()) return;
 
     this.loading.set(true);
     this.rutaService
-      .update(this.ruta()!.id, data as ApiBody<'rutas', 'update'>)
+      .update(this.ruta()!.id, data as ApiBody<'rutas', 'updateCircuito'>)
       .then(() => {
         this.toastService.success('Ruta actualizada exitosamente');
         this.router.navigate([buildPath(PATH.admin.rutas.list)]);

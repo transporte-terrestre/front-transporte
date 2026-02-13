@@ -1,7 +1,6 @@
 <form [formGroup]="mantenimientoForm" class="p-4 space-y-3">
   <!-- Loading Catálogos -->
 
-
   <!-- Vehículo y Taller -->
   <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
     <div>
@@ -10,7 +9,9 @@
         Vehículo
       </label>
       <app-vehiculo-input-search formControlName="vehiculo" />
-      @if (mantenimientoForm.get('vehiculo')?.touched && mantenimientoForm.get('vehiculo')?.errors) {
+      @if (
+        mantenimientoForm.get('vehiculo')?.touched && mantenimientoForm.get('vehiculo')?.errors
+      ) {
         <p class="text-danger text-xs font-inter-medium mt-1">El vehículo es requerido</p>
       }
     </div>
@@ -28,7 +29,7 @@
   </div>
 
   <!-- Código Orden y Kilometraje -->
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
     <div>
       <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
         <i class="fas fa-file-invoice text-secondary"></i>
@@ -45,7 +46,7 @@
     <div>
       <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
         <i class="fas fa-tachometer-alt text-info"></i>
-        Kilometraje
+        Km. Actual
       </label>
       <input
         type="number"
@@ -53,10 +54,33 @@
         min="0"
         readonly
         class="w-full px-3 py-2 text-sm bg-text/10 border-2 border-transparent rounded-lg text-text/60 font-inter-medium outline-none cursor-not-allowed"
-        placeholder="Se autocompleta con el vehículo"
+        placeholder="Se autocompleta"
       />
-      @if (mantenimientoForm.get('kilometraje')?.touched && mantenimientoForm.get('kilometraje')?.errors) {
+      @if (
+        mantenimientoForm.get('kilometraje')?.touched &&
+        mantenimientoForm.get('kilometraje')?.errors
+      ) {
         <p class="text-danger text-xs font-inter-medium mt-1">El kilometraje es requerido</p>
+      }
+    </div>
+
+    <div>
+      <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+        <i class="fas fa-road text-success"></i>
+        Prox. Mantenimiento
+      </label>
+      <input
+        type="number"
+        formControlName="kilometrajeProximoMantenimiento"
+        min="0"
+        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+        placeholder="Ej: 60000"
+      />
+      @if (
+        mantenimientoForm.get('kilometrajeProximoMantenimiento')?.touched &&
+        mantenimientoForm.get('kilometrajeProximoMantenimiento')?.errors
+      ) {
+        <p class="text-danger text-xs font-inter-medium mt-1">Requerido</p>
       }
     </div>
   </div>
@@ -107,7 +131,9 @@
       class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
       placeholder="150.50"
     />
-    @if (mantenimientoForm.get('costoTotal')?.touched && mantenimientoForm.get('costoTotal')?.errors) {
+    @if (
+      mantenimientoForm.get('costoTotal')?.touched && mantenimientoForm.get('costoTotal')?.errors
+    ) {
       <p class="text-danger text-xs font-inter-medium mt-1">El costo es requerido</p>
     }
   </div>
@@ -124,7 +150,10 @@
         formControlName="fechaIngreso"
         class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
       />
-      @if (mantenimientoForm.get('fechaIngreso')?.touched && mantenimientoForm.get('fechaIngreso')?.errors) {
+      @if (
+        mantenimientoForm.get('fechaIngreso')?.touched &&
+        mantenimientoForm.get('fechaIngreso')?.errors
+      ) {
         <p class="text-danger text-xs font-inter-medium mt-1">La fecha de ingreso es requerida</p>
       }
     </div>
@@ -139,7 +168,10 @@
         formControlName="fechaSalida"
         class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
       />
-      @if (mantenimientoForm.get('fechaSalida')?.touched && mantenimientoForm.get('fechaSalida')?.errors) {
+      @if (
+        mantenimientoForm.get('fechaSalida')?.touched &&
+        mantenimientoForm.get('fechaSalida')?.errors
+      ) {
         <p class="text-danger text-xs font-inter-medium mt-1">La fecha de salida es requerida</p>
       }
     </div>
@@ -189,8 +221,12 @@
       class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all resize-none"
       placeholder="Describe el trabajo realizado..."
     ></textarea>
-    @if (mantenimientoForm.get('descripcion')?.touched && mantenimientoForm.get('descripcion')?.errors) {
-      <p class="text-danger text-xs font-inter-medium mt-1">La descripción es requerida (mín. 10 caracteres)</p>
+    @if (
+      mantenimientoForm.get('descripcion')?.touched && mantenimientoForm.get('descripcion')?.errors
+    ) {
+      <p class="text-danger text-xs font-inter-medium mt-1">
+        La descripción es requerida (mín. 10 caracteres)
+      </p>
     }
   </div>
 
@@ -210,16 +246,16 @@
         <h3 class="text-sm font-inter-bold text-text mb-4">Documentos Adjuntos</h3>
         <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
           @for (docType of documentTypes; track docType.value) {
-          <div class="bg-background rounded-xl p-4 border border-text/10 shadow-sm">
-            <app-documents-date-upload
-              [label]="docType.label"
-              [documents]="getDocuments(docType.value)"
-              [maxDocuments]="10"
-              (onUpload)="handleDocumentUpload($event, docType.value)"
-              (onUpdate)="handleDocumentUpdate($event)"
-              (onDelete)="deleteDocument($event, docType.value)"
-            ></app-documents-date-upload>
-          </div>
+            <div class="bg-background rounded-xl p-4 border border-text/10 shadow-sm">
+              <app-documents-date-upload
+                [label]="docType.label"
+                [documents]="getDocuments(docType.value)"
+                [maxDocuments]="10"
+                (onUpload)="handleDocumentUpload($event, docType.value)"
+                (onUpdate)="handleDocumentUpdate($event)"
+                (onDelete)="deleteDocument($event, docType.value)"
+              ></app-documents-date-upload>
+            </div>
           }
         </div>
       </div>

@@ -438,8 +438,41 @@ export class ViajesList implements OnInit, OnDestroy {
     this.viajeFormComponent()?.submitForm();
   }
 
-  handleFormSubmit(data: ApiBody<'viajes', 'create'> | ApiBody<'viajes', 'update'>) {
-    this.createViaje(data);
+  handleFormSubmit(data: ApiBody<'viajes', 'create'> | ApiBody<'viajes', 'update'> | any) {
+    if (Array.isArray(data)) {
+      this.createViajesBatch(data);
+    } else {
+      // Si tiene ID es update, sino create.
+      // Pero el output original combinaba ambos.
+      // Asumiremos que si viene del form create y no es array, es create.
+      // Si estamos editando, data tendrá id? ApiBody create no tiene id.
+      // La lógica original llamaba a createViaje que llamaba a this.viajeService.create (solo create).
+      // ¿Dónde se maneja el update?
+      // Ah, navigateToEdit va a otra pagina? No, openCreateModal usa el form en modal.
+      // navigateToEdit usa router.navigate. Así que el modal SOLO CREA.
+      // La edición se hace en otra pantalla (viajes-edit).
+      // Por tanto, aquí solo manejamos CREATE via modal.
+      this.createViaje(data);
+    }
+  }
+
+  async createViajesBatch(data: ApiBody<'viajes', 'create'>[]) {
+    this.loading.set(true);
+    try {
+      // Ejecutar promesas en paralelo o serie.
+      await Promise.all(data.map((d) => this.viajeService.create(d)));
+      this.toastService.success('Viajes creados exitosamente');
+      this.closeModal();
+      if (this.viewMode() === 'calendar') {
+        this.loadViajesForCalendar();
+      } else {
+        this.loadViajes();
+      }
+    } catch (error) {
+      console.error('Error al crear viajes:', error);
+      this.toastService.error(getErrorMessage(error, 'Error al crear viajes'));
+      this.loading.set(false);
+    }
   }
 
   async createViaje(data: ApiBody<'viajes', 'create'> | ApiBody<'viajes', 'update'>) {
