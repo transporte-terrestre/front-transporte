@@ -16,6 +16,7 @@ export class VehiculoService {
       .findAllEstadoDocumentos(query)
       .then((response) => response.data);
   }
+
   async findOne(id: ApiParam<'vehiculos', 'findOne', 'id'>) {
     return await this.api.vehiculos.findOne({ id }).then((response) => response.data);
   }
@@ -89,28 +90,89 @@ export class VehiculoService {
   }
   // ========== CHECKLIST ==========
 
-  async findChecklistHistory(
-    vehiculoId: number,
-    checklistItemId: number,
-    page: number,
-    limit: number,
+  async findChecklistHistory(query: ApiQuery<'vehiculos', 'findChecklistHistory'>) {
+    return await this.api.vehiculos.findChecklistHistory(query).then((response) => response.data);
+  }
+
+  async findChecklistIpercContinuo(id: ApiParam<'vehiculos', 'findIpercContinuo', 'id'>) {
+    return await this.api.vehiculos.findIpercContinuo({ id }).then((response) => response.data);
+  }
+
+  async findChecklistHojaInspeccion(id: ApiParam<'vehiculos', 'findHojaInspeccion', 'id'>) {
+    return await this.api.vehiculos.findHojaInspeccion({ id }).then((response) => response.data);
+  }
+
+  async findChecklistInspeccionDocumentos(
+    id: ApiParam<'vehiculos', 'findInspeccionDocumentos', 'id'>,
   ) {
-    return await (this.api as any).http
-      .request({
-        path: `/vehiculo/${vehiculoId}/checklist-document/history`,
-        method: 'GET',
-        query: {
-          checklistItemId,
-          page,
-          limit,
-        },
-        secure: true,
-        format: 'json',
-      })
-      .then((response: any) => response.data);
+    return await this.api.vehiculos
+      .findInspeccionDocumentos({ id })
+      .then((response) => response.data);
+  }
+
+  async findChecklistLuces(id: ApiParam<'vehiculos', 'findLuces', 'id'>) {
+    return await this.api.vehiculos.findLuces({ id }).then((response) => response.data);
+  }
+
+  async findChecklistCinturones(id: ApiParam<'vehiculos', 'findCinturones', 'id'>) {
+    return await this.api.vehiculos.findCinturones({ id }).then((response) => response.data);
+  }
+
+  async findChecklistHerramientas(id: ApiParam<'vehiculos', 'findHerramientas', 'id'>) {
+    return await this.api.vehiculos.findHerramientas({ id }).then((response) => response.data);
+  }
+
+  async findChecklistBotiquines(id: ApiParam<'vehiculos', 'findBotiquines', 'id'>) {
+    return await this.api.vehiculos.findBotiquines({ id }).then((response) => response.data);
+  }
+
+  async findChecklistKitAntiderrames(id: ApiParam<'vehiculos', 'findKitAntiderrames', 'id'>) {
+    return await this.api.vehiculos.findKitAntiderrames({ id }).then((response) => response.data);
+  }
+
+  async findChecklistRevisionVehiculos(id: ApiParam<'vehiculos', 'findRevisionVehiculos', 'id'>) {
+    return await this.api.vehiculos.findRevisionVehiculos({ id }).then((response) => response.data);
   }
 
   async findAllCheckListItems() {
     return await this.api.viajes.findAllChecklistItems().then((response) => response.data);
+  }
+  async downloadDocumentos(id: number) {
+    try {
+      const baseUrl = (this.api as any).baseUrl || 'http://localhost:3000';
+      const url = `${baseUrl}/vehiculo/download/${id}`;
+
+      // Get token from localStorage (assuming standard storage key 'accessToken' or similar)
+      const token = localStorage.getItem('accessToken');
+
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) throw new Error('Download failed');
+
+      const blob = await response.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = downloadUrl;
+      const disposition = response.headers.get('Content-Disposition');
+      let filename = 'documentos_vehiculo.zip';
+      if (disposition && disposition.indexOf('attachment') !== -1) {
+        const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+        const matches = filenameRegex.exec(disposition);
+        if (matches != null && matches[1]) {
+          filename = matches[1].replace(/['"]/g, '');
+        }
+      }
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(downloadUrl);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Error downloading documents:', error);
+    }
   }
 }

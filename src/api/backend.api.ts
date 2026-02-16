@@ -106,6 +106,16 @@ export interface ConductorLoginInfoDto {
    */
   id: number;
   /**
+   * Tipo de documento de identidad
+   * @example "DNI"
+   */
+  tipoDocumento: "DNI" | "CE" | "PTP" | "PASAPORTE" | "OTRO";
+  /**
+   * Nacionalidad del conductor
+   * @example "Peruana"
+   */
+  nacionalidad?: string;
+  /**
    * Driver DNI
    * @example "12345678"
    */
@@ -147,9 +157,16 @@ export interface ConductorLoginInfoDto {
   claseLicencia: "A" | "B";
   /**
    * Driver license category
-   * @example "Uno"
+   * @example "I"
    */
-  categoriaLicencia: "Uno" | "Dos" | "Tres";
+  categoriaLicencia:
+    | "I"
+    | "II-a"
+    | "II-b"
+    | "II-c"
+    | "III-a"
+    | "III-b"
+    | "III-c";
   /**
    * Lista de URLs de fotochecks del conductor
    * @example ["https://res.cloudinary.com/xxx/fotocheck.jpg"]
@@ -569,9 +586,16 @@ export interface ConductorListDto {
   claseLicencia: "A" | "B";
   /**
    * Driver license category
-   * @example "Uno"
+   * @example "I"
    */
-  categoriaLicencia: "Uno" | "Dos" | "Tres";
+  categoriaLicencia:
+    | "I"
+    | "II-a"
+    | "II-b"
+    | "II-c"
+    | "III-a"
+    | "III-b"
+    | "III-c";
   /**
    * Lista de URLs de fotochecks del conductor
    * @example ["https://res.cloudinary.com/xxx/fotocheck.jpg"]
@@ -763,6 +787,16 @@ export interface ConductorResultDto {
    */
   id: number;
   /**
+   * Tipo de documento de identidad
+   * @example "DNI"
+   */
+  tipoDocumento: "DNI" | "CE" | "PTP" | "PASAPORTE" | "OTRO";
+  /**
+   * Nacionalidad del conductor
+   * @example "Peruana"
+   */
+  nacionalidad?: string;
+  /**
    * Driver DNI
    * @example "12345678"
    */
@@ -804,9 +838,16 @@ export interface ConductorResultDto {
   claseLicencia: "A" | "B";
   /**
    * Driver license category
-   * @example "Uno"
+   * @example "I"
    */
-  categoriaLicencia: "Uno" | "Dos" | "Tres";
+  categoriaLicencia:
+    | "I"
+    | "II-a"
+    | "II-b"
+    | "II-c"
+    | "III-a"
+    | "III-b"
+    | "III-c";
   /**
    * Lista de URLs de fotochecks del conductor
    * @example ["https://res.cloudinary.com/xxx/fotocheck.jpg"]
@@ -836,7 +877,17 @@ export interface ConductorResultDto {
 
 export interface ConductorCreateDto {
   /**
-   * DNI del conductor
+   * Tipo de documento de identidad
+   * @default "DNI"
+   */
+  tipoDocumento: "DNI" | "CE" | "PTP" | "PASAPORTE" | "OTRO";
+  /**
+   * Nacionalidad del conductor
+   * @example "Peruana"
+   */
+  nacionalidad?: string;
+  /**
+   * Número de documento del conductor
    * @example "12345678"
    */
   dni: string;
@@ -877,9 +928,16 @@ export interface ConductorCreateDto {
   claseLicencia: "A" | "B";
   /**
    * Categoría de licencia del conductor
-   * @default "Uno"
+   * @default "I"
    */
-  categoriaLicencia: "Uno" | "Dos" | "Tres";
+  categoriaLicencia:
+    | "I"
+    | "II-a"
+    | "II-b"
+    | "II-c"
+    | "III-a"
+    | "III-b"
+    | "III-c";
   /**
    * Lista de URLs de fotochecks del conductor
    * @example ["https://res.cloudinary.com/xxx/fotocheck.jpg"]
@@ -889,7 +947,17 @@ export interface ConductorCreateDto {
 
 export interface ConductorUpdateDto {
   /**
-   * DNI del conductor
+   * Tipo de documento de identidad
+   * @default "DNI"
+   */
+  tipoDocumento?: "DNI" | "CE" | "PTP" | "PASAPORTE" | "OTRO";
+  /**
+   * Nacionalidad del conductor
+   * @example "Peruana"
+   */
+  nacionalidad?: string;
+  /**
+   * Número de documento del conductor
    * @example "12345678"
    */
   dni?: string;
@@ -930,9 +998,16 @@ export interface ConductorUpdateDto {
   claseLicencia?: "A" | "B";
   /**
    * Categoría de licencia del conductor
-   * @default "Uno"
+   * @default "I"
    */
-  categoriaLicencia?: "Uno" | "Dos" | "Tres";
+  categoriaLicencia?:
+    | "I"
+    | "II-a"
+    | "II-b"
+    | "II-c"
+    | "III-a"
+    | "III-b"
+    | "III-c";
   /**
    * Lista de URLs de fotochecks del conductor
    * @example ["https://res.cloudinary.com/xxx/fotocheck.jpg"]
@@ -1425,13 +1500,13 @@ export interface VehiculoDocumentoResultDto {
     | "certificado_instalacion_gps"
     | "certificado_valor_anadido"
     | "constancia_gps"
-    | "certificado_tacos"
     | "certificado_extintores_hidrostatica"
     | "certificado_norma_r66"
     | "certificado_laminados_lunas"
     | "certificado_carroceria"
     | "certificado_caracteristicas_tecnicas"
     | "certificado_adas"
+    | "revision_gps"
     | "otros";
   /**
    * Nombre del documento
@@ -1478,7 +1553,7 @@ export interface DocumentosAgrupadosVehiculoDto {
   certificado_instalacion_gps: VehiculoDocumentoResultDto[];
   certificado_valor_anadido: VehiculoDocumentoResultDto[];
   constancia_gps: VehiculoDocumentoResultDto[];
-  certificado_tacos: VehiculoDocumentoResultDto[];
+  revision_gps: VehiculoDocumentoResultDto[];
   certificado_extintores_hidrostatica: VehiculoDocumentoResultDto[];
   certificado_norma_r66: VehiculoDocumentoResultDto[];
   certificado_laminados_lunas: VehiculoDocumentoResultDto[];
@@ -2042,13 +2117,13 @@ export interface VehiculoDocumentoCreateDto {
     | "certificado_instalacion_gps"
     | "certificado_valor_anadido"
     | "constancia_gps"
-    | "certificado_tacos"
     | "certificado_extintores_hidrostatica"
     | "certificado_norma_r66"
     | "certificado_laminados_lunas"
     | "certificado_carroceria"
     | "certificado_caracteristicas_tecnicas"
     | "certificado_adas"
+    | "revision_gps"
     | "otros";
   /**
    * Nombre del documento
@@ -2088,13 +2163,13 @@ export interface VehiculoDocumentoUpdateDto {
     | "certificado_instalacion_gps"
     | "certificado_valor_anadido"
     | "constancia_gps"
-    | "certificado_tacos"
     | "certificado_extintores_hidrostatica"
     | "certificado_norma_r66"
     | "certificado_laminados_lunas"
     | "certificado_carroceria"
     | "certificado_caracteristicas_tecnicas"
     | "certificado_adas"
+    | "revision_gps"
     | "otros";
   /**
    * URL del documento
@@ -3217,7 +3292,7 @@ export interface DocumentoItemDto {
   observacion?: string;
   /**
    * Fecha de Vencimiento Inicial/Por defecto
-   * @example "2026-02-13T03:54:12.591Z"
+   * @example "2026-02-16T13:41:29.541Z"
    */
   fechaVencimiento?: string;
 }
@@ -3400,17 +3475,17 @@ export interface BotiquinItemDto {
   habilitado: boolean;
   /**
    * Fecha de Vencimiento actual
-   * @example "2026-02-13T03:54:12.623Z"
+   * @example "2026-02-16T13:41:29.548Z"
    */
   fechaVencimiento?: string;
   /**
    * Fecha de Salida
-   * @example "2026-02-13T03:54:12.623Z"
+   * @example "2026-02-16T13:41:29.548Z"
    */
   fechaSalida?: string;
   /**
    * Fecha de Reposición
-   * @example "2026-02-13T03:54:12.623Z"
+   * @example "2026-02-16T13:41:29.548Z"
    */
   fechaReposicion?: string;
 }
@@ -4573,6 +4648,16 @@ export interface MantenimientoReporteEstadoDto {
    */
   placa: string;
   /**
+   * Código interno del vehículo
+   * @example "V-001"
+   */
+  codigoInterno: string | null;
+  /**
+   * Imágenes del vehículo
+   * @example ["url1","url2"]
+   */
+  imagenes: string[] | null;
+  /**
    * Kilometraje actual del vehículo
    * @example 50000
    */
@@ -4599,10 +4684,20 @@ export interface MantenimientoReporteEstadoDto {
    */
   restante: number | null;
   /**
+   * Kilómetros restantes para el próximo mantenimiento (alias)
+   * @example 5000
+   */
+  kilometrajeRestante: number | null;
+  /**
    * Estado del mantenimiento (verde, amarillo, rojo)
    * @example "verde"
    */
   estado: "verde" | "amarillo" | "rojo" | "n/a";
+}
+
+export interface PaginatedReporteEstadoResultDto {
+  data: MantenimientoReporteEstadoDto[];
+  meta: PaginationMetaDto;
 }
 
 export interface RutaResultDto {
@@ -4847,7 +4942,7 @@ export interface RutaCircuitoCreateDto {
    */
   nombre: string;
   /** Detalle de la ruta de ida */
-  ida: RutaCircuitoDetalleDto;
+  ida?: RutaCircuitoDetalleDto;
   /** Detalle de la ruta de vuelta (opcional) */
   vuelta?: RutaCircuitoDetalleDto;
 }
@@ -4870,6 +4965,16 @@ export interface ConductorViajeDto {
    * @example 1
    */
   id: number;
+  /**
+   * Tipo de documento de identidad
+   * @example "DNI"
+   */
+  tipoDocumento: "DNI" | "CE" | "PTP" | "PASAPORTE" | "OTRO";
+  /**
+   * Nacionalidad del conductor
+   * @example "Peruana"
+   */
+  nacionalidad?: string;
   /**
    * Driver DNI
    * @example "12345678"
@@ -4912,9 +5017,16 @@ export interface ConductorViajeDto {
   claseLicencia: "A" | "B";
   /**
    * Driver license category
-   * @example "Uno"
+   * @example "I"
    */
-  categoriaLicencia: "Uno" | "Dos" | "Tres";
+  categoriaLicencia:
+    | "I"
+    | "II-a"
+    | "II-b"
+    | "II-c"
+    | "III-a"
+    | "III-b"
+    | "III-c";
   /**
    * Lista de URLs de fotochecks del conductor
    * @example ["https://res.cloudinary.com/xxx/fotocheck.jpg"]
@@ -5313,6 +5425,16 @@ export interface ViajeConductorDetalleDto {
    */
   id: number;
   /**
+   * Tipo de documento de identidad
+   * @example "DNI"
+   */
+  tipoDocumento: "DNI" | "CE" | "PTP" | "PASAPORTE" | "OTRO";
+  /**
+   * Nacionalidad del conductor
+   * @example "Peruana"
+   */
+  nacionalidad?: string;
+  /**
    * Driver DNI
    * @example "12345678"
    */
@@ -5354,9 +5476,16 @@ export interface ViajeConductorDetalleDto {
   claseLicencia: "A" | "B";
   /**
    * Driver license category
-   * @example "Uno"
+   * @example "I"
    */
-  categoriaLicencia: "Uno" | "Dos" | "Tres";
+  categoriaLicencia:
+    | "I"
+    | "II-a"
+    | "II-b"
+    | "II-c"
+    | "III-a"
+    | "III-b"
+    | "III-c";
   /**
    * Lista de URLs de fotochecks del conductor
    * @example ["https://res.cloudinary.com/xxx/fotocheck.jpg"]
@@ -8557,9 +8686,16 @@ export interface ConductoresFindAllParams {
   claseLicencia?: "A" | "B";
   /**
    * Filtrar por categoría de licencia
-   * @example "Uno"
+   * @example "I"
    */
-  categoriaLicencia?: "Uno" | "Dos" | "Tres";
+  categoriaLicencia?:
+    | "I"
+    | "II-a"
+    | "II-b"
+    | "II-c"
+    | "III-a"
+    | "III-b"
+    | "III-c";
 }
 
 export type ConductoresFindAllData = PaginatedConductorResultDto;
@@ -8633,6 +8769,13 @@ export interface ConductoresDeleteDocumentoParams {
 
 export type ConductoresDeleteDocumentoData = ConductorDocumentoResultDto;
 
+export interface ConductoresDownloadParams {
+  /** ID del conductor */
+  id: number;
+}
+
+export type ConductoresDownloadData = any;
+
 export type DashboardGetStatsData = DashboardStatsDto;
 
 export type DashboardGetVehiculosPorEstadoData = VehiculosPorEstadoDto;
@@ -8695,6 +8838,13 @@ export interface VehiculosFindAllEstadoDocumentosParams {
 
 export type VehiculosFindAllEstadoDocumentosData =
   PaginatedVehiculoEstadoDocumentosResultDto;
+
+export interface VehiculosDownloadParams {
+  /** ID del Vehículo */
+  id: number;
+}
+
+export type VehiculosDownloadData = any;
 
 export interface VehiculosFindOneParams {
   /** Vehicle ID */
@@ -9210,8 +9360,28 @@ export interface MantenimientosDeleteDocumentoParams {
 
 export type MantenimientosDeleteDocumentoData = MantenimientoDocumentoResultDto;
 
+export interface MantenimientosGetReporteEstadoVehiculosParams {
+  /**
+   * Número de página
+   * @min 1
+   * @default 1
+   */
+  page?: number;
+  /**
+   * Elementos por página
+   * @min 1
+   * @default 10
+   */
+  limit?: number;
+  /**
+   * Ordenamiento: proximos (menor kilometraje restante) o ultimos (mayor fecha de mantenimiento)
+   * @default "proximos"
+   */
+  sort?: "proximos" | "ultimos";
+}
+
 export type MantenimientosGetReporteEstadoVehiculosData =
-  MantenimientoReporteEstadoDto[];
+  PaginatedReporteEstadoResultDto;
 
 export interface RutasFindAllParams {
   /**
@@ -9317,10 +9487,7 @@ export interface ViajesFindAllParams {
   fechaInicio?: string;
   /** Fecha de fin para filtrar por rango (formato: YYYY-MM-DD) */
   fechaFin?: string;
-  /**
-   * Filtrar por modalidad de servicio
-   * @example "regular"
-   */
+  /** Filtrar por modalidad de servicio */
   modalidadServicio?:
     | "regular"
     | "expreso"
@@ -9328,18 +9495,28 @@ export interface ViajesFindAllParams {
     | "especial"
     | "turismo"
     | "corporativo";
-  /**
-   * Filtrar por tipo de ruta (ocasional, fija)
-   * @example "ocasional"
-   */
+  /** Filtrar por tipo de ruta (ocasional, fija) */
   tipoRuta?: "ocasional" | "fija";
-  /**
-   * Filtrar por estado del viaje
-   * @example "programado"
-   */
+  /** Filtrar por estado del viaje */
   estado?: "programado" | "en_progreso" | "completado" | "cancelado";
   /** Filtrar por IDs de conductores (separados por coma) */
   conductoresId?: string[];
+  /**
+   * Filtrar por ID de cliente
+   * @example 1
+   */
+  clienteId?: number;
+  /**
+   * Filtrar por ID de ruta
+   * @example 1
+   */
+  rutaId?: number;
+  /** Filtrar por IDs de vehículos (separados por coma) */
+  vehiculosId?: string[];
+  /** Filtrar por sentido del viaje */
+  sentido?: "ida" | "vuelta";
+  /** Filtrar por turno del viaje */
+  turno?: "dia" | "noche";
 }
 
 export type ViajesFindAllData = PaginatedViajeResultDto;
@@ -10340,9 +10517,16 @@ export namespace Conductores {
       claseLicencia?: "A" | "B";
       /**
        * Filtrar por categoría de licencia
-       * @example "Uno"
+       * @example "I"
        */
-      categoriaLicencia?: "Uno" | "Dos" | "Tres";
+      categoriaLicencia?:
+        | "I"
+        | "II-a"
+        | "II-b"
+        | "II-c"
+        | "III-a"
+        | "III-b"
+        | "III-c";
     };
     export type RequestBody = never;
     export type RequestHeaders = {};
@@ -10537,6 +10721,26 @@ export namespace Conductores {
     export type RequestHeaders = {};
     export type ResponseBody = ConductoresDeleteDocumentoData;
   }
+
+  /**
+   * No description
+   * @tags conductores
+   * @name ConductoresDownload
+   * @summary Descargar documentos del conductor en ZIP
+   * @request GET:/conductor/download/{id}
+   * @secure
+   * @response `200` `ConductoresDownloadData`
+   */
+  export namespace ConductoresDownload {
+    export type RequestParams = {
+      /** ID del conductor */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ConductoresDownloadData;
+  }
 }
 
 export namespace Dashboard {
@@ -10718,6 +10922,26 @@ export namespace Vehiculos {
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = VehiculosFindAllEstadoDocumentosData;
+  }
+
+  /**
+   * No description
+   * @tags vehiculos
+   * @name VehiculosDownload
+   * @summary Descargar información y documentos del vehículo (ZIP)
+   * @request GET:/vehiculo/download/{id}
+   * @secure
+   * @response `200` `VehiculosDownloadData`
+   */
+  export namespace VehiculosDownload {
+    export type RequestParams = {
+      /** ID del Vehículo */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = VehiculosDownloadData;
   }
 
   /**
@@ -11969,7 +12193,25 @@ export namespace Mantenimientos {
    */
   export namespace MantenimientosGetReporteEstadoVehiculos {
     export type RequestParams = {};
-    export type RequestQuery = {};
+    export type RequestQuery = {
+      /**
+       * Número de página
+       * @min 1
+       * @default 1
+       */
+      page?: number;
+      /**
+       * Elementos por página
+       * @min 1
+       * @default 10
+       */
+      limit?: number;
+      /**
+       * Ordenamiento: proximos (menor kilometraje restante) o ultimos (mayor fecha de mantenimiento)
+       * @default "proximos"
+       */
+      sort?: "proximos" | "ultimos";
+    };
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = MantenimientosGetReporteEstadoVehiculosData;
@@ -12201,10 +12443,7 @@ export namespace Viajes {
       fechaInicio?: string;
       /** Fecha de fin para filtrar por rango (formato: YYYY-MM-DD) */
       fechaFin?: string;
-      /**
-       * Filtrar por modalidad de servicio
-       * @example "regular"
-       */
+      /** Filtrar por modalidad de servicio */
       modalidadServicio?:
         | "regular"
         | "expreso"
@@ -12212,18 +12451,28 @@ export namespace Viajes {
         | "especial"
         | "turismo"
         | "corporativo";
-      /**
-       * Filtrar por tipo de ruta (ocasional, fija)
-       * @example "ocasional"
-       */
+      /** Filtrar por tipo de ruta (ocasional, fija) */
       tipoRuta?: "ocasional" | "fija";
-      /**
-       * Filtrar por estado del viaje
-       * @example "programado"
-       */
+      /** Filtrar por estado del viaje */
       estado?: "programado" | "en_progreso" | "completado" | "cancelado";
       /** Filtrar por IDs de conductores (separados por coma) */
       conductoresId?: string[];
+      /**
+       * Filtrar por ID de cliente
+       * @example 1
+       */
+      clienteId?: number;
+      /**
+       * Filtrar por ID de ruta
+       * @example 1
+       */
+      rutaId?: number;
+      /** Filtrar por IDs de vehículos (separados por coma) */
+      vehiculosId?: string[];
+      /** Filtrar por sentido del viaje */
+      sentido?: "ida" | "vuelta";
+      /** Filtrar por turno del viaje */
+      turno?: "dia" | "noche";
     };
     export type RequestBody = never;
     export type RequestHeaders = {};
@@ -14872,6 +15121,27 @@ export class Api<SecurityDataType extends unknown> {
         format: "json",
         ...params,
       }),
+
+    /**
+     * No description
+     *
+     * @tags conductores
+     * @name ConductoresDownload
+     * @summary Descargar documentos del conductor en ZIP
+     * @request GET:/conductor/download/{id}
+     * @secure
+     * @response `200` `ConductoresDownloadData`
+     */
+    download: (
+      { id, ...query }: ConductoresDownloadParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ConductoresDownloadData, any>({
+        path: `/conductor/download/${id}`,
+        method: "GET",
+        secure: true,
+        ...params,
+      }),
   };
   dashboard = {
     /**
@@ -15032,6 +15302,27 @@ export class Api<SecurityDataType extends unknown> {
         query: query,
         secure: true,
         format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags vehiculos
+     * @name VehiculosDownload
+     * @summary Descargar información y documentos del vehículo (ZIP)
+     * @request GET:/vehiculo/download/{id}
+     * @secure
+     * @response `200` `VehiculosDownloadData`
+     */
+    download: (
+      { id, ...query }: VehiculosDownloadParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<VehiculosDownloadData, any>({
+        path: `/vehiculo/download/${id}`,
+        method: "GET",
+        secure: true,
         ...params,
       }),
 
@@ -16309,10 +16600,14 @@ export class Api<SecurityDataType extends unknown> {
      * @secure
      * @response `200` `MantenimientosGetReporteEstadoVehiculosData`
      */
-    getReporteEstadoVehiculos: (params: RequestParams = {}) =>
+    getReporteEstadoVehiculos: (
+      query: MantenimientosGetReporteEstadoVehiculosParams,
+      params: RequestParams = {},
+    ) =>
       this.http.request<MantenimientosGetReporteEstadoVehiculosData, any>({
         path: `/mantenimiento/reporte-estado-vehiculos`,
         method: "GET",
+        query: query,
         secure: true,
         format: "json",
         ...params,

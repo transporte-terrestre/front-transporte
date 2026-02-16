@@ -1,0 +1,132 @@
+@if (data(); as checklist) {
+  @if (checklist.document) {
+    <div class="space-y-4 text-xs font-inter text-text">
+      <!-- Declaracion -->
+      @if (checklist.document.declaracionJurada; as dj) {
+        <div class="border border-text/10 rounded-lg overflow-hidden bg-background shadow-sm">
+          <div
+            class="bg-text/5 px-3 py-2 text-center font-inter-bold uppercase text-[10px] tracking-wide border-b border-text/10"
+          >
+            {{ dj.label }}
+          </div>
+          <div class="divide-y divide-text/5">
+            @for (item of entries(dj.items); track item.key) {
+              <div
+                class="grid grid-cols-[30px_1fr_60px] gap-2 p-2 items-center hover:bg-text/2 transition-colors"
+              >
+                <!-- Dots -->
+                <div class="flex gap-0.5 justify-center">
+                  @for (d of getDots(item.value.color); track $index) {
+                    <div
+                      class="w-1.5 h-1.5 rounded-full"
+                      [ngClass]="getDotClass(item.value.color)"
+                    ></div>
+                  }
+                </div>
+                <!-- Label -->
+                <div class="leading-tight">{{ item.value.label }}</div>
+                <!-- Yes/No -->
+                <div
+                  class="flex border border-text/10 rounded h-5 text-[9px] font-inter-bold overflow-hidden"
+                >
+                  <div
+                    class="flex-1 flex items-center justify-center transition-colors"
+                    [class.bg-success/10]="item.value.value"
+                    [class.text-success]="item.value.value"
+                  >
+                    SI
+                  </div>
+                  <div
+                    class="flex-1 flex items-center justify-center border-l border-text/10 transition-colors"
+                    [class.bg-danger/10]="!item.value.value"
+                    [class.text-danger]="!item.value.value"
+                  >
+                    NO
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Sections Grid -->
+      <!-- Sections Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
+        <ng-template #sectionCard let-sec="sec">
+          <div
+            class="border border-text/10 rounded-lg overflow-hidden bg-background shadow-sm h-full flex flex-col"
+          >
+            <div
+              class="bg-text/5 px-3 py-2 text-center font-inter-bold uppercase text-[10px] tracking-wide border-b border-text/10"
+            >
+              {{ sec.label }}
+            </div>
+            <div class="divide-y divide-text/5 flex-1">
+              @for (item of entries(sec.items); track item.key) {
+                <div
+                  class="grid grid-cols-[30px_1fr_60px] gap-2 p-2 items-center hover:bg-text/2 transition-colors"
+                >
+                  <!-- Dots -->
+                  <div class="flex gap-0.5 justify-center">
+                    @for (d of getDots(item.value.color); track $index) {
+                      <div
+                        class="w-1.5 h-1.5 rounded-full"
+                        [ngClass]="getDotClass(item.value.color)"
+                      ></div>
+                    }
+                  </div>
+                  <!-- Label -->
+                  <div class="leading-tight">{{ item.value.label }}</div>
+                  <!-- Yes/No -->
+                  <div
+                    class="flex border border-text/10 rounded h-5 text-[9px] font-inter-bold overflow-hidden w-full"
+                  >
+                    <div
+                      class="flex-1 flex items-center justify-center transition-colors"
+                      [class.bg-success/10]="item.value.value"
+                      [class.text-success]="item.value.value"
+                    >
+                      SI
+                    </div>
+                    <div
+                      class="flex-1 flex items-center justify-center border-l border-text/10 transition-colors"
+                      [class.bg-danger/10]="!item.value.value"
+                      [class.text-danger]="!item.value.value"
+                    >
+                      NO
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        </ng-template>
+
+        @if (checklist.document.estadoGeneral; as sec) {
+          <ng-container *ngTemplateOutlet="sectionCard; context: { sec: sec }"></ng-container>
+        }
+        @if (checklist.document.estadoInterno; as sec) {
+          <ng-container *ngTemplateOutlet="sectionCard; context: { sec: sec }"></ng-container>
+        }
+        @if (checklist.document.elementosSeguridad; as sec) {
+          <ng-container *ngTemplateOutlet="sectionCard; context: { sec: sec }"></ng-container>
+        }
+        @if (checklist.document.estadoMecanico; as sec) {
+          <ng-container *ngTemplateOutlet="sectionCard; context: { sec: sec }"></ng-container>
+        }
+        @if (checklist.document.sistemasCriticos; as sec) {
+          <ng-container *ngTemplateOutlet="sectionCard; context: { sec: sec }"></ng-container>
+        }
+        @if (checklist.document.cinturonesSeguridad; as sec) {
+          <ng-container *ngTemplateOutlet="sectionCard; context: { sec: sec }"></ng-container>
+        }
+      </div>
+    </div>
+  }
+} @else {
+  <div class="p-8 text-center text-text/40">
+    <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+    <p>Cargando datos...</p>
+  </div>
+}

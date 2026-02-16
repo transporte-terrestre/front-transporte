@@ -1,0 +1,177 @@
+@if (data(); as checklist) {
+  <div class="space-y-4 text-xs font-inter text-text">
+    <!-- Legend -->
+    @if (checklist.document.info; as info) {
+      <div
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 p-3 bg-secondary/5 rounded-lg border border-secondary/10"
+      >
+        <div class="flex items-center gap-2 font-inter-semibold text-[10px] text-text/80">
+          <span
+            class="w-5 h-5 flex items-center justify-center bg-secondary/10 text-secondary rounded font-bold shrink-0"
+            >A</span
+          >
+          <span>{{ info.criterioA }}</span>
+        </div>
+        <div class="flex items-center gap-2 font-inter-semibold text-[10px] text-text/80">
+          <span
+            class="w-5 h-5 flex items-center justify-center bg-secondary/10 text-secondary rounded font-bold shrink-0"
+            >C</span
+          >
+          <span>{{ info.criterioC }}</span>
+        </div>
+        <div class="flex items-center gap-2 font-inter-semibold text-[10px] text-text/80">
+          <span
+            class="w-5 h-5 flex items-center justify-center bg-secondary/10 text-secondary rounded font-bold shrink-0"
+            >E</span
+          >
+          <span>{{ info.criterioE }}</span>
+        </div>
+        <div class="flex items-center gap-2 font-inter-semibold text-[10px] text-text/80">
+          <span
+            class="w-5 h-5 flex items-center justify-center bg-secondary/10 text-secondary rounded font-bold shrink-0"
+            >B</span
+          >
+          <span>{{ info.criterioB }}</span>
+        </div>
+        <div class="flex items-center gap-2 font-inter-semibold text-[10px] text-text/80">
+          <span
+            class="w-5 h-5 flex items-center justify-center bg-secondary/10 text-secondary rounded font-bold shrink-0"
+            >D</span
+          >
+          <span>{{ info.criterioD }}</span>
+        </div>
+        <div class="flex items-center gap-2 font-inter-semibold text-[10px] text-text/80">
+          <span
+            class="w-5 h-5 flex items-center justify-center bg-secondary/10 text-secondary rounded font-bold shrink-0"
+            >F</span
+          >
+          <span>{{ info.criterioF }}</span>
+        </div>
+      </div>
+    }
+
+    <!-- Table -->
+    <div
+      class="border border-text/10 rounded-lg overflow-hidden bg-background shadow-sm overflow-x-auto"
+    >
+      <table class="w-full border-collapse min-w-[800px]">
+        <thead>
+          <tr class="bg-info/10 text-info font-inter-bold uppercase text-[10px]">
+            <th class="py-2 px-3 text-left border-r border-b border-info/20">DESCRIPCION</th>
+            <th class="w-16 py-2 text-center border-r border-b border-info/20">STOCK</th>
+            <th class="w-8 py-2 text-center border-r border-b border-info/20">A</th>
+            <th class="w-8 py-2 text-center border-r border-b border-info/20">B</th>
+            <th class="w-8 py-2 text-center border-r border-b border-info/20">C</th>
+            <th class="w-8 py-2 text-center border-r border-b border-info/20">D</th>
+            <th class="w-8 py-2 text-center border-r border-b border-info/20">E</th>
+            <th class="w-8 py-2 text-center border-r border-b border-info/20">F</th>
+            <th class="w-24 py-2 text-center border-r border-b border-info/20 leading-tight">
+              HABILITADA PARA USO
+            </th>
+            <th class="w-40 py-2 text-center border-r border-b border-info/20">
+              ACCION CORRECTIVA
+            </th>
+            <th class="w-40 py-2 text-center border-b border-info/20">OBSERVACION</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of entries(checklist.document.herramientas); track item.key) {
+            <tr class="hover:bg-text/2 transition-colors">
+              <td
+                class="px-3 py-2 border-r border-b border-text/10 leading-tight font-inter-medium"
+              >
+                {{ item.value.label }}
+              </td>
+              <td class="text-center border-r border-b border-text/10 text-[10px] font-mono">
+                {{ item.value.stock || '-' }}
+              </td>
+
+              <!-- A-F checks -->
+              <td
+                class="text-center border-r border-b border-text/10"
+                [class.bg-success/5]="item.value.criterioA"
+              >
+                @if (item.value.criterioA) {
+                  <i class="fas fa-check text-success text-[10px]"></i>
+                }
+              </td>
+              <td
+                class="text-center border-r border-b border-text/10"
+                [class.bg-success/5]="item.value.criterioB"
+              >
+                @if (item.value.criterioB) {
+                  <i class="fas fa-check text-success text-[10px]"></i>
+                }
+              </td>
+              <td
+                class="text-center border-r border-b border-text/10"
+                [class.bg-success/5]="item.value.criterioC"
+              >
+                @if (item.value.criterioC) {
+                  <i class="fas fa-check text-success text-[10px]"></i>
+                }
+              </td>
+              <td
+                class="text-center border-r border-b border-text/10"
+                [class.bg-success/5]="item.value.criterioD"
+              >
+                @if (item.value.criterioD) {
+                  <i class="fas fa-check text-success text-[10px]"></i>
+                }
+              </td>
+              <td
+                class="text-center border-r border-b border-text/10"
+                [class.bg-success/5]="item.value.criterioE"
+              >
+                @if (item.value.criterioE) {
+                  <i class="fas fa-check text-success text-[10px]"></i>
+                }
+              </td>
+              <td
+                class="text-center border-r border-b border-text/10"
+                [class.bg-success/5]="item.value.criterioF"
+              >
+                @if (item.value.criterioF) {
+                  <i class="fas fa-check text-success text-[10px]"></i>
+                }
+              </td>
+
+              <!-- Estado Habilitada -->
+              <td class="text-center border-r border-b border-text/10 font-inter-bold text-[10px]">
+                @if (item.value.estado) {
+                  <span
+                    class="bg-success/10 text-success px-1.5 py-0.5 rounded flex items-center justify-center gap-1 mx-2"
+                  >
+                    <i class="fas fa-check"></i> OK
+                  </span>
+                } @else {
+                  <span
+                    class="bg-danger/10 text-danger px-1.5 py-0.5 rounded flex items-center justify-center gap-1 mx-2"
+                  >
+                    <i class="fas fa-times"></i> NO
+                  </span>
+                }
+              </td>
+
+              <td
+                class="px-3 py-2 border-r border-b border-text/10 text-[10px] wrap-break-word text-text/70 italic"
+              >
+                {{ item.value.accionCorrectiva }}
+              </td>
+              <td
+                class="px-3 py-2 border-b border-text/10 text-[10px] wrap-break-word text-text/70 italic"
+              >
+                {{ item.value.observacion }}
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+} @else {
+  <div class="p-8 text-center text-text/40">
+    <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+    <p>Cargando datos...</p>
+  </div>
+}

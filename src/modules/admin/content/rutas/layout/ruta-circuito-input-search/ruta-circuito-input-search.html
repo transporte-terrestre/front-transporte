@@ -53,21 +53,49 @@
             @for (ruta of rutas(); track ruta.id) {
               <li
                 (click)="selectRuta(ruta)"
-                class="px-3 py-2 hover:bg-secondary/5 cursor-pointer transition-colors flex items-center gap-3 border-b border-text/5 last:border-0"
+                class="px-3 py-2.5 hover:bg-secondary/5 cursor-pointer transition-colors flex items-start gap-3 border-b border-text/5 last:border-0"
                 [class.bg-secondary/20]="selectedRuta()?.id === ruta.id"
               >
                 <!-- Avatar/Icon -->
                 <div
-                  class="w-8 h-8 rounded-full bg-text/5 flex items-center justify-center text-text/60 shrink-0"
+                  class="w-8 h-8 rounded-full bg-text/5 flex items-center justify-center text-text/60 shrink-0 mt-0.5"
                 >
                   <i class="fas fa-route text-xs"></i>
                 </div>
 
                 <!-- Info -->
-                <div class="flex flex-col overflow-hidden">
-                  <span class="text-sm font-inter-medium text-text truncate">
+                <div class="flex flex-col overflow-hidden min-w-0 flex-1">
+                  <span class="text-sm font-inter-semibold text-text truncate">
                     {{ ruta.nombre }}
                   </span>
+                  @if (ruta.rutaIda || ruta.rutaVuelta) {
+                    <div class="flex flex-col gap-0.5 mt-1">
+                      @if (ruta.rutaIda) {
+                        <div class="flex items-center gap-1.5">
+                          <i class="fas fa-arrow-right text-secondary text-[9px]"></i>
+                          <span class="text-[11px] text-text/50 truncate"
+                            >{{ ruta.rutaIda.origen }} → {{ ruta.rutaIda.destino }}</span
+                          >
+                        </div>
+                      }
+                      @if (ruta.rutaVuelta && !ruta.esIgual) {
+                        <div class="flex items-center gap-1.5">
+                          <i class="fas fa-arrow-left text-info text-[9px]"></i>
+                          <span class="text-[11px] text-text/50 truncate"
+                            >{{ ruta.rutaVuelta.origen }} → {{ ruta.rutaVuelta.destino }}</span
+                          >
+                        </div>
+                      }
+                      @if (ruta.esIgual) {
+                        <div class="flex items-center gap-1.5">
+                          <i class="fas fa-sync-alt text-text/30 text-[9px]"></i>
+                          <span class="text-[11px] text-text/40 italic"
+                            >Misma ruta ida y vuelta</span
+                          >
+                        </div>
+                      }
+                    </div>
+                  }
                 </div>
               </li>
             }

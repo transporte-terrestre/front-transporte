@@ -1,0 +1,84 @@
+@if (items(); as itemList) {
+  <div class="space-y-4 text-xs font-inter text-text">
+    <div
+      class="border border-text/10 rounded-lg overflow-hidden bg-background shadow-sm overflow-x-auto"
+    >
+      <table class="w-full border-collapse min-w-[600px]">
+        <thead>
+          <tr class="bg-info/10 text-info font-inter-bold uppercase text-[10px]">
+            <th rowspan="2" class="py-2 px-3 text-left border-r border-b border-info/20">
+              DESCRIPCION
+            </th>
+            <th
+              colspan="2"
+              class="py-1 px-1 text-center border-r border-b border-info/20 w-[100px]"
+            >
+              EVALUACIÓN
+            </th>
+            <th rowspan="2" class="w-24 py-2 text-center border-r border-b border-info/20">
+              FECHA DE VENCIMIENTO
+            </th>
+            <th rowspan="2" class="w-24 py-2 text-center border-r border-b border-info/20">
+              FECHA SALIDA
+            </th>
+            <th rowspan="2" class="w-24 py-2 text-center border-b border-info/20">
+              FECHA REPOSICIÓN
+            </th>
+          </tr>
+          <tr class="bg-info/10 text-info font-inter-bold uppercase text-[10px]">
+            <th class="w-[50px] py-1 text-center border-r border-b border-info/20">SI/OK</th>
+            <th class="w-[50px] py-1 text-center border-r border-b border-info/20">NO/MAL</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of itemList; track item.key) {
+            <tr class="hover:bg-text/2 transition-colors">
+              <td
+                class="px-3 py-2 border-r border-b border-text/10 leading-tight font-inter-medium"
+              >
+                {{ item.value.label }}
+              </td>
+
+              <!-- Evaluation Checks -->
+              <td class="text-center border-r border-b border-text/10 bg-success/5">
+                @if (item.value.habilitado) {
+                  <i class="fas fa-check text-success text-sm"></i>
+                }
+              </td>
+              <td class="text-center border-r border-b border-text/10 bg-danger/5">
+                @if (!item.value.habilitado) {
+                  <i class="fas fa-times text-danger text-sm"></i>
+                }
+              </td>
+
+              <!-- Dates -->
+              <td class="text-center border-r border-b border-text/10 text-[10px]">
+                {{ (item.value.fechaVencimiento | date: 'dd/MM/yyyy') || '-' }}
+              </td>
+              <td class="text-center border-r border-b border-text/10 text-[10px]">
+                {{ (item.value.fechaSalida | date: 'dd/MM/yyyy') || '-' }}
+              </td>
+              <td class="text-center border-b border-text/10 text-[10px]">
+                {{ (item.value.fechaReposicion | date: 'dd/MM/yyyy') || '-' }}
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div
+      class="border border-text/10 rounded-lg p-3 bg-background shadow-sm flex items-center gap-2"
+    >
+      <span class="font-inter-bold uppercase text-[10px] text-text/60"
+        >UBICACIÓN DEL BOTIQUÍN:</span
+      >
+      <span class="font-inter-medium text-text">{{ ubicacion() || '-' }}</span>
+    </div>
+  </div>
+} @else {
+  <div class="p-8 text-center text-text/40">
+    <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+    <p>Cargando datos...</p>
+  </div>
+}

@@ -586,6 +586,30 @@ export class ViajesList implements OnInit, OnDestroy {
     }
   }
 
+  getSentidoBadgeClass(sentido: 'ida' | 'vuelta' | undefined): string {
+    return 'bg-text/5 text-text/60';
+  }
+
+  getSentidoLabel(sentido: 'ida' | 'vuelta' | undefined): string {
+    return sentido === 'vuelta' ? 'Vuelta' : 'Ida';
+  }
+
+  getSentidoIcon(sentido: 'ida' | 'vuelta' | undefined): string {
+    return sentido === 'vuelta' ? 'fa-arrow-left' : 'fa-arrow-right';
+  }
+
+  getTurnoBadgeClass(turno: 'dia' | 'noche' | undefined): string {
+    return 'bg-text/5 text-text/60';
+  }
+
+  getTurnoLabel(turno: 'dia' | 'noche' | undefined): string {
+    return turno === 'noche' ? 'Noche' : 'Día';
+  }
+
+  getTurnoIcon(turno: 'dia' | 'noche' | undefined): string {
+    return turno === 'noche' ? 'fa-moon' : 'fa-sun';
+  }
+
   formatDate(dateString: string): string {
     const date = this.parseIsoAsLocal(dateString);
     const day = String(date.getDate()).padStart(2, '0');

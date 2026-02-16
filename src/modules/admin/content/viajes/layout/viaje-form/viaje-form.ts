@@ -8,16 +8,23 @@ import {
   FormArray,
 } from '@angular/forms';
 import { ApiResponse, ApiBody } from 'api/backend.api';
+import { ToastService } from '@service/toast.service';
 import { ClienteInputSearch } from '@module/admin/content/clientes/layout/cliente-input-search/cliente-input-search';
 import { RutaCircuitoInputSearch } from '@module/admin/content/rutas/layout/ruta-circuito-input-search/ruta-circuito-input-search';
 import { VehiculoInputSearch } from '@module/admin/content/vehiculos/layout/vehiculo-input-search/vehiculo-input-search';
 import { ConductorInputSearch } from '@module/admin/content/conductores/layout/conductor-input-search/conductor-input-search';
-import { ViajeConductoresForm } from './content/viaje-conductores-form/viaje-conductores-form';
-import { ViajeVehiculosForm } from './content/viaje-vehiculos-form/viaje-vehiculos-form';
-import { ViajeComentariosForm } from './content/viaje-comentarios-form/viaje-comentarios-form';
-import { ViajeServiciosFormComponent } from './content/viaje-servicios-form/viaje-servicios-form';
-import { ViajePasajerosForm } from './content/viaje-pasajeros-form/viaje-pasajeros-form';
+import { ViajeConductoresForm } from './layout/viaje-conductores-form/viaje-conductores-form';
+import { ViajeVehiculosForm } from './layout/viaje-vehiculos-form/viaje-vehiculos-form';
+import { ViajeComentariosForm } from './layout/viaje-comentarios-form/viaje-comentarios-form';
+import { RutaInputSearch } from '@module/admin/content/rutas/layout/ruta-input-search/ruta-input-search';
+import { ViajeServiciosFormComponent } from './layout/viaje-servicios-form/viaje-servicios-form';
+import { ViajePasajerosForm } from './layout/viaje-pasajeros-form/viaje-pasajeros-form';
 import { FormGroup } from '@angular/forms';
+
+interface CircuitoSelection {
+  rutaIda?: { id: number; distancia: string };
+  rutaVuelta?: { id: number; distancia: string };
+}
 
 @Component({
   selector: 'app-viaje-form',
@@ -28,6 +35,7 @@ import { FormGroup } from '@angular/forms';
     RutaCircuitoInputSearch,
     VehiculoInputSearch,
     ConductorInputSearch,
+    RutaInputSearch,
     ViajeConductoresForm,
     ViajeVehiculosForm,
     ViajePasajerosForm,
@@ -39,23 +47,22 @@ import { FormGroup } from '@angular/forms';
 })
 export class ViajeForm implements OnInit {
   private fb = inject(FormBuilder);
+  private toastService = inject(ToastService);
 
   // Inputs
-  viaje = input<
-    | (ApiResponse<'viajes', 'findOne'> & {
-        conductorPrincipal?: NonNullable<ApiResponse<'viajes', 'findOne'>['conductores']>[number];
-        vehiculoPrincipal?: NonNullable<ApiResponse<'viajes', 'findOne'>['vehiculos']>[number];
-      })
-    | null
-  >(null);
+  viaje = input<ApiResponse<'viajes', 'findOne'> | null>(null);
   editMode = input<boolean>(false);
 
   // Outputs
-  onSubmitForm = output<any>();
+  onSubmitForm = output<ApiBody<'viajes', 'create'> | ApiBody<'viajes', 'create'>[]>();
+  onUpdate = output<ApiBody<'viajes', 'update'>>();
   onDataChange = output<void>();
 
   // Signals
   tipoViaje = signal<'ida' | 'vuelta' | 'ambos'>('ida');
+  hasRutaIda = signal<boolean>(false);
+  hasRutaVuelta = signal<boolean>(false);
+  hasRutaSelected = signal<boolean>(false);
 
   // Catálogos
   loadingCatalogos = signal(false);
@@ -73,14 +80,21 @@ export class ViajeForm implements OnInit {
       'regular' as ApiResponse<'viajes', 'findOne'>['modalidadServicio'],
       [Validators.required],
     ],
+    modalidadServicioVuelta: ['regular' as ApiResponse<'viajes', 'findOne'>['modalidadServicio']],
     vehiculo: [null, [Validators.required]],
     conductor: [null, [Validators.required]],
-    fechaSalida: ['', [Validators.required]],
-    fechaLlegada: ['', [Validators.required]],
-    fechaSalidaVuelta: [''], // Para la vuelta
-    fechaLlegadaVuelta: [''], // Para la vuelta
+    fechaSalidaDate: [this.getTodayDate(), [Validators.required]],
+    fechaSalidaTime: ['10:00', [Validators.required]],
+    fechaLlegadaDate: [this.getTodayDate(), [Validators.required]],
+    fechaLlegadaTime: ['14:00', [Validators.required]],
+    fechaSalidaVueltaDate: [this.getTodayDate()],
+    fechaSalidaVueltaTime: ['10:00'],
+    fechaLlegadaVueltaDate: [this.getTodayDate()],
+    fechaLlegadaVueltaTime: ['14:00'],
     estado: ['programado' as ApiResponse<'viajes', 'findOne'>['estado'], [Validators.required]],
+    estadoVuelta: ['programado' as ApiResponse<'viajes', 'findOne'>['estado']],
     turno: ['dia' as ApiResponse<'viajes', 'findOne'>['turno'], [Validators.required]],
+    turnoVuelta: ['dia' as ApiResponse<'viajes', 'findOne'>['turno']],
     sentido: ['ida' as ApiResponse<'viajes', 'findOne'>['sentido'], [Validators.required]],
   });
 
@@ -142,27 +156,26 @@ export class ViajeForm implements OnInit {
         this.viajeForm.patchValue({
           cliente: viajeData.clienteId,
           tipoRuta: viajeData.tipoRuta,
-          ruta: viajeData.rutaId, // Aquí se debe cargar la ruta actual, aunque el input search espera circuito.
-          // TODO: Para edición real, deberíamos obtener el circuito al que pertenece la ruta si queremos mostrarlo en el input search.
-          // Por ahora, si es edición, mantenemos la lógica pero el input search podría no mostrar nada si solo tiene rutaId.
-          // Asumiremos que para "Refinar" es principalmente CREACIÓN lo que piden.
+          ruta: viajeData.rutaId,
           rutaOcasional: viajeData.rutaOcasional,
           distanciaEstimada: viajeData.distanciaEstimada || '',
           distanciaFinal: viajeData.distanciaFinal || '',
           modalidadServicio: viajeData.modalidadServicio,
-          vehiculo: viajeData.vehiculoPrincipal?.id,
-          conductor: viajeData.conductorPrincipal?.id,
+          vehiculo: viajeData.vehiculos?.[0].id,
+          conductor: viajeData.conductores?.[0].id,
           horasContrato: viajeData.horasContrato,
-          fechaSalida: this.formatDateTimeForInput(viajeData.fechaSalida),
-          fechaLlegada: viajeData.fechaLlegada
-            ? this.formatDateTimeForInput(viajeData.fechaLlegada)
-            : '',
+          fechaSalidaDate: viajeData.fechaSalida ? this.extractDate(viajeData.fechaSalida) : '',
+          fechaSalidaTime: viajeData.fechaSalida ? this.extractTime(viajeData.fechaSalida) : '',
+          fechaLlegadaDate: viajeData.fechaLlegada ? this.extractDate(viajeData.fechaLlegada) : '',
+          fechaLlegadaTime: viajeData.fechaLlegada ? this.extractTime(viajeData.fechaLlegada) : '',
           estado: viajeData.estado,
           turno: viajeData.turno,
           sentido: viajeData.sentido,
           // En edit mode, NO seteamos campos de vuelta extras porque editamos UN solo viaje a la vez
-          fechaSalidaVuelta: '',
-          fechaLlegadaVuelta: '',
+          fechaSalidaVueltaDate: '',
+          fechaSalidaVueltaTime: '',
+          fechaLlegadaVueltaDate: '',
+          fechaLlegadaVueltaTime: '',
           distanciaEstimadaVuelta: '',
         });
 
@@ -173,19 +186,38 @@ export class ViajeForm implements OnInit {
           this.tipoViaje.set('ida');
         }
 
+        // En edit mode, los vehículos y conductores se gestionan por separado
+        this.viajeForm.get('vehiculo')?.clearValidators();
+        this.viajeForm.get('conductor')?.clearValidators();
+        this.viajeForm.get('vehiculo')?.updateValueAndValidity();
+        this.viajeForm.get('conductor')?.updateValueAndValidity();
+
         // Aplicar estado de distanciaFinal después de cargar datos
         this.updateDistanciaFinalState(viajeData.estado);
       } else {
+        // En create mode, son requeridos
+        this.viajeForm.get('vehiculo')?.setValidators([Validators.required]);
+        this.viajeForm.get('conductor')?.setValidators([Validators.required]);
+        this.viajeForm.get('vehiculo')?.updateValueAndValidity();
+        this.viajeForm.get('conductor')?.updateValueAndValidity();
+
         this.viajeForm.reset({
-          estado: 'programado',
-          tipoRuta: 'fija',
           modalidadServicio: 'regular',
           turno: 'dia',
           sentido: 'ida',
           tipoViaje: 'ida',
-          // Resetear nuevos campos
-          fechaSalidaVuelta: '',
-          fechaLlegadaVuelta: '',
+          estado: 'programado',
+          estadoVuelta: 'programado',
+          tipoRuta: 'fija',
+          // Resetear nuevos campos con defaults
+          fechaSalidaDate: this.getTodayDate(),
+          fechaSalidaTime: '10:00',
+          fechaLlegadaDate: this.getTodayDate(),
+          fechaLlegadaTime: '14:00',
+          fechaSalidaVueltaDate: this.getTodayDate(),
+          fechaSalidaVueltaTime: '10:00',
+          fechaLlegadaVueltaDate: this.getTodayDate(),
+          fechaLlegadaVueltaTime: '14:00',
           distanciaEstimadaVuelta: '',
         });
         this.tipoViaje.set('ida');
@@ -197,24 +229,57 @@ export class ViajeForm implements OnInit {
     // Efecto para validadores de campos de vuelta
     effect(() => {
       const tipo = this.tipoViaje();
-      const fSalidaV = this.viajeForm.get('fechaSalidaVuelta');
-      const fLlegadaV = this.viajeForm.get('fechaLlegadaVuelta');
+      const fSalidaVDate = this.viajeForm.get('fechaSalidaVueltaDate');
+      const fSalidaVTime = this.viajeForm.get('fechaSalidaVueltaTime');
+      const fLlegadaVDate = this.viajeForm.get('fechaLlegadaVueltaDate');
+      const fLlegadaVTime = this.viajeForm.get('fechaLlegadaVueltaTime');
       const distV = this.viajeForm.get('distanciaEstimadaVuelta');
+      const circuito = this.viajeForm.get('ruta')?.value;
 
-      if (tipo === 'ambos' && !this.editMode()) {
-        fSalidaV?.setValidators([Validators.required]);
-        fLlegadaV?.setValidators([Validators.required]);
-        distV?.setValidators([Validators.required]);
-      } else {
-        fSalidaV?.clearValidators();
-        fLlegadaV?.clearValidators();
-        distV?.clearValidators();
-        // Opcional: limpiar valores si no se usa
-        // fSalidaV?.setValue('');
-        // fLlegadaV?.setValue('');
+      // 1. Sincronización de Distancias dependiendo del tipo de viaje
+      if (circuito && typeof circuito === 'object' && !this.editMode()) {
+        const c = circuito as CircuitoSelection;
+        if (tipo === 'ida' && c.rutaIda) {
+          this.viajeForm.patchValue({ distanciaEstimada: c.rutaIda.distancia });
+        } else if (tipo === 'vuelta' && c.rutaVuelta) {
+          this.viajeForm.patchValue({ distanciaEstimada: c.rutaVuelta.distancia });
+        } else if (tipo === 'ambos') {
+          if (c.rutaIda) this.viajeForm.patchValue({ distanciaEstimada: c.rutaIda.distancia });
+          if (c.rutaVuelta) {
+            this.viajeForm.patchValue({ distanciaEstimadaVuelta: c.rutaVuelta.distancia });
+          }
+        }
       }
-      fSalidaV?.updateValueAndValidity();
-      fLlegadaV?.updateValueAndValidity();
+
+      // 2. Validadores y lógica específica de "Ambos"
+      if (tipo === 'ambos' && !this.editMode()) {
+        fSalidaVDate?.setValidators([Validators.required]);
+        fSalidaVTime?.setValidators([Validators.required]);
+        fLlegadaVDate?.setValidators([Validators.required]);
+        fLlegadaVTime?.setValidators([Validators.required]);
+        distV?.setValidators([Validators.required]);
+
+        // Sincronizar Modalidad y Turno de Ida a Vuelta
+        const currentModalidad = this.viajeForm.get('modalidadServicio')?.value;
+        const currentTurno = this.viajeForm.get('turno')?.value;
+        this.viajeForm.patchValue(
+          {
+            modalidadServicioVuelta: currentModalidad,
+            turnoVuelta: currentTurno,
+          },
+          { emitEvent: false },
+        );
+      } else {
+        fSalidaVDate?.clearValidators();
+        fSalidaVTime?.clearValidators();
+        fLlegadaVDate?.clearValidators();
+        fLlegadaVTime?.clearValidators();
+        distV?.clearValidators();
+      }
+      fSalidaVDate?.updateValueAndValidity();
+      fSalidaVTime?.updateValueAndValidity();
+      fLlegadaVDate?.updateValueAndValidity();
+      fLlegadaVTime?.updateValueAndValidity();
       distV?.updateValueAndValidity();
     });
 
@@ -246,16 +311,21 @@ export class ViajeForm implements OnInit {
         rutaControl?.setValidators([Validators.required]);
         rutaOcasionalControl?.clearValidators();
         rutaOcasionalControl?.setValue('');
-        // La distancia se seteará automáticamente al seleccionar la ruta
+
+        // Distancia requerida para fija (se llena auto)
+        distanciaEstimadaControl?.setValidators([Validators.required]);
       } else {
         rutaOcasionalControl?.setValidators([Validators.required]);
         rutaControl?.clearValidators();
         rutaControl?.setValue(null);
-        // Limpiar distancia para que el usuario la ingrese manualmente
+
+        // Limpiar distancia y MANTENER validador para ocasional (requerido)
         distanciaEstimadaControl?.setValue('');
+        // distanciaEstimada no se le hace clearValidators(), sigue siendo required
       }
       rutaControl?.updateValueAndValidity();
       rutaOcasionalControl?.updateValueAndValidity();
+      distanciaEstimadaControl?.updateValueAndValidity();
     });
 
     // Escuchar cambios en ruta (Circuito) para setear distancias
@@ -267,6 +337,20 @@ export class ViajeForm implements OnInit {
       ) {
         const c = circuito as any;
         const tipo = this.tipoViaje();
+
+        // Actualizar señales de rutas disponibles
+        this.hasRutaIda.set(!!c.rutaIda);
+        this.hasRutaVuelta.set(!!c.rutaVuelta);
+        this.hasRutaSelected.set(true);
+
+        // Auto-seleccionar tipo de viaje según rutas disponibles
+        if (c.rutaIda && c.rutaVuelta) {
+          // Tiene ambas, dejar la selección actual o 'ida' por defecto
+        } else if (c.rutaIda && !c.rutaVuelta) {
+          this.tipoViaje.set('ida');
+        } else if (!c.rutaIda && c.rutaVuelta) {
+          this.tipoViaje.set('vuelta');
+        }
 
         // 1. Setear distancia normal (Ida o única)
         let dist = '';
@@ -282,6 +366,11 @@ export class ViajeForm implements OnInit {
         if (tipo === 'ambos' && c.rutaVuelta) {
           this.viajeForm.patchValue({ distanciaEstimadaVuelta: c.rutaVuelta.distancia });
         }
+      } else {
+        // Circuito deseleccionado
+        this.hasRutaIda.set(false);
+        this.hasRutaVuelta.set(false);
+        this.hasRutaSelected.set(false);
       }
     });
 
@@ -323,15 +412,103 @@ export class ViajeForm implements OnInit {
     return `${year}-${month}-${day}T${hours}:${minutes}`;
   }
 
+  getTodayDate(): string {
+    const d = new Date();
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  getTodayAtTime(hours: number, minutes: number = 0): string {
+    const d = new Date();
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const hh = String(hours).padStart(2, '0');
+    const mm = String(minutes).padStart(2, '0');
+    return `${year}-${month}-${day}T${hh}:${mm}`;
+  }
+
+  // Helpers para extraer Date y Time de ISO string
+  private extractDate(dateTime: string): string {
+    if (!dateTime) return '';
+    // Asumimos formato ISO o YYYY-MM-DDTHH:mm
+    return dateTime.split('T')[0];
+  }
+
+  private extractTime(dateTime: string): string {
+    if (!dateTime) return '';
+    const timePart = dateTime.split('T')[1];
+    if (!timePart) return '';
+    // Return HH:mm
+    return timePart.substring(0, 5);
+  }
+
   submitForm() {
     if (this.viajeForm.invalid) {
+      const controls = this.viajeForm.controls;
+      const invalidFields: string[] = [];
+
+      const labels: Record<string, string> = {
+        cliente: 'Cliente',
+        tipoRuta: 'Tipo de Ruta',
+        ruta: 'Ruta / Circuito',
+        rutaOcasional: 'Descripción de Ruta',
+        distanciaEstimada: 'Km Estimados',
+        vehiculo: 'Vehículo',
+        conductor: 'Conductor',
+        fechaSalidaDate: 'Fecha Salida',
+        fechaSalidaTime: 'Hora Salida',
+        fechaLlegadaDate: 'Fecha Llegada',
+        fechaLlegadaTime: 'Hora Llegada',
+        modalidadServicio: 'Modalidad',
+        estado: 'Estado',
+        turno: 'Turno',
+        sentido: 'Sentido',
+        fechaSalidaVueltaDate: 'Fecha Salida Vuelta',
+        fechaSalidaVueltaTime: 'Hora Salida Vuelta',
+        fechaLlegadaVueltaDate: 'Fecha Llegada Vuelta',
+        fechaLlegadaVueltaTime: 'Hora Llegada Vuelta',
+        distanciaEstimadaVuelta: 'Km Estimados Vuelta',
+      };
+
+      Object.keys(controls).forEach((key) => {
+        if (controls[key].invalid) {
+          invalidFields.push(labels[key] || key);
+        }
+      });
+
+      this.toastService.warning(`Faltan campos por completar: ${invalidFields.join(', ')}`);
       this.viajeForm.markAllAsTouched();
       return;
     }
 
     const formValue = this.viajeForm.value;
+
+    // Desestructurar para eliminar campos que no van al backend
+    const {
+      fechaSalidaDate,
+      fechaSalidaTime,
+      fechaLlegadaDate,
+      fechaLlegadaTime,
+      fechaSalidaVueltaDate,
+      fechaSalidaVueltaTime,
+      fechaLlegadaVueltaDate,
+      fechaLlegadaVueltaTime,
+      distanciaEstimadaVuelta,
+      modalidadServicioVuelta,
+      estadoVuelta,
+      turnoVuelta,
+      vehiculo,
+      conductor,
+      cliente,
+      ruta,
+      ...cleanFormValue
+    } = formValue;
+
     const basePayload = {
-      ...formValue,
+      ...cleanFormValue,
       rutaOcasional: formValue.rutaOcasional || undefined,
       distanciaEstimada: formValue.distanciaEstimada || undefined,
       distanciaFinal: formValue.distanciaFinal || undefined,
@@ -352,21 +529,24 @@ export class ViajeForm implements OnInit {
       clienteId: formValue.cliente?.id ? Number(formValue.cliente.id) : Number(formValue.cliente),
 
       // Fecha normal (se usará para ida o único)
-      fechaSalida: formValue.fechaSalida ? `${formValue.fechaSalida}:00.000Z` : '',
-      fechaLlegada: formValue.fechaLlegada ? `${formValue.fechaLlegada}:00.000Z` : undefined,
-
-      ruta: undefined,
-      vehiculo: undefined,
-      conductor: undefined,
-      cliente: undefined,
-      // Limpiar campos extras del form value
-      fechaSalidaVuelta: undefined,
-      fechaLlegadaVuelta: undefined,
-      distanciaEstimadaVuelta: undefined,
+      fechaSalida:
+        fechaSalidaDate && fechaSalidaTime ? `${fechaSalidaDate}T${fechaSalidaTime}:00.000Z` : '',
+      fechaLlegada:
+        fechaLlegadaDate && fechaLlegadaTime
+          ? `${fechaLlegadaDate}T${fechaLlegadaTime}:00.000Z`
+          : undefined,
     };
 
-    if (formValue.tipoRuta === 'fija' && formValue.ruta && typeof formValue.ruta === 'object') {
-      const circuito = formValue.ruta as any;
+    if (
+      !this.editMode() &&
+      formValue.tipoRuta === 'fija' &&
+      formValue.ruta &&
+      typeof formValue.ruta === 'object'
+    ) {
+      const circuito = formValue.ruta as {
+        rutaIda?: { id: number; distancia: string };
+        rutaVuelta?: { id: number; distancia: string };
+      };
       const tipo = this.tipoViaje();
 
       if (tipo === 'ambos') {
@@ -388,14 +568,25 @@ export class ViajeForm implements OnInit {
             rutaId: circuito.rutaVuelta.id,
             sentido: 'vuelta',
             // Usar fechas y distancia de vuelta
-            fechaSalida: formValue.fechaSalidaVuelta
-              ? `${formValue.fechaSalidaVuelta}:00.000Z`
-              : '',
-            fechaLlegada: formValue.fechaLlegadaVuelta
-              ? `${formValue.fechaLlegadaVuelta}:00.000Z`
-              : undefined,
+            fechaSalida:
+              formValue.fechaSalidaVueltaDate && formValue.fechaSalidaVueltaTime
+                ? `${formValue.fechaSalidaVueltaDate}T${formValue.fechaSalidaVueltaTime}:00.000Z`
+                : '',
+            fechaLlegada:
+              formValue.fechaLlegadaVueltaDate && formValue.fechaLlegadaVueltaTime
+                ? `${formValue.fechaLlegadaVueltaDate}T${formValue.fechaLlegadaVueltaTime}:00.000Z`
+                : undefined,
             distanciaEstimada: formValue.distanciaEstimadaVuelta || circuito.rutaVuelta.distancia,
+            // Override Modalidad / Turno / Estado for Vuelta
+            modalidadServicio: formValue.modalidadServicioVuelta || 'regular',
+            turno: formValue.turnoVuelta || 'dia',
+            estado: formValue.estadoVuelta || 'programado',
           });
+        }
+        if (this.editMode()) {
+          // Edición de viaje existente (solo un objeto permitida)
+          console.error('No se puede editar a tipo "ambos" (múltiples viajes)');
+          return;
         }
         this.onSubmitForm.emit(payloads);
       } else {
@@ -411,11 +602,17 @@ export class ViajeForm implements OnInit {
         }
 
         if (rutaId) {
-          this.onSubmitForm.emit({
+          const payload = {
             ...basePayload,
             rutaId,
             sentido,
-          });
+          };
+
+          if (this.editMode()) {
+            this.onUpdate.emit(payload as unknown as ApiBody<'viajes', 'update'>);
+          } else {
+            this.onSubmitForm.emit(payload);
+          }
         } else {
           // Fallback o error si seleccionó un sentido que el circuito no tiene
           console.error('El circuito seleccionado no tiene la ruta para el sentido escogido');
@@ -423,12 +620,18 @@ export class ViajeForm implements OnInit {
       }
     } else {
       // Caso Ocasional o Edición (donde ruta podría ser ID)
-      this.onSubmitForm.emit({
+      const payload = {
         ...basePayload,
         rutaId: formValue.ruta?.id
           ? Number(formValue.ruta.id)
           : Number(formValue.ruta) || undefined,
-      });
+      };
+
+      if (this.editMode()) {
+        this.onUpdate.emit(payload as unknown as ApiBody<'viajes', 'update'>);
+      } else {
+        this.onSubmitForm.emit(payload);
+      }
     }
   }
 }

@@ -21,7 +21,7 @@ import { getErrorMessage } from '@helper/error.helper';
 import { ModeloInputSearch } from '../../content/vehiculos-lineas/layout/modelo-input-search/modelo-input-search';
 import { PropietarioInputSearch } from '../../../propietarios/layout/propietario-input-search/propietario-input-search';
 import { ProveedorInputSearch } from '../../../proveedores/layout/proveedor-input-search/proveedor-input-search';
-import { VehiculoChecklistDocumentComponent } from './layout/vehiculo-checklist-document/vehiculo-checklist-document.component';
+import { VehiculoChecklistDocumentComponent } from './layout/vehiculo-checklist-document/vehiculo-checklist-document';
 
 @Component({
   selector: 'app-vehiculo-form',
@@ -117,25 +117,86 @@ export class VehiculoForm implements OnInit {
   documentTypes: {
     value: keyof ApiField<'vehiculos', 'findOne', 'documentos'>;
     label: string;
+    requireIssue?: boolean;
+    requireExpiration?: boolean;
   }[] = [
-    { value: 'tarjeta_propiedad', label: 'Tarjeta de Propiedad' },
-    { value: 'tarjeta_unica_circulacion', label: 'Tarjeta Única de Circulación' },
-    { value: 'citv', label: 'CITV' },
-    { value: 'soat', label: 'SOAT' },
-    { value: 'poliza', label: 'Póliza' },
-    { value: 'certificado_operatividad_factura', label: 'Cert. Operatividad / Factura' },
-    { value: 'plan_mantenimiento_historico', label: 'Plan de Mantenimiento Histórico' },
-    { value: 'certificado_instalacion_gps', label: 'Cert. Instalación GPS' },
-    { value: 'certificado_valor_anadido', label: 'Cert. Valor Añadido' },
-    { value: 'constancia_gps', label: 'Constancia GPS' },
-    { value: 'certificado_tacos', label: 'Cert. Tacos' },
-    { value: 'certificado_extintores_hidrostatica', label: 'Cert. Extintores / Hidrostática' },
-    { value: 'certificado_norma_r66', label: 'Cert. Norma R66' },
-    { value: 'certificado_laminados_lunas', label: 'Cert. Laminados Lunas' },
-    { value: 'certificado_carroceria', label: 'Cert. Carrocería' },
-    { value: 'certificado_caracteristicas_tecnicas', label: 'Cert. Características Técnicas' },
-    { value: 'certificado_adas', label: 'Cert. ADAS' },
-    { value: 'otros', label: 'Otros' },
+    {
+      value: 'tarjeta_propiedad',
+      label: 'TIVE (Tarjeta de Propiedad)',
+      requireIssue: true,
+      requireExpiration: false,
+    },
+    {
+      value: 'tarjeta_unica_circulacion',
+      label: 'TUC (Tarjeta Única de Circulación)',
+      requireIssue: true,
+      requireExpiration: true,
+    },
+    { value: 'citv', label: 'CITV', requireIssue: true, requireExpiration: true },
+    { value: 'soat', label: 'SOAT', requireIssue: true, requireExpiration: true },
+    { value: 'poliza', label: 'Póliza', requireIssue: true, requireExpiration: true },
+    {
+      value: 'certificado_operatividad_factura',
+      label: 'Cert. Operatividad / Factura',
+      requireIssue: true,
+      requireExpiration: false,
+    },
+    {
+      value: 'plan_mantenimiento_historico',
+      label: 'Plan de Mantenimiento',
+      requireIssue: false,
+      requireExpiration: false,
+    },
+    {
+      value: 'certificado_instalacion_gps',
+      label: 'Cert. Instalación GPS',
+      requireIssue: true,
+      requireExpiration: false,
+    },
+    {
+      value: 'certificado_valor_anadido',
+      label: 'Cert. Valor Añadido',
+      requireIssue: true,
+      requireExpiration: false,
+    },
+    {
+      value: 'constancia_gps',
+      label: 'Constancia GPS (Revisión)',
+      requireIssue: true,
+      requireExpiration: true,
+    },
+    { value: 'certificado_adas', label: 'Cert. ADAS', requireIssue: true, requireExpiration: true },
+    {
+      value: 'certificado_extintores_hidrostatica',
+      label: 'Cert. Extintores / Hidrostática',
+      requireIssue: true,
+      requireExpiration: true,
+    },
+    {
+      value: 'certificado_norma_r66',
+      label: 'Cert. Norma R66',
+      requireIssue: true,
+      requireExpiration: false,
+    },
+    {
+      value: 'certificado_laminados_lunas',
+      label: 'Cert. Laminados Lunas',
+      requireIssue: true,
+      requireExpiration: false,
+    },
+    {
+      value: 'certificado_carroceria',
+      label: 'Cert. Carrocería',
+      requireIssue: true,
+      requireExpiration: false,
+    },
+    {
+      value: 'certificado_caracteristicas_tecnicas',
+      label: 'Cert. Características Técnicas',
+      requireIssue: true,
+      requireExpiration: false,
+    },
+    { value: 'otros', label: 'Otros', requireIssue: true, requireExpiration: true },
   ];
 
   ngOnInit() {
@@ -361,6 +422,13 @@ export class VehiculoForm implements OnInit {
     } catch (err) {
       console.error('Error al actualizar documento:', err);
       this.toastService.error(getErrorMessage(err, 'Error al actualizar documento'));
+    }
+  }
+
+  downloadAllDocuments() {
+    const vehiculoId = this.vehiculo()?.id;
+    if (vehiculoId) {
+      this.vehiculoService.downloadDocumentos(vehiculoId);
     }
   }
 

@@ -24,12 +24,13 @@
   <div class="border rounded-lg border-text/10 bg-background overflow-hidden">
     <!-- Header -->
     <div
-      class="grid grid-cols-4 gap-4 px-4 py-2 bg-text/5 text-xs font-inter-semibold text-text/60 border-b border-text/5"
+      class="grid grid-cols-5 gap-4 px-4 py-2 bg-text/5 text-xs font-inter-semibold text-text/60 border-b border-text/5"
     >
       <div>Viaje</div>
       <div>Fecha</div>
       <div>Tipo</div>
       <div>Estado</div>
+      <div class="text-right">Acciones</div>
     </div>
 
     @if (loading()) {
@@ -48,7 +49,7 @@
       <div class="divide-y divide-text/5 bg-background max-h-[300px] overflow-y-auto">
         @for (doc of history(); track doc.id) {
           <div
-            class="grid grid-cols-4 gap-4 px-4 py-3 text-xs text-text hover:bg-text/5 transition-colors items-center"
+            class="grid grid-cols-5 gap-4 px-4 py-3 text-xs text-text hover:bg-text/5 transition-colors items-center"
           >
             <!-- Viaje -->
             <div class="font-inter-semibold truncate">
@@ -94,6 +95,18 @@
                 {{ doc.activo ? 'Vigente' : 'Histórico' }}
               </span>
             </div>
+
+            <!-- Acciones -->
+            <div class="flex justify-end">
+              <button
+                type="button"
+                (click)="openDetail(doc)"
+                class="w-7 h-7 flex items-center justify-center rounded-lg bg-info-10 text-info hover:bg-info-20 transition-colors"
+                title="Ver detalle"
+              >
+                <i class="fas fa-eye text-xs"></i>
+              </button>
+            </div>
           </div>
         }
       </div>
@@ -105,3 +118,47 @@
     Mostrando {{ history().length }} de {{ total() }} versiones
   </div>
 </div>
+
+@if (showingDetail()) {
+  <app-modal-info
+    [title]="'Detalle: ' + (selectedItem()?.nombre || '')"
+    [maxWidth]="'4xl'"
+    (onClose)="closeDetail()"
+  >
+    @if (selectedItem()?.nombre?.toLowerCase()?.includes('iperc')) {
+      <app-checklist-iperc-continuo [data]="detailData()"></app-checklist-iperc-continuo>
+    }
+    @if (
+      selectedItem()?.nombre?.toLowerCase()?.includes('hoja') &&
+      selectedItem()?.nombre?.toLowerCase()?.includes('inspeccion')
+    ) {
+      <app-checklist-hoja-inspeccion [data]="detailData()"></app-checklist-hoja-inspeccion>
+    }
+    @if (
+      selectedItem()?.nombre?.toLowerCase()?.includes('inspeccion') &&
+      selectedItem()?.nombre?.toLowerCase()?.includes('documentos')
+    ) {
+      <app-checklist-inspeccion-documentos
+        [data]="detailData()"
+      ></app-checklist-inspeccion-documentos>
+    }
+    @if (selectedItem()?.nombre?.toLowerCase()?.includes('luces')) {
+      <app-checklist-luces [data]="detailData()"></app-checklist-luces>
+    }
+    @if (selectedItem()?.nombre?.toLowerCase()?.includes('cinturon')) {
+      <app-checklist-cinturones [data]="detailData()"></app-checklist-cinturones>
+    }
+    @if (selectedItem()?.nombre?.toLowerCase()?.includes('herramienta')) {
+      <app-checklist-herramientas [data]="detailData()"></app-checklist-herramientas>
+    }
+    @if (selectedItem()?.nombre?.toLowerCase()?.includes('botiquin')) {
+      <app-checklist-botiquines [data]="detailData()"></app-checklist-botiquines>
+    }
+    @if (selectedItem()?.nombre?.toLowerCase()?.includes('derrames')) {
+      <app-checklist-kit-antiderrames [data]="detailData()"></app-checklist-kit-antiderrames>
+    }
+    @if (selectedItem()?.nombre?.toLowerCase()?.includes('revision')) {
+      <app-checklist-revision-vehiculos [data]="detailData()"></app-checklist-revision-vehiculos>
+    }
+  </app-modal-info>
+}

@@ -101,6 +101,13 @@ export class ViajesEdit implements OnInit {
     }
   }
 
+  saveViaje() {
+    const formComponent = this.viajeFormComponent();
+    if (formComponent) {
+      formComponent.submitForm();
+    }
+  }
+
   onCancel() {
     this.router.navigate([buildPath(PATH.admin.viajes.list)]);
   }

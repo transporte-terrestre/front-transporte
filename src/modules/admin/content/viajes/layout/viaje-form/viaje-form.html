@@ -7,469 +7,762 @@
     </div>
   }
 
-  <!-- Tipo de Viaje (Solo Creación) -->
-  @if (!editMode()) {
-    <div class="col-span-1 lg:col-span-2">
-      <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
-        <i class="fas fa-exchange-alt text-secondary"></i>
-        Tipo de Viaje
-      </label>
-      <div class="flex gap-2">
-        <button
-          type="button"
-          (click)="tipoViaje.set('ida')"
-          class="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg border-2 cursor-pointer transition-all"
-          [class.bg-secondary/10]="tipoViaje() === 'ida'"
-          [class.border-secondary]="tipoViaje() === 'ida'"
-          [class.border-text/10]="tipoViaje() !== 'ida'"
-        >
-          <i class="fas fa-arrow-right text-sm" [class.text-secondary]="tipoViaje() === 'ida'"></i>
-          <span class="text-sm font-inter-medium text-text">Solo Ida</span>
-        </button>
-        <button
-          type="button"
-          (click)="tipoViaje.set('vuelta')"
-          class="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg border-2 cursor-pointer transition-all"
-          [class.bg-info/10]="tipoViaje() === 'vuelta'"
-          [class.border-info]="tipoViaje() === 'vuelta'"
-          [class.border-text/10]="tipoViaje() !== 'vuelta'"
-        >
-          <i class="fas fa-arrow-left text-sm" [class.text-info]="tipoViaje() === 'vuelta'"></i>
-          <span class="text-sm font-inter-medium text-text">Solo Vuelta</span>
-        </button>
-        <button
-          type="button"
-          (click)="tipoViaje.set('ambos')"
-          class="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg border-2 cursor-pointer transition-all"
-          [class.bg-primary/10]="tipoViaje() === 'ambos'"
-          [class.border-primary]="tipoViaje() === 'ambos'"
-          [class.border-text/10]="tipoViaje() !== 'ambos'"
-        >
-          <i class="fas fa-exchange-alt text-sm" [class.text-primary]="tipoViaje() === 'ambos'"></i>
-          <span class="text-sm font-inter-medium text-text">Ida y Vuelta</span>
-        </button>
-      </div>
-    </div>
-  }
-
-  <!-- Tipo de Ruta -->
-  <div class="col-span-1 lg:col-span-2">
-    <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
-      <i class="fas fa-map-signs text-secondary"></i>
-      Tipo de Ruta
-    </label>
-    <div class="grid grid-cols-2 gap-2">
-      @for (tipo of tiposRuta; track tipo.value) {
-        <label
-          class="flex items-center gap-3 px-3 py-2.5 rounded-lg border-2 cursor-pointer transition-all"
-          [class.bg-secondary/10]="viajeForm.get('tipoRuta')?.value === tipo.value"
-          [class.border-secondary]="viajeForm.get('tipoRuta')?.value === tipo.value"
-          [class.border-text/10]="viajeForm.get('tipoRuta')?.value !== tipo.value"
-        >
-          <input
-            type="radio"
-            [value]="tipo.value"
-            formControlName="tipoRuta"
-            class="w-4 h-4 text-secondary border-2 border-text/30 focus:ring-2 focus:ring-secondary/20 cursor-pointer accent-secondary"
-          />
-          <div class="flex items-center gap-2 flex-1">
-            <span class="text-sm font-inter-medium text-text">{{ tipo.label }}</span>
-          </div>
-        </label>
-      }
-    </div>
-  </div>
-
-  <!-- Ruta / Circuito Selector -->
-  @if (viajeForm.get('tipoRuta')?.value === 'fija') {
-    <div class="col-span-1 lg:col-span-2">
-      <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
-        <i class="fas fa-route text-secondary"></i>
-        Ruta / Circuito
-      </label>
-      <app-ruta-circuito-input-search formControlName="ruta"> </app-ruta-circuito-input-search>
-      @if (viajeForm.get('ruta')?.touched && viajeForm.get('ruta')?.errors) {
-        <p class="text-danger text-xs font-inter-medium mt-1">La ruta es requerida</p>
-      }
-    </div>
-  } @else {
-    <!-- Ruta Ocasional -->
-    <div class="col-span-1 lg:col-span-2">
-      <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
-        <i class="fas fa-map-marker-alt text-secondary"></i>
-        Descripción de Ruta
-      </label>
-      <input
-        type="text"
-        formControlName="rutaOcasional"
-        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-        placeholder="Ej: Lima - Ica (Servicio Especial)"
-      />
-      @if (viajeForm.get('rutaOcasional')?.touched && viajeForm.get('rutaOcasional')?.errors) {
-        <p class="text-danger text-xs font-inter-medium mt-1">
-          La descripción de la ruta es requerida
-        </p>
-      }
-    </div>
-  }
-
-  <!-- DATOS DEL VIAJE (Cards) -->
-  @if (tipoViaje() === 'ambos' && viajeForm.get('tipoRuta')?.value === 'fija') {
-    <!-- VISTA DOBLE: IDA Y VUELTA -->
-    <div class="col-span-1 lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
-      <!-- Card IDA -->
-      <div class="bg-secondary/5 rounded-xl p-4 border border-secondary/20 flex flex-col gap-3">
-        <div class="flex items-center gap-2 pb-2 border-b border-secondary/10">
-          <div class="w-8 h-8 rounded-full bg-secondary/20 flex items-center justify-center">
-            <i class="fas fa-arrow-right text-secondary text-sm"></i>
-          </div>
-          <div>
-            <h3 class="text-sm font-inter-bold text-text">Viaje de Ida</h3>
-            <p class="text-xs text-text/60">
-              {{ viajeForm.get('ruta')?.value?.rutaIda?.nombre || 'Ruta de Ida' }}
-            </p>
-          </div>
-        </div>
-
-        <!-- Distancia Ida -->
-        <div>
-          <label class="text-xs font-inter-semibold text-text mb-1 block">Distancia (km)</label>
-          <input
-            type="number"
-            formControlName="distanciaEstimada"
-            class="w-full px-3 py-2 text-sm bg-white border border-secondary/20 rounded-lg text-text/60 font-inter-regular outline-none"
-            readonly
-          />
-        </div>
-
-        <!-- Fechas Ida -->
-        <div class="space-y-3">
-          <div>
-            <label class="text-xs font-inter-semibold text-text mb-1 block">Salida</label>
-            <input
-              type="datetime-local"
-              formControlName="fechaSalida"
-              class="w-full px-3 py-2 text-sm bg-white border border-secondary/20 focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-            />
-            @if (viajeForm.get('fechaSalida')?.touched && viajeForm.get('fechaSalida')?.errors) {
-              <p class="text-danger text-xs font-inter-medium mt-1">Requerido</p>
-            }
-          </div>
-          <div>
-            <label class="text-xs font-inter-semibold text-text mb-1 block">Llegada</label>
-            <input
-              type="datetime-local"
-              formControlName="fechaLlegada"
-              class="w-full px-3 py-2 text-sm bg-white border border-secondary/20 focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-            />
-            @if (viajeForm.get('fechaLlegada')?.touched && viajeForm.get('fechaLlegada')?.errors) {
-              <p class="text-danger text-xs font-inter-medium mt-1">Requerido</p>
-            }
-          </div>
-        </div>
-      </div>
-
-      <!-- Card VUELTA -->
-      <div class="bg-info/5 rounded-xl p-4 border border-info/20 flex flex-col gap-3">
-        <div class="flex items-center gap-2 pb-2 border-b border-info/10">
-          <div class="w-8 h-8 rounded-full bg-info/20 flex items-center justify-center">
-            <i class="fas fa-arrow-left text-info text-sm"></i>
-          </div>
-          <div>
-            <h3 class="text-sm font-inter-bold text-text">Viaje de Vuelta</h3>
-            <p class="text-xs text-text/60">
-              {{ viajeForm.get('ruta')?.value?.rutaVuelta?.nombre || 'Ruta de Vuelta' }}
-            </p>
-          </div>
-        </div>
-
-        <!-- Distancia Vuelta -->
-        <div>
-          <label class="text-xs font-inter-semibold text-text mb-1 block">Distancia (km)</label>
-          <input
-            type="number"
-            formControlName="distanciaEstimadaVuelta"
-            class="w-full px-3 py-2 text-sm bg-white border border-info/20 rounded-lg text-text/60 font-inter-regular outline-none"
-            readonly
-          />
-        </div>
-
-        <!-- Fechas Vuelta -->
-        <div class="space-y-3">
-          <div>
-            <label class="text-xs font-inter-semibold text-text mb-1 block">Salida</label>
-            <input
-              type="datetime-local"
-              formControlName="fechaSalidaVuelta"
-              class="w-full px-3 py-2 text-sm bg-white border border-info/20 focus:border-info rounded-lg text-text font-inter-regular outline-none transition-all"
-            />
-            @if (
-              viajeForm.get('fechaSalidaVuelta')?.touched &&
-              viajeForm.get('fechaSalidaVuelta')?.errors
-            ) {
-              <p class="text-danger text-xs font-inter-medium mt-1">Requerido</p>
-            }
-          </div>
-          <div>
-            <label class="text-xs font-inter-semibold text-text mb-1 block">Llegada</label>
-            <input
-              type="datetime-local"
-              formControlName="fechaLlegadaVuelta"
-              class="w-full px-3 py-2 text-sm bg-white border border-info/20 focus:border-info rounded-lg text-text font-inter-regular outline-none transition-all"
-            />
-            @if (
-              viajeForm.get('fechaLlegadaVuelta')?.touched &&
-              viajeForm.get('fechaLlegadaVuelta')?.errors
-            ) {
-              <p class="text-danger text-xs font-inter-medium mt-1">Requerido</p>
-            }
-          </div>
-        </div>
-      </div>
-    </div>
-  } @else {
-    <!-- VISTA SIMPLE (IDA, VUELTA O OCASIONAL) -->
-    <div class="col-span-1 lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
-      <!-- Distancia Estimada -->
-      <div>
-        <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
-          <i class="fas fa-ruler text-info"></i>
-          Distancia Estimada (km)
-        </label>
-        <input
-          type="number"
-          step="0.01"
-          formControlName="distanciaEstimada"
-          class="w-full px-3 py-2 text-sm border-2 border-transparent rounded-lg font-inter-regular outline-none transition-all"
-          [class.bg-text/5]="viajeForm.get('tipoRuta')?.value !== 'fija'"
-          [class.bg-text/10]="viajeForm.get('tipoRuta')?.value === 'fija'"
-          [class.cursor-not-allowed]="viajeForm.get('tipoRuta')?.value === 'fija'"
-          [readonly]="viajeForm.get('tipoRuta')?.value === 'fija'"
-          [placeholder]="
-            viajeForm.get('tipoRuta')?.value === 'fija'
-              ? 'Se autocompleta con la ruta'
-              : 'Ej: 450.00'
-          "
-        />
-      </div>
-
-      <!-- Fechas -->
-      <div class="col-span-1 md:col-span-2 grid grid-cols-2 gap-4">
-        <div>
-          <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
-            <i class="fas fa-calendar-plus text-success"></i>
-            Fecha de Salida
-          </label>
-          <input
-            type="datetime-local"
-            formControlName="fechaSalida"
-            class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-          />
-        </div>
-
-        <div>
-          <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
-            <i class="fas fa-calendar-check text-warning"></i>
-            Fecha de Llegada
-          </label>
-          <input
-            type="datetime-local"
-            formControlName="fechaLlegada"
-            class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-          />
-        </div>
-      </div>
-    </div>
-  }
-
-  <!-- Distancia Final (Solo si hay estado completado, generalmente edit) -->
-  @if (viajeForm.get('estado')?.value === 'completado') {
-    <div>
-      <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
-        <i class="fas fa-road text-success"></i>
-        Distancia Final (km)
-      </label>
-      <input
-        type="number"
-        step="0.01"
-        formControlName="distanciaFinal"
-        class="w-full px-3 py-2 text-sm border-2 border-transparent rounded-lg font-inter-regular outline-none transition-all bg-text/5"
-      />
-    </div>
-  }
-
-  <!-- Modalidad de Servicio, Turno, Sentido (Common) -->
-  <div class="col-span-1 lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
-    <!-- Modalidad -->
-    <div>
-      <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
-        <i class="fas fa-briefcase text-secondary"></i>
-        Modalidad de Servicio
-      </label>
-      <div class="relative">
-        <select
-          formControlName="modalidadServicio"
-          class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all appearance-none cursor-pointer"
-        >
-          <option value="" disabled>Seleccionar modalidad...</option>
-          @for (modalidad of modalidades; track modalidad.value) {
-            <option [value]="modalidad.value">{{ modalidad.label }}</option>
+  <div class="col-span-1 lg:col-span-2 grid grid-cols-1 gap-6" [class.lg:grid-cols-5]="!editMode()">
+    <!-- LEFT COLUMN: DEFINICIÓN DEL VIAJE -->
+    <div class="space-y-4" [class.lg:col-span-2]="!editMode()">
+      <!-- Cliente + Horas C. -->
+      <div class="grid grid-cols-4 gap-3">
+        <div class="col-span-3">
+          <label class="text-xs font-inter-semibold text-text mb-1.5"> Cliente </label>
+          <app-cliente-input-search formControlName="cliente"> </app-cliente-input-search>
+          @if (viajeForm.get('cliente')?.touched && viajeForm.get('cliente')?.errors) {
+            <p class="text-danger text-xs font-inter-medium mt-1">El cliente es requerido</p>
           }
-        </select>
-        <span class="absolute inset-y-0 right-3 flex items-center text-text/60 pointer-events-none">
-          <i class="fas fa-chevron-down text-xs"></i>
-        </span>
+        </div>
+        <div>
+          <label class="text-xs font-inter-semibold text-text mb-1.5"> Horas C. </label>
+          <input
+            type="text"
+            formControlName="horasContrato"
+            readonly
+            class="w-full px-3 py-2 text-sm bg-text/10 border-2 border-transparent rounded-lg text-text/60 font-inter-regular outline-none cursor-not-allowed text-center"
+            placeholder="--"
+          />
+        </div>
       </div>
-    </div>
 
-    <!-- Turno -->
-    <div>
-      <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
-        <i class="fas fa-sun text-warning"></i>
-        Turno
-      </label>
-      <div class="flex gap-2">
-        @for (turno of turnos; track turno.value) {
-          <label
-            class="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg border-2 cursor-pointer transition-all hover:bg-text/5"
-            [class.border-secondary]="viajeForm.get('turno')?.value === turno.value"
-            [class.border-text/10]="viajeForm.get('turno')?.value !== turno.value"
-            [class.bg-text/5]="viajeForm.get('turno')?.value === turno.value"
+      <!-- Conductor y Vehículo (Solo Creación) -->
+      @if (!editMode()) {
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs font-inter-semibold text-text mb-1.5"> Conductor </label>
+            <app-conductor-input-search formControlName="conductor"></app-conductor-input-search>
+          </div>
+          <div>
+            <label class="text-xs font-inter-semibold text-text mb-1.5"> Vehículo </label>
+            <app-vehiculo-input-search formControlName="vehiculo"></app-vehiculo-input-search>
+          </div>
+        </div>
+      }
+
+      <ng-template #rutaSectionTemplate>
+        <!-- Ruta / Circuito Section with Switch in Header -->
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="text-xs font-inter-semibold text-text">
+              {{
+                viajeForm.get('tipoRuta')?.value === 'fija'
+                  ? editMode()
+                    ? 'Ruta'
+                    : 'Ruta / Circuito'
+                  : 'Descripción de Ruta'
+              }}
+            </label>
+
+            <!-- Switch Tipo Ruta -->
+            <div class="flex items-center gap-2">
+              <label
+                for="switch-tipo-ruta"
+                class="text-[10px] uppercase font-inter-bold text-text cursor-pointer select-none"
+              >
+                ¿Es fija?
+              </label>
+              <label
+                class="inline-flex items-center cursor-pointer"
+                [class.opacity-50]="editMode()"
+                [class.cursor-not-allowed]="editMode()"
+              >
+                <input
+                  type="checkbox"
+                  id="switch-tipo-ruta"
+                  class="sr-only peer"
+                  [checked]="viajeForm.get('tipoRuta')?.value === 'fija'"
+                  [disabled]="editMode()"
+                  (change)="
+                    viajeForm
+                      .get('tipoRuta')
+                      ?.setValue($any($event.target).checked ? 'fija' : 'ocasional')
+                  "
+                />
+                <div
+                  class="relative w-7 h-4 bg-text/10 peer-focus:outline-none rounded-full peer peer-checked:bg-secondary after:content-[''] after:absolute after:top-0.5 after:start-0.5 after:bg-background after:border-text/20 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:after:translate-x-3 peer-checked:after:border-background"
+                ></div>
+              </label>
+            </div>
+          </div>
+
+          @if (viajeForm.get('tipoRuta')?.value === 'fija') {
+            @if (editMode()) {
+              <app-ruta-input-search formControlName="ruta"> </app-ruta-input-search>
+            } @else {
+              <app-ruta-circuito-input-search formControlName="ruta">
+              </app-ruta-circuito-input-search>
+            }
+            @if (viajeForm.get('ruta')?.touched && viajeForm.get('ruta')?.errors) {
+              <p class="text-danger text-xs font-inter-medium mt-1">La ruta es requerida</p>
+            }
+          } @else {
+            <input
+              type="text"
+              formControlName="rutaOcasional"
+              class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+              placeholder="Ej: Lima - Ica (Servicio Especial)"
+            />
+            @if (
+              viajeForm.get('rutaOcasional')?.touched && viajeForm.get('rutaOcasional')?.errors
+            ) {
+              <p class="text-danger text-xs font-inter-medium mt-1">
+                La descripción de la ruta es requerida
+              </p>
+            }
+          }
+        </div>
+      </ng-template>
+
+      <ng-container *ngTemplateOutlet="rutaSectionTemplate"></ng-container>
+
+      <!-- Tipo de Viaje Container -->
+      @if (!editMode()) {
+        <div class="space-y-1.5 w-full">
+          <label class="text-xs font-inter-semibold text-text">Tipo de Viaje</label>
+          <div
+            class="grid p-1 bg-text/5 rounded-lg border border-text/10 gap-1"
+            [class.grid-cols-2]="
+              viajeForm.get('tipoRuta')?.value !== 'fija' || !hasRutaIda() || !hasRutaVuelta()
+            "
+            [class.grid-cols-3]="
+              viajeForm.get('tipoRuta')?.value === 'fija' && hasRutaIda() && hasRutaVuelta()
+            "
           >
-            <input type="radio" [value]="turno.value" formControlName="turno" class="hidden" />
-            <i
-              class="fas {{ turno.icon }} text-xs"
-              [class.text-secondary]="viajeForm.get('turno')?.value === turno.value"
-              [class.text-text/60]="viajeForm.get('turno')?.value !== turno.value"
-            >
-            </i>
-            <span
-              class="text-sm font-inter-medium"
-              [class.text-text]="viajeForm.get('turno')?.value === turno.value"
-              [class.text-text/60]="viajeForm.get('turno')?.value !== turno.value"
-            >
-              {{ turno.label }}
-            </span>
-          </label>
-        }
-      </div>
-    </div>
-
-    <!-- Sentido (Solo si es ocasional o editando) -->
-    @if (editMode() || viajeForm.get('tipoRuta')?.value !== 'fija') {
-      <div class="md:col-span-2">
-        <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
-          <i class="fas fa-exchange-alt text-info"></i>
-          Sentido
-        </label>
-        <div class="flex gap-2">
-          @for (sentido of sentidos; track sentido.value) {
+            <!-- IDA -->
             <label
-              class="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg border-2 cursor-pointer transition-all hover:bg-text/5"
-              [class.border-secondary]="viajeForm.get('sentido')?.value === sentido.value"
-              [class.border-text/10]="viajeForm.get('sentido')?.value !== sentido.value"
-              [class.bg-text/5]="viajeForm.get('sentido')?.value === sentido.value"
+              class="relative flex items-center justify-center py-1.5 text-xs font-inter-bold rounded-md cursor-pointer transition-all select-none text-center"
+              [class.bg-background]="tipoViaje() === 'ida'"
+              [class.text-secondary]="tipoViaje() === 'ida'"
+              [class.shadow-sm]="tipoViaje() === 'ida'"
+              [class.text-text/60]="tipoViaje() !== 'ida'"
+              [class.opacity-40]="viajeForm.get('tipoRuta')?.value === 'fija' && !hasRutaIda()"
+              [class.cursor-not-allowed]="
+                viajeForm.get('tipoRuta')?.value === 'fija' && !hasRutaIda()
+              "
             >
               <input
                 type="radio"
-                [value]="sentido.value"
-                formControlName="sentido"
+                name="tipoViaje"
+                value="ida"
+                [checked]="tipoViaje() === 'ida'"
+                (change)="tipoViaje.set('ida'); viajeForm.get('sentido')?.setValue('ida')"
+                [disabled]="viajeForm.get('tipoRuta')?.value === 'fija' && !hasRutaIda()"
                 class="hidden"
               />
-              <i
-                class="fas {{ sentido.icon }} text-xs"
-                [class.text-secondary]="viajeForm.get('sentido')?.value === sentido.value"
-                [class.text-text/60]="viajeForm.get('sentido')?.value !== sentido.value"
-              >
-              </i>
-              <span
-                class="text-sm font-inter-medium"
-                [class.text-text]="viajeForm.get('sentido')?.value === sentido.value"
-                [class.text-text/60]="viajeForm.get('sentido')?.value !== sentido.value"
-              >
-                {{ sentido.label }}
-              </span>
+              IDA
             </label>
-          }
+
+            <!-- VUELTA -->
+            <label
+              class="relative flex items-center justify-center py-1.5 text-xs font-inter-bold rounded-md cursor-pointer transition-all select-none text-center"
+              [class.bg-background]="tipoViaje() === 'vuelta'"
+              [class.text-info]="tipoViaje() === 'vuelta'"
+              [class.shadow-sm]="tipoViaje() === 'vuelta'"
+              [class.text-text/60]="tipoViaje() !== 'vuelta'"
+              [class.opacity-40]="viajeForm.get('tipoRuta')?.value === 'fija' && !hasRutaVuelta()"
+              [class.cursor-not-allowed]="
+                viajeForm.get('tipoRuta')?.value === 'fija' && !hasRutaVuelta()
+              "
+            >
+              <input
+                type="radio"
+                name="tipoViaje"
+                value="vuelta"
+                [checked]="tipoViaje() === 'vuelta'"
+                (change)="tipoViaje.set('vuelta'); viajeForm.get('sentido')?.setValue('vuelta')"
+                [disabled]="viajeForm.get('tipoRuta')?.value === 'fija' && !hasRutaVuelta()"
+                class="hidden"
+              />
+              VUELTA
+            </label>
+
+            <!-- AMBOS (Only Fixed) -->
+            @if (viajeForm.get('tipoRuta')?.value === 'fija' && hasRutaIda() && hasRutaVuelta()) {
+              <label
+                class="relative flex items-center justify-center py-1.5 text-xs font-inter-bold rounded-md cursor-pointer transition-all select-none text-center"
+                [class.bg-background]="tipoViaje() === 'ambos'"
+                [class.text-text]="tipoViaje() === 'ambos'"
+                [class.shadow-sm]="tipoViaje() === 'ambos'"
+                [class.text-text/60]="tipoViaje() !== 'ambos'"
+              >
+                <input
+                  type="radio"
+                  name="tipoViaje"
+                  value="ambos"
+                  [checked]="tipoViaje() === 'ambos'"
+                  (change)="tipoViaje.set('ambos')"
+                  class="hidden"
+                />
+                IDA Y VUELTA
+              </label>
+            }
+          </div>
         </div>
-      </div>
-    }
+      }
 
-    <!-- Estado -->
-    <div class="md:col-span-2">
-      <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
-        <i class="fas fa-info-circle text-secondary"></i>
-        Estado del Viaje
-      </label>
-      <div class="relative">
-        <select
-          formControlName="estado"
-          class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all appearance-none cursor-pointer"
+      <!-- Spacer for Dropdowns -->
+      @if (!editMode()) {
+        <div class="hidden lg:block h-32 w-full relative -z-10"></div>
+      }
+    </div>
+
+    <!-- RIGHT COLUMN: DETALLES, PROGRAMACIÓN Y RECURSOS -->
+    <div class="space-y-4" [class.lg:col-span-3]="!editMode()">
+      <!-- PLACEHOLDER: Sin ruta seleccionada -->
+      @if (!hasRutaSelected() && viajeForm.get('tipoRuta')?.value === 'fija' && !editMode()) {
+        <div
+          class="flex flex-col items-center justify-center h-full min-h-[300px] rounded-lg border-2 border-dashed border-text/10 bg-text/2"
         >
-          <option value="" disabled>Seleccionar estado...</option>
-          @for (estado of estados; track estado.value) {
-            <option [value]="estado.value">{{ estado.label }}</option>
-          }
-        </select>
-        <span class="absolute inset-y-0 right-3 flex items-center text-text/60 pointer-events-none">
-          <i class="fas fa-chevron-down text-xs"></i>
-        </span>
-      </div>
-    </div>
-  </div>
+          <i class="fas fa-route text-4xl text-text/15 mb-3"></i>
+          <p class="text-sm font-inter-medium text-text/40">
+            Selecciona un circuito para continuar
+          </p>
+          <p class="text-xs text-text/25 mt-1">Los detalles del viaje aparecerán aquí</p>
+        </div>
+      } @else {
+        <!-- CONTENEDORES DE VIAJE -->
+        @if (tipoViaje() === 'ambos' && viajeForm.get('tipoRuta')?.value === 'fija') {
+          <div class="grid grid-cols-1 gap-4">
+            <!-- AMBOS: Card IDA -->
+            <div class="rounded-lg border border-text/10 overflow-hidden">
+              <div
+                class="flex items-center justify-between px-4 py-2 bg-secondary/5 border-b border-secondary/20"
+              >
+                <div class="flex flex-col">
+                  <div class="flex items-center gap-2">
+                    <i class="fas fa-arrow-right text-secondary text-xs"></i>
+                    <span class="text-xs font-inter-bold text-text uppercase">Ida</span>
+                  </div>
+                  @if (viajeForm.get('ruta')?.value?.rutaIda) {
+                    <p
+                      class="text-[11px] text-text/50 mt-0.5 truncate max-w-[200px]"
+                      [title]="
+                        viajeForm.get('ruta')?.value?.rutaIda?.origen +
+                        ' → ' +
+                        viajeForm.get('ruta')?.value?.rutaIda?.destino
+                      "
+                    >
+                      {{ viajeForm.get('ruta')?.value?.rutaIda?.origen }} →
+                      {{ viajeForm.get('ruta')?.value?.rutaIda?.destino }}
+                    </p>
+                  }
+                </div>
+                <div
+                  class="flex items-center gap-1.5 bg-background/50 rounded-md px-2 py-1 border border-secondary/10"
+                >
+                  <span class="text-[10px] font-inter-medium text-text/60">Km Est.:</span>
+                  <input
+                    type="number"
+                    formControlName="distanciaEstimada"
+                    class="w-16 text-right text-xs bg-transparent border-none outline-none font-inter-bold text-text [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    [readonly]="true"
+                  />
+                </div>
+              </div>
+              <div class="p-4 space-y-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <!-- IDA: Salida -->
+                  <div>
+                    <h4 class="text-xs font-inter-semibold text-text mb-1.5">Salida</h4>
+                    <div class="space-y-1.5">
+                      <div class="flex items-center gap-2">
+                        <label class="text-xs font-inter-medium text-text/70 w-10">Fecha</label>
+                        <input
+                          type="date"
+                          formControlName="fechaSalidaDate"
+                          class="flex-1 px-2 py-1.5 text-xs bg-text/5 border border-transparent focus:border-secondary rounded-md text-text font-inter-regular outline-none transition-all"
+                        />
+                      </div>
+                      <div class="flex items-center gap-2">
+                        <label class="text-xs font-inter-medium text-text/70 w-10">Hora</label>
+                        <input
+                          type="time"
+                          formControlName="fechaSalidaTime"
+                          class="flex-1 px-2 py-1.5 text-xs bg-text/5 border border-transparent focus:border-secondary rounded-md text-text font-inter-regular outline-none transition-all text-center"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <!-- IDA: Llegada -->
+                  <div>
+                    <h4 class="text-xs font-inter-semibold text-text mb-1.5">Llegada</h4>
+                    <div class="space-y-1.5">
+                      <div class="flex items-center gap-2">
+                        <label class="text-xs font-inter-medium text-text/70 w-10">Fecha</label>
+                        <input
+                          type="date"
+                          formControlName="fechaLlegadaDate"
+                          class="flex-1 px-2 py-1.5 text-xs bg-text/5 border border-transparent focus:border-secondary rounded-md text-text font-inter-regular outline-none transition-all"
+                        />
+                      </div>
+                      <div class="flex items-center gap-2">
+                        <label class="text-xs font-inter-medium text-text/70 w-10">Hora</label>
+                        <input
+                          type="time"
+                          formControlName="fechaLlegadaTime"
+                          class="flex-1 px-2 py-1.5 text-xs bg-text/5 border border-transparent focus:border-secondary rounded-md text-text font-inter-regular outline-none transition-all text-center"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Modalidad y Turno (Ida) -->
+                <div class="grid grid-cols-2 gap-3 pt-2 border-t border-text/5">
+                  <div>
+                    <label class="text-xs font-inter-semibold text-text mb-1 block"
+                      >Modalidad</label
+                    >
+                    <div class="relative">
+                      <select
+                        formControlName="modalidadServicio"
+                        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all appearance-none cursor-pointer"
+                      >
+                        <option value="" disabled>Seleccionar...</option>
+                        @for (modalidad of modalidades; track modalidad.value) {
+                          <option [value]="modalidad.value">{{ modalidad.label }}</option>
+                        }
+                      </select>
+                      <span
+                        class="absolute inset-y-0 right-3 flex items-center text-text/60 pointer-events-none"
+                      >
+                        <i class="fas fa-chevron-down text-xs"></i>
+                      </span>
+                    </div>
+                  </div>
+                  <div>
+                    <label class="text-xs font-inter-semibold text-text mb-1 block">Turno</label>
+                    <div class="flex gap-1">
+                      @for (turno of turnos; track turno.value) {
+                        <label
+                          class="flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg border-2 cursor-pointer transition-all hover:bg-text/5"
+                          [class.border-secondary]="viajeForm.get('turno')?.value === turno.value"
+                          [class.border-text/10]="viajeForm.get('turno')?.value !== turno.value"
+                          [class.bg-text/5]="viajeForm.get('turno')?.value === turno.value"
+                        >
+                          <input
+                            type="radio"
+                            [value]="turno.value"
+                            formControlName="turno"
+                            class="hidden"
+                          />
+                          <i
+                            class="fas {{ turno.icon }} text-xs"
+                            [class.text-secondary]="viajeForm.get('turno')?.value === turno.value"
+                          ></i>
+                          <span class="sr-only">{{ turno.label }}</span>
+                        </label>
+                      }
+                    </div>
+                  </div>
+                </div>
+                <!-- Estado del Viaje (Ida) -->
+                <div class="pt-2 border-t border-text/5">
+                  <label class="text-xs font-inter-semibold text-text mb-1 block">Estado</label>
+                  <div class="relative">
+                    <select
+                      formControlName="estado"
+                      class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all appearance-none cursor-pointer"
+                    >
+                      <option value="" disabled>Seleccionar...</option>
+                      @for (estado of estados; track estado.value) {
+                        <option [value]="estado.value">{{ estado.label }}</option>
+                      }
+                    </select>
+                    <span
+                      class="absolute inset-y-0 right-3 flex items-center text-text/60 pointer-events-none"
+                    >
+                      <i class="fas fa-chevron-down text-xs"></i>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-  <!-- Cliente -->
-  <div>
-    <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
-      <i class="fas fa-user-tie text-secondary"></i>
-      Cliente
-    </label>
-    <app-cliente-input-search formControlName="cliente"> </app-cliente-input-search>
-    @if (viajeForm.get('cliente')?.touched && viajeForm.get('cliente')?.errors) {
-      <p class="text-danger text-xs font-inter-medium mt-1">El cliente es requerido</p>
-    }
-  </div>
+            <!-- AMBOS: Card VUELTA -->
+            <div class="rounded-lg border border-text/10 overflow-hidden self-start">
+              <div
+                class="flex items-center justify-between px-4 py-2 bg-info/5 border-b border-info/20"
+              >
+                <div class="flex flex-col">
+                  <div class="flex items-center gap-2">
+                    <i class="fas fa-arrow-left text-info text-xs"></i>
+                    <span class="text-xs font-inter-bold text-text uppercase">Vuelta</span>
+                  </div>
+                  @if (viajeForm.get('ruta')?.value?.rutaVuelta) {
+                    <p
+                      class="text-[11px] text-text/50 mt-0.5 truncate max-w-[200px]"
+                      [title]="
+                        viajeForm.get('ruta')?.value?.rutaVuelta?.origen +
+                        ' → ' +
+                        viajeForm.get('ruta')?.value?.rutaVuelta?.destino
+                      "
+                    >
+                      {{ viajeForm.get('ruta')?.value?.rutaVuelta?.origen }} →
+                      {{ viajeForm.get('ruta')?.value?.rutaVuelta?.destino }}
+                    </p>
+                  }
+                </div>
+                <div
+                  class="flex items-center gap-1.5 bg-background/50 rounded-md px-2 py-1 border border-info/10"
+                >
+                  <span class="text-[10px] font-inter-medium text-text/60">Km Est.:</span>
+                  <input
+                    type="number"
+                    formControlName="distanciaEstimadaVuelta"
+                    class="w-16 text-right text-xs bg-transparent border-none outline-none font-inter-bold text-text [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    [readonly]="true"
+                  />
+                </div>
+              </div>
+              <div class="p-4 space-y-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <!-- VUELTA: Salida -->
+                  <div>
+                    <h4 class="text-xs font-inter-semibold text-text mb-1.5">Salida</h4>
+                    <div class="space-y-1.5">
+                      <div class="flex items-center gap-2">
+                        <label class="text-xs font-inter-medium text-text/70 w-10">Fecha</label>
+                        <input
+                          type="date"
+                          formControlName="fechaSalidaVueltaDate"
+                          class="flex-1 px-2 py-1.5 text-xs bg-text/5 border border-transparent focus:border-info rounded-md text-text font-inter-regular outline-none transition-all"
+                        />
+                      </div>
+                      <div class="flex items-center gap-2">
+                        <label class="text-xs font-inter-medium text-text/70 w-10">Hora</label>
+                        <input
+                          type="time"
+                          formControlName="fechaSalidaVueltaTime"
+                          class="flex-1 px-2 py-1.5 text-xs bg-text/5 border border-transparent focus:border-info rounded-md text-text font-inter-regular outline-none transition-all text-center"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <!-- VUELTA: Llegada -->
+                  <div>
+                    <h4 class="text-xs font-inter-semibold text-text mb-1.5">Llegada</h4>
+                    <div class="space-y-1.5">
+                      <div class="flex items-center gap-2">
+                        <label class="text-xs font-inter-medium text-text/70 w-10">Fecha</label>
+                        <input
+                          type="date"
+                          formControlName="fechaLlegadaVueltaDate"
+                          class="flex-1 px-2 py-1.5 text-xs bg-text/5 border border-transparent focus:border-info rounded-md text-text font-inter-regular outline-none transition-all"
+                        />
+                      </div>
+                      <div class="flex items-center gap-2">
+                        <label class="text-xs font-inter-medium text-text/70 w-10">Hora</label>
+                        <input
+                          type="time"
+                          formControlName="fechaLlegadaVueltaTime"
+                          class="flex-1 px-2 py-1.5 text-xs bg-text/5 border border-transparent focus:border-info rounded-md text-text font-inter-regular outline-none transition-all text-center"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Modalidad y Turno (Vuelta) -->
+                <div class="grid grid-cols-2 gap-3 pt-2 border-t border-text/5">
+                  <div>
+                    <label class="text-xs font-inter-semibold text-text mb-1 block"
+                      >Modalidad</label
+                    >
+                    <div class="relative">
+                      <select
+                        formControlName="modalidadServicioVuelta"
+                        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-info rounded-lg text-text font-inter-regular outline-none transition-all appearance-none cursor-pointer"
+                      >
+                        <option value="" disabled>Seleccionar...</option>
+                        @for (modalidad of modalidades; track modalidad.value) {
+                          <option [value]="modalidad.value">{{ modalidad.label }}</option>
+                        }
+                      </select>
+                      <span
+                        class="absolute inset-y-0 right-3 flex items-center text-text/60 pointer-events-none"
+                      >
+                        <i class="fas fa-chevron-down text-xs"></i>
+                      </span>
+                    </div>
+                  </div>
+                  <div>
+                    <label class="text-xs font-inter-semibold text-text mb-1 block">Turno</label>
+                    <div class="flex gap-1">
+                      @for (turno of turnos; track turno.value) {
+                        <label
+                          class="flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg border-2 cursor-pointer transition-all hover:bg-text/5"
+                          [class.border-info]="viajeForm.get('turnoVuelta')?.value === turno.value"
+                          [class.border-text/10]="
+                            viajeForm.get('turnoVuelta')?.value !== turno.value
+                          "
+                          [class.bg-text/5]="viajeForm.get('turnoVuelta')?.value === turno.value"
+                        >
+                          <input
+                            type="radio"
+                            [value]="turno.value"
+                            formControlName="turnoVuelta"
+                            class="hidden"
+                          />
+                          <i
+                            class="fas {{ turno.icon }} text-xs"
+                            [class.text-info]="viajeForm.get('turnoVuelta')?.value === turno.value"
+                          ></i>
+                          <span class="sr-only">{{ turno.label }}</span>
+                        </label>
+                      }
+                    </div>
+                  </div>
+                </div>
+                <!-- Estado del Viaje (Vuelta) -->
+                <div class="pt-2 border-t border-text/5">
+                  <label class="text-xs font-inter-semibold text-text mb-1 block">Estado</label>
+                  <div class="relative">
+                    <select
+                      formControlName="estadoVuelta"
+                      class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-info rounded-lg text-text font-inter-regular outline-none transition-all appearance-none cursor-pointer"
+                    >
+                      <option value="" disabled>Seleccionar...</option>
+                      @for (estado of estados; track estado.value) {
+                        <option [value]="estado.value">{{ estado.label }}</option>
+                      }
+                    </select>
+                    <span
+                      class="absolute inset-y-0 right-3 flex items-center text-text/60 pointer-events-none"
+                    >
+                      <i class="fas fa-chevron-down text-xs"></i>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        } @else {
+          <!-- SINGLE: Ida o Vuelta -->
+          <div class="rounded-lg border border-text/10 overflow-hidden">
+            <div
+              class="flex items-center justify-between px-4 py-2 border-b border-text/10"
+              [class.bg-secondary/5]="
+                (viajeForm.get('tipoRuta')?.value === 'fija' && tipoViaje() === 'ida') ||
+                (viajeForm.get('tipoRuta')?.value !== 'fija' &&
+                  viajeForm.get('sentido')?.value === 'ida')
+              "
+              [class.bg-info/5]="
+                (viajeForm.get('tipoRuta')?.value === 'fija' && tipoViaje() === 'vuelta') ||
+                (viajeForm.get('tipoRuta')?.value !== 'fija' &&
+                  viajeForm.get('sentido')?.value === 'vuelta')
+              "
+            >
+              <div class="flex flex-col">
+                <div class="flex items-center gap-2">
+                  <i
+                    class="fas text-xs"
+                    [class.fa-arrow-right]="
+                      (viajeForm.get('tipoRuta')?.value === 'fija' && tipoViaje() === 'ida') ||
+                      (viajeForm.get('tipoRuta')?.value !== 'fija' &&
+                        viajeForm.get('sentido')?.value === 'ida')
+                    "
+                    [class.text-secondary]="
+                      (viajeForm.get('tipoRuta')?.value === 'fija' && tipoViaje() === 'ida') ||
+                      (viajeForm.get('tipoRuta')?.value !== 'fija' &&
+                        viajeForm.get('sentido')?.value === 'ida')
+                    "
+                    [class.fa-arrow-left]="
+                      (viajeForm.get('tipoRuta')?.value === 'fija' && tipoViaje() === 'vuelta') ||
+                      (viajeForm.get('tipoRuta')?.value !== 'fija' &&
+                        viajeForm.get('sentido')?.value === 'vuelta')
+                    "
+                    [class.text-info]="
+                      (viajeForm.get('tipoRuta')?.value === 'fija' && tipoViaje() === 'vuelta') ||
+                      (viajeForm.get('tipoRuta')?.value !== 'fija' &&
+                        viajeForm.get('sentido')?.value === 'vuelta')
+                    "
+                  ></i>
+                  <span class="text-xs font-inter-bold text-text uppercase">
+                    {{
+                      (viajeForm.get('tipoRuta')?.value === 'fija' && tipoViaje() === 'vuelta') ||
+                      (viajeForm.get('tipoRuta')?.value !== 'fija' &&
+                        viajeForm.get('sentido')?.value === 'vuelta')
+                        ? 'Vuelta'
+                        : 'Ida'
+                    }}
+                  </span>
+                </div>
 
-  <!-- Horas Contrato (Readonly) -->
-  <div>
-    <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
-      <i class="fas fa-clock text-info"></i>
-      Horas Contrato
-    </label>
-    <input
-      type="text"
-      formControlName="horasContrato"
-      readonly
-      class="w-full px-3 py-2 text-sm bg-text/10 border-2 border-transparent rounded-lg text-text/60 font-inter-regular outline-none cursor-not-allowed"
-      placeholder="Se autocompleta con el cliente"
-    />
-  </div>
-
-  @if (!editMode()) {
-    <!-- Conductor -->
-    <div>
-      <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
-        <i class="fas fa-user text-info"></i>
-        Conductor Principal
-      </label>
-      <app-conductor-input-search formControlName="conductor"></app-conductor-input-search>
-      @if (viajeForm.get('conductor')?.touched && viajeForm.get('conductor')?.errors) {
-        <p class="text-danger text-xs font-inter-medium mt-1">El conductor es requerido</p>
+                <!-- Route Details -->
+                @if (viajeForm.get('tipoRuta')?.value === 'fija') {
+                  @if (
+                    (!tipoViaje() || tipoViaje() === 'ida' || tipoViaje() === 'ambos') &&
+                    viajeForm.get('ruta')?.value?.rutaIda
+                  ) {
+                    <p
+                      class="text-[11px] text-text/50 mt-0.5 truncate max-w-[200px]"
+                      [title]="
+                        viajeForm.get('ruta')?.value?.rutaIda?.origen +
+                        ' → ' +
+                        viajeForm.get('ruta')?.value?.rutaIda?.destino
+                      "
+                    >
+                      {{ viajeForm.get('ruta')?.value?.rutaIda?.origen }} →
+                      {{ viajeForm.get('ruta')?.value?.rutaIda?.destino }}
+                    </p>
+                  } @else if (
+                    tipoViaje() === 'vuelta' && viajeForm.get('ruta')?.value?.rutaVuelta
+                  ) {
+                    <p
+                      class="text-[11px] text-text/50 mt-0.5 truncate max-w-[200px]"
+                      [title]="
+                        viajeForm.get('ruta')?.value?.rutaVuelta?.origen +
+                        ' → ' +
+                        viajeForm.get('ruta')?.value?.rutaVuelta?.destino
+                      "
+                    >
+                      {{ viajeForm.get('ruta')?.value?.rutaVuelta?.origen }} →
+                      {{ viajeForm.get('ruta')?.value?.rutaVuelta?.destino }}
+                    </p>
+                  }
+                }
+              </div>
+              <div
+                class="flex items-center gap-1.5 bg-background/50 rounded-md px-2 py-1 border border-text/5"
+              >
+                <span class="text-[10px] font-inter-medium text-text/60">Km Est.:</span>
+                <input
+                  type="number"
+                  step="0.01"
+                  formControlName="distanciaEstimada"
+                  class="w-16 text-right text-xs bg-transparent border-none outline-none font-inter-bold text-text [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  [readonly]="viajeForm.get('tipoRuta')?.value === 'fija'"
+                  [placeholder]="viajeForm.get('tipoRuta')?.value === 'fija' ? '' : '0.00'"
+                />
+              </div>
+            </div>
+            <div class="p-4 space-y-3">
+              <!-- Fechas -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <!-- SINGLE: Salida -->
+                <div>
+                  <h4 class="text-xs font-inter-semibold text-text mb-1.5">Salida</h4>
+                  <div class="space-y-1.5">
+                    <div class="flex items-center gap-2">
+                      <label class="text-xs font-inter-medium text-text/70 w-10">Fecha</label>
+                      <input
+                        type="date"
+                        formControlName="fechaSalidaDate"
+                        class="flex-1 px-2 py-1.5 text-xs bg-text/5 border border-transparent focus:border-secondary rounded-md text-text font-inter-regular outline-none transition-all"
+                      />
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <label class="text-xs font-inter-medium text-text/70 w-10">Hora</label>
+                      <input
+                        type="time"
+                        formControlName="fechaSalidaTime"
+                        class="flex-1 px-2 py-1.5 text-xs bg-text/5 border border-transparent focus:border-secondary rounded-md text-text font-inter-regular outline-none transition-all text-center"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <!-- SINGLE: Llegada -->
+                <div>
+                  <h4 class="text-xs font-inter-semibold text-text mb-1.5">Llegada</h4>
+                  <div class="space-y-1.5">
+                    <div class="flex items-center gap-2">
+                      <label class="text-xs font-inter-medium text-text/70 w-10">Fecha</label>
+                      <input
+                        type="date"
+                        formControlName="fechaLlegadaDate"
+                        class="flex-1 px-2 py-1.5 text-xs bg-text/5 border border-transparent focus:border-secondary rounded-md text-text font-inter-regular outline-none transition-all"
+                      />
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <label class="text-xs font-inter-medium text-text/70 w-10">Hora</label>
+                      <input
+                        type="time"
+                        formControlName="fechaLlegadaTime"
+                        class="flex-1 px-2 py-1.5 text-xs bg-text/5 border border-transparent focus:border-secondary rounded-md text-text font-inter-regular outline-none transition-all text-center"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- Modalidad y Turno -->
+              <div class="grid grid-cols-2 gap-3 pt-2 border-t border-text/5">
+                <div>
+                  <label class="text-xs font-inter-semibold text-text mb-1 block">Modalidad</label>
+                  <div class="relative">
+                    <select
+                      formControlName="modalidadServicio"
+                      class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all appearance-none cursor-pointer"
+                    >
+                      <option value="" disabled>Seleccionar...</option>
+                      @for (modalidad of modalidades; track modalidad.value) {
+                        <option [value]="modalidad.value">{{ modalidad.label }}</option>
+                      }
+                    </select>
+                    <span
+                      class="absolute inset-y-0 right-3 flex items-center text-text/60 pointer-events-none"
+                    >
+                      <i class="fas fa-chevron-down text-xs"></i>
+                    </span>
+                  </div>
+                </div>
+                <div>
+                  <label class="text-xs font-inter-semibold text-text mb-1 block">Turno</label>
+                  <div class="flex gap-1">
+                    @for (turno of turnos; track turno.value) {
+                      <label
+                        class="flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg border-2 cursor-pointer transition-all hover:bg-text/5"
+                        [class.border-secondary]="viajeForm.get('turno')?.value === turno.value"
+                        [class.border-text/10]="viajeForm.get('turno')?.value !== turno.value"
+                        [class.bg-text/5]="viajeForm.get('turno')?.value === turno.value"
+                      >
+                        <input
+                          type="radio"
+                          [value]="turno.value"
+                          formControlName="turno"
+                          class="hidden"
+                        />
+                        <i
+                          class="fas {{ turno.icon }} text-xs"
+                          [class.text-secondary]="viajeForm.get('turno')?.value === turno.value"
+                        ></i>
+                        <span class="text-xs font-inter-medium">{{ turno.label }}</span>
+                      </label>
+                    }
+                  </div>
+                </div>
+              </div>
+              <!-- Estado del Viaje (Single) -->
+              <div class="pt-2 border-t border-text/5">
+                <label class="text-xs font-inter-semibold text-text mb-1 block">Estado</label>
+                <div class="relative">
+                  <select
+                    formControlName="estado"
+                    class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all appearance-none cursor-pointer"
+                  >
+                    <option value="" disabled>Seleccionar...</option>
+                    @for (estado of estados; track estado.value) {
+                      <option [value]="estado.value">{{ estado.label }}</option>
+                    }
+                  </select>
+                  <span
+                    class="absolute inset-y-0 right-3 flex items-center text-text/60 pointer-events-none"
+                  >
+                    <i class="fas fa-chevron-down text-xs"></i>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
       }
+      <!-- end @else hasRutaSelected -->
     </div>
-
-    <!-- Vehículo -->
-    <div>
-      <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
-        <i class="fas fa-car text-primary"></i>
-        Vehículo Principal
-      </label>
-      <app-vehiculo-input-search formControlName="vehiculo"></app-vehiculo-input-search>
-      @if (viajeForm.get('vehiculo')?.touched && viajeForm.get('vehiculo')?.errors) {
-        <p class="text-danger text-xs font-inter-medium mt-1">El vehículo es requerido</p>
-      }
-    </div>
-  }
+  </div>
 
   <!-- SECCIONES DE EDICIÓN: CONDUCTORES, VEHÍCULOS, COMENTARIOS -->
   @if (editMode() && viaje()) {
@@ -490,8 +783,10 @@
         </app-viaje-pasajeros-form>
       </div>
       <div>
-        <!-- Servicios / Tramos -->
-        <app-viaje-servicios-form [viaje]="viaje()!"></app-viaje-servicios-form>
+        <!-- Servicios / Tramos only for fixed routes -->
+        @if (viaje()!.tipoRuta === 'fija') {
+          <app-viaje-servicios-form [viaje]="viaje()!"></app-viaje-servicios-form>
+        }
       </div>
       <div>
         <!-- Comentarios -->

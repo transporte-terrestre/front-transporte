@@ -302,6 +302,11 @@
               <th
                 class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
               >
+                Estado
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              >
                 Salida
               </th>
               <th
@@ -309,11 +314,7 @@
               >
                 Llegada
               </th>
-              <th
-                class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
-              >
-                Estado
-              </th>
+
               <th
                 class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase tracking-wider"
               >
@@ -342,7 +343,7 @@
                 <td class="px-4 py-3 whitespace-nowrap">
                   <div class="flex items-center gap-2">
                     <div
-                      class="w-8 h-8 rounded-lg bg-info/10 flex items-center justify-center text-info text-xs"
+                      class="w-8 h-8 rounded-lg bg-success/10 flex items-center justify-center text-success text-xs"
                     >
                       <i class="fas fa-route"></i>
                     </div>
@@ -362,6 +363,34 @@
                   }}</span>
                 </td>
                 <td class="px-4 py-3 whitespace-nowrap">
+                  <div class="flex flex-col gap-1.5 items-start">
+                    <span
+                      class="px-2 py-1 text-xs font-inter-bold rounded-full"
+                      [ngClass]="getEstadoBadgeClass(viaje.estado)"
+                    >
+                      {{ getEstadoLabel(viaje.estado) }}
+                    </span>
+                    <div class="flex items-center gap-1">
+                      <span
+                        class="px-2 py-0.5 text-[10px] font-inter-bold rounded-full flex items-center gap-1.5 w-fit"
+                        [class]="getSentidoBadgeClass(viaje.sentido)"
+                      >
+                        <i class="fas text-[9px]" [class]="getSentidoIcon(viaje.sentido)"></i>
+                        {{ getSentidoLabel(viaje.sentido) }}
+                      </span>
+                      @if (viaje.turno) {
+                        <span
+                          class="px-2 py-0.5 text-[10px] font-inter-bold rounded-full flex items-center gap-1.5 w-fit"
+                          [class]="getTurnoBadgeClass(viaje.turno)"
+                        >
+                          <i class="fas text-[9px]" [class]="getTurnoIcon(viaje.turno)"></i>
+                          {{ getTurnoLabel(viaje.turno) }}
+                        </span>
+                      }
+                    </div>
+                  </div>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
                   <span class="text-xs font-inter-medium text-text">{{
                     formatDate(viaje.fechaSalida)
                   }}</span>
@@ -373,14 +402,6 @@
                     } @else {
                       <span class="text-text/40">-</span>
                     }
-                  </span>
-                </td>
-                <td class="px-4 py-3 whitespace-nowrap">
-                  <span
-                    class="px-2 py-1 text-xs font-inter-bold rounded-full"
-                    [ngClass]="getEstadoBadgeClass(viaje.estado)"
-                  >
-                    {{ getEstadoLabel(viaje.estado) }}
                   </span>
                 </td>
                 <td class="px-4 py-3 whitespace-nowrap text-right">
@@ -424,7 +445,7 @@
   <app-modal-form
     title="Nuevo Viaje"
     submitText="Crear"
-    [maxWidth]="'5xl'"
+    [maxWidth]="'6xl'"
     [loading]="loading()"
     (onSubmit)="handleModalSubmit()"
     (onClose)="closeModal()"
