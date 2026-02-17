@@ -107,7 +107,10 @@ export class VehiculoChecklistDocumentComponent implements OnInit {
 
   async openDetail(doc: any) {
     const item = this.selectedItem();
-    if (!item) return;
+    if (!item || !doc?.id) return;
+
+    // Extract document ID from the history object
+    const documentId = doc.id;
 
     // Logic to fetch based on type
     const normalizedName = item.nombre
@@ -117,41 +120,63 @@ export class VehiculoChecklistDocumentComponent implements OnInit {
 
     try {
       if (normalizedName.includes('iperc')) {
-        const data = await this.vehiculoService.findChecklistIpercContinuo(this.vehiculoId());
+        const data = await this.vehiculoService.findChecklistIpercContinuo(
+          this.vehiculoId(),
+          documentId,
+        );
         this.detailData.set(data);
         this.showingDetail.set(true);
       } else if (normalizedName.includes('hoja') && normalizedName.includes('inspeccion')) {
-        const data = await this.vehiculoService.findChecklistHojaInspeccion(this.vehiculoId());
+        const data = await this.vehiculoService.findChecklistHojaInspeccion(
+          this.vehiculoId(),
+          documentId,
+        );
         this.detailData.set(data);
         this.showingDetail.set(true);
       } else if (normalizedName.includes('inspeccion') && normalizedName.includes('documentos')) {
         const data = await this.vehiculoService.findChecklistInspeccionDocumentos(
           this.vehiculoId(),
+          documentId,
         );
         this.detailData.set(data);
         this.showingDetail.set(true);
       } else if (normalizedName.includes('luces')) {
-        const data = await this.vehiculoService.findChecklistLuces(this.vehiculoId());
+        const data = await this.vehiculoService.findChecklistLuces(this.vehiculoId(), documentId);
         this.detailData.set(data);
         this.showingDetail.set(true);
       } else if (normalizedName.includes('cinturon')) {
-        const data = await this.vehiculoService.findChecklistCinturones(this.vehiculoId());
+        const data = await this.vehiculoService.findChecklistCinturones(
+          this.vehiculoId(),
+          documentId,
+        );
         this.detailData.set(data);
         this.showingDetail.set(true);
       } else if (normalizedName.includes('herramienta')) {
-        const data = await this.vehiculoService.findChecklistHerramientas(this.vehiculoId());
+        const data = await this.vehiculoService.findChecklistHerramientas(
+          this.vehiculoId(),
+          documentId,
+        );
         this.detailData.set(data);
         this.showingDetail.set(true);
       } else if (normalizedName.includes('botiquin')) {
-        const data = await this.vehiculoService.findChecklistBotiquines(this.vehiculoId());
+        const data = await this.vehiculoService.findChecklistBotiquines(
+          this.vehiculoId(),
+          documentId,
+        );
         this.detailData.set(data);
         this.showingDetail.set(true);
       } else if (normalizedName.includes('derrames')) {
-        const data = await this.vehiculoService.findChecklistKitAntiderrames(this.vehiculoId());
+        const data = await this.vehiculoService.findChecklistKitAntiderrames(
+          this.vehiculoId(),
+          documentId,
+        );
         this.detailData.set(data);
         this.showingDetail.set(true);
       } else if (normalizedName.includes('revision')) {
-        const data = await this.vehiculoService.findChecklistRevisionVehiculos(this.vehiculoId());
+        const data = await this.vehiculoService.findChecklistRevisionVehiculos(
+          this.vehiculoId(),
+          documentId,
+        );
         this.detailData.set(data);
         this.showingDetail.set(true);
       } else {

@@ -94,44 +94,85 @@ export class VehiculoService {
     return await this.api.vehiculos.findChecklistHistory(query).then((response) => response.data);
   }
 
-  async findChecklistIpercContinuo(id: ApiParam<'vehiculos', 'findIpercContinuo', 'id'>) {
-    return await this.api.vehiculos.findIpercContinuo({ id }).then((response) => response.data);
+  async findChecklistIpercContinuo(
+    id: ApiParam<'vehiculos', 'findIpercContinuo', 'id'>,
+    documentId?: number,
+  ) {
+    return await this.api.vehiculos
+      .findIpercContinuo({ id, documentId })
+      .then((response) => response.data);
   }
 
-  async findChecklistHojaInspeccion(id: ApiParam<'vehiculos', 'findHojaInspeccion', 'id'>) {
-    return await this.api.vehiculos.findHojaInspeccion({ id }).then((response) => response.data);
+  async findChecklistHojaInspeccion(
+    id: ApiParam<'vehiculos', 'findHojaInspeccion', 'id'>,
+    documentId?: number,
+  ) {
+    return await this.api.vehiculos
+      .findHojaInspeccion({ id, documentId })
+      .then((response) => response.data);
   }
 
   async findChecklistInspeccionDocumentos(
     id: ApiParam<'vehiculos', 'findInspeccionDocumentos', 'id'>,
+    documentId?: number,
   ) {
     return await this.api.vehiculos
-      .findInspeccionDocumentos({ id })
+      .findInspeccionDocumentos({ id, documentId })
       .then((response) => response.data);
   }
 
-  async findChecklistLuces(id: ApiParam<'vehiculos', 'findLuces', 'id'>) {
-    return await this.api.vehiculos.findLuces({ id }).then((response) => response.data);
+  async findChecklistLuces(
+    id: ApiParam<'vehiculos', 'findLuces', 'id'>,
+    documentId?: number,
+  ) {
+    return await this.api.vehiculos
+      .findLuces({ id, documentId })
+      .then((response) => response.data);
   }
 
-  async findChecklistCinturones(id: ApiParam<'vehiculos', 'findCinturones', 'id'>) {
-    return await this.api.vehiculos.findCinturones({ id }).then((response) => response.data);
+  async findChecklistCinturones(
+    id: ApiParam<'vehiculos', 'findCinturones', 'id'>,
+    documentId?: number,
+  ) {
+    return await this.api.vehiculos
+      .findCinturones({ id, documentId })
+      .then((response) => response.data);
   }
 
-  async findChecklistHerramientas(id: ApiParam<'vehiculos', 'findHerramientas', 'id'>) {
-    return await this.api.vehiculos.findHerramientas({ id }).then((response) => response.data);
+  async findChecklistHerramientas(
+    id: ApiParam<'vehiculos', 'findHerramientas', 'id'>,
+    documentId?: number,
+  ) {
+    return await this.api.vehiculos
+      .findHerramientas({ id, documentId })
+      .then((response) => response.data);
   }
 
-  async findChecklistBotiquines(id: ApiParam<'vehiculos', 'findBotiquines', 'id'>) {
-    return await this.api.vehiculos.findBotiquines({ id }).then((response) => response.data);
+  async findChecklistBotiquines(
+    id: ApiParam<'vehiculos', 'findBotiquines', 'id'>,
+    documentId?: number,
+  ) {
+    return await this.api.vehiculos
+      .findBotiquines({ id, documentId })
+      .then((response) => response.data);
   }
 
-  async findChecklistKitAntiderrames(id: ApiParam<'vehiculos', 'findKitAntiderrames', 'id'>) {
-    return await this.api.vehiculos.findKitAntiderrames({ id }).then((response) => response.data);
+  async findChecklistKitAntiderrames(
+    id: ApiParam<'vehiculos', 'findKitAntiderrames', 'id'>,
+    documentId?: number,
+  ) {
+    return await this.api.vehiculos
+      .findKitAntiderrames({ id, documentId })
+      .then((response) => response.data);
   }
 
-  async findChecklistRevisionVehiculos(id: ApiParam<'vehiculos', 'findRevisionVehiculos', 'id'>) {
-    return await this.api.vehiculos.findRevisionVehiculos({ id }).then((response) => response.data);
+  async findChecklistRevisionVehiculos(
+    id: ApiParam<'vehiculos', 'findRevisionVehiculos', 'id'>,
+    documentId?: number,
+  ) {
+    return await this.api.vehiculos
+      .findRevisionVehiculos({ id, documentId })
+      .then((response) => response.data);
   }
 
   async findAllCheckListItems() {
