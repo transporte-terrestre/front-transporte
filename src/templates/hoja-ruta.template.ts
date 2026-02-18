@@ -67,7 +67,7 @@ export const generateHojaRutaPdf = (viaje: ApiResponse<'viajes', 'findOne'>) => 
     'Unidad (Code-Placa):',
     `${vehiculo.codigoInterno || '---'} - ${vehiculo.placa}`,
     margin,
-    y
+    y,
   );
 
   const rutaOrigen = viaje.ruta?.origen || '---';
@@ -86,12 +86,9 @@ export const generateHojaRutaPdf = (viaje: ApiResponse<'viajes', 'findOne'>) => 
 
   // Conductors & Crew
   const conductores = viaje.conductores ?? [];
-  const tripulantes = viaje.tripulantes ?? [];
-
   // Max 3 rows
   for (let i = 0; i < 3; i++) {
     const conductor = conductores[i];
-    const tripulante = tripulantes[i];
 
     const condLabel = `Conductor ${i + 1}:`;
     const condValue = conductor
@@ -100,11 +97,7 @@ export const generateHojaRutaPdf = (viaje: ApiResponse<'viajes', 'findOne'>) => 
         })`
       : '---';
 
-    const tripLabel = `Tripulante ${i + 1}:`;
-    const tripValue = tripulante || '---';
-
     drawField(condLabel, condValue, margin, y);
-    drawField(tripLabel, tripValue, col2X, y);
     y += 5;
   }
   y += 3;

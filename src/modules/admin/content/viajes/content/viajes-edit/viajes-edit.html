@@ -25,34 +25,34 @@
 
   <div class="bg-background border border-text/10 rounded-xl p-0 sm:p-6 shadow-sm">
     @if (loading()) {
-    <div class="flex items-center justify-center py-12">
-      <div class="flex flex-col items-center gap-3">
-        <i class="fas fa-spinner fa-spin text-3xl text-secondary"></i>
-        <p class="text-text/60 font-inter-medium">Cargando información...</p>
+      <div class="flex items-center justify-center py-12">
+        <div class="flex flex-col items-center gap-3">
+          <i class="fas fa-spinner fa-spin text-3xl text-secondary"></i>
+          <p class="text-text/60 font-inter-medium">Cargando información...</p>
+        </div>
       </div>
-    </div>
     } @else if (viaje()) {
-    <app-viaje-form
-      [viaje]="viaje()"
-      [editMode]="true"
-      (onSubmitForm)="handleFormSubmit($event)"
-      (onDataChange)="reloadViaje()"
-    />
+      <app-viaje-form
+        [viaje]="viaje()"
+        [editMode]="true"
+        (onUpdate)="handleFormSubmit($event)"
+        (onDataChange)="reloadViaje()"
+      />
 
-    <div class="flex justify-end gap-3 p-6 sm:p-0 sm:mt-6 sm:pt-6 border-t border-text/10">
-      <button
-        (click)="onCancel()"
-        class="px-4 py-2 text-text/60 hover:text-text hover:bg-text/5 rounded-lg transition-all text-sm font-inter-medium"
-      >
-        Cancelar
-      </button>
-      <button
-        (click)="viajeFormComponent()?.submitForm()"
-        class="px-6 py-2 bg-secondary text-background rounded-lg text-sm font-inter-semibold hover:bg-secondary/90 transition-all shadow-sm hover:shadow-md"
-      >
-        Guardar
-      </button>
-    </div>
+      <div class="flex justify-end gap-3 p-6 sm:p-0 sm:mt-6 sm:pt-6 border-t border-text/10">
+        <button
+          (click)="onCancel()"
+          class="px-4 py-2 text-text/60 hover:text-text hover:bg-text/5 rounded-lg transition-all text-sm font-inter-medium"
+        >
+          Cancelar
+        </button>
+        <button
+          (click)="saveViaje()"
+          class="px-6 py-2 bg-secondary text-background rounded-lg text-sm font-inter-semibold hover:bg-secondary/90 transition-all shadow-sm hover:shadow-md"
+        >
+          Guardar
+        </button>
+      </div>
     }
   </div>
 </div>

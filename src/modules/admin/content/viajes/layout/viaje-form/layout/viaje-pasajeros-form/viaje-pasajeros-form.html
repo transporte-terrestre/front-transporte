@@ -1,0 +1,353 @@
+<!-- Modal Gestión Pasajeros -->
+@if (showModal()) {
+  <div
+    class="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-fade-in"
+  >
+    <div
+      class="bg-background w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden border border-text/10 flex flex-col max-h-[90vh]"
+      (click)="$event.stopPropagation()"
+    >
+      <!-- Header -->
+      <div
+        class="px-6 py-4 border-b border-text/10 flex justify-between items-center bg-text/5 shrink-0"
+      >
+        <h3 class="text-lg font-anton text-text lowercase">
+          {{ mode() === 'list' ? 'Gestión de Pasajeros' : 'Agregar Pasajeros' }}
+        </h3>
+        <button
+          type="button"
+          (click)="closeModal()"
+          class="text-text/40 hover:text-text w-8 h-8 flex items-center justify-center rounded-lg hover:bg-text/5 transition-colors"
+        >
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <!-- Body Container -->
+      <div class="flex-1 overflow-hidden flex flex-col">
+        <!-- LIST MODE -->
+        @if (mode() === 'list') {
+          <!-- List Tools -->
+          <div
+            class="px-6 py-4 border-b border-text/10 shrink-0 flex justify-between items-center bg-background"
+          >
+            <p class="text-sm text-text/60">
+              Total:
+              <span class="font-inter-bold text-text">{{ pasajeros().length }}</span> pasajeros
+            </p>
+            <button
+              type="button"
+              (click)="switchToMode('add')"
+              class="px-3 py-1.5 bg-text/10 text-text text-xs font-inter-semibold rounded-lg hover:bg-text/15 transition-all shadow-sm"
+            >
+              + Agregar / Llenar
+            </button>
+          </div>
+
+          <!-- Scrollable List -->
+          <div class="flex-1 overflow-y-auto p-6 space-y-2 custom-scrollbar">
+            @for (p of pasajeros(); track p.pasajeroId) {
+              <div
+                class="border rounded-lg transition-all group shadow-sm overflow-hidden"
+                [class]="
+                  pendingDelete()?.pasajeroId === p.pasajeroId
+                    ? 'bg-danger/5 border-danger/30 flex flex-col'
+                    : 'bg-background border-text/10 hover:border-text/20 hover:shadow-md flex items-center justify-between p-3'
+                "
+              >
+                <!-- Top / Main Content -->
+                <div
+                  class="flex items-center gap-3"
+                  [class.p-3]="pendingDelete()?.pasajeroId === p.pasajeroId"
+                >
+                  <div
+                    class="w-8 h-8 rounded-full flex items-center justify-center"
+                    [class]="
+                      pendingDelete()?.pasajeroId === p.pasajeroId
+                        ? 'bg-danger/10 text-danger'
+                        : !p.asistencia
+                          ? 'bg-text/5 text-text/40'
+                          : 'bg-success/10 text-success'
+                    "
+                  >
+                    @if (pendingDelete()?.pasajeroId === p.pasajeroId) {
+                      <i class="fas fa-trash-alt text-xs"></i>
+                    } @else {
+                      <span class="text-xs font-inter-bold"
+                        >{{ p.pasajero.nombres.charAt(0)
+                        }}{{ p.pasajero.apellidos.charAt(0) }}</span
+                      >
+                    }
+                  </div>
+                  <div>
+                    <p
+                      class="text-sm font-inter-semibold"
+                      [class]="
+                        pendingDelete()?.pasajeroId === p.pasajeroId ? 'text-danger' : 'text-text'
+                      "
+                    >
+                      {{ p.pasajero.nombres }} {{ p.pasajero.apellidos }}
+                    </p>
+                    <p
+                      class="text-[10px]"
+                      [class]="
+                        pendingDelete()?.pasajeroId === p.pasajeroId
+                          ? 'text-danger/60'
+                          : 'text-text/60'
+                      "
+                    >
+                      DNI: {{ p.pasajero.dni }}
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Actions -->
+                @if (pendingDelete()?.pasajeroId === p.pasajeroId) {
+                  <!-- Confirmation Mode: Bottom Actions -->
+                  <div
+                    class="flex items-center justify-end gap-3 px-3 py-2 border-t bg-danger/10 border-danger/10"
+                  >
+                    <button
+                      type="button"
+                      (click)="cancelDelete()"
+                      class="px-3 py-1.5 rounded-lg text-xs font-inter-medium text-text/60 hover:text-text hover:bg-white/50 transition-all"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="button"
+                      (click)="confirmDelete()"
+                      class="px-4 py-1.5 rounded-lg text-xs font-inter-bold text-white transition-all shadow-sm bg-danger hover:bg-danger/90 shadow-danger/20"
+                    >
+                      Eliminar
+                    </button>
+                  </div>
+                } @else {
+                  <!-- Normal Mode: Right Actions -->
+                  <div class="flex items-center gap-3">
+                    <button
+                      type="button"
+                      (click)="toggleAsistencia(p)"
+                      [class]="
+                        p.asistencia
+                          ? 'bg-success/10 text-success border-success/20 hover:bg-success/20'
+                          : 'bg-text/5 text-text/40 border-transparent hover:bg-text/10'
+                      "
+                      class="px-3 py-1.5 rounded-full text-xs font-inter-medium border transition-all flex items-center gap-2 group/toggle"
+                    >
+                      <span>{{ p.asistencia ? 'Asistió' : 'Ausente' }}</span>
+                      <i
+                        class="fas text-lg transition-all"
+                        [class]="
+                          p.asistencia
+                            ? 'fa-toggle-on'
+                            : 'fa-toggle-off opacity-50 group-hover/toggle:opacity-100'
+                        "
+                      ></i>
+                    </button>
+
+                    <button
+                      type="button"
+                      (click)="removePasajero(p)"
+                      class="w-8 h-8 flex items-center justify-center rounded-lg text-text/40 hover:text-danger hover:bg-danger/10 transition-all opacity-0 group-hover:opacity-100"
+                      title="Quitar del viaje"
+                    >
+                      <i class="fas fa-trash-alt text-xs"></i>
+                    </button>
+                  </div>
+                }
+              </div>
+            }
+            @if (pasajeros().length === 0) {
+              <div class="text-center py-8 text-text/40 flex flex-col items-center">
+                <div class="w-16 h-16 rounded-full bg-text/5 flex items-center justify-center mb-3">
+                  <i class="fas fa-users-slash text-2xl"></i>
+                </div>
+                <p class="text-sm font-inter-medium">No hay pasajeros asignados</p>
+                <p class="text-xs">Agrega pasajeros desde la lista del cliente</p>
+              </div>
+            }
+          </div>
+
+          <!-- Footer Actions For List Mode -->
+          <div
+            class="px-6 py-4 border-t border-text/10 shrink-0 flex justify-end gap-3 bg-background z-10"
+          >
+            <button
+              type="button"
+              (click)="saveAll()"
+              [disabled]="loading()"
+              class="px-6 py-2 bg-secondary text-background text-sm font-inter-bold rounded-lg hover:bg-secondary/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-lg shadow-secondary/20 transition-all active:scale-95"
+            >
+              @if (loading()) {
+                <i class="fas fa-spinner fa-spin"></i>
+              }
+              <span>Guardar Cambios</span>
+            </button>
+          </div>
+        }
+
+        <!-- ADD MODE -->
+        @if (mode() === 'add') {
+          <!-- Selection Tools -->
+          <div
+            class="px-6 py-3 border-b border-text/10 bg-text/5 shrink-0 flex justify-between items-center backdrop-blur-md"
+          >
+            <div class="flex gap-4">
+              <button
+                type="button"
+                (click)="selectAll()"
+                class="text-xs text-secondary font-inter-medium hover:text-secondary/80 flex items-center gap-1.5 transition-colors"
+              >
+                <i class="fas fa-check-double"></i> Seleccionar Todo
+              </button>
+              <div class="w-px h-4 bg-text/20"></div>
+              <button
+                type="button"
+                (click)="deselectAll()"
+                class="text-xs text-text/60 font-inter-medium hover:text-text flex items-center gap-1.5 transition-colors"
+              >
+                <i class="fas fa-times"></i> Deseleccionar
+              </button>
+            </div>
+            <p
+              class="text-xs font-inter-semibold text-text bg-background px-2 py-1 rounded-md border border-text/10 shadow-sm"
+            >
+              {{ selectedIds().size }} seleccionados
+            </p>
+          </div>
+
+          <!-- Scrollable List -->
+          <div class="flex-1 overflow-y-auto p-6 space-y-2 custom-scrollbar bg-background">
+            @for (cp of clientePasajeros(); track cp.id) {
+              <label
+                class="flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all hover:shadow-md group"
+                [class]="
+                  selectedIds().has(cp.id)
+                    ? 'border-secondary/30 bg-secondary/5 shadow-sm'
+                    : 'border-text/10 bg-background hover:border-secondary/30'
+                "
+              >
+                <div class="relative flex items-center justify-center w-5 h-5">
+                  <input
+                    type="checkbox"
+                    [checked]="selectedIds().has(cp.id)"
+                    (change)="toggleSelection(cp.id)"
+                    class="peer appearance-none w-5 h-5 border-2 border-text/20 rounded-md checked:bg-secondary checked:border-secondary transition-all cursor-pointer"
+                  />
+                  <i
+                    class="fas fa-check text-background text-[10px] absolute opacity-0 peer-checked:opacity-100 pointer-events-none transform peer-checked:scale-100 scale-50 transition-all"
+                  ></i>
+                </div>
+
+                <div class="flex-1">
+                  <p
+                    class="text-sm font-inter-semibold text-text group-hover:text-secondary transition-colors"
+                  >
+                    {{ cp.nombres }} {{ cp.apellidos }}
+                  </p>
+                  <div class="flex items-center gap-2 mt-0.5">
+                    <span
+                      class="text-[10px] px-1.5 py-0.5 rounded bg-text/5 text-text/60 font-inter-medium"
+                    >
+                      DNI: {{ cp.dni }}
+                    </span>
+                  </div>
+                </div>
+              </label>
+            }
+            @if (clientePasajeros().length === 0) {
+              <div class="text-center py-12 text-text/40 flex flex-col items-center">
+                <div class="w-16 h-16 rounded-full bg-text/5 flex items-center justify-center mb-3">
+                  <i class="fas fa-user-slash text-2xl"></i>
+                </div>
+                <p class="text-sm font-inter-medium">No hay pasajeros disponibles</p>
+                <p class="text-xs">Todos los pasajeros ya han sido asignados</p>
+              </div>
+            }
+          </div>
+
+          <!-- Footer Actions -->
+          <div
+            class="px-6 py-4 border-t border-text/10 shrink-0 flex justify-end gap-3 bg-background z-10"
+          >
+            <button
+              type="button"
+              (click)="switchToMode('list')"
+              class="px-4 py-2 rounded-lg text-sm font-inter-medium text-text/60 hover:text-text hover:bg-text/5 transition-all"
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              (click)="saveSelection()"
+              [disabled]="loading() || selectedIds().size === 0"
+              class="px-6 py-2 bg-secondary text-background text-sm font-inter-bold rounded-lg hover:bg-secondary/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-lg shadow-secondary/20 transition-all active:scale-95"
+            >
+              @if (loading()) {
+                <i class="fas fa-spinner fa-spin"></i>
+              }
+              <span>Guardar Selección</span>
+              <span class="bg-background/20 px-1.5 rounded text-[10px]">{{
+                selectedIds().size
+              }}</span>
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+}
+
+<div class="space-y-3">
+  <div class="flex items-center justify-between">
+    <label class="text-sm font-inter-bold text-text flex items-center gap-2">
+      <i class="fas fa-users text-primary"></i>
+      Pasajeros Asignados ({{ pasajeros().length }})
+    </label>
+    <button
+      type="button"
+      (click)="openModal()"
+      class="text-xs bg-secondary/10 text-secondary px-3 py-1.5 rounded-lg font-inter-semibold hover:bg-secondary/20 transition-all"
+    >
+      Gestionar
+    </button>
+  </div>
+
+  <div class="grid grid-cols-1 gap-2">
+    @if (pasajeros().length > 0) {
+      @for (p of pasajeros().slice(0, 3); track p.pasajeroId) {
+        <div
+          class="flex items-center justify-between bg-background border border-text/10 px-3 py-2 rounded-lg text-sm"
+        >
+          <div class="flex items-center gap-2">
+            <div
+              class="w-6 h-6 rounded-full bg-text/5 flex items-center justify-center text-text/60"
+            >
+              <i class="fas fa-user text-[10px]"></i>
+            </div>
+            <span class="text-text font-inter-medium"
+              >{{ p.pasajero.nombres }} {{ p.pasajero.apellidos }}</span
+            >
+          </div>
+          <span [class]="p.asistencia ? 'text-success' : 'text-text/40'">
+            <i class="fas" [class]="p.asistencia ? 'fa-check-circle' : 'fa-circle'"></i>
+          </span>
+        </div>
+      }
+      @if (pasajeros().length > 3) {
+        <div class="text-xs text-center text-text/60 italic">
+          + {{ pasajeros().length - 3 }} más...
+        </div>
+      }
+    } @else {
+      <div
+        (click)="openModal()"
+        class="border-2 border-dashed border-text/10 rounded-xl p-4 flex flex-col items-center justify-center gap-2 text-text/40 hover:text-primary hover:border-primary/30 hover:bg-primary/5 cursor-pointer transition-all"
+      >
+        <i class="fas fa-user-plus text-xl"></i>
+        <span class="text-xs font-inter-medium">Click para agregar pasajeros</span>
+      </div>
+    }
+  </div>
+</div>

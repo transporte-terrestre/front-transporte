@@ -2,15 +2,18 @@ import { Component, inject, input, output, signal, effect } from '@angular/core'
 import { CommonModule } from '@angular/common';
 import { StorageService } from '@service/admin/storage.service';
 import { ApiResponse } from 'api/backend.api';
+import { ModalInfo } from '../modal-info/modal-info';
+import { AlertService } from '@service/alert.service';
 
 @Component({
   selector: 'app-images-upload',
-  imports: [CommonModule],
+  imports: [CommonModule, ModalInfo],
   templateUrl: './images-upload.html',
   styleUrl: './images-upload.css',
 })
 export class ImagesUpload {
   private storageService = inject(StorageService);
+  private alertService = inject(AlertService);
 
   // Inputs
   images = input<string[]>([]);
@@ -62,7 +65,7 @@ export class ImagesUpload {
 
     if (event.dataTransfer?.files && event.dataTransfer.files.length > 0) {
       const files = Array.from(event.dataTransfer.files).filter((file) =>
-        file.type.startsWith('image/')
+        file.type.startsWith('image/'),
       );
       if (files.length > 0) {
         this.uploadFiles(files);
@@ -88,7 +91,7 @@ export class ImagesUpload {
         })
         .catch((err) => {
           console.error('Error uploading image:', err);
-        })
+        }),
     );
 
     await Promise.all(uploadPromises);
@@ -102,29 +105,31 @@ export class ImagesUpload {
   }
 
   removeImage(index: number) {
-    const currentImages = this.imagesList();
-    const imageUrl = currentImages[index];
-    const publicId = this.extractPublicId(imageUrl);
+    this.alertService.delete('Eliminar Imagen', '¿Estás seguro de eliminar esta imagen?', () => {
+      const currentImages = this.imagesList();
+      const imageUrl = currentImages[index];
+      const publicId = this.extractPublicId(imageUrl);
 
-    const updateState = () => {
-      const updatedList = currentImages.filter((_, i) => i !== index);
-      this.imagesList.set(updatedList);
-      this.imagesChange.emit(updatedList);
-    };
+      const updateState = () => {
+        const updatedList = currentImages.filter((_, i) => i !== index);
+        this.imagesList.set(updatedList);
+        this.imagesChange.emit(updatedList);
+      };
 
-    if (publicId) {
-      this.storageService
-        .delete(publicId)
-        .then(() => {
-          updateState();
-        })
-        .catch((err) => {
-          console.error('Error deleting image:', err);
-          updateState();
-        });
-    } else {
-      updateState();
-    }
+      if (publicId) {
+        this.storageService
+          .delete(publicId)
+          .then(() => {
+            updateState();
+          })
+          .catch((err) => {
+            console.error('Error deleting image:', err);
+            updateState();
+          });
+      } else {
+        updateState();
+      }
+    });
   }
 
   private extractPublicId(url: string): string | null {
@@ -135,6 +140,56 @@ export class ImagesUpload {
     } catch {
       return null;
     }
+  }
+
+  // Modal Preview
+  selectedImage = signal<string | null>(null);
+  draggedIndex = signal<number | null>(null);
+
+  selectImage(url: string) {
+    this.selectedImage.set(url);
+  }
+
+  closePreview() {
+    this.selectedImage.set(null);
+  }
+
+  // Drag and Drop Items
+  onDragStartItem(event: DragEvent, index: number) {
+    this.draggedIndex.set(index);
+    if (event.dataTransfer) {
+      event.dataTransfer.effectAllowed = 'move';
+      event.dataTransfer.setData('text/plain', index.toString());
+    }
+  }
+
+  onDragOverItem(event: DragEvent) {
+    event.preventDefault(); // Necessary to allow dropping
+    if (event.dataTransfer) {
+      event.dataTransfer.dropEffect = 'move';
+    }
+  }
+
+  onDropItem(event: DragEvent, index: number) {
+    event.preventDefault();
+    const draggedIdx = this.draggedIndex();
+    if (draggedIdx !== null && draggedIdx !== index) {
+      this.moveImage(draggedIdx, index);
+    }
+    this.draggedIndex.set(null);
+  }
+
+  moveImage(fromIndex: number, toIndex: number) {
+    const list = [...this.imagesList()];
+    const [item] = list.splice(fromIndex, 1);
+    list.splice(toIndex, 0, item);
+    this.imagesList.set(list);
+    this.imagesChange.emit(list);
+  }
+
+  setAsMain(index: number) {
+    if (index === 0) return;
+    this.moveImage(index, 0);
   }
 
   canAddMore(): boolean {

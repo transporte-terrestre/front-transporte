@@ -1,4 +1,4 @@
-import { Component, signal, inject, OnInit, OnDestroy, viewChild } from '@angular/core';
+import { Component, signal, inject, OnInit, OnDestroy, viewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -14,9 +14,20 @@ import { PaginationComponent } from '../../../../components/pagination/paginatio
 import { PATH, buildPath } from '@route/path.route';
 import { getErrorMessage } from '@helper/error.helper';
 
+import { ModalInfo } from '../../../../components/modal-info/modal-info';
+import { VehiculoDetail } from '../../layout/vehiculo-detail/vehiculo-detail';
+
 @Component({
   selector: 'app-vehiculos-list',
-  imports: [CommonModule, FormsModule, ModalForm, VehiculoForm, PaginationComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ModalForm,
+    VehiculoForm,
+    PaginationComponent,
+    ModalInfo,
+    VehiculoDetail,
+  ],
   templateUrl: './vehiculos-list.html',
   styleUrl: './vehiculos-list.css',
 })
@@ -30,14 +41,30 @@ export class VehiculosList implements OnInit, OnDestroy {
   private searchSubject = new Subject<string>();
 
   vehiculos = signal<ApiResponse<'vehiculos', 'findAll'>['data']>([]);
+  vehiculosEstadoDocumentos = signal<ApiResponse<'vehiculos', 'findAllEstadoDocumentos'>['data']>([]);
   loading = signal(false);
   showModal = signal(false);
-  viewMode = signal<'grid' | 'table'>('table');
+  filtroDocumentos = signal<'completo' | 'incompleto' | null>(null);
 
   // Paginación
   currentPage = signal(1);
   pageSize = signal(10);
   meta = signal<ApiResponse<'vehiculos', 'findAll'>['meta'] | null>(null);
+
+  // Detail
+  // Detail
+  selectedVehiculoId = signal<number | null>(null);
+  showDetailModal = signal(false);
+
+  viewDetails(id: number) {
+    this.selectedVehiculoId.set(id);
+    this.showDetailModal.set(true);
+  }
+
+  closeDetails() {
+    this.showDetailModal.set(false);
+    this.selectedVehiculoId.set(null);
+  }
 
   // Filtros
   searchTerm = signal('');
@@ -45,6 +72,11 @@ export class VehiculosList implements OnInit, OnDestroy {
   fechaFin = signal('');
 
   vehiculoFormComponent = viewChild<VehiculoForm>(VehiculoForm);
+  tableContainer = viewChild<ElementRef>('tableContainer');
+
+  private isDown = false;
+  private startX = 0;
+  private scrollLeft = 0;
 
   ngOnInit() {
     this.loadVehiculos();
@@ -59,18 +91,78 @@ export class VehiculosList implements OnInit, OnDestroy {
     this.searchSubject.complete();
   }
 
+  onMouseDown(e: MouseEvent) {
+    const target = e.target as HTMLElement;
+    if (target.closest('td:first-child')) {
+      return;
+    }
+
+    const container = this.tableContainer()?.nativeElement;
+    if (!container) return;
+    this.isDown = true;
+    container.style.cursor = 'grabbing';
+    container.querySelector('tbody')!.style.cursor = 'grabbing';
+    this.startX = e.pageX - container.offsetLeft;
+    this.scrollLeft = container.scrollLeft;
+  }
+
+  onMouseLeave() {
+    this.isDown = false;
+    const container = this.tableContainer()?.nativeElement;
+    if (container) {
+      container.style.cursor = 'auto';
+      const tbody = container.querySelector('tbody');
+      if (tbody) tbody.style.cursor = 'grab';
+    }
+  }
+
+  onMouseUp() {
+    this.isDown = false;
+    const container = this.tableContainer()?.nativeElement;
+    if (container) {
+      container.style.cursor = 'auto';
+      const tbody = container.querySelector('tbody');
+      if (tbody) tbody.style.cursor = 'grab';
+    }
+  }
+
+  onMouseMove(e: MouseEvent) {
+    if (!this.isDown) return;
+    e.preventDefault();
+    const container = this.tableContainer()?.nativeElement;
+    if (!container) return;
+    const x = e.pageX - container.offsetLeft;
+    const walk = (x - this.startX) * 2;
+    container.scrollLeft = this.scrollLeft - walk;
+  }
+
   async loadVehiculos() {
     this.loading.set(true);
     try {
-      const response = await this.vehiculoService.findAll({
-        page: this.currentPage(),
-        limit: this.pageSize(),
-        search: this.searchTerm() || undefined,
-        fechaInicio: this.fechaInicio() || undefined,
-        fechaFin: this.fechaFin() || undefined,
-      });
-      this.vehiculos.set(response.data);
-      this.meta.set(response.meta);
+      const filtroDoc = this.filtroDocumentos();
+
+      if (filtroDoc) {
+        const response = await this.vehiculoService.findAllEstadoDocumentos({
+          page: this.currentPage(),
+          limit: this.pageSize(),
+          filtro: filtroDoc,
+        });
+        this.vehiculosEstadoDocumentos.set(response.data);
+        this.vehiculos.set([]);
+        this.meta.set(response.meta);
+      } else {
+        const response = await this.vehiculoService.findAll({
+          page: this.currentPage(),
+          limit: this.pageSize(),
+          search: this.searchTerm() || undefined,
+          fechaInicio: this.fechaInicio() || undefined,
+          fechaFin: this.fechaFin() || undefined,
+        });
+        this.vehiculos.set(response.data);
+        this.vehiculosEstadoDocumentos.set([]);
+        this.meta.set(response.meta);
+      }
+
       this.loading.set(false);
     } catch (error) {
       console.error('Error al cargar vehículos:', error);
@@ -112,17 +204,75 @@ export class VehiculosList implements OnInit, OnDestroy {
     this.loadVehiculos();
   }
 
-  toggleViewMode() {
-    this.viewMode.set(this.viewMode() === 'grid' ? 'table' : 'grid');
+  navigateToLineas() {
+    const path = buildPath(PATH.admin.vehiculos.lineas);
+    this.router.navigate([path]);
   }
 
   openCreateModal() {
     this.showModal.set(true);
   }
 
-  navigateToLineas() {
-    const path = buildPath(PATH.admin.vehiculos.lineas);
-    this.router.navigate([path]);
+  toggleFiltroDocumentos() {
+    const current = this.filtroDocumentos();
+    if (current === null) {
+      this.filtroDocumentos.set('incompleto');
+    } else {
+      this.filtroDocumentos.set(null);
+    }
+    this.currentPage.set(1);
+    this.loadVehiculos();
+  }
+
+  toggleCompletoIncompleto() {
+    const current = this.filtroDocumentos();
+    if (current === 'incompleto') {
+      this.filtroDocumentos.set('completo');
+    } else {
+      this.filtroDocumentos.set('incompleto');
+    }
+    this.currentPage.set(1);
+    this.loadVehiculos();
+  }
+
+  getFiltroLabel(): string {
+    const filtro = this.filtroDocumentos();
+    if (filtro === 'incompleto') return 'Incompletos';
+    if (filtro === 'completo') return 'Completos';
+    return 'Todos';
+  }
+
+  getFiltroIcon(): string {
+    const filtro = this.filtroDocumentos();
+    if (filtro === 'incompleto') return 'fa-exclamation-triangle';
+    if (filtro === 'completo') return 'fa-check-circle';
+    return 'fa-file-alt';
+  }
+
+  getDocumentoEstadoClass(estado: string): string {
+    switch (estado) {
+      case 'activo':
+        return 'text-success';
+      case 'caducado':
+        return 'text-warning';
+      case 'nulo':
+        return 'text-danger';
+      default:
+        return 'text-text/40';
+    }
+  }
+
+  getDocumentoEstadoIcon(estado: string): string {
+    switch (estado) {
+      case 'activo':
+        return 'fa-check-circle';
+      case 'caducado':
+        return 'fa-clock';
+      case 'nulo':
+        return 'fa-times-circle';
+      default:
+        return 'fa-question-circle';
+    }
   }
 
   closeModal() {
@@ -171,9 +321,9 @@ export class VehiculosList implements OnInit, OnDestroy {
             console.error('Error al eliminar vehículo:', error);
             this.toastService.error(getErrorMessage(error, 'Error al eliminar vehículo'));
             this.loading.set(false);
-          }
+          },
         );
-      }
+      },
     );
   }
 

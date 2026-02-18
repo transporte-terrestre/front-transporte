@@ -3,11 +3,13 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MantenimientoService } from '@service/admin/mantenimiento.service';
+
 import { ApiResponse, ApiBody, ApiField } from 'api/backend.api';
 import { ToastService } from '@service/toast.service';
 import { AlertService } from '@service/alert.service';
 import { ModalForm } from '../../../../components/modal-form/modal-form';
 import { MantenimientoForm } from '../../layout/mantenimiento-form/mantenimiento-form';
+import { PaginationComponent } from '../../../../components/pagination/pagination';
 import { PATH, buildPath } from '@route/path.route';
 import { getErrorMessage } from '@helper/error.helper';
 
@@ -21,7 +23,7 @@ interface CalendarDay {
 
 @Component({
   selector: 'app-mantenimientos-list',
-  imports: [CommonModule, FormsModule, ModalForm, MantenimientoForm],
+  imports: [CommonModule, FormsModule, ModalForm, MantenimientoForm, PaginationComponent],
   templateUrl: './mantenimientos-list.html',
   styleUrl: './mantenimientos-list.css',
 })
@@ -112,12 +114,21 @@ export class MantenimientosList implements OnInit {
 
   onPageChange(page: number) {
     this.currentPage.set(page);
-    this.loadMantenimientos();
+    if (this.viewMode() === 'report') {
+      this.loadEstadoMantenimientos();
+    } else {
+      this.loadMantenimientos();
+    }
   }
 
-  onPageSizeChange() {
+  onPageSizeChange(size?: number) {
+    if (size) this.pageSize.set(size);
     this.currentPage.set(1);
-    this.loadMantenimientos();
+    if (this.viewMode() === 'report') {
+      this.loadEstadoMantenimientos();
+    } else {
+      this.loadMantenimientos();
+    }
   }
 
   clearFilters() {
@@ -197,7 +208,7 @@ export class MantenimientosList implements OnInit {
       const mantDate = new Date(
         Number(fechaParts[0]),
         Number(fechaParts[1]) - 1,
-        Number(fechaParts[2])
+        Number(fechaParts[2]),
       );
       const mantDateStr = this.formatDateToCompare(mantDate);
       return mantDateStr === dateStr;
@@ -206,7 +217,7 @@ export class MantenimientosList implements OnInit {
 
   formatDateToCompare(date: Date): string {
     return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(
-      date.getDate()
+      date.getDate(),
     ).padStart(2, '0')}`;
   }
 
@@ -283,7 +294,7 @@ export class MantenimientosList implements OnInit {
   navigateToEdit(mantenimiento: ApiResponse<'mantenimientos', 'findAll'>['data'][number]) {
     const path = buildPath(PATH.admin.mantenimientos.edit).replace(
       ':id',
-      mantenimiento.id.toString()
+      mantenimiento.id.toString(),
     );
     this.router.navigate([path]);
   }
@@ -340,13 +351,13 @@ export class MantenimientosList implements OnInit {
             this.toastService.error(getErrorMessage(error, 'Error al eliminar mantenimiento'));
             this.loading.set(false);
           });
-      }
+      },
     );
   }
 
   getTallerDisplay(
     tallerId: number,
-    mantenimiento?: ApiResponse<'mantenimientos', 'findAll'>['data'][number]
+    mantenimiento?: ApiResponse<'mantenimientos', 'findAll'>['data'][number],
   ): string {
     if (mantenimiento && mantenimiento.taller) {
       return mantenimiento.taller.nombreComercial || mantenimiento.taller.razonSocial;
@@ -356,7 +367,7 @@ export class MantenimientosList implements OnInit {
 
   getVehiculoDisplay(
     vehiculoId: number,
-    mantenimiento?: ApiResponse<'mantenimientos', 'findAll'>['data'][number]
+    mantenimiento?: ApiResponse<'mantenimientos', 'findAll'>['data'][number],
   ): string {
     if (mantenimiento && mantenimiento.vehiculo) {
       return `${mantenimiento.vehiculo.marca} ${mantenimiento.vehiculo.modelo}`;
@@ -366,7 +377,7 @@ export class MantenimientosList implements OnInit {
 
   getVehiculoPlaca(
     vehiculoId: number,
-    mantenimiento?: ApiResponse<'mantenimientos', 'findAll'>['data'][number]
+    mantenimiento?: ApiResponse<'mantenimientos', 'findAll'>['data'][number],
   ): string {
     if (mantenimiento && mantenimiento.vehiculo) {
       return mantenimiento.vehiculo.placa;
@@ -424,5 +435,59 @@ export class MantenimientosList implements OnInit {
 
   formatKilometraje(value: number): string {
     return new Intl.NumberFormat('es-PE').format(value) + ' km';
+  }
+
+  // Reporte de Estado
+  viewMode = signal<'calendar' | 'report'>('calendar');
+  vehiculosEstadoMantenimiento = signal<any[]>([]);
+  sortOrder = signal<'proximos' | 'ultimos'>('proximos');
+
+  toggleViewMode() {
+    const current = this.viewMode();
+    if (current === 'calendar') {
+      this.viewMode.set('report');
+      this.pageSize.set(10);
+      this.currentPage.set(1);
+      this.sortOrder.set('proximos');
+      this.loadEstadoMantenimientos();
+    } else {
+      this.viewMode.set('calendar');
+      this.pageSize.set(1000); // All items for calendar
+      this.currentPage.set(1);
+      this.loadMantenimientos();
+    }
+  }
+
+  setSortOrder(order: 'proximos' | 'ultimos') {
+    this.sortOrder.set(order);
+    this.currentPage.set(1);
+    this.loadEstadoMantenimientos();
+  }
+
+  loadEstadoMantenimientos() {
+    this.loading.set(true);
+    this.mantenimientoService
+      .getReporteEstadoVehiculos({
+        page: this.currentPage(),
+        limit: this.pageSize(),
+        sort: this.sortOrder(),
+      })
+      .then((response: any) => {
+        this.vehiculosEstadoMantenimiento.set(response.data);
+        this.meta.set(response.meta);
+        this.loading.set(false);
+      })
+      .catch((error) => {
+        console.error('Error al cargar estado de mantenimientos:', error);
+        this.toastService.error('Error al cargar reporte de mantenimientos');
+        this.loading.set(false);
+      });
+  }
+
+  getRestanteClass(restante: number | null): string {
+    if (restante === null) return 'bg-text/10 text-text/60'; // No data
+    if (restante < 0) return 'bg-danger text-background font-bold'; // Overdue (Red)
+    if (restante < 1000) return 'bg-warning text-background font-bold'; // Warning (Yellow)
+    return 'bg-success text-background font-bold'; // OK (Green)
   }
 }

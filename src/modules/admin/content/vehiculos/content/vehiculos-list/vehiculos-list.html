@@ -9,23 +9,32 @@
         </p>
       </div>
       <div class="flex items-center gap-2 w-full sm:w-auto">
+        @if (!filtroDocumentos()) {
+          <button
+            (click)="navigateToLineas()"
+            class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-info/10 text-info rounded-lg text-sm font-inter-semibold hover:bg-info/20 transition-all"
+            title="Administrar Marcas y Modelos"
+          >
+            <i class="fas fa-route text-xs"></i>
+            <span>Líneas</span>
+          </button>
+        }
+        @if (filtroDocumentos()) {
+          <button
+            (click)="toggleCompletoIncompleto()"
+            class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-info/10 text-info rounded-lg text-sm font-inter-semibold hover:bg-info/20 transition-all"
+            [title]="'Mostrar vehículos ' + (filtroDocumentos() === 'completo' ? 'incompletos' : 'completos')"
+          >
+            <i [class]="'fas ' + (filtroDocumentos() === 'completo' ? 'fa-exclamation-triangle' : 'fa-check-circle') + ' text-xs'"></i>
+            <span>{{ filtroDocumentos() === 'completo' ? 'Completos' : 'Incompletos' }}</span>
+          </button>
+        }
         <button
-          (click)="navigateToLineas()"
-          class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-info/10 text-info rounded-lg text-sm font-inter-semibold hover:bg-info/20 transition-all self-stretch"
-          title="Marcas y Modelos"
+          (click)="toggleFiltroDocumentos()"
+          class="flex-1 sm:flex-none flex items-center justify-center px-4 py-2 bg-text/10 text-text rounded-lg text-sm font-inter-semibold hover:bg-text/15 transition-all self-stretch"
+          [title]="filtroDocumentos() ? 'Volver a vista normal' : 'Ver estado de documentos'"
         >
-          <i class="fas fa-industry text-xs"></i>
-          <span class="hidden sm:inline">Líneas</span>
-        </button>
-        <button
-          (click)="toggleViewMode()"
-          class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-text/10 text-text rounded-lg text-sm font-inter-semibold hover:bg-text/20 transition-all self-stretch"
-          title="Cambiar vista"
-        >
-          <i
-            [class]="viewMode() === 'grid' ? 'fas fa-list' : 'fas fa-th-large'"
-            class="text-xs"
-          ></i>
+          <i [class]="'fas ' + (filtroDocumentos() ? 'fa-list' : 'fa-clipboard-check') + ' text-xs'"></i>
         </button>
         <button
           (click)="openCreateModal()"
@@ -38,352 +47,366 @@
     </div>
 
     <!-- Buscador y Filtros -->
-    <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
-      <!-- Búsqueda -->
-      <div class="relative sm:col-span-4 lg:col-span-2">
-        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"></i>
-        <input
-          type="text"
-          [ngModel]="searchTerm()"
-          (ngModelChange)="onSearchChange($event)"
-          placeholder="Buscar por placa, marca, modelo..."
-          class="w-full pl-10 pr-4 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all"
-        />
-      </div>
+    @if (!filtroDocumentos()) {
+      <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+        <!-- Búsqueda -->
+        <div class="relative sm:col-span-4 lg:col-span-2">
+          <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"></i>
+          <input
+            type="text"
+            [ngModel]="searchTerm()"
+            (ngModelChange)="onSearchChange($event)"
+            placeholder="Buscar por placa, marca, modelo..."
+            class="w-full pl-10 pr-4 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all"
+          />
+        </div>
 
-      <!-- Fecha Inicio -->
-      <div class="relative sm:col-span-2 lg:col-span-1">
-        <i
-          class="fas fa-calendar absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"
-        ></i>
-        <input
-          type="date"
-          [ngModel]="fechaInicio()"
-          (ngModelChange)="fechaInicio.set($event); onDateChange()"
-          placeholder="Fecha inicio"
-          class="w-full pl-10 pr-4 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all"
-        />
-      </div>
+        <!-- Fecha Inicio -->
+        <div class="relative sm:col-span-2 lg:col-span-1">
+          <i
+            class="fas fa-calendar absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"
+          ></i>
+          <input
+            type="date"
+            [ngModel]="fechaInicio()"
+            (ngModelChange)="fechaInicio.set($event); onDateChange()"
+            placeholder="Fecha inicio"
+            class="w-full pl-10 pr-4 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all"
+          />
+        </div>
 
-      <!-- Fecha Fin -->
-      <div class="relative sm:col-span-2 lg:col-span-1">
-        <i
-          class="fas fa-calendar absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"
-        ></i>
-        <input
-          type="date"
-          [ngModel]="fechaFin()"
-          (ngModelChange)="fechaFin.set($event); onDateChange()"
-          placeholder="Fecha fin"
-          class="w-full pl-10 pr-4 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all"
-        />
+        <!-- Fecha Fin -->
+        <div class="relative sm:col-span-2 lg:col-span-1">
+          <i
+            class="fas fa-calendar absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"
+          ></i>
+          <input
+            type="date"
+            [ngModel]="fechaFin()"
+            (ngModelChange)="fechaFin.set($event); onDateChange()"
+            placeholder="Fecha fin"
+            class="w-full pl-10 pr-4 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all"
+          />
+        </div>
       </div>
-    </div>
+    }
   </div>
 
   <!-- Loading State -->
   @if (loading()) {
-  <div class="flex items-center justify-center py-12">
-    <div class="flex flex-col items-center gap-3">
-      <i class="fas fa-spinner fa-spin text-3xl text-secondary"></i>
-      <p class="text-text/60 font-inter-medium">Cargando vehículos...</p>
+    <div class="flex items-center justify-center py-12">
+      <div class="flex flex-col items-center gap-3">
+        <i class="fas fa-spinner fa-spin text-3xl text-secondary"></i>
+        <p class="text-text/60 font-inter-medium">Cargando vehículos...</p>
+      </div>
     </div>
-  </div>
   }
 
   <!-- Empty State -->
-  @else if (vehiculos().length === 0) {
-  <div
-    class="flex flex-col items-center justify-center py-12 text-text/60 bg-background border border-text/10 rounded-xl"
-  >
-    <i class="fas fa-car text-5xl mb-4 text-text/20"></i>
-    <p class="font-inter-semibold text-lg">No hay vehículos registrados</p>
-    <p class="font-inter-regular text-sm mt-1">Comienza agregando un nuevo vehículo a la flota</p>
-  </div>
-  }
-
-  <!-- Grid View -->
-  @else if (viewMode() === 'grid') {
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-    @for (vehiculo of vehiculos(); track vehiculo.id) {
+  @else if ((!filtroDocumentos() && vehiculos().length === 0) || (filtroDocumentos() && vehiculosEstadoDocumentos().length === 0)) {
     <div
-      class="vehiculo-card bg-background border border-text/10 rounded-xl shadow-sm hover:shadow-md transition-all overflow-hidden group"
+      class="flex flex-col items-center justify-center py-12 text-text/60 bg-background border border-text/10 rounded-xl"
     >
-      <!-- Car Header with Gradient -->
-      <!-- Car Header Image -->
-      <div class="relative h-48 w-full overflow-hidden bg-text/5">
-        @if (vehiculo.imagenes && vehiculo.imagenes.length > 0) {
-        <img
-          [src]="vehiculo.imagenes[0]"
-          [alt]="vehiculo.marca + ' ' + vehiculo.modelo"
-          class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-        />
-        <div
-          class="absolute inset-0 bg-linear-to-t from-background/50 via-transparent to-transparent"
-        ></div>
-        } @else {
-        <div class="w-full h-full flex items-center justify-center bg-secondary/10">
-          <i
-            class="fas fa-car-side text-6xl text-text/20 group-hover:text-secondary/40 transition-colors"
-          ></i>
-        </div>
-        <div
-          class="absolute inset-0 bg-linear-to-t from-background/50 via-transparent to-transparent"
-        ></div>
-        }
-
-        <!-- Status Badge -->
-        <div class="absolute top-3 right-3">
-          <span
-            class="px-2.5 py-1 text-xs font-inter-bold rounded-full flex items-center gap-1.5 bg-background/90 backdrop-blur-md shadow-sm"
-            [ngClass]="getEstadoBadgeClass(vehiculo.estado)"
-          >
-            <i [class]="'fas ' + getEstadoIcon(vehiculo.estado)" class="text-xs"></i>
-            <span class="capitalize">{{ vehiculo.estado }}</span>
-          </span>
-        </div>
-
-        <!-- Placa & Code Overlay -->
-        <div class="absolute bottom-3 left-3 text-text">
-          <h3 class="text-xl font-inter-bold tracking-wide">{{ vehiculo.placa }}</h3>
-          <p class="text-xs font-inter-medium opacity-90 flex items-center gap-1">
-            <i class="fas fa-barcode text-[10px]"></i>
-            {{ vehiculo.codigoInterno }}
-          </p>
-        </div>
-      </div>
-
-      <!-- Car Details -->
-      <div class="p-4 space-y-3">
-        <!-- Marca y Modelo -->
-        <div class="flex items-center gap-2 text-text">
-          <i class="fas fa-tag text-secondary/70 text-sm w-5"></i>
-          <div class="flex-1">
-            <p class="text-xs font-inter-medium text-text/60">Marca & Modelo</p>
-            <p class="text-sm font-inter-bold">{{ vehiculo.marca }} {{ vehiculo.modelo }}</p>
-          </div>
-        </div>
-
-        <!-- Año -->
-        <div class="flex items-center gap-2 text-text">
-          <i class="fas fa-calendar-alt text-primary/70 text-sm w-5"></i>
-          <div class="flex-1">
-            <p class="text-xs font-inter-medium text-text/60">Año</p>
-            <p class="text-sm font-inter-bold">{{ vehiculo.anio }}</p>
-          </div>
-        </div>
-
-        <!-- Propietario -->
-        <div class="flex items-center gap-2 text-text">
-          <i class="fas fa-user-shield text-secondary/70 text-sm w-5"></i>
-          <div class="flex-1">
-            <p class="text-xs font-inter-medium text-text/60">Propietario</p>
-            <p class="text-sm font-inter-bold truncate">{{ vehiculo.propietarios_nombres?.join(', ') || '-' }}</p>
-          </div>
-        </div>
-
-        <!-- Kilometraje -->
-        <div class="flex items-center gap-2 text-text">
-          <i class="fas fa-tachometer-alt text-info/70 text-sm w-5"></i>
-          <div class="flex-1">
-            <p class="text-xs font-inter-medium text-text/60">Kilometraje</p>
-            <p class="text-sm font-inter-bold">{{ vehiculo.kilometraje | number }} km</p>
-          </div>
-        </div>
-
-        <!-- Actions -->
-        <div class="pt-3 border-t border-text/10 flex items-center justify-end gap-2">
-          <button
-            (click)="navigateToEdit(vehiculo)"
-            class="flex items-center gap-1.5 px-3 py-1.5 text-info hover:bg-info/10 rounded-lg transition-colors text-xs font-inter-semibold"
-            title="Editar"
-          >
-            <i class="fas fa-edit"></i>
-            <span>Editar</span>
-          </button>
-          <button
-            (click)="deleteVehiculo(vehiculo.id)"
-            class="flex items-center gap-1.5 px-3 py-1.5 text-danger hover:bg-danger/10 rounded-lg transition-colors text-xs font-inter-semibold"
-            title="Eliminar"
-          >
-            <i class="fas fa-trash"></i>
-            <span>Eliminar</span>
-          </button>
-        </div>
-      </div>
+      <i class="fas fa-car text-5xl mb-4 text-text/20"></i>
+      <p class="font-inter-semibold text-lg">No hay vehículos registrados</p>
+      <p class="font-inter-regular text-sm mt-1">Comienza agregando un nuevo vehículo a la flota</p>
     </div>
-    }
-  </div>
-
-  <!-- Paginación Grid -->
-  <app-pagination
-    [meta]="meta()"
-    [currentPage]="currentPage()"
-    [pageSize]="pageSize()"
-    (pageChange)="onPageChange($event)"
-    (pageSizeChange)="onPageSizeChange($event)"
-  />
   }
 
   <!-- Table View -->
-  @else {
-  <div class="bg-background border border-text/10 rounded-xl shadow-sm overflow-hidden">
-    <div class="overflow-x-auto">
-      <table class="w-full">
-        <thead class="bg-text/5 border-b border-text/10">
-          <tr>
-            <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
-            >
-              CÓDIGO
-            </th>
-            <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
-            >
-              Placa
-            </th>
-            <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
-            >
-              Marca
-            </th>
-            <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
-            >
-              Modelo
-            </th>
-            <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
-            >
-              Propietario
-            </th>
-            <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
-            >
-              Año
-            </th>
-            <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
-            >
-              Kilometraje
-            </th>
+  @else if (!filtroDocumentos()) {
+    <!-- Vista Normal -->
+    <div class="bg-background border border-text/10 rounded-xl shadow-sm overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-text/5 border-b border-text/10">
+            <tr>
+              <th
+                class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              >
+                CÓDIGO
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              >
+                Placa
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              >
+                Marca
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              >
+                Modelo
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              >
+                Propietario
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              >
+                Año
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              >
+                Kilometraje
+              </th>
 
-            <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
-            >
-              Estado
-            </th>
-            <th
-              class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase tracking-wider"
-            >
-              Acciones
-            </th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-text/10">
-          @for (vehiculo of vehiculos(); track vehiculo.id) {
-          <tr class="hover:bg-text/5 transition-colors">
-            <td class="px-4 py-3 whitespace-nowrap">
-              <span class="text-xs font-inter-semibold text-text">{{
-                vehiculo.codigoInterno
-              }}</span>
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap">
-              <div class="flex items-center gap-2">
-                @if (vehiculo.imagenes && vehiculo.imagenes.length > 0) {
-                <img
-                  [src]="vehiculo.imagenes[0]"
-                  [alt]="vehiculo.marca + ' ' + vehiculo.modelo"
-                  class="w-8 h-8 rounded-lg object-cover border border-text/10"
-                />
-                } @else {
-                <div
-                  class="w-8 h-8 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary text-xs"
-                >
-                  <i class="fas fa-car"></i>
-                </div>
-                }
-                <span class="text-xs font-inter-bold text-text uppercase">{{
-                  vehiculo.placa
-                }}</span>
-              </div>
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap">
-              <span class="text-xs font-inter-semibold text-text">{{ vehiculo.marca }}</span>
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap">
-              <span class="text-xs font-inter-medium text-text/70">{{ vehiculo.modelo }}</span>
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap">
-              <span
-                class="text-xs font-inter-semibold text-text truncate max-w-[150px] inline-block"
-                >{{ vehiculo?.propietarios_nombres?.join(', ') || '-' }}</span
+              <th
+                class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
               >
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap">
-              <span class="text-xs font-inter-medium text-text">{{ vehiculo.anio }}</span>
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap">
-              <span class="text-xs font-inter-medium text-text/70"
-                >{{ vehiculo.kilometraje | number }} km</span
+                Estado
+              </th>
+              <th
+                class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase tracking-wider"
               >
-            </td>
+                Acciones
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-text/10">
+            @for (vehiculo of vehiculos(); track vehiculo.id) {
+              <tr
+                class="hover:bg-text/5 transition-colors cursor-pointer"
+                (click)="viewDetails(vehiculo.id)"
+              >
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <span class="text-xs font-inter-semibold text-text">{{
+                    vehiculo.codigoInterno
+                  }}</span>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <div class="flex items-center gap-2">
+                    @if (vehiculo.imagenes && vehiculo.imagenes.length > 0) {
+                      <img
+                        [src]="vehiculo.imagenes[0]"
+                        [alt]="vehiculo.marca + ' ' + vehiculo.modelo"
+                        class="w-8 h-8 rounded-lg object-cover border border-text/10"
+                      />
+                    } @else {
+                      <div
+                        class="w-8 h-8 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary text-xs"
+                      >
+                        <i class="fas fa-car"></i>
+                      </div>
+                    }
+                    <span class="text-xs font-inter-bold text-text uppercase">{{
+                      vehiculo.placa
+                    }}</span>
+                  </div>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <span class="text-xs font-inter-semibold text-text">{{ vehiculo.marca }}</span>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <span class="text-xs font-inter-medium text-text/70">{{ vehiculo.modelo }}</span>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <span
+                    class="text-xs font-inter-semibold text-text truncate max-w-[150px] inline-block"
+                    >{{ vehiculo?.propietarios_nombres?.join(', ') || '-' }}</span
+                  >
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <span class="text-xs font-inter-medium text-text">{{ vehiculo.anio }}</span>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <span class="text-xs font-inter-medium text-text/70"
+                    >{{ vehiculo.kilometraje | number }} km</span
+                  >
+                </td>
 
-            <td class="px-4 py-3 whitespace-nowrap">
-              <span
-                class="px-2 py-0.5 text-xs font-inter-semibold rounded-full capitalize flex items-center gap-1 w-fit"
-                [ngClass]="getEstadoBadgeClass(vehiculo.estado)"
-              >
-                <i [class]="'fas ' + getEstadoIcon(vehiculo.estado)" class="text-xs"></i>
-                {{ vehiculo.estado }}
-              </span>
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap text-right">
-              <div class="flex items-center justify-end gap-1">
-                <button
-                  (click)="navigateToEdit(vehiculo)"
-                  class="p-1.5 text-info hover:bg-info/10 rounded-lg transition-colors text-sm"
-                  title="Editar"
-                >
-                  <i class="fas fa-edit"></i>
-                </button>
-                <button
-                  (click)="deleteVehiculo(vehiculo.id)"
-                  class="p-1.5 text-danger hover:bg-danger/10 rounded-lg transition-colors text-sm"
-                  title="Eliminar"
-                >
-                  <i class="fas fa-trash"></i>
-                </button>
-              </div>
-            </td>
-          </tr>
-          }
-        </tbody>
-      </table>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <span
+                    class="px-2 py-0.5 text-xs font-inter-semibold rounded-full capitalize flex items-center gap-1 w-fit"
+                    [ngClass]="getEstadoBadgeClass(vehiculo.estado)"
+                  >
+                    <i [class]="'fas ' + getEstadoIcon(vehiculo.estado)" class="text-xs"></i>
+                    {{ vehiculo.estado }}
+                  </span>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-right">
+                  <div class="flex items-center justify-end gap-1">
+                    <button
+                      (click)="navigateToEdit(vehiculo); $event.stopPropagation()"
+                      class="p-1.5 text-info hover:bg-info/10 rounded-lg transition-colors text-sm"
+                      title="Editar"
+                    >
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button
+                      (click)="deleteVehiculo(vehiculo.id); $event.stopPropagation()"
+                      class="p-1.5 text-danger hover:bg-danger/10 rounded-lg transition-colors text-sm"
+                      title="Eliminar"
+                    >
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Paginación Tabla -->
+      <app-pagination
+        [meta]="meta()"
+        [currentPage]="currentPage()"
+        [pageSize]="pageSize()"
+        (pageChange)="onPageChange($event)"
+        (pageSizeChange)="onPageSizeChange($event)"
+      />
     </div>
+  } @else {
+    <!-- Vista de Documentos -->
+    <div class="bg-background border border-text/10 rounded-xl shadow-sm overflow-hidden">
+      <div
+        #tableContainer
+        class="overflow-x-auto"
+      >
+        <table class="w-full text-xs">
+          <thead class="bg-text/5 border-b border-text/10">
+            <tr>
+              <th class="px-3 py-2 text-left font-inter-bold text-text/60 uppercase tracking-wider sticky left-0 bg-text/5 backdrop-blur-md z-10" title="Vehículo">Vehículo</th>
+              <th class="px-3 py-2 text-center font-inter-bold text-text/60 uppercase tracking-wider whitespace-nowrap" title="Tarjeta de Propiedad">T. Prop</th>
+              <th class="px-3 py-2 text-center font-inter-bold text-text/60 uppercase tracking-wider whitespace-nowrap" title="Tarjeta Única de Circulación">TUC</th>
+              <th class="px-3 py-2 text-center font-inter-bold text-text/60 uppercase tracking-wider" title="Revisión Técnica (CITV)">CITV</th>
+              <th class="px-3 py-2 text-center font-inter-bold text-text/60 uppercase tracking-wider" title="SOAT">SOAT</th>
+              <th class="px-3 py-2 text-center font-inter-bold text-text/60 uppercase tracking-wider whitespace-nowrap" title="Póliza de Seguro">Póliza</th>
+              <th class="px-3 py-2 text-center font-inter-bold text-text/60 uppercase tracking-wider whitespace-nowrap" title="Certificado de Operatividad / Factura">C. Oper</th>
+              <th class="px-3 py-2 text-center font-inter-bold text-text/60 uppercase tracking-wider whitespace-nowrap" title="Plan de Mantenimiento Histórico">Plan Mant</th>
+              <th class="px-3 py-2 text-center font-inter-bold text-text/60 uppercase tracking-wider" title="Certificado de Instalación GPS">GPS</th>
+              <th class="px-3 py-2 text-center font-inter-bold text-text/60 uppercase tracking-wider whitespace-nowrap" title="Certificado de Valor Añadido">Val. Añ</th>
+              <th class="px-3 py-2 text-center font-inter-bold text-text/60 uppercase tracking-wider whitespace-nowrap" title="Constancia GPS">Const. GPS</th>
+              <th class="px-3 py-2 text-center font-inter-bold text-text/60 uppercase tracking-wider" title="Certificado de Tacos">Tacos</th>
+              <th class="px-3 py-2 text-center font-inter-bold text-text/60 uppercase tracking-wider whitespace-nowrap" title="Certificado de Extintores / Hidrostática">Ext. Hid</th>
+              <th class="px-3 py-2 text-center font-inter-bold text-text/60 uppercase tracking-wider" title="Certificado Norma R66">R66</th>
+              <th class="px-3 py-2 text-center font-inter-bold text-text/60 uppercase tracking-wider whitespace-nowrap" title="Certificado Laminados Lunas">Lam. Lunas</th>
+              <th class="px-3 py-2 text-center font-inter-bold text-text/60 uppercase tracking-wider whitespace-nowrap" title="Certificado de Carrocería">Carroc</th>
+              <th class="px-3 py-2 text-center font-inter-bold text-text/60 uppercase tracking-wider whitespace-nowrap" title="Certificado Características Técnicas">Caract. Téc</th>
+              <th class="px-3 py-2 text-center font-inter-bold text-text/60 uppercase tracking-wider" title="Certificado ADAS">ADAS</th>
+            </tr>
+          </thead>
+          <tbody
+            class="divide-y divide-text/10 cursor-grab select-none"
+            (mousedown)="onMouseDown($event)"
+            (mouseleave)="onMouseLeave()"
+            (mouseup)="onMouseUp()"
+            (mousemove)="onMouseMove($event)"
+          >
+            @for (vehiculo of vehiculosEstadoDocumentos(); track vehiculo.id) {
+              <tr class="hover:bg-text/5 transition-colors">
+                <td
+                  class="px-3 py-2 sticky left-0 bg-background/80 backdrop-blur-md z-10 cursor-pointer"
+                  (click)="viewDetails(vehiculo.id)"
+                >
+                  <div class="flex items-center gap-2">
+                    <div class="w-10 h-10 rounded-lg overflow-hidden bg-text/5 border border-text/10 shrink-0">
+                      @if (vehiculo.imagenes && vehiculo.imagenes.length > 0) {
+                        <img [src]="vehiculo.imagenes[0]" class="w-full h-full object-cover" />
+                      } @else {
+                        <div class="w-full h-full flex items-center justify-center text-text/20">
+                          <i class="fas fa-car text-sm"></i>
+                        </div>
+                      }
+                    </div>
+                    <span class="font-inter-bold text-text whitespace-nowrap">{{ vehiculo.placa }}</span>
+                  </div>
+                </td>
+                <td class="px-3 py-2 text-center">
+                  <i [class]="'fas ' + getDocumentoEstadoIcon(vehiculo.tarjeta_propiedad) + ' ' + getDocumentoEstadoClass(vehiculo.tarjeta_propiedad)"></i>
+                </td>
+                <td class="px-3 py-2 text-center">
+                  <i [class]="'fas ' + getDocumentoEstadoIcon(vehiculo.tarjeta_unica_circulacion) + ' ' + getDocumentoEstadoClass(vehiculo.tarjeta_unica_circulacion)"></i>
+                </td>
+                <td class="px-3 py-2 text-center">
+                  <i [class]="'fas ' + getDocumentoEstadoIcon(vehiculo.citv) + ' ' + getDocumentoEstadoClass(vehiculo.citv)"></i>
+                </td>
+                <td class="px-3 py-2 text-center">
+                  <i [class]="'fas ' + getDocumentoEstadoIcon(vehiculo.soat) + ' ' + getDocumentoEstadoClass(vehiculo.soat)"></i>
+                </td>
+                <td class="px-3 py-2 text-center">
+                  <i [class]="'fas ' + getDocumentoEstadoIcon(vehiculo.poliza) + ' ' + getDocumentoEstadoClass(vehiculo.poliza)"></i>
+                </td>
+                <td class="px-3 py-2 text-center">
+                  <i [class]="'fas ' + getDocumentoEstadoIcon(vehiculo.certificado_operatividad_factura) + ' ' + getDocumentoEstadoClass(vehiculo.certificado_operatividad_factura)"></i>
+                </td>
+                <td class="px-3 py-2 text-center">
+                  <i [class]="'fas ' + getDocumentoEstadoIcon(vehiculo.plan_mantenimiento_historico) + ' ' + getDocumentoEstadoClass(vehiculo.plan_mantenimiento_historico)"></i>
+                </td>
+                <td class="px-3 py-2 text-center">
+                  <i [class]="'fas ' + getDocumentoEstadoIcon(vehiculo.certificado_instalacion_gps) + ' ' + getDocumentoEstadoClass(vehiculo.certificado_instalacion_gps)"></i>
+                </td>
+                <td class="px-3 py-2 text-center">
+                  <i [class]="'fas ' + getDocumentoEstadoIcon(vehiculo.certificado_valor_anadido) + ' ' + getDocumentoEstadoClass(vehiculo.certificado_valor_anadido)"></i>
+                </td>
+                <td class="px-3 py-2 text-center">
+                  <i [class]="'fas ' + getDocumentoEstadoIcon(vehiculo.constancia_gps) + ' ' + getDocumentoEstadoClass(vehiculo.constancia_gps)"></i>
+                </td>
+                <td class="px-3 py-2 text-center">
+                  <i [class]="'fas ' + getDocumentoEstadoIcon(vehiculo.certificado_tacos) + ' ' + getDocumentoEstadoClass(vehiculo.certificado_tacos)"></i>
+                </td>
+                <td class="px-3 py-2 text-center">
+                  <i [class]="'fas ' + getDocumentoEstadoIcon(vehiculo.certificado_extintores_hidrostatica) + ' ' + getDocumentoEstadoClass(vehiculo.certificado_extintores_hidrostatica)"></i>
+                </td>
+                <td class="px-3 py-2 text-center">
+                  <i [class]="'fas ' + getDocumentoEstadoIcon(vehiculo.certificado_norma_r66) + ' ' + getDocumentoEstadoClass(vehiculo.certificado_norma_r66)"></i>
+                </td>
+                <td class="px-3 py-2 text-center">
+                  <i [class]="'fas ' + getDocumentoEstadoIcon(vehiculo.certificado_laminados_lunas) + ' ' + getDocumentoEstadoClass(vehiculo.certificado_laminados_lunas)"></i>
+                </td>
+                <td class="px-3 py-2 text-center">
+                  <i [class]="'fas ' + getDocumentoEstadoIcon(vehiculo.certificado_carroceria) + ' ' + getDocumentoEstadoClass(vehiculo.certificado_carroceria)"></i>
+                </td>
+                <td class="px-3 py-2 text-center">
+                  <i [class]="'fas ' + getDocumentoEstadoIcon(vehiculo.certificado_caracteristicas_tecnicas) + ' ' + getDocumentoEstadoClass(vehiculo.certificado_caracteristicas_tecnicas)"></i>
+                </td>
+                <td class="px-3 py-2 text-center">
+                  <i [class]="'fas ' + getDocumentoEstadoIcon(vehiculo.certificado_adas) + ' ' + getDocumentoEstadoClass(vehiculo.certificado_adas)"></i>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
 
-    <!-- Paginación Tabla -->
-    <app-pagination
-      [meta]="meta()"
-      [currentPage]="currentPage()"
-      [pageSize]="pageSize()"
-      (pageChange)="onPageChange($event)"
-      (pageSizeChange)="onPageSizeChange($event)"
-    />
-  </div>
+      <!-- Paginación -->
+      <app-pagination
+        [meta]="meta()"
+        [currentPage]="currentPage()"
+        [pageSize]="pageSize()"
+        (pageChange)="onPageChange($event)"
+        (pageSizeChange)="onPageSizeChange($event)"
+      />
+    </div>
   }
 </div>
 
 <!-- Modal -->
 @if (showModal()) {
-<app-modal-form
-  title="Nuevo Vehículo"
-  submitText="Crear"
-  [maxWidth]="'lg'"
-  [loading]="loading()"
-  (onSubmit)="handleModalSubmit()"
-  (onClose)="closeModal()"
->
-  <app-vehiculo-form [editMode]="false" (onSubmitForm)="handleFormSubmit($event)" />
-</app-modal-form>
+  <app-modal-form
+    title="Nuevo Vehículo"
+    submitText="Crear"
+    [maxWidth]="'lg'"
+    [loading]="loading()"
+    (onSubmit)="handleModalSubmit()"
+    (onClose)="closeModal()"
+  >
+    <app-vehiculo-form [editMode]="false" (onSubmitForm)="handleFormSubmit($event)" />
+  </app-modal-form>
+}
+
+<!-- Detail Modal -->
+@if (showDetailModal()) {
+  <app-modal-info title="Detalle del Vehículo" maxWidth="4xl" (onClose)="closeDetails()">
+    @if (selectedVehiculoId()) {
+      <app-vehiculo-detail [vehiculoId]="selectedVehiculoId()!" />
+    }
+  </app-modal-info>
 }

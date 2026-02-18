@@ -9,6 +9,36 @@
         </p>
       </div>
       <div class="flex items-center gap-2 w-full sm:w-auto">
+        @if (filtroDocumentos()) {
+          <button
+            (click)="toggleCompletoIncompleto()"
+            class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-info/10 text-info rounded-lg text-sm font-inter-semibold hover:bg-info/20 transition-all"
+            [title]="
+              'Mostrar conductores ' +
+              (filtroDocumentos() === 'completo' ? 'incompletos' : 'completos')
+            "
+          >
+            <i
+              [class]="
+                'fas ' +
+                (filtroDocumentos() === 'completo'
+                  ? 'fa-exclamation-triangle'
+                  : 'fa-check-circle') +
+                ' text-xs'
+              "
+            ></i>
+            <span>{{ filtroDocumentos() === 'completo' ? 'Completos' : 'Incompletos' }}</span>
+          </button>
+        }
+        <button
+          (click)="toggleFiltroDocumentos()"
+          class="flex-1 sm:flex-none flex items-center justify-center px-4 py-2 bg-text/10 text-text rounded-lg text-sm font-inter-semibold hover:bg-text/15 transition-all self-stretch"
+          [title]="filtroDocumentos() ? 'Volver a vista normal' : 'Ver estado de documentos'"
+        >
+          <i
+            [class]="'fas ' + (filtroDocumentos() ? 'fa-list' : 'fa-clipboard-check') + ' text-xs'"
+          ></i>
+        </button>
         <button
           (click)="openCreateModal()"
           class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-secondary text-background rounded-lg text-sm font-inter-semibold hover:bg-secondary/90 transition-all shadow-sm hover:shadow-md"
@@ -20,219 +50,600 @@
     </div>
 
     <!-- Buscador y Filtros -->
-    <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
-      <!-- Búsqueda -->
-      <div class="relative sm:col-span-4 lg:col-span-2">
-        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"></i>
-        <input
-          type="text"
-          [ngModel]="searchTerm()"
-          (ngModelChange)="onSearchChange($event)"
-          placeholder="Buscar por nombre, DNI o número de licencia..."
-          class="w-full pl-10 pr-4 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all"
-        />
-      </div>
+    @if (!filtroDocumentos()) {
+      <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+        <!-- Búsqueda -->
+        <div class="relative sm:col-span-4 lg:col-span-2">
+          <i
+            class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"
+          ></i>
+          <input
+            type="text"
+            [ngModel]="searchTerm()"
+            (ngModelChange)="onSearchChange($event)"
+            placeholder="Buscar por nombre, DNI o número de licencia..."
+            class="w-full pl-10 pr-4 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all"
+          />
+        </div>
 
-      <!-- Fecha Inicio -->
-      <div class="relative sm:col-span-2 lg:col-span-1">
-        <i
-          class="fas fa-calendar absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"
-        ></i>
-        <input
-          type="date"
-          [ngModel]="fechaInicio()"
-          (ngModelChange)="fechaInicio.set($event); onDateChange()"
-          placeholder="Fecha inicio"
-          class="w-full pl-10 pr-4 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all"
-        />
-      </div>
+        <!-- Fecha Inicio -->
+        <div class="relative sm:col-span-2 lg:col-span-1">
+          <i
+            class="fas fa-calendar absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"
+          ></i>
+          <input
+            type="date"
+            [ngModel]="fechaInicio()"
+            (ngModelChange)="fechaInicio.set($event); onDateChange()"
+            placeholder="Fecha inicio"
+            class="w-full pl-10 pr-4 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all"
+          />
+        </div>
 
-      <!-- Fecha Fin -->
-      <div class="relative sm:col-span-2 lg:col-span-1">
-        <i
-          class="fas fa-calendar absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"
-        ></i>
-        <input
-          type="date"
-          [ngModel]="fechaFin()"
-          (ngModelChange)="fechaFin.set($event); onDateChange()"
-          placeholder="Fecha fin"
-          class="w-full pl-10 pr-4 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all"
-        />
+        <!-- Fecha Fin -->
+        <div class="relative sm:col-span-2 lg:col-span-1">
+          <i
+            class="fas fa-calendar absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"
+          ></i>
+          <input
+            type="date"
+            [ngModel]="fechaFin()"
+            (ngModelChange)="fechaFin.set($event); onDateChange()"
+            placeholder="Fecha fin"
+            class="w-full pl-10 pr-4 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all"
+          />
+        </div>
       </div>
-    </div>
+    }
   </div>
 
-  <!-- Tabla -->
-  <div class="bg-background border border-text/10 rounded-xl shadow-sm overflow-hidden">
-    @if (loading()) {
+  <!-- Loading State -->
+  @if (loading()) {
     <div class="flex items-center justify-center py-12">
       <div class="flex flex-col items-center gap-3">
         <i class="fas fa-spinner fa-spin text-3xl text-secondary"></i>
         <p class="text-text/60 font-inter-medium">Cargando conductores...</p>
       </div>
     </div>
-    } @else if (conductores().length === 0) {
-    <div class="flex flex-col items-center justify-center py-12 text-text/60">
+  }
+
+  <!-- Empty State -->
+  @else if (
+    (!filtroDocumentos() && conductores().length === 0) ||
+    (filtroDocumentos() && conductoresEstadoDocumentos().length === 0)
+  ) {
+    <div
+      class="flex flex-col items-center justify-center py-12 text-text/60 bg-background border border-text/10 rounded-xl"
+    >
       <i class="fas fa-user-tie text-5xl mb-4 text-text/20"></i>
       <p class="font-inter-semibold text-lg">No hay conductores registrados</p>
       <p class="font-inter-regular text-sm mt-1">Comienza agregando un nuevo conductor</p>
     </div>
-    } @else {
-    <div class="overflow-x-auto">
-      <table class="w-full">
-        <thead class="bg-text/5 border-b border-text/10">
-          <tr>
-            <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
-            >
-              ID
-            </th>
-            <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
-            >
-              DNI
-            </th>
-            <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
-            >
-              Nombre Completo
-            </th>
-            <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
-            >
-              Email
-            </th>
-            <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
-            >
-              Celular
-            </th>
-            <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
-            >
-              N° Licencia
-            </th>
-            <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
-            >
-              Clase
-            </th>
-            <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
-            >
-              Categoría
-            </th>
-            <th
-              class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase tracking-wider"
-            >
-              Acciones
-            </th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-text/10">
-          @for (conductor of conductores(); track conductor.id) {
-          <tr class="hover:bg-text/5 transition-colors">
-            <td class="px-4 py-3 whitespace-nowrap">
-              <span class="text-xs font-inter-semibold text-text">{{ conductor.id }}</span>
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap">
-              <span class="text-xs font-inter-medium text-text">{{ conductor.dni }}</span>
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap">
-              <div class="flex items-center gap-2">
-                @if (conductor.fotocheck && conductor.fotocheck.length > 0) {
-                <img
-                  [src]="conductor.fotocheck[0]"
-                  [alt]="conductor.nombres + ' ' + conductor.apellidos"
-                  class="w-8 h-8 rounded-full object-cover border border-text/10"
-                />
-                } @else {
-                <div
-                  class="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center text-secondary text-xs font-inter-bold"
-                >
-                  {{ conductor.nombres.charAt(0) }}{{ conductor.apellidos.charAt(0) }}
-                </div>
-                }
-                <p class="text-xs font-inter-semibold text-text capitalize">
-                  {{ conductor.nombres }} {{ conductor.apellidos }}
-                </p>
-              </div>
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap">
-              <span class="text-xs font-inter-medium text-text/70">{{
-                conductor.email || '-'
-              }}</span>
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap">
-              <span class="text-xs font-inter-medium text-text/70">{{
-                conductor.celular || '-'
-              }}</span>
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap">
-              <span class="text-xs font-inter-medium text-text/70">{{
-                conductor.numeroLicencia
-              }}</span>
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap">
-              <span
-                class="px-2 py-0.5 text-xs font-inter-bold rounded-full bg-primary/10 text-primary"
-              >
-                {{ conductor.claseLicencia }}
-              </span>
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap">
-              <span
-                class="px-2 py-0.5 text-xs font-inter-semibold rounded-full bg-secondary/10 text-secondary"
-              >
-                {{ conductor.categoriaLicencia }}
-              </span>
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap text-right">
-              <div class="flex items-center justify-end gap-1">
-                <button
-                  (click)="navigateToEdit(conductor)"
-                  class="p-1.5 text-info hover:bg-info/10 rounded-lg transition-colors text-sm"
-                  title="Editar"
-                >
-                  <i class="fas fa-edit"></i>
-                </button>
-                <button
-                  (click)="deleteConductor(conductor.id)"
-                  class="p-1.5 text-danger hover:bg-danger/10 rounded-lg transition-colors text-sm"
-                  title="Eliminar"
-                >
-                  <i class="fas fa-trash"></i>
-                </button>
-              </div>
-            </td>
-          </tr>
-          }
-        </tbody>
-      </table>
-    </div>
+  }
 
-    <!-- Paginación -->
-    <app-pagination
-      [meta]="meta()"
-      [currentPage]="currentPage()"
-      [pageSize]="pageSize()"
-      (pageChange)="onPageChange($event)"
-      (pageSizeChange)="onPageSizeChange($event)"
-    />
-    }
-  </div>
+  <!-- Table View -->
+  @else if (!filtroDocumentos()) {
+    <!-- Vista Normal -->
+    <div class="bg-background border border-text/10 rounded-xl shadow-sm overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-text/5 border-b border-text/10">
+            <tr>
+              <th
+                class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              >
+                ID
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              >
+                DNI
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              >
+                Nombre Completo
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              >
+                Email
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              >
+                Celular
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              >
+                N° Licencia
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              >
+                Clase
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              >
+                Categoría
+              </th>
+              <th
+                class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              >
+                Acciones
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-text/10">
+            @for (conductor of conductores(); track conductor.id) {
+              <tr
+                class="hover:bg-text/5 transition-colors cursor-pointer group"
+                (click)="viewDetails(conductor.id)"
+              >
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <span class="text-xs font-inter-semibold text-text">{{ conductor.id }}</span>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <span class="text-xs font-inter-medium text-text">{{ conductor.dni }}</span>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <div class="flex items-center gap-2">
+                    @if (conductor.fotocheck && conductor.fotocheck.length > 0) {
+                      <img
+                        [src]="conductor.fotocheck[0]"
+                        [alt]="conductor.nombres + ' ' + conductor.apellidos"
+                        class="w-8 h-8 rounded-full object-cover border border-text/10"
+                      />
+                    } @else {
+                      <div
+                        class="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center text-secondary text-xs font-inter-bold"
+                      >
+                        {{ conductor.nombres.charAt(0) }}{{ conductor.apellidos.charAt(0) }}
+                      </div>
+                    }
+                    <p class="text-xs font-inter-semibold text-text capitalize">
+                      {{ conductor.nombres }} {{ conductor.apellidos }}
+                    </p>
+                  </div>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <span class="text-xs font-inter-medium text-text/70">{{
+                    conductor.email || '-'
+                  }}</span>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <span class="text-xs font-inter-medium text-text/70">{{
+                    conductor.celular || '-'
+                  }}</span>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <span class="text-xs font-inter-medium text-text/70">{{
+                    conductor.numeroLicencia
+                  }}</span>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <span
+                    class="px-2 py-0.5 text-xs font-inter-bold rounded-full bg-primary/10 text-primary"
+                  >
+                    {{ conductor.claseLicencia }}
+                  </span>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <span
+                    class="px-2 py-0.5 text-xs font-inter-semibold rounded-full bg-secondary/10 text-secondary"
+                  >
+                    {{ conductor.categoriaLicencia }}
+                  </span>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-right">
+                  <div class="flex items-center justify-end gap-1">
+                    <button
+                      (click)="$event.stopPropagation(); navigateToEdit(conductor)"
+                      class="p-1.5 text-info hover:bg-info/10 rounded-lg transition-colors text-sm"
+                      title="Editar"
+                    >
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button
+                      (click)="$event.stopPropagation(); deleteConductor(conductor.id)"
+                      class="p-1.5 text-danger hover:bg-danger/10 rounded-lg transition-colors text-sm"
+                      title="Eliminar"
+                    >
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Paginación Tabla -->
+      <app-pagination
+        [meta]="meta()"
+        [currentPage]="currentPage()"
+        [pageSize]="pageSize()"
+        (pageChange)="onPageChange($event)"
+        (pageSizeChange)="onPageSizeChange($event)"
+      />
+    </div>
+  } @else {
+    <!-- Vista de Documentos -->
+    <div class="bg-background border border-text/10 rounded-xl shadow-sm overflow-hidden">
+      <div #tableContainer class="overflow-x-auto">
+        <table class="w-full text-xs">
+          <thead class="bg-text/5 border-b border-text/10">
+            <tr>
+              <th
+                class="px-3 py-2 text-left font-inter-bold text-text/60 uppercase tracking-wider sticky left-0 bg-text/5 backdrop-blur-md z-10"
+                title="Conductor"
+              >
+                Conductor
+              </th>
+              <th
+                class="px-3 py-2 text-center font-inter-bold text-text/60 uppercase tracking-wider whitespace-nowrap"
+                title="Documento Nacional de Identidad"
+              >
+                DNI
+              </th>
+              <th
+                class="px-3 py-2 text-center font-inter-bold text-text/60 uppercase tracking-wider whitespace-nowrap"
+                title="Licencia MTC"
+              >
+                Lic. MTC
+              </th>
+              <th
+                class="px-3 py-2 text-center font-inter-bold text-text/60 uppercase tracking-wider whitespace-nowrap"
+                title="Seguro Vida Ley"
+              >
+                Seg. Vida
+              </th>
+              <th
+                class="px-3 py-2 text-center font-inter-bold text-text/60 uppercase tracking-wider"
+                title="SCTR"
+              >
+                SCTR
+              </th>
+              <th
+                class="px-3 py-2 text-center font-inter-bold text-text/60 uppercase tracking-wider whitespace-nowrap"
+                title="Examen Médico"
+              >
+                Ex. Méd
+              </th>
+              <th
+                class="px-3 py-2 text-center font-inter-bold text-text/60 uppercase tracking-wider whitespace-nowrap"
+                title="Psicosensométrico"
+              >
+                Psicosen
+              </th>
+              <th
+                class="px-3 py-2 text-center font-inter-bold text-text/60 uppercase tracking-wider whitespace-nowrap"
+                title="Inducción General"
+              >
+                Ind. Gen
+              </th>
+              <th
+                class="px-3 py-2 text-center font-inter-bold text-text/60 uppercase tracking-wider whitespace-nowrap"
+                title="Manejo Defensivo"
+              >
+                Man. Def
+              </th>
+              <th
+                class="px-3 py-2 text-center font-inter-bold text-text/60 uppercase tracking-wider whitespace-nowrap"
+                title="Licencia Interna"
+              >
+                Lic. Int
+              </th>
+              <th
+                class="px-3 py-2 text-center font-inter-bold text-text/60 uppercase tracking-wider whitespace-nowrap"
+                title="Autorización SSGG"
+              >
+                Aut. SSGG
+              </th>
+              <th
+                class="px-3 py-2 text-center font-inter-bold text-text/60 uppercase tracking-wider whitespace-nowrap"
+                title="Curso Seguridad Portuaria"
+              >
+                Seg. Port
+              </th>
+              <th
+                class="px-3 py-2 text-center font-inter-bold text-text/60 uppercase tracking-wider whitespace-nowrap"
+                title="Curso Mercancías Peligrosas"
+              >
+                Merc. Pel
+              </th>
+              <th
+                class="px-3 py-2 text-center font-inter-bold text-text/60 uppercase tracking-wider whitespace-nowrap"
+                title="Curso Básico PBIP"
+              >
+                PBIP
+              </th>
+              <th
+                class="px-3 py-2 text-center font-inter-bold text-text/60 uppercase tracking-wider whitespace-nowrap"
+                title="Examen Médico Temporal"
+              >
+                Ex. Méd T
+              </th>
+              <th
+                class="px-3 py-2 text-center font-inter-bold text-text/60 uppercase tracking-wider whitespace-nowrap"
+                title="Inducción Visita"
+              >
+                Ind. Vis
+              </th>
+              <th
+                class="px-3 py-2 text-center font-inter-bold text-text/60 uppercase tracking-wider whitespace-nowrap"
+                title="Examen Médico Visita"
+              >
+                EM Vis
+              </th>
+              <th
+                class="px-3 py-2 text-center font-inter-bold text-text/60 uppercase tracking-wider whitespace-nowrap"
+                title="Pase Conductor"
+              >
+                Pase Cond
+              </th>
+              <th
+                class="px-3 py-2 text-center font-inter-bold text-text/60 uppercase tracking-wider whitespace-nowrap"
+                title="Foto Funcionario"
+              >
+                Foto Func
+              </th>
+            </tr>
+          </thead>
+          <tbody
+            class="divide-y divide-text/10 cursor-grab select-none"
+            (mousedown)="onMouseDown($event)"
+            (mouseleave)="onMouseLeave()"
+            (mouseup)="onMouseUp()"
+            (mousemove)="onMouseMove($event)"
+          >
+            @for (conductor of conductoresEstadoDocumentos(); track conductor.id) {
+              <tr class="hover:bg-text/5 transition-colors">
+                <td
+                  class="px-3 py-2 sticky left-0 bg-background/80 backdrop-blur-md z-10 cursor-pointer"
+                  (click)="viewDetails(conductor.id)"
+                >
+                  <div class="flex items-center gap-2">
+                    <div
+                      class="w-10 h-10 rounded-full overflow-hidden bg-text/5 border border-text/10 shrink-0"
+                    >
+                      @if (conductor.fotocheck && conductor.fotocheck.length > 0) {
+                        <img [src]="conductor.fotocheck[0]" class="w-full h-full object-cover" />
+                      } @else {
+                        <div class="w-full h-full flex items-center justify-center text-text/20">
+                          <i class="fas fa-user text-sm"></i>
+                        </div>
+                      }
+                    </div>
+                    <span class="font-inter-bold text-text whitespace-nowrap capitalize"
+                      >{{ conductor.nombres }} {{ conductor.apellidos }}</span
+                    >
+                  </div>
+                </td>
+                <td class="px-3 py-2 text-center">
+                  <i
+                    [class]="
+                      'fas ' +
+                      getDocumentoEstadoIcon(conductor.dni) +
+                      ' ' +
+                      getDocumentoEstadoClass(conductor.dni)
+                    "
+                  ></i>
+                </td>
+                <td class="px-3 py-2 text-center">
+                  <i
+                    [class]="
+                      'fas ' +
+                      getDocumentoEstadoIcon(conductor.licencia_mtc) +
+                      ' ' +
+                      getDocumentoEstadoClass(conductor.licencia_mtc)
+                    "
+                  ></i>
+                </td>
+                <td class="px-3 py-2 text-center">
+                  <i
+                    [class]="
+                      'fas ' +
+                      getDocumentoEstadoIcon(conductor.seguro_vida_ley) +
+                      ' ' +
+                      getDocumentoEstadoClass(conductor.seguro_vida_ley)
+                    "
+                  ></i>
+                </td>
+                <td class="px-3 py-2 text-center">
+                  <i
+                    [class]="
+                      'fas ' +
+                      getDocumentoEstadoIcon(conductor.sctr) +
+                      ' ' +
+                      getDocumentoEstadoClass(conductor.sctr)
+                    "
+                  ></i>
+                </td>
+                <td class="px-3 py-2 text-center">
+                  <i
+                    [class]="
+                      'fas ' +
+                      getDocumentoEstadoIcon(conductor.examen_medico) +
+                      ' ' +
+                      getDocumentoEstadoClass(conductor.examen_medico)
+                    "
+                  ></i>
+                </td>
+                <td class="px-3 py-2 text-center">
+                  <i
+                    [class]="
+                      'fas ' +
+                      getDocumentoEstadoIcon(conductor.psicosensometrico) +
+                      ' ' +
+                      getDocumentoEstadoClass(conductor.psicosensometrico)
+                    "
+                  ></i>
+                </td>
+                <td class="px-3 py-2 text-center">
+                  <i
+                    [class]="
+                      'fas ' +
+                      getDocumentoEstadoIcon(conductor.induccion_general) +
+                      ' ' +
+                      getDocumentoEstadoClass(conductor.induccion_general)
+                    "
+                  ></i>
+                </td>
+                <td class="px-3 py-2 text-center">
+                  <i
+                    [class]="
+                      'fas ' +
+                      getDocumentoEstadoIcon(conductor.manejo_defensivo) +
+                      ' ' +
+                      getDocumentoEstadoClass(conductor.manejo_defensivo)
+                    "
+                  ></i>
+                </td>
+                <td class="px-3 py-2 text-center">
+                  <i
+                    [class]="
+                      'fas ' +
+                      getDocumentoEstadoIcon(conductor.licencia_interna) +
+                      ' ' +
+                      getDocumentoEstadoClass(conductor.licencia_interna)
+                    "
+                  ></i>
+                </td>
+                <td class="px-3 py-2 text-center">
+                  <i
+                    [class]="
+                      'fas ' +
+                      getDocumentoEstadoIcon(conductor.autoriza_ssgg) +
+                      ' ' +
+                      getDocumentoEstadoClass(conductor.autoriza_ssgg)
+                    "
+                  ></i>
+                </td>
+                <td class="px-3 py-2 text-center">
+                  <i
+                    [class]="
+                      'fas ' +
+                      getDocumentoEstadoIcon(conductor.curso_seguridad_portuaria) +
+                      ' ' +
+                      getDocumentoEstadoClass(conductor.curso_seguridad_portuaria)
+                    "
+                  ></i>
+                </td>
+                <td class="px-3 py-2 text-center">
+                  <i
+                    [class]="
+                      'fas ' +
+                      getDocumentoEstadoIcon(conductor.curso_mercancias_peligrosas) +
+                      ' ' +
+                      getDocumentoEstadoClass(conductor.curso_mercancias_peligrosas)
+                    "
+                  ></i>
+                </td>
+                <td class="px-3 py-2 text-center">
+                  <i
+                    [class]="
+                      'fas ' +
+                      getDocumentoEstadoIcon(conductor.curso_basico_pbip) +
+                      ' ' +
+                      getDocumentoEstadoClass(conductor.curso_basico_pbip)
+                    "
+                  ></i>
+                </td>
+                <td class="px-3 py-2 text-center">
+                  <i
+                    [class]="
+                      'fas ' +
+                      getDocumentoEstadoIcon(conductor.examen_medico_temporal) +
+                      ' ' +
+                      getDocumentoEstadoClass(conductor.examen_medico_temporal)
+                    "
+                  ></i>
+                </td>
+                <td class="px-3 py-2 text-center">
+                  <i
+                    [class]="
+                      'fas ' +
+                      getDocumentoEstadoIcon(conductor.induccion_visita) +
+                      ' ' +
+                      getDocumentoEstadoClass(conductor.induccion_visita)
+                    "
+                  ></i>
+                </td>
+                <td class="px-3 py-2 text-center">
+                  <i
+                    [class]="
+                      'fas ' +
+                      getDocumentoEstadoIcon(conductor.em_visita) +
+                      ' ' +
+                      getDocumentoEstadoClass(conductor.em_visita)
+                    "
+                  ></i>
+                </td>
+                <td class="px-3 py-2 text-center">
+                  <i
+                    [class]="
+                      'fas ' +
+                      getDocumentoEstadoIcon(conductor.pase_conduc) +
+                      ' ' +
+                      getDocumentoEstadoClass(conductor.pase_conduc)
+                    "
+                  ></i>
+                </td>
+                <td class="px-3 py-2 text-center">
+                  <i
+                    [class]="
+                      'fas ' +
+                      getDocumentoEstadoIcon(conductor.foto_funcionario) +
+                      ' ' +
+                      getDocumentoEstadoClass(conductor.foto_funcionario)
+                    "
+                  ></i>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Paginación -->
+      <app-pagination
+        [meta]="meta()"
+        [currentPage]="currentPage()"
+        [pageSize]="pageSize()"
+        (pageChange)="onPageChange($event)"
+        (pageSizeChange)="onPageSizeChange($event)"
+      />
+    </div>
+  }
 </div>
 
-<!-- Modal -->
+<!-- Modal Create -->
 @if (showModal()) {
-<app-modal-form
-  title="Nuevo Conductor"
-  submitText="Crear"
-  [loading]="loading()"
-  (onSubmit)="handleModalSubmit()"
-  (onClose)="closeModal()"
->
-  <app-conductor-form [editMode]="false" (onSubmitForm)="handleFormSubmit($event)" />
-</app-modal-form>
+  <app-modal-form
+    title="Nuevo Conductor"
+    submitText="Crear"
+    maxWidth="2xl"
+    [loading]="loading()"
+    (onSubmit)="handleModalSubmit()"
+    (onClose)="closeModal()"
+  >
+    <app-conductor-form [editMode]="false" (onSubmitForm)="handleFormSubmit($event)" />
+  </app-modal-form>
+}
+
+<!-- Modal Detail -->
+@if (showDetailModal()) {
+  <app-modal-info
+    title="Detalle del Conductor"
+    maxWidth="4xl"
+    (onClose)="showDetailModal.set(false)"
+  >
+    @if (selectedConductorId()) {
+      <app-conductor-detail [conductorId]="selectedConductorId()!" />
+    }
+  </app-modal-info>
 }

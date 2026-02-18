@@ -1,8 +1,9 @@
-import { Component, inject, input, output, signal } from '@angular/core';
+import { Component, inject, input, output, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { StorageService } from '@service/admin/storage.service';
 import { ToastService } from '@service/toast.service';
+import { AlertService } from '@service/alert.service';
 
 export interface DocumentWithDate {
   url: string;
@@ -29,6 +30,7 @@ export class DocumentsDateUpload {
   private fb = inject(FormBuilder);
   private storageService = inject(StorageService);
   private toastService = inject(ToastService);
+  private alertService = inject(AlertService);
 
   // Inputs
   documents = input<DocumentItem[]>([]);
@@ -36,6 +38,8 @@ export class DocumentsDateUpload {
   maxDocuments = input<number>(10);
   accept = input<string>('.pdf,.jpg,.jpeg,.png');
   folder = input<string>('documentos'); // Cloudinary folder
+  requireIssueDate = input<boolean>(true);
+  requireExpirationDate = input<boolean>(true);
 
   // Outputs - now emits URL instead of File
   onUpload = output<DocumentWithDate>();
@@ -50,9 +54,33 @@ export class DocumentsDateUpload {
   editingDocName: string | null = null;
 
   documentUploadForm: FormGroup = this.fb.group({
-    fechaEmision: ['', [Validators.required]],
-    fechaExpiracion: ['', [Validators.required]],
+    fechaEmision: [''],
+    fechaExpiracion: [''],
   });
+
+  constructor() {
+    effect(() => {
+      const emisionRequired = this.requireIssueDate();
+      const expiracionRequired = this.requireExpirationDate();
+
+      const emisionControl = this.documentUploadForm.get('fechaEmision');
+      const expiracionControl = this.documentUploadForm.get('fechaExpiracion');
+
+      if (emisionRequired) {
+        emisionControl?.setValidators([Validators.required]);
+      } else {
+        emisionControl?.clearValidators();
+      }
+      emisionControl?.updateValueAndValidity();
+
+      if (expiracionRequired) {
+        expiracionControl?.setValidators([Validators.required]);
+      } else {
+        expiracionControl?.clearValidators();
+      }
+      expiracionControl?.updateValueAndValidity();
+    });
+  }
 
   onFileSelected(event: any) {
     const file = event.target.files[0];
@@ -104,8 +132,8 @@ export class DocumentsDateUpload {
       // Update existing document dates only
       this.onUpdate.emit({
         id: this.editingDocId()!,
-        fechaEmision: new Date(fechaEmision).toISOString(),
-        fechaExpiracion: new Date(fechaExpiracion).toISOString(),
+        fechaEmision: fechaEmision ? new Date(fechaEmision).toISOString() : '', // Handle empty
+        fechaExpiracion: fechaExpiracion ? new Date(fechaExpiracion).toISOString() : '', // Handle empty
       });
       this.cancelUpload();
     } else if (this.pendingFile) {
@@ -119,8 +147,8 @@ export class DocumentsDateUpload {
           this.onUpload.emit({
             url: res.secureUrl,
             nombre: this.pendingFile!.name,
-            fechaEmision: new Date(fechaEmision).toISOString(),
-            fechaExpiracion: new Date(fechaExpiracion).toISOString(),
+            fechaEmision: fechaEmision ? new Date(fechaEmision).toISOString() : '',
+            fechaExpiracion: fechaExpiracion ? new Date(fechaExpiracion).toISOString() : '',
           });
           // this.toastService.success('Documento subido correctamente');
           this.cancelUpload();
@@ -136,7 +164,13 @@ export class DocumentsDateUpload {
 
   deleteDocument(id: number | undefined) {
     if (id !== undefined) {
-      this.onDelete.emit(id);
+      this.alertService.delete(
+        'Eliminar documento',
+        '¿Estás seguro de que deseas eliminar este documento?',
+        () => {
+          this.onDelete.emit(id);
+        },
+      );
     }
   }
 

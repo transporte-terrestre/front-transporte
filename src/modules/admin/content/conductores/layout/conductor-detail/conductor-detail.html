@@ -1,0 +1,167 @@
+@if (loading()) {
+  <div class="h-64 flex flex-col items-center justify-center gap-4">
+    <i class="fas fa-spinner fa-spin text-secondary text-4xl"></i>
+    <span class="text-text/60 font-inter-medium text-sm"
+      >Cargando información del conductor...</span
+    >
+  </div>
+} @else if (error()) {
+  <div class="flex flex-col items-center justify-center p-8 text-center">
+    <i class="fas fa-exclamation-circle text-danger text-4xl mb-3"></i>
+    <p class="text-text font-inter-medium">{{ error() }}</p>
+  </div>
+} @else if (conductor()) {
+  <div class="p-4 space-y-4">
+    <!-- Main Info Group -->
+    <div class="flex flex-col md:flex-row gap-4">
+      <!-- Fotocheck (Left Column) -->
+      @if (conductor()?.fotocheck && (conductor()?.fotocheck || []).length > 0) {
+        <div class="w-full md:w-1/3 shrink-0">
+          <div
+            class="aspect-3/4 rounded-xl overflow-hidden shadow-sm relative group bg-text/5 border border-text/10"
+          >
+            <img [src]="(conductor()?.fotocheck || [])[0]" class="w-full h-full object-cover" />
+          </div>
+        </div>
+      }
+
+      <!-- Detailed Info (Right Column) -->
+      <div class="flex-1 space-y-3">
+        <!-- Personal Info Header -->
+        <h3 class="text-sm font-inter-bold text-text mb-2 flex items-center gap-2">
+          <i class="fas fa-user-circle text-primary"></i> Información Personal
+        </h3>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+              DNI
+            </label>
+            <div
+              class="w-full px-3 py-2 text-sm bg-text/5 border border-transparent rounded-lg text-text font-inter-medium"
+            >
+              {{ conductor()!.dni }}
+            </div>
+          </div>
+
+          <div>
+            <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+              Nombres
+            </label>
+            <div
+              class="w-full px-3 py-2 text-sm bg-text/5 border border-transparent rounded-lg text-text font-inter-medium"
+            >
+              {{ conductor()!.nombres }}
+            </div>
+          </div>
+
+          <div>
+            <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+              Apellidos
+            </label>
+            <div
+              class="w-full px-3 py-2 text-sm bg-text/5 border border-transparent rounded-lg text-text font-inter-medium"
+            >
+              {{ conductor()!.apellidos }}
+            </div>
+          </div>
+
+          <div>
+            <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+              Celular
+            </label>
+            <div
+              class="w-full px-3 py-2 text-sm bg-text/5 border border-transparent rounded-lg text-text font-inter-medium"
+            >
+              {{ conductor()!.celular || '-' }}
+            </div>
+          </div>
+
+          <div class="sm:col-span-2">
+            <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+              Email
+            </label>
+            <div
+              class="w-full px-3 py-2 text-sm bg-text/5 border border-transparent rounded-lg text-text font-inter-medium"
+            >
+              {{ conductor()!.email || '-' }}
+            </div>
+          </div>
+        </div>
+
+        <div class="border-t border-text/10 pt-3 mt-3">
+          <h3 class="text-sm font-inter-bold text-text mb-2 flex items-center gap-2">
+            <i class="fas fa-id-card text-secondary"></i> Licencia
+          </h3>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div class="sm:col-span-1">
+              <label class="text-xs font-inter-semibold text-text mb-1.5">Número</label>
+              <div
+                class="w-full px-3 py-2 text-sm bg-text/5 border border-transparent rounded-lg text-text font-inter-bold"
+              >
+                {{ conductor()!.numeroLicencia }}
+              </div>
+            </div>
+            <div>
+              <label class="text-xs font-inter-semibold text-text mb-1.5">Clase</label>
+              <div
+                class="w-full px-3 py-2 text-sm bg-text/5 border border-transparent rounded-lg text-text font-inter-medium text-center"
+              >
+                {{ conductor()!.claseLicencia }}
+              </div>
+            </div>
+            <div>
+              <label class="text-xs font-inter-semibold text-text mb-1.5">Categoría</label>
+              <div
+                class="w-full px-3 py-2 text-sm bg-text/5 border border-transparent rounded-lg text-text font-inter-medium text-center"
+              >
+                {{ conductor()!.categoriaLicencia }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Documentos -->
+    <div class="border-t border-text/5 pt-3">
+      <label class="text-xs font-inter-semibold text-text mb-2 flex items-center gap-2">
+        <i class="fas fa-file-alt text-secondary"></i> Documentos
+      </label>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        @for (type of documentTypes; track type.value) {
+          @for (doc of getDocumentosByType(type.value); track doc.id) {
+            <div
+              class="flex items-center justify-between p-3 bg-background border border-text/10 rounded-lg group hover:border-text/30 transition-all"
+            >
+              <div class="flex flex-col">
+                <span class="text-xs font-inter-bold text-text">{{ type.label }}</span>
+                @if (doc.fechaEmision) {
+                  <span class="text-[10px] font-inter-medium text-text/60">
+                    Emisión: {{ doc.fechaEmision | date: 'dd/MM/yy' }}
+                  </span>
+                }
+                @if (doc.fechaExpiracion) {
+                  <span class="text-[10px] font-inter-medium text-text/60">
+                    Vence: {{ doc.fechaExpiracion | date: 'dd/MM/yy' }}
+                  </span>
+                }
+              </div>
+
+              @if (doc.url || doc.urlArchivo) {
+                <a
+                  [href]="doc.url || doc.urlArchivo"
+                  target="_blank"
+                  class="flex items-center gap-2 text-secondary hover:text-primary font-inter-bold text-xs px-3 py-1.5 rounded-md bg-secondary/5 hover:bg-secondary/10 transition-colors"
+                >
+                  <span>Ver</span>
+                  <i class="fas fa-external-link-alt"></i>
+                </a>
+              }
+            </div>
+          }
+        }
+      </div>
+    </div>
+  </div>
+}

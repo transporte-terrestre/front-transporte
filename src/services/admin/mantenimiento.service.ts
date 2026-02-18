@@ -18,7 +18,7 @@ export class MantenimientoService {
   }
   async update(
     id: ApiParam<'mantenimientos', 'update', 'id'>,
-    mantenimiento: ApiBody<'mantenimientos', 'update'>
+    mantenimiento: ApiBody<'mantenimientos', 'update'>,
   ) {
     return await this.api.mantenimientos
       .update({ id }, mantenimiento)
@@ -27,6 +27,13 @@ export class MantenimientoService {
   async delete(id: ApiParam<'mantenimientos', 'remove', 'id'>) {
     return await this.api.mantenimientos.remove({ id }).then((response) => response.data);
   }
+
+  async getReporteEstadoVehiculos(query: ApiQuery<'mantenimientos', 'getReporteEstadoVehiculos'>) {
+    return await this.api.mantenimientos
+      .getReporteEstadoVehiculos(query)
+      .then((response) => response.data);
+  }
+
   // ========== CATÁLOGO DE TAREAS ==========
   async findAllTareas(query: ApiQuery<'mantenimientos', 'findAllTareas'>) {
     return await this.api.mantenimientos.findAllTareas(query).then((response) => response.data);
@@ -39,9 +46,11 @@ export class MantenimientoService {
   }
   async updateTareaCatalogo(
     id: ApiParam<'mantenimientos', 'updateTarea', 'id'>,
-    tarea: ApiBody<'mantenimientos', 'updateTarea'>
+    tarea: ApiBody<'mantenimientos', 'updateTarea'>,
   ) {
-    return await this.api.mantenimientos.updateTarea({ id }, tarea).then((response) => response.data);
+    return await this.api.mantenimientos
+      .updateTarea({ id }, tarea)
+      .then((response) => response.data);
   }
   async deleteTareaCatalogo(id: ApiParam<'mantenimientos', 'deleteTarea', 'id'>) {
     return await this.api.mantenimientos.deleteTarea({ id }).then((response) => response.data);
@@ -54,7 +63,7 @@ export class MantenimientoService {
   }
   async updateMantenimientoTarea(
     id: ApiParam<'mantenimientos', 'updateMantenimientoTarea', 'id'>,
-    tarea: ApiBody<'mantenimientos', 'updateMantenimientoTarea'>
+    tarea: ApiBody<'mantenimientos', 'updateMantenimientoTarea'>,
   ) {
     return await this.api.mantenimientos
       .updateMantenimientoTarea({ id }, tarea)
@@ -73,7 +82,7 @@ export class MantenimientoService {
   }
   async updateDocumento(
     id: ApiParam<'mantenimientos', 'updateDocumento', 'id'>,
-    documento: ApiBody<'mantenimientos', 'updateDocumento'>
+    documento: ApiBody<'mantenimientos', 'updateDocumento'>,
   ) {
     return await this.api.mantenimientos
       .updateDocumento({ id }, documento)

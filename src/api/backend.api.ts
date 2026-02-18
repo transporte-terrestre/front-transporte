@@ -13,7 +13,7 @@
 export interface LoginDto {
   /**
    * User email
-   * @example "erick@gmail.com"
+   * @example "xerickcua@gmail.com"
    */
   email: string;
   /**
@@ -23,132 +23,180 @@ export interface LoginDto {
   password: string;
 }
 
-export interface UsuarioDocumentoResultDto {
-  /**
-   * ID del documento
-   * @example 1
-   */
-  id: number;
-  /**
-   * ID del usuario
-   * @example 1
-   */
-  usuarioId: number;
-  /**
-   * Tipo de documento
-   * @example "dni"
-   */
-  tipo:
-    | "dni"
-    | "seguro_vida_ley"
-    | "sctr"
-    | "examen_medico"
-    | "induccion_general";
-  /**
-   * Nombre del documento
-   * @example "Documento 1"
-   */
-  nombre: string;
-  /**
-   * URL del documento
-   * @example "https://storage.example.com/documentos/dni-12345678.pdf"
-   */
-  url: string;
-  /**
-   * Fecha de expiración del documento
-   * @example "2025-12-31"
-   */
-  fechaExpiracion: string | null;
-  /**
-   * Fecha de emisión del documento
-   * @example "2023-01-15"
-   */
-  fechaEmision: string | null;
-  /**
-   * Fecha de creación
-   * @format date-time
-   * @example "2024-01-15T10:30:00Z"
-   */
-  creadoEn: string;
-  /**
-   * Fecha de última actualización
-   * @format date-time
-   * @example "2024-01-15T10:30:00Z"
-   */
-  actualizadoEn: string;
-}
-
-export interface DocumentosAgrupadosDto {
-  dni: UsuarioDocumentoResultDto[];
-  seguro_vida_ley: UsuarioDocumentoResultDto[];
-  sctr: UsuarioDocumentoResultDto[];
-  examen_medico: UsuarioDocumentoResultDto[];
-  induccion_general: UsuarioDocumentoResultDto[];
-}
-
-export interface PartialTypeClass {
+export interface UsuarioLoginInfoDto {
   /**
    * User ID
    * @example 1
    */
-  id?: number;
+  id: number;
   /**
    * User first names
    * @example "John Michael"
    */
-  nombres?: string;
+  nombres: string;
   /**
    * User last names
    * @example "Doe Smith"
    */
-  apellidos?: string;
+  apellidos: string;
   /**
    * User full name
    * @example "John Michael Doe Smith"
    */
-  nombreCompleto?: string;
+  nombreCompleto: string;
   /**
    * User email
    * @example "john.doe@example.com"
    */
-  email?: string;
+  email: string;
   /**
    * User roles
    * @example ["empleado"]
    */
-  roles?: ("empleado" | "admin")[];
+  roles: ("empleado" | "admin")[];
   /**
    * User fotocheck URLs
    * @example ["https://storage.example.com/fotocheck/1.jpg"]
    */
-  fotocheck?: any[][];
+  fotocheck: any[][];
   /**
    * Creation date
    * @format date-time
    * @example "2023-01-01T00:00:00.000Z"
    */
-  creadoEn?: string;
+  creadoEn: string;
   /**
    * Update date
    * @format date-time
    * @example "2023-01-01T00:00:00.000Z"
    */
-  actualizadoEn?: string;
+  actualizadoEn: string;
   /**
    * Deletion date (if applicable)
    * @format date-time
    * @example "2023-01-01T00:00:00.000Z"
    */
-  eliminadoEn?: string | null;
-  /** User documents grouped by type */
-  documentos?: DocumentosAgrupadosDto;
+  eliminadoEn: string | null;
 }
 
 export interface LoginResultDto {
   /** JWT Access Token */
   accessToken: string;
   /** User information */
-  user: PartialTypeClass;
+  user: UsuarioLoginInfoDto;
+}
+
+export interface ConductorLoginDto {
+  /**
+   * Email del conductor
+   * @example "xerickcua@gmail.com"
+   */
+  email: string;
+  /**
+   * Contraseña del conductor
+   * @example "123456"
+   */
+  password: string;
+}
+
+export interface ConductorLoginInfoDto {
+  /**
+   * Driver ID
+   * @example 1
+   */
+  id: number;
+  /**
+   * Tipo de documento de identidad
+   * @example "DNI"
+   */
+  tipoDocumento: "DNI" | "CE" | "PTP" | "PASAPORTE" | "OTRO";
+  /**
+   * Nacionalidad del conductor
+   * @example "Peruana"
+   */
+  nacionalidad?: string;
+  /**
+   * Driver DNI
+   * @example "12345678"
+   */
+  dni: string;
+  /**
+   * Driver first names
+   * @example "Juan Carlos"
+   */
+  nombres: string;
+  /**
+   * Driver last names
+   * @example "Perez Garcia"
+   */
+  apellidos: string;
+  /**
+   * Driver full name
+   * @example "Juan Carlos Perez Garcia"
+   */
+  nombreCompleto: string;
+  /**
+   * Driver email
+   * @example "juan@example.com"
+   */
+  email?: string;
+  /**
+   * Driver phone number
+   * @example "987654321"
+   */
+  celular?: string;
+  /**
+   * Driver license number
+   * @example "Q07864165"
+   */
+  numeroLicencia: string;
+  /**
+   * Driver license class
+   * @example "A"
+   */
+  claseLicencia: "A" | "B";
+  /**
+   * Driver license category
+   * @example "I"
+   */
+  categoriaLicencia:
+    | "I"
+    | "II-a"
+    | "II-b"
+    | "II-c"
+    | "III-a"
+    | "III-b"
+    | "III-c";
+  /**
+   * Lista de URLs de fotochecks del conductor
+   * @example ["https://res.cloudinary.com/xxx/fotocheck.jpg"]
+   */
+  fotocheck?: string[];
+  /**
+   * Creation date
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  creadoEn: string;
+  /**
+   * Update date
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  actualizadoEn: string;
+  /**
+   * Deletion date (if applicable)
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  eliminadoEn: string | null;
+}
+
+export interface ConductorLoginResultDto {
+  /** JWT Access Token */
+  accessToken: string;
+  /** Información del conductor */
+  conductor: ConductorLoginInfoDto;
 }
 
 export interface UsuarioListDto {
@@ -245,6 +293,69 @@ export interface PaginatedUsuarioResultDto {
   data: UsuarioListDto[];
   /** Metadatos de la paginación */
   meta: PaginationMetaDto;
+}
+
+export interface UsuarioDocumentoResultDto {
+  /**
+   * ID del documento
+   * @example 1
+   */
+  id: number;
+  /**
+   * ID del usuario
+   * @example 1
+   */
+  usuarioId: number;
+  /**
+   * Tipo de documento
+   * @example "dni"
+   */
+  tipo:
+    | "dni"
+    | "seguro_vida_ley"
+    | "sctr"
+    | "examen_medico"
+    | "induccion_general";
+  /**
+   * Nombre del documento
+   * @example "Documento 1"
+   */
+  nombre: string;
+  /**
+   * URL del documento
+   * @example "https://storage.example.com/documentos/dni-12345678.pdf"
+   */
+  url: string;
+  /**
+   * Fecha de expiración del documento
+   * @example "2025-12-31"
+   */
+  fechaExpiracion: string | null;
+  /**
+   * Fecha de emisión del documento
+   * @example "2023-01-15"
+   */
+  fechaEmision: string | null;
+  /**
+   * Fecha de creación
+   * @format date-time
+   * @example "2024-01-15T10:30:00Z"
+   */
+  creadoEn: string;
+  /**
+   * Fecha de última actualización
+   * @format date-time
+   * @example "2024-01-15T10:30:00Z"
+   */
+  actualizadoEn: string;
+}
+
+export interface DocumentosAgrupadosDto {
+  dni: UsuarioDocumentoResultDto[];
+  seguro_vida_ley: UsuarioDocumentoResultDto[];
+  sctr: UsuarioDocumentoResultDto[];
+  examen_medico: UsuarioDocumentoResultDto[];
+  induccion_general: UsuarioDocumentoResultDto[];
 }
 
 export interface UsuarioResultDto {
@@ -413,6 +524,575 @@ export interface UsuarioDocumentoUpdateDto {
   /**
    * URL del documento
    * @example "https://storage.example.com/documentos/dni-12345678.pdf"
+   */
+  url?: string;
+  /**
+   * Fecha de expiración del documento
+   * @example "2025-12-31"
+   */
+  fechaExpiracion?: string;
+  /**
+   * Fecha de emisión del documento
+   * @example "2023-01-15"
+   */
+  fechaEmision?: string;
+}
+
+export interface ConductorListDto {
+  /**
+   * Driver ID
+   * @example 1
+   */
+  id: number;
+  /**
+   * Driver DNI
+   * @example "12345678"
+   */
+  dni: string;
+  /**
+   * Driver first names
+   * @example "Juan Carlos"
+   */
+  nombres: string;
+  /**
+   * Driver last names
+   * @example "Perez Garcia"
+   */
+  apellidos: string;
+  /**
+   * Driver full name
+   * @example "Juan Carlos Perez Garcia"
+   */
+  nombreCompleto: string;
+  /**
+   * Driver email
+   * @example "juan@example.com"
+   */
+  email?: string;
+  /**
+   * Driver phone number
+   * @example "987654321"
+   */
+  celular?: string;
+  /**
+   * Driver license number
+   * @example "Q07864165"
+   */
+  numeroLicencia: string;
+  /**
+   * Driver license class
+   * @example "A"
+   */
+  claseLicencia: "A" | "B";
+  /**
+   * Driver license category
+   * @example "I"
+   */
+  categoriaLicencia:
+    | "I"
+    | "II-a"
+    | "II-b"
+    | "II-c"
+    | "III-a"
+    | "III-b"
+    | "III-c";
+  /**
+   * Lista de URLs de fotochecks del conductor
+   * @example ["https://res.cloudinary.com/xxx/fotocheck.jpg"]
+   */
+  fotocheck?: string[];
+  /**
+   * Creation date
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  creadoEn: string;
+  /**
+   * Update date
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  actualizadoEn: string;
+}
+
+export interface PaginatedConductorResultDto {
+  /** Lista de conductores en la página actual */
+  data: ConductorListDto[];
+  /** Metadatos de la paginación */
+  meta: PaginationMetaDto;
+}
+
+export interface ConductorEstadoDocumentosDto {
+  /**
+   * ID del conductor
+   * @example 1
+   */
+  id: number;
+  /**
+   * Nombres del conductor
+   * @example "Juan Carlos"
+   */
+  nombres: string;
+  /**
+   * Apellidos del conductor
+   * @example "Pérez López"
+   */
+  apellidos: string;
+  /**
+   * Fotos del conductor
+   * @example ["https://..."]
+   */
+  fotocheck: string[];
+  /**
+   * Estado del documento
+   * @example "activo"
+   */
+  dni: string;
+  /** @example "activo" */
+  licencia_mtc: string;
+  /** @example "nulo" */
+  seguro_vida_ley: string;
+  /** @example "activo" */
+  sctr: string;
+  /** @example "caducado" */
+  examen_medico: string;
+  /** @example "activo" */
+  psicosensometrico: string;
+  /** @example "nulo" */
+  induccion_general: string;
+  /** @example "activo" */
+  manejo_defensivo: string;
+  /** @example "nulo" */
+  licencia_interna: string;
+  /** @example "activo" */
+  autoriza_ssgg: string;
+  /** @example "nulo" */
+  curso_seguridad_portuaria: string;
+  /** @example "activo" */
+  curso_mercancias_peligrosas: string;
+  /** @example "nulo" */
+  curso_basico_pbip: string;
+  /** @example "activo" */
+  examen_medico_temporal: string;
+  /** @example "nulo" */
+  induccion_visita: string;
+  /** @example "activo" */
+  em_visita: string;
+  /** @example "nulo" */
+  pase_conduc: string;
+  /** @example "activo" */
+  foto_funcionario: string;
+}
+
+export interface PaginatedConductorEstadoDocumentosResultDto {
+  /** Lista de conductores con sus estados de documentos */
+  data: ConductorEstadoDocumentosDto[];
+  /** Metadatos de paginación */
+  meta: PaginationMetaDto;
+}
+
+export interface ConductorDocumentoResultDto {
+  /**
+   * ID del documento
+   * @example 1
+   */
+  id: number;
+  /**
+   * ID del conductor
+   * @example 1
+   */
+  conductorId: number;
+  /**
+   * Tipo de documento
+   * @example "dni"
+   */
+  tipo:
+    | "dni"
+    | "licencia_mtc"
+    | "seguro_vida_ley"
+    | "sctr"
+    | "examen_medico"
+    | "psicosensometrico"
+    | "induccion_general"
+    | "manejo_defensivo"
+    | "licencia_interna"
+    | "autoriza_ssgg"
+    | "curso_seguridad_portuaria"
+    | "curso_mercancias_peligrosas"
+    | "curso_basico_pbip"
+    | "examen_medico_temporal"
+    | "induccion_visita"
+    | "em_visita"
+    | "pase_conduc"
+    | "foto_funcionario";
+  /**
+   * Nombre del documento
+   * @example "Documento 1"
+   */
+  nombre: string;
+  /**
+   * URL del documento
+   * @example "https://storage.example.com/documentos/licencia-A123456.pdf"
+   */
+  url: string;
+  /**
+   * Fecha de expiración del documento
+   * @example "2025-12-31"
+   */
+  fechaExpiracion: string | null;
+  /**
+   * Fecha de emisión del documento
+   * @example "2023-01-15"
+   */
+  fechaEmision: string | null;
+  /**
+   * Fecha de creación
+   * @format date-time
+   * @example "2024-01-15T10:30:00Z"
+   */
+  creadoEn: string;
+  /**
+   * Fecha de última actualización
+   * @format date-time
+   * @example "2024-01-15T10:30:00Z"
+   */
+  actualizadoEn: string;
+}
+
+export interface DocumentosAgrupadosConductorDto {
+  dni: ConductorDocumentoResultDto[];
+  licencia_mtc: ConductorDocumentoResultDto[];
+  seguro_vida_ley: ConductorDocumentoResultDto[];
+  sctr: ConductorDocumentoResultDto[];
+  examen_medico: ConductorDocumentoResultDto[];
+  psicosensometrico: ConductorDocumentoResultDto[];
+  induccion_general: ConductorDocumentoResultDto[];
+  manejo_defensivo: ConductorDocumentoResultDto[];
+  licencia_interna: ConductorDocumentoResultDto[];
+  autoriza_ssgg: ConductorDocumentoResultDto[];
+  curso_seguridad_portuaria: ConductorDocumentoResultDto[];
+  curso_mercancias_peligrosas: ConductorDocumentoResultDto[];
+  curso_basico_pbip: ConductorDocumentoResultDto[];
+  examen_medico_temporal: ConductorDocumentoResultDto[];
+  induccion_visita: ConductorDocumentoResultDto[];
+  em_visita: ConductorDocumentoResultDto[];
+  pase_conduc: ConductorDocumentoResultDto[];
+  foto_funcionario: ConductorDocumentoResultDto[];
+}
+
+export interface ConductorResultDto {
+  /**
+   * Driver ID
+   * @example 1
+   */
+  id: number;
+  /**
+   * Tipo de documento de identidad
+   * @example "DNI"
+   */
+  tipoDocumento: "DNI" | "CE" | "PTP" | "PASAPORTE" | "OTRO";
+  /**
+   * Nacionalidad del conductor
+   * @example "Peruana"
+   */
+  nacionalidad?: string;
+  /**
+   * Driver DNI
+   * @example "12345678"
+   */
+  dni: string;
+  /**
+   * Driver first names
+   * @example "Juan Carlos"
+   */
+  nombres: string;
+  /**
+   * Driver last names
+   * @example "Perez Garcia"
+   */
+  apellidos: string;
+  /**
+   * Driver full name
+   * @example "Juan Carlos Perez Garcia"
+   */
+  nombreCompleto: string;
+  /**
+   * Driver email
+   * @example "juan@example.com"
+   */
+  email?: string;
+  /**
+   * Driver phone number
+   * @example "987654321"
+   */
+  celular?: string;
+  /**
+   * Driver license number
+   * @example "Q07864165"
+   */
+  numeroLicencia: string;
+  /**
+   * Driver license class
+   * @example "A"
+   */
+  claseLicencia: "A" | "B";
+  /**
+   * Driver license category
+   * @example "I"
+   */
+  categoriaLicencia:
+    | "I"
+    | "II-a"
+    | "II-b"
+    | "II-c"
+    | "III-a"
+    | "III-b"
+    | "III-c";
+  /**
+   * Lista de URLs de fotochecks del conductor
+   * @example ["https://res.cloudinary.com/xxx/fotocheck.jpg"]
+   */
+  fotocheck?: string[];
+  /**
+   * Creation date
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  creadoEn: string;
+  /**
+   * Update date
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  actualizadoEn: string;
+  /**
+   * Deletion date (if applicable)
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  eliminadoEn: string | null;
+  /** Driver documents grouped by type */
+  documentos: DocumentosAgrupadosConductorDto;
+}
+
+export interface ConductorCreateDto {
+  /**
+   * Tipo de documento de identidad
+   * @default "DNI"
+   */
+  tipoDocumento: "DNI" | "CE" | "PTP" | "PASAPORTE" | "OTRO";
+  /**
+   * Nacionalidad del conductor
+   * @example "Peruana"
+   */
+  nacionalidad?: string;
+  /**
+   * Número de documento del conductor
+   * @example "12345678"
+   */
+  dni: string;
+  /**
+   * Nombres del conductor
+   * @example "Juan Carlos"
+   */
+  nombres: string;
+  /**
+   * Apellidos del conductor
+   * @example "Perez Garcia"
+   */
+  apellidos: string;
+  /**
+   * Email del conductor (requerido para login)
+   * @example "conductor@empresa.com"
+   */
+  email?: string;
+  /**
+   * Contraseña del conductor (mínimo 6 caracteres)
+   * @example "password123"
+   */
+  contrasenia?: string;
+  /**
+   * Celular del conductor
+   * @example "999888777"
+   */
+  celular?: string;
+  /**
+   * Número de licencia del conductor
+   * @example "Q07864165"
+   */
+  numeroLicencia: string;
+  /**
+   * Clase de licencia del conductor
+   * @default "A"
+   */
+  claseLicencia: "A" | "B";
+  /**
+   * Categoría de licencia del conductor
+   * @default "I"
+   */
+  categoriaLicencia:
+    | "I"
+    | "II-a"
+    | "II-b"
+    | "II-c"
+    | "III-a"
+    | "III-b"
+    | "III-c";
+  /**
+   * Lista de URLs de fotochecks del conductor
+   * @example ["https://res.cloudinary.com/xxx/fotocheck.jpg"]
+   */
+  fotocheck?: string[];
+}
+
+export interface ConductorUpdateDto {
+  /**
+   * Tipo de documento de identidad
+   * @default "DNI"
+   */
+  tipoDocumento?: "DNI" | "CE" | "PTP" | "PASAPORTE" | "OTRO";
+  /**
+   * Nacionalidad del conductor
+   * @example "Peruana"
+   */
+  nacionalidad?: string;
+  /**
+   * Número de documento del conductor
+   * @example "12345678"
+   */
+  dni?: string;
+  /**
+   * Nombres del conductor
+   * @example "Juan Carlos"
+   */
+  nombres?: string;
+  /**
+   * Apellidos del conductor
+   * @example "Perez Garcia"
+   */
+  apellidos?: string;
+  /**
+   * Email del conductor (requerido para login)
+   * @example "conductor@empresa.com"
+   */
+  email?: string;
+  /**
+   * Contraseña del conductor (mínimo 6 caracteres)
+   * @example "password123"
+   */
+  contrasenia?: string;
+  /**
+   * Celular del conductor
+   * @example "999888777"
+   */
+  celular?: string;
+  /**
+   * Número de licencia del conductor
+   * @example "Q07864165"
+   */
+  numeroLicencia?: string;
+  /**
+   * Clase de licencia del conductor
+   * @default "A"
+   */
+  claseLicencia?: "A" | "B";
+  /**
+   * Categoría de licencia del conductor
+   * @default "I"
+   */
+  categoriaLicencia?:
+    | "I"
+    | "II-a"
+    | "II-b"
+    | "II-c"
+    | "III-a"
+    | "III-b"
+    | "III-c";
+  /**
+   * Lista de URLs de fotochecks del conductor
+   * @example ["https://res.cloudinary.com/xxx/fotocheck.jpg"]
+   */
+  fotocheck?: string[];
+}
+
+export interface ConductorDocumentoCreateDto {
+  /**
+   * ID del conductor
+   * @example 1
+   */
+  conductorId: number;
+  /**
+   * Tipo de documento
+   * @default "dni"
+   */
+  tipo:
+    | "dni"
+    | "licencia_mtc"
+    | "seguro_vida_ley"
+    | "sctr"
+    | "examen_medico"
+    | "psicosensometrico"
+    | "induccion_general"
+    | "manejo_defensivo"
+    | "licencia_interna"
+    | "autoriza_ssgg"
+    | "curso_seguridad_portuaria"
+    | "curso_mercancias_peligrosas"
+    | "curso_basico_pbip"
+    | "examen_medico_temporal"
+    | "induccion_visita"
+    | "em_visita"
+    | "pase_conduc"
+    | "foto_funcionario";
+  /**
+   * Nombre del documento
+   * @example "Documento 1"
+   */
+  nombre: string;
+  /**
+   * URL del documento
+   * @example "https://storage.example.com/documentos/licencia-A123456.pdf"
+   */
+  url: string;
+  /**
+   * Fecha de expiración del documento
+   * @example "2025-12-31"
+   */
+  fechaExpiracion: string;
+  /**
+   * Fecha de emisión del documento
+   * @example "2023-01-15"
+   */
+  fechaEmision: string;
+}
+
+export interface ConductorDocumentoUpdateDto {
+  /**
+   * Tipo de documento
+   * @default "dni"
+   */
+  tipo?:
+    | "dni"
+    | "licencia_mtc"
+    | "seguro_vida_ley"
+    | "sctr"
+    | "examen_medico"
+    | "psicosensometrico"
+    | "induccion_general"
+    | "manejo_defensivo"
+    | "licencia_interna"
+    | "autoriza_ssgg"
+    | "curso_seguridad_portuaria"
+    | "curso_mercancias_peligrosas"
+    | "curso_basico_pbip"
+    | "examen_medico_temporal"
+    | "induccion_visita"
+    | "em_visita"
+    | "pase_conduc"
+    | "foto_funcionario";
+  /**
+   * URL del documento
+   * @example "https://storage.example.com/documentos/licencia-A123456.pdf"
    */
   url?: string;
   /**
@@ -706,6 +1386,68 @@ export interface PaginatedVehiculoResultDto {
   meta: PaginationMetaDto;
 }
 
+export interface VehiculoEstadoDocumentosDto {
+  /**
+   * ID del vehículo
+   * @example 1
+   */
+  id: number;
+  /**
+   * Placa del vehículo
+   * @example "ABC-123"
+   */
+  placa: string;
+  /**
+   * Imágenes del vehículo
+   * @example ["https://ejemplo.com/imagen1.jpg"]
+   */
+  imagenes: string[];
+  /**
+   * Estado del documento: activo (existe y vigente), caducado (existe pero vencido), nulo (no existe)
+   * @example "activo"
+   */
+  tarjeta_propiedad: string;
+  /** @example "caducado" */
+  tarjeta_unica_circulacion: string;
+  /** @example "activo" */
+  citv: string;
+  /** @example "nulo" */
+  soat: string;
+  /** @example "activo" */
+  poliza: string;
+  /** @example "nulo" */
+  certificado_operatividad_factura: string;
+  /** @example "activo" */
+  plan_mantenimiento_historico: string;
+  /** @example "nulo" */
+  certificado_instalacion_gps: string;
+  /** @example "activo" */
+  certificado_valor_anadido: string;
+  /** @example "nulo" */
+  constancia_gps: string;
+  /** @example "caducado" */
+  certificado_tacos: string;
+  /** @example "activo" */
+  certificado_extintores_hidrostatica: string;
+  /** @example "nulo" */
+  certificado_norma_r66: string;
+  /** @example "activo" */
+  certificado_laminados_lunas: string;
+  /** @example "nulo" */
+  certificado_carroceria: string;
+  /** @example "activo" */
+  certificado_caracteristicas_tecnicas: string;
+  /** @example "nulo" */
+  certificado_adas: string;
+}
+
+export interface PaginatedVehiculoEstadoDocumentosResultDto {
+  /** Lista de vehículos con el estado de sus documentos */
+  data: VehiculoEstadoDocumentosDto[];
+  /** Metadatos de la paginación */
+  meta: PaginationMetaDto;
+}
+
 export interface PropietarioVehiculoDto {
   /**
    * Owner ID
@@ -758,13 +1500,13 @@ export interface VehiculoDocumentoResultDto {
     | "certificado_instalacion_gps"
     | "certificado_valor_anadido"
     | "constancia_gps"
-    | "certificado_tacos"
     | "certificado_extintores_hidrostatica"
     | "certificado_norma_r66"
     | "certificado_laminados_lunas"
     | "certificado_carroceria"
     | "certificado_caracteristicas_tecnicas"
     | "certificado_adas"
+    | "revision_gps"
     | "otros";
   /**
    * Nombre del documento
@@ -811,7 +1553,7 @@ export interface DocumentosAgrupadosVehiculoDto {
   certificado_instalacion_gps: VehiculoDocumentoResultDto[];
   certificado_valor_anadido: VehiculoDocumentoResultDto[];
   constancia_gps: VehiculoDocumentoResultDto[];
-  certificado_tacos: VehiculoDocumentoResultDto[];
+  revision_gps: VehiculoDocumentoResultDto[];
   certificado_extintores_hidrostatica: VehiculoDocumentoResultDto[];
   certificado_norma_r66: VehiculoDocumentoResultDto[];
   certificado_laminados_lunas: VehiculoDocumentoResultDto[];
@@ -1375,13 +2117,13 @@ export interface VehiculoDocumentoCreateDto {
     | "certificado_instalacion_gps"
     | "certificado_valor_anadido"
     | "constancia_gps"
-    | "certificado_tacos"
     | "certificado_extintores_hidrostatica"
     | "certificado_norma_r66"
     | "certificado_laminados_lunas"
     | "certificado_carroceria"
     | "certificado_caracteristicas_tecnicas"
     | "certificado_adas"
+    | "revision_gps"
     | "otros";
   /**
    * Nombre del documento
@@ -1421,13 +2163,13 @@ export interface VehiculoDocumentoUpdateDto {
     | "certificado_instalacion_gps"
     | "certificado_valor_anadido"
     | "constancia_gps"
-    | "certificado_tacos"
     | "certificado_extintores_hidrostatica"
     | "certificado_norma_r66"
     | "certificado_laminados_lunas"
     | "certificado_carroceria"
     | "certificado_caracteristicas_tecnicas"
     | "certificado_adas"
+    | "revision_gps"
     | "otros";
   /**
    * URL del documento
@@ -1617,410 +2359,1243 @@ export interface ModeloUpdateDto {
   nombre?: string;
 }
 
-export interface ConductorListDto {
-  /**
-   * Driver ID
-   * @example 1
-   */
+export interface VehiculoChecklistHistoryItemDto {
+  /** @example 1 */
   id: number;
+  /** @example 1 */
+  vehiculoId: number;
+  /** @example 1 */
+  checklistItemId: number;
+  /** @example "v00001_001_..." */
+  version: string;
+  /** @example true */
+  activo: boolean;
   /**
-   * Driver DNI
-   * @example "12345678"
-   */
-  dni: string;
-  /**
-   * Driver first names
-   * @example "Juan Carlos"
-   */
-  nombres: string;
-  /**
-   * Driver last names
-   * @example "Perez Garcia"
-   */
-  apellidos: string;
-  /**
-   * Driver full name
-   * @example "Juan Carlos Perez Garcia"
-   */
-  nombreCompleto: string;
-  /**
-   * Driver email
-   * @example "juan@example.com"
-   */
-  email?: string;
-  /**
-   * Driver phone number
-   * @example "987654321"
-   */
-  celular?: string;
-  /**
-   * Driver license number
-   * @example "Q07864165"
-   */
-  numeroLicencia: string;
-  /**
-   * Driver license class
-   * @example "A"
-   */
-  claseLicencia: "A" | "B";
-  /**
-   * Driver license category
-   * @example "Uno"
-   */
-  categoriaLicencia: "Uno" | "Dos" | "Tres";
-  /**
-   * Lista de URLs de fotochecks del conductor
-   * @example ["https://res.cloudinary.com/xxx/fotocheck.jpg"]
-   */
-  fotocheck?: string[];
-  /**
-   * Creation date
    * @format date-time
-   * @example "2023-01-01T00:00:00.000Z"
+   * @example "2024-01-01T12:00:00Z"
    */
   creadoEn: string;
-  /**
-   * Update date
-   * @format date-time
-   * @example "2023-01-01T00:00:00.000Z"
-   */
-  actualizadoEn: string;
+  /** @example 1 */
+  viajeId: number | null;
+  /** @example "salida" */
+  viajeTipo: "salida" | "llegada";
 }
 
-export interface PaginatedConductorResultDto {
-  /** Lista de conductores en la página actual */
-  data: ConductorListDto[];
-  /** Metadatos de la paginación */
+export interface PaginatedVehiculoChecklistHistoryResultDto {
+  data: VehiculoChecklistHistoryItemDto[];
   meta: PaginationMetaDto;
 }
 
-export interface ConductorDocumentoResultDto {
+export interface PhotoResultDto {
   /**
-   * ID del documento
-   * @example 1
-   */
-  id: number;
-  /**
-   * ID del conductor
-   * @example 1
-   */
-  conductorId: number;
-  /**
-   * Tipo de documento
-   * @example "dni"
-   */
-  tipo:
-    | "dni"
-    | "licencia_mtc"
-    | "seguro_vida_ley"
-    | "sctr"
-    | "examen_medico"
-    | "psicosensometrico"
-    | "induccion_general"
-    | "manejo_defensivo"
-    | "licencia_interna"
-    | "autoriza_ssgg"
-    | "curso_seguridad_portuaria"
-    | "curso_mercancias_peligrosas"
-    | "curso_basico_pbip"
-    | "examen_medico_temporal"
-    | "induccion_visita"
-    | "em_visita"
-    | "pase_conduc"
-    | "foto_funcionario";
-  /**
-   * Nombre del documento
-   * @example "Documento 1"
-   */
-  nombre: string;
-  /**
-   * URL del documento
-   * @example "https://storage.example.com/documentos/licencia-A123456.pdf"
+   * URL de la imagen
+   * @example "https://image-document.jpg"
    */
   url: string;
-  /**
-   * Fecha de expiración del documento
-   * @example "2025-12-31"
-   */
-  fechaExpiracion: string | null;
-  /**
-   * Fecha de emisión del documento
-   * @example "2023-01-15"
-   */
-  fechaEmision: string | null;
-  /**
-   * Fecha de creación
-   * @format date-time
-   * @example "2024-01-15T10:30:00Z"
-   */
-  creadoEn: string;
-  /**
-   * Fecha de última actualización
-   * @format date-time
-   * @example "2024-01-15T10:30:00Z"
-   */
-  actualizadoEn: string;
 }
 
-export interface DocumentosAgrupadosConductorDto {
-  dni: ConductorDocumentoResultDto[];
-  licencia_mtc: ConductorDocumentoResultDto[];
-  seguro_vida_ley: ConductorDocumentoResultDto[];
-  sctr: ConductorDocumentoResultDto[];
-  examen_medico: ConductorDocumentoResultDto[];
-  psicosensometrico: ConductorDocumentoResultDto[];
-  induccion_general: ConductorDocumentoResultDto[];
-  manejo_defensivo: ConductorDocumentoResultDto[];
-  licencia_interna: ConductorDocumentoResultDto[];
-  autoriza_ssgg: ConductorDocumentoResultDto[];
-  curso_seguridad_portuaria: ConductorDocumentoResultDto[];
-  curso_mercancias_peligrosas: ConductorDocumentoResultDto[];
-  curso_basico_pbip: ConductorDocumentoResultDto[];
-  examen_medico_temporal: ConductorDocumentoResultDto[];
-  induccion_visita: ConductorDocumentoResultDto[];
-  em_visita: ConductorDocumentoResultDto[];
-  pase_conduc: ConductorDocumentoResultDto[];
-  foto_funcionario: ConductorDocumentoResultDto[];
+export interface ResultIpercDocumentDto {
+  /** Datos de la foto */
+  photo: PhotoResultDto;
 }
 
-export interface ConductorResultDto {
+export interface ResultIpercContinuoDto {
+  viajeId: number;
+  vehiculoId: number;
   /**
-   * Driver ID
+   * Código de versión
+   * @example "v00001_002_0000000001_salida"
+   */
+  version: string | null;
+  /**
+   * Tipo de viaje
+   * @example "salida"
+   */
+  viajeTipo: "salida" | "llegada" | null;
+  document: ResultIpercDocumentDto;
+}
+
+export interface ResultHojaItemDto {
+  /** Etiqueta del item */
+  label: string;
+  /**
+   * Nivel Criticidad: rojo, amarillo, verde
+   * @example "rojo"
+   */
+  color?: string;
+  /**
+   * Valor del check (SI/NO)
+   * @example true
+   */
+  value: boolean;
+}
+
+export interface DeclaracionJuradaItemsDto {
+  descansoSuficiente: ResultHojaItemDto;
+  condicionesFisicas: ResultHojaItemDto;
+  medicamentos: ResultHojaItemDto;
+  condicionesEmocionales: ResultHojaItemDto;
+  conscienteResponsabilidad: ResultHojaItemDto;
+}
+
+export interface DeclaracionJuradaSectionDto {
+  /** Título de la sección */
+  label: string;
+  items: DeclaracionJuradaItemsDto;
+}
+
+export interface EstadoGeneralItemsDto {
+  farosPrincipales: ResultHojaItemDto;
+  lucesDireccionales: ResultHojaItemDto;
+  lucesFreno: ResultHojaItemDto;
+  luzEstroboscopica: ResultHojaItemDto;
+  espejos: ResultHojaItemDto;
+  parabrisasVentanas: ResultHojaItemDto;
+  plumillas: ResultHojaItemDto;
+  neumaticos: ResultHojaItemDto;
+  esparragosTuercas: ResultHojaItemDto;
+  cartolas: ResultHojaItemDto;
+}
+
+export interface EstadoGeneralSectionDto {
+  /** Título de la sección */
+  label: string;
+  items: EstadoGeneralItemsDto;
+}
+
+export interface EstadoInternoItemsDto {
+  cinturonesEstado: ResultHojaItemDto;
+  alarmaRetroceso: ResultHojaItemDto;
+  segurosPuertas: ResultHojaItemDto;
+  claxon: ResultHojaItemDto;
+  documentosVigentes: ResultHojaItemDto;
+  kitHerramientas: ResultHojaItemDto;
+  gata: ResultHojaItemDto;
+  ordenLimpieza: ResultHojaItemDto;
+  jaulaAntivuelco: ResultHojaItemDto;
+  aireAcondicionado: ResultHojaItemDto;
+}
+
+export interface EstadoInternoSectionDto {
+  /** Título de la sección */
+  label: string;
+  items: EstadoInternoItemsDto;
+}
+
+export interface ElementosSeguridadItemsDto {
+  tacosCunas: ResultHojaItemDto;
+  conosSeguridad: ResultHojaItemDto;
+  eslingaGrilletes: ResultHojaItemDto;
+  picoPala: ResultHojaItemDto;
+  cableCorriente: ResultHojaItemDto;
+  extintor: ResultHojaItemDto;
+  botiquinLinterna: ResultHojaItemDto;
+  kitAntiderrame: ResultHojaItemDto;
+  sistemaComunicacion: ResultHojaItemDto;
+}
+
+export interface ElementosSeguridadSectionDto {
+  /** Título de la sección */
+  label: string;
+  items: ElementosSeguridadItemsDto;
+}
+
+export interface EstadoMecanicoItemsDto {
+  pruebaFrenoServicio: ResultHojaItemDto;
+  frenoEstacionamiento: ResultHojaItemDto;
+  direccion: ResultHojaItemDto;
+  nivelAceiteMotor: ResultHojaItemDto;
+  nivelLiquidoFrenos: ResultHojaItemDto;
+  nivelRefrigerante: ResultHojaItemDto;
+  nivelAceiteHidraulico: ResultHojaItemDto;
+  nivelAguaLimpiaparabrisas: ResultHojaItemDto;
+  otrosMecanico: ResultHojaItemDto;
+}
+
+export interface EstadoMecanicoSectionDto {
+  /** Título de la sección */
+  label: string;
+  items: EstadoMecanicoItemsDto;
+}
+
+export interface SistemasCriticosItemsDto {
+  mobiliEye: ResultHojaItemDto;
+  sensorFatiga: ResultHojaItemDto;
+  frenosABS: ResultHojaItemDto;
+  espEsc: ResultHojaItemDto;
+}
+
+export interface SistemasCriticosSectionDto {
+  /** Título de la sección */
+  label: string;
+  items: SistemasCriticosItemsDto;
+}
+
+export interface CinturonesSeguridadItemsDto {
+  cinturonesPilotos: ResultHojaItemDto;
+  cinturonesPasajes: ResultHojaItemDto;
+}
+
+export interface CinturonesSeguridadSectionDto {
+  /** Título de la sección */
+  label: string;
+  items: CinturonesSeguridadItemsDto;
+}
+
+export interface ResultHojaDocumentDto {
+  declaracionJurada: DeclaracionJuradaSectionDto;
+  estadoGeneral: EstadoGeneralSectionDto;
+  estadoInterno: EstadoInternoSectionDto;
+  elementosSeguridad: ElementosSeguridadSectionDto;
+  estadoMecanico: EstadoMecanicoSectionDto;
+  sistemasCriticos: SistemasCriticosSectionDto;
+  cinturonesSeguridad: CinturonesSeguridadSectionDto;
+}
+
+export interface ResultHojaInspeccionDto {
+  /**
+   * ID del Viaje (si aplica)
    * @example 1
    */
-  id: number;
+  viajeId: number | null;
   /**
-   * Driver DNI
-   * @example "12345678"
+   * ID del Vehículo
+   * @example 10
    */
-  dni: string;
+  vehiculoId: number;
   /**
-   * Driver first names
-   * @example "Juan Carlos"
+   * Código de versión del checklist
+   * @example "v00001_002_0000000001_salida"
    */
-  nombres: string;
+  version: string;
   /**
-   * Driver last names
-   * @example "Perez Garcia"
+   * Tipo de viaje
+   * @example "salida"
    */
-  apellidos: string;
-  /**
-   * Driver full name
-   * @example "Juan Carlos Perez Garcia"
-   */
-  nombreCompleto: string;
-  /**
-   * Driver email
-   * @example "juan@example.com"
-   */
-  email?: string;
-  /**
-   * Driver phone number
-   * @example "987654321"
-   */
-  celular?: string;
-  /**
-   * Driver license number
-   * @example "Q07864165"
-   */
-  numeroLicencia: string;
-  /**
-   * Driver license class
-   * @example "A"
-   */
-  claseLicencia: "A" | "B";
-  /**
-   * Driver license category
-   * @example "Uno"
-   */
-  categoriaLicencia: "Uno" | "Dos" | "Tres";
-  /**
-   * Lista de URLs de fotochecks del conductor
-   * @example ["https://res.cloudinary.com/xxx/fotocheck.jpg"]
-   */
-  fotocheck?: string[];
-  /**
-   * Creation date
-   * @format date-time
-   * @example "2023-01-01T00:00:00.000Z"
-   */
-  creadoEn: string;
-  /**
-   * Update date
-   * @format date-time
-   * @example "2023-01-01T00:00:00.000Z"
-   */
-  actualizadoEn: string;
-  /** Driver documents grouped by type */
-  documentos: DocumentosAgrupadosConductorDto;
+  viajeTipo: "salida" | "llegada" | null;
+  document: ResultHojaDocumentDto;
 }
 
-export interface ConductorCreateDto {
-  /**
-   * Driver DNI
-   * @example "12345678"
-   */
-  dni: string;
-  /**
-   * Driver first names
-   * @example "Juan Carlos"
-   */
-  nombres: string;
-  /**
-   * Driver last names
-   * @example "Perez Garcia"
-   */
-  apellidos: string;
-  /**
-   * Driver license number
-   * @example "Q07864165"
-   */
-  numeroLicencia: string;
-  /**
-   * Driver license class
-   * @default "A"
-   */
-  claseLicencia: "A" | "B";
-  /**
-   * Driver license category
-   * @default "Uno"
-   */
-  categoriaLicencia: "Uno" | "Dos" | "Tres";
-  /**
-   * Lista de URLs de fotochecks del conductor
-   * @example ["https://res.cloudinary.com/xxx/fotocheck.jpg"]
-   */
-  fotocheck?: string[];
+export interface ResultDocumentoItemDto {
+  /** Etiqueta del item */
+  label: string;
+  /** Si el documento es requerido/habilitado */
+  habilitado: boolean;
+  /** Observación inicial */
+  observacion?: string;
+  /** Fecha de Vencimiento Inicial/Por defecto */
+  fechaVencimiento?: string;
 }
 
-export interface ConductorUpdateDto {
-  /**
-   * Driver DNI
-   * @example "12345678"
-   */
-  dni?: string;
-  /**
-   * Driver first names
-   * @example "Juan Carlos"
-   */
-  nombres?: string;
-  /**
-   * Driver last names
-   * @example "Perez Garcia"
-   */
-  apellidos?: string;
-  /**
-   * Driver license number
-   * @example "Q07864165"
-   */
-  numeroLicencia?: string;
-  /**
-   * Driver license class
-   * @default "A"
-   */
-  claseLicencia?: "A" | "B";
-  /**
-   * Driver license category
-   * @default "Uno"
-   */
-  categoriaLicencia?: "Uno" | "Dos" | "Tres";
-  /**
-   * Lista de URLs de fotochecks del conductor
-   * @example ["https://res.cloudinary.com/xxx/fotocheck.jpg"]
-   */
-  fotocheck?: string[];
+export interface DocumentosVehiculoItemsDto {
+  soatVigente: ResultDocumentoItemDto;
+  tarjetaPropiedad: ResultDocumentoItemDto;
+  tarjetaCirculacion: ResultDocumentoItemDto;
+  polizaVigente: ResultDocumentoItemDto;
+  ctivVigente: ResultDocumentoItemDto;
+  hojasMsdsVehiculo: ResultDocumentoItemDto;
+  manualOperacion: ResultDocumentoItemDto;
+  otroVehiculo: ResultDocumentoItemDto;
 }
 
-export interface ConductorDocumentoCreateDto {
+export interface DocumentosVehiculoSectionDto {
+  /** Título de la sección */
+  label: string;
+  items: DocumentosVehiculoItemsDto;
+}
+
+export interface DocumentosConductorItemsDto {
+  licenciaMtc: ResultDocumentoItemDto;
+  licenciaInterna: ResultDocumentoItemDto;
+  checkListDiario: ResultDocumentoItemDto;
+  iperc: ResultDocumentoItemDto;
+  pets: ResultDocumentoItemDto;
+  hojasMsdsConductor: ResultDocumentoItemDto;
+  mapaRiesgos: ResultDocumentoItemDto;
+  otroConductor: ResultDocumentoItemDto;
+}
+
+export interface DocumentosConductorSectionDto {
+  /** Título de la sección */
+  label: string;
+  items: DocumentosConductorItemsDto;
+}
+
+export interface ResultInspeccionDocumentosDocumentDto {
+  documentosVehiculo: DocumentosVehiculoSectionDto;
+  documentosConductor: DocumentosConductorSectionDto;
+}
+
+export interface ResultInspeccionDocumentosDto {
   /**
-   * ID del conductor
+   * ID del Viaje (si aplica)
    * @example 1
    */
-  conductorId: number;
+  viajeId: number | null;
   /**
-   * Tipo de documento
-   * @default "dni"
+   * ID del Vehículo
+   * @example 10
    */
-  tipo:
-    | "dni"
-    | "licencia_mtc"
-    | "seguro_vida_ley"
-    | "sctr"
-    | "examen_medico"
-    | "psicosensometrico"
-    | "induccion_general"
-    | "manejo_defensivo"
-    | "licencia_interna"
-    | "autoriza_ssgg"
-    | "curso_seguridad_portuaria"
-    | "curso_mercancias_peligrosas"
-    | "curso_basico_pbip"
-    | "examen_medico_temporal"
-    | "induccion_visita"
-    | "em_visita"
-    | "pase_conduc"
-    | "foto_funcionario";
+  vehiculoId: number;
   /**
-   * Nombre del documento
-   * @example "Documento 1"
+   * Código de versión del checklist
+   * @example "v00001_002_0000000001_salida"
    */
-  nombre: string;
+  version: string;
   /**
-   * URL del documento
-   * @example "https://storage.example.com/documentos/licencia-A123456.pdf"
+   * Tipo de viaje
+   * @example "salida"
+   */
+  viajeTipo: "salida" | "llegada" | null;
+  document: ResultInspeccionDocumentosDocumentDto;
+}
+
+export interface ResultLucesItemDto {
+  /** Etiqueta del item */
+  label: string;
+  /** Estado del item (Operativo SI/NO) */
+  estado: boolean;
+  /** Observación o Acción Correctiva */
+  observacion?: string;
+}
+
+export interface ResultLucesEmergenciaAlarmasDocumentDto {
+  alarmaRetroceso: ResultLucesItemDto;
+  alarmaCinturon: ResultLucesItemDto;
+  claxon: ResultLucesItemDto;
+  lucesCabina: ResultLucesItemDto;
+  lucesSalon: ResultLucesItemDto;
+  lucesAltasDerecho: ResultLucesItemDto;
+  lucesAltasIzquierdo: ResultLucesItemDto;
+  lucesBajasDerecho: ResultLucesItemDto;
+  lucesBajasIzquierdo: ResultLucesItemDto;
+  lucesLateralesDerecho: ResultLucesItemDto;
+  lucesLateralesIzquierdo: ResultLucesItemDto;
+  lucesNeblineros: ResultLucesItemDto;
+  lucesEstacionamientoDerecho: ResultLucesItemDto;
+  lucesEstacionamientoIzquierdo: ResultLucesItemDto;
+  lucesDireccionalesDerecho: ResultLucesItemDto;
+  lucesDireccionalesIzquierdo: ResultLucesItemDto;
+  luzEstroboscopica: ResultLucesItemDto;
+  luzPertiga: ResultLucesItemDto;
+  pruebaRadio: ResultLucesItemDto;
+  botonPanico: ResultLucesItemDto;
+}
+
+export interface ResultLucesEmergenciaAlarmasDto {
+  /**
+   * ID del Viaje (si aplica)
+   * @example 1
+   */
+  viajeId: number | null;
+  /**
+   * ID del Vehículo
+   * @example 10
+   */
+  vehiculoId: number;
+  /**
+   * Código de versión del checklist
+   * @example "v00001_002_0000000001_salida"
+   */
+  version: string;
+  /**
+   * Tipo de viaje
+   * @example "salida"
+   */
+  viajeTipo: "salida" | "llegada" | null;
+  document: ResultLucesEmergenciaAlarmasDocumentDto;
+}
+
+export interface ResultCinturonItemDto {
+  /** Etiqueta del item */
+  label: string;
+  /** Si el asiento existe/está habilitado */
+  habilitado: boolean;
+  /** Observación inicial o configuración */
+  observacion?: string;
+}
+
+export interface ResultCinturonesDocumentDto {
+  asientoPiloto: ResultCinturonItemDto;
+  asientoCopiloto: ResultCinturonItemDto;
+  asiento1: ResultCinturonItemDto;
+  asiento2: ResultCinturonItemDto;
+  asiento3: ResultCinturonItemDto;
+  asiento4: ResultCinturonItemDto;
+  asiento5: ResultCinturonItemDto;
+  asiento6: ResultCinturonItemDto;
+  asiento7: ResultCinturonItemDto;
+  asiento8: ResultCinturonItemDto;
+  asiento9: ResultCinturonItemDto;
+  asiento10: ResultCinturonItemDto;
+  asiento11: ResultCinturonItemDto;
+  asiento12: ResultCinturonItemDto;
+  asiento13: ResultCinturonItemDto;
+  asiento14: ResultCinturonItemDto;
+  asiento15: ResultCinturonItemDto;
+  asiento16: ResultCinturonItemDto;
+  asiento17: ResultCinturonItemDto;
+  asiento18: ResultCinturonItemDto;
+  asiento19: ResultCinturonItemDto;
+  asiento20: ResultCinturonItemDto;
+  asiento21: ResultCinturonItemDto;
+  asiento22: ResultCinturonItemDto;
+  asiento23: ResultCinturonItemDto;
+  asiento24: ResultCinturonItemDto;
+  asiento25: ResultCinturonItemDto;
+  asiento26: ResultCinturonItemDto;
+  asiento27: ResultCinturonItemDto;
+  asiento28: ResultCinturonItemDto;
+  asiento29: ResultCinturonItemDto;
+  asiento30: ResultCinturonItemDto;
+  asiento31: ResultCinturonItemDto;
+  asiento32: ResultCinturonItemDto;
+  asiento33: ResultCinturonItemDto;
+  asiento34: ResultCinturonItemDto;
+  asiento35: ResultCinturonItemDto;
+  asiento36: ResultCinturonItemDto;
+  asiento37: ResultCinturonItemDto;
+  asiento38: ResultCinturonItemDto;
+  asiento39: ResultCinturonItemDto;
+  asiento40: ResultCinturonItemDto;
+  asiento41: ResultCinturonItemDto;
+  asiento42: ResultCinturonItemDto;
+  asiento43: ResultCinturonItemDto;
+  asiento44: ResultCinturonItemDto;
+  asiento45: ResultCinturonItemDto;
+  asiento46: ResultCinturonItemDto;
+  asiento47: ResultCinturonItemDto;
+  asiento48: ResultCinturonItemDto;
+  asiento49: ResultCinturonItemDto;
+  asiento50: ResultCinturonItemDto;
+  asiento51: ResultCinturonItemDto;
+  asiento52: ResultCinturonItemDto;
+}
+
+export interface ResultCinturonesSeguridadDto {
+  /**
+   * ID del Viaje (si aplica)
+   * @example 1
+   */
+  viajeId: number | null;
+  /**
+   * ID del Vehículo
+   * @example 10
+   */
+  vehiculoId: number;
+  /**
+   * Código de versión del checklist
+   * @example "v00001_002_0000000001_salida"
+   */
+  version: string;
+  /**
+   * Tipo de viaje
+   * @example "salida"
+   */
+  viajeTipo: "salida" | "llegada" | null;
+  document: ResultCinturonesDocumentDto;
+}
+
+export interface HerramientasInfoDto {
+  /** @example "HERRAMIENTA SIN GRASA IMPREGNADA" */
+  criterioA: string;
+  /** @example "EMPALME Y CONECCIONES" */
+  criterioB: string;
+  /** @example "ALMACENAMIENTO ADECUADO" */
+  criterioC: string;
+  /** @example "GOLPES Y ABOLLADURAS" */
+  criterioD: string;
+  /** @example "LIMPIA Y ORDENADA" */
+  criterioE: string;
+  /** @example "OTRO" */
+  criterioF: string;
+}
+
+export interface ResultHerramientaItemDto {
+  /** Etiqueta del item */
+  label: string;
+  /** Habilitada para uso (SI/NO) */
+  estado: boolean;
+  /** Stock actual */
+  stock?: string;
+  /** A: Herramienta sin grasa impregnada */
+  criterioA?: boolean;
+  /** B: Empalme y conexiones */
+  criterioB?: boolean;
+  /** C: Almacenamiento adecuado */
+  criterioC?: boolean;
+  /** D: Golpes y abolladuras */
+  criterioD?: boolean;
+  /** E: Limpia y ordenada */
+  criterioE?: boolean;
+  /** F: Otro */
+  criterioF?: boolean;
+  /** Accion Correctiva */
+  accionCorrectiva?: string;
+  /** Observación */
+  observacion?: string;
+}
+
+export interface HerramientasItemsDto {
+  llavesMixtas: ResultHerramientaItemDto;
+  destornilladorEstrella: ResultHerramientaItemDto;
+  destornilladorPlano: ResultHerramientaItemDto;
+  alicate: ResultHerramientaItemDto;
+  llaveRuedaPalanca: ResultHerramientaItemDto;
+  trianguloSeguridad: ResultHerramientaItemDto;
+  conosPeligro: ResultHerramientaItemDto;
+  cableCorriente: ResultHerramientaItemDto;
+  eslinga: ResultHerramientaItemDto;
+  grilletes: ResultHerramientaItemDto;
+  tacosCunas: ResultHerramientaItemDto;
+  linterna: ResultHerramientaItemDto;
+  extintor: ResultHerramientaItemDto;
+  pico: ResultHerramientaItemDto;
+  medidorAire: ResultHerramientaItemDto;
+  varasLuminosas: ResultHerramientaItemDto;
+  paletaPareSiga: ResultHerramientaItemDto;
+  escoba: ResultHerramientaItemDto;
+  balde: ResultHerramientaItemDto;
+  cuadernoBitacora: ResultHerramientaItemDto;
+  gataHidraulica: ResultHerramientaItemDto;
+  cajaHerramientas: ResultHerramientaItemDto;
+}
+
+export interface ResultInspeccionHerramientasDocumentDto {
+  info: HerramientasInfoDto;
+  herramientas: HerramientasItemsDto;
+}
+
+export interface ResultInspeccionHerramientasDto {
+  /**
+   * ID del Viaje (si aplica)
+   * @example 1
+   */
+  viajeId: number | null;
+  /**
+   * ID del Vehículo
+   * @example 10
+   */
+  vehiculoId: number;
+  /**
+   * Código de versión del checklist
+   * @example "v00001_002_0000000001_salida"
+   */
+  version: string;
+  /**
+   * Tipo de viaje
+   * @example "salida"
+   */
+  viajeTipo: "salida" | "llegada" | null;
+  document: ResultInspeccionHerramientasDocumentDto;
+}
+
+export interface ResultBotiquinItemDto {
+  /** Etiqueta del item */
+  label: string;
+  /** Habilitado/Existente (SI/NO) */
+  habilitado?: boolean;
+  /** Fecha de Vencimiento */
+  fechaVencimiento?: string;
+  /** Fecha de Salida */
+  fechaSalida?: string;
+  /** Fecha de reposición */
+  fechaReposicion?: string;
+}
+
+export interface ResultInspeccionBotiquinesDocumentDto {
+  alcohol: ResultBotiquinItemDto;
+  jabonLiquido: ResultBotiquinItemDto;
+  gasaEsterilizada: ResultBotiquinItemDto;
+  apositoEsterilizado: ResultBotiquinItemDto;
+  esparadrapo: ResultBotiquinItemDto;
+  vendaElastica: ResultBotiquinItemDto;
+  banditasAdhesivas: ResultBotiquinItemDto;
+  tijeraPuntaRoma: ResultBotiquinItemDto;
+  guantesQuirurgicos: ResultBotiquinItemDto;
+  algodon: ResultBotiquinItemDto;
+  maletin: ResultBotiquinItemDto;
+  /**
+   * Ubicación del Botiquín
+   * @example "Cabina del conductor"
+   */
+  ubicacionBotiquin: string;
+}
+
+export interface ResultInspeccionBotiquinesDto {
+  /**
+   * ID del Viaje (si aplica)
+   * @example 1
+   */
+  viajeId: number | null;
+  /**
+   * ID del Vehículo
+   * @example 10
+   */
+  vehiculoId: number;
+  /**
+   * Código de versión del checklist
+   * @example "v00001_002_0000000001_salida"
+   */
+  version: string;
+  /**
+   * Tipo de viaje
+   * @example "salida"
+   */
+  viajeTipo: "salida" | "llegada" | null;
+  document: ResultInspeccionBotiquinesDocumentDto;
+}
+
+export interface ResultKitItemDto {
+  /** Etiqueta del item */
+  label: string;
+  /** Estado (SI/NO) */
+  estado: boolean;
+}
+
+export interface ResultKitDocumentDto {
+  mazoGoma: ResultKitItemDto;
+  setCunas: ResultKitItemDto;
+  bandeja: ResultKitItemDto;
+  barrerasOleofilicas: ResultKitItemDto;
+  cintaRoja: ResultKitItemDto;
+  cintaAmarilla: ResultKitItemDto;
+  bolsasRojas: ResultKitItemDto;
+  panosOleofilicos: ResultKitItemDto;
+  recogedorPlastico: ResultKitItemDto;
+  manualContingencia: ResultKitItemDto;
+  guantesNitrilo: ResultKitItemDto;
+  lenteSeguridad: ResultKitItemDto;
+  respirador: ResultKitItemDto;
+  trajeTyvek: ResultKitItemDto;
+  botasPVC: ResultKitItemDto;
+  maletin: ResultKitItemDto;
+  /**
+   * Ubicación del Kit
+   * @example "Bodega Lateral"
+   */
+  ubicacion: string;
+}
+
+export interface ResultKitAntiderramesDto {
+  /**
+   * ID del Viaje (si aplica)
+   * @example 1
+   */
+  viajeId: number | null;
+  /**
+   * ID del Vehículo
+   * @example 10
+   */
+  vehiculoId: number;
+  /**
+   * Código de versión del checklist
+   * @example "v00001_002_0000000001_salida"
+   */
+  version: string;
+  /**
+   * Tipo de viaje
+   * @example "salida"
+   */
+  viajeTipo: "salida" | "llegada" | null;
+  document: ResultKitDocumentDto;
+}
+
+export interface ResultRevisionDocumentDto {
+  /** Datos de la foto */
+  photo: PhotoResultDto;
+}
+
+export interface ResultRevisionVehiculosDto {
+  viajeId: number;
+  vehiculoId: number;
+  /**
+   * Código de versión
+   * @example "v00001_002_0000000001_salida"
+   */
+  version: string | null;
+  /**
+   * Tipo de viaje
+   * @example "salida"
+   */
+  viajeTipo: "salida" | "llegada" | null;
+  document: ResultRevisionDocumentDto;
+}
+
+export interface PhotoItemDto {
+  /**
+   * URL de la imagen/foto
+   * @example "https://image-document.jpg"
    */
   url: string;
-  /**
-   * Fecha de expiración del documento
-   * @example "2025-12-31"
-   */
-  fechaExpiracion: string;
-  /**
-   * Fecha de emisión del documento
-   * @example "2023-01-15"
-   */
-  fechaEmision: string;
 }
 
-export interface ConductorDocumentoUpdateDto {
+export interface IpercContinuoDto {
+  photo: PhotoItemDto;
+}
+
+export interface HojaInspeccionDto {
   /**
-   * Tipo de documento
-   * @default "dni"
+   * He descansado lo suficiente y me encuentro en condiciones de conducir.
+   * @default true
    */
-  tipo?:
-    | "dni"
-    | "licencia_mtc"
-    | "seguro_vida_ley"
-    | "sctr"
-    | "examen_medico"
-    | "psicosensometrico"
-    | "induccion_general"
-    | "manejo_defensivo"
-    | "licencia_interna"
-    | "autoriza_ssgg"
-    | "curso_seguridad_portuaria"
-    | "curso_mercancias_peligrosas"
-    | "curso_basico_pbip"
-    | "examen_medico_temporal"
-    | "induccion_visita"
-    | "em_visita"
-    | "pase_conduc"
-    | "foto_funcionario";
+  descansoSuficiente: boolean;
   /**
-   * URL del documento
-   * @example "https://storage.example.com/documentos/licencia-A123456.pdf"
+   * Me siento en buenas condiciones fisicas y no tengo ninguna dolencia o enfermedad.
+   * @default true
    */
-  url?: string;
+  condicionesFisicas: boolean;
   /**
-   * Fecha de expiración del documento
-   * @example "2025-12-31"
+   * Estoy tomando medicamentos recetados... no son impedimento para conducir.
+   * @default true
    */
-  fechaExpiracion?: string;
+  medicamentos: boolean;
   /**
-   * Fecha de emisión del documento
-   * @example "2023-01-15"
+   * Me encuentro emocional y personalmente en buenas condiciones.
+   * @default true
    */
-  fechaEmision?: string;
+  condicionesEmocionales: boolean;
+  /**
+   * Estoy consciente de la responsabilidad que significa conducir este vehículo.
+   * @default true
+   */
+  conscienteResponsabilidad: boolean;
+  /**
+   * Faros principales / Faros neblineros / Luces pirata
+   * @default true
+   */
+  farosPrincipales: boolean;
+  /**
+   * Luces direccionales / de estacionamiento / intermitentes
+   * @default true
+   */
+  lucesDireccionales: boolean;
+  /**
+   * Luces de freno/ Luces de retroceso
+   * @default true
+   */
+  lucesFreno: boolean;
+  /**
+   * Luz estroboscópica(Circulina color verde)
+   * @default true
+   */
+  luzEstroboscopica: boolean;
+  /**
+   * Espejos
+   * @default true
+   */
+  espejos: boolean;
+  /**
+   * Parabrisa y ventanas (sin rajaduras)
+   * @default true
+   */
+  parabrisasVentanas: boolean;
+  /**
+   * Plumillas Limpia y lava parabrisas
+   * @default true
+   */
+  plumillas: boolean;
+  /**
+   * Neumáticos(Incluye repuesto ) tipo AT(Presión, banda de rodamiento)
+   * @default true
+   */
+  neumaticos: boolean;
+  /**
+   * Esparragos, tuercas(torque según fabricante), seguro de tuercas
+   * @default true
+   */
+  esparragosTuercas: boolean;
+  /**
+   * Cartolas /Letreros Identificatorios
+   * @default true
+   */
+  cartolas: boolean;
+  /**
+   * Cinturones de seguridad / Estado
+   * @default true
+   */
+  cinturonesEstado: boolean;
+  /**
+   * Alarma de Retroceso
+   * @default true
+   */
+  alarmaRetroceso: boolean;
+  /**
+   * Seguros de puertas
+   * @default true
+   */
+  segurosPuertas: boolean;
+  /**
+   * Claxon
+   * @default true
+   */
+  claxon: boolean;
+  /**
+   * Tarjeta de propiedad, SOAT,Revisión Técnica vigente / ATS
+   * @default true
+   */
+  documentosVigentes: boolean;
+  /**
+   * Kit básico de herramientas * / Llave de rueda tipo cruz
+   * @default true
+   */
+  kitHerramientas: boolean;
+  /**
+   * Gata(Doble peso bruto vehículo) y sus accesorios
+   * @default true
+   */
+  gata: boolean;
+  /**
+   * Orden y limpieza
+   * @default true
+   */
+  ordenLimpieza: boolean;
+  /**
+   * Jaula Interna/Externa Antivuelco
+   * @default true
+   */
+  jaulaAntivuelco: boolean;
+  /**
+   * Aire Acondicionado
+   * @default true
+   */
+  aireAcondicionado: boolean;
+  /**
+   * Tacos/cuñas (02)
+   * @default true
+   */
+  tacosCunas: boolean;
+  /**
+   * Conos de seguridad de 45 cm(03) con cinta reflectiva(8-10cm)
+   * @default true
+   */
+  conosSeguridad: boolean;
+  /**
+   * Eslinga/Grilletes
+   * @default true
+   */
+  eslingaGrilletes: boolean;
+  /**
+   * Pico y pala
+   * @default true
+   */
+  picoPala: boolean;
+  /**
+   * Cable para pasar corriente
+   * @default true
+   */
+  cableCorriente: boolean;
+  /**
+   * Extintor PQS 6kg (ABC)
+   * @default true
+   */
+  extintor: boolean;
+  /**
+   * Botiquín * / Linterna
+   * @default true
+   */
+  botiquinLinterna: boolean;
+  /**
+   * Kit antiderrame
+   * @default true
+   */
+  kitAntiderrame: boolean;
+  /**
+   * Sistema Comunicación(Teléfono Satelital, Radio Handy, Celular)
+   * @default true
+   */
+  sistemaComunicacion: boolean;
+  /**
+   * Prueba del freno de servicio
+   * @default true
+   */
+  pruebaFrenoServicio: boolean;
+  /**
+   * Freno de estacionamiento
+   * @default true
+   */
+  frenoEstacionamiento: boolean;
+  /**
+   * Dirección
+   * @default true
+   */
+  direccion: boolean;
+  /**
+   * Nivel de aceite del motor
+   * @default true
+   */
+  nivelAceiteMotor: boolean;
+  /**
+   * Nivel de liquido de frenos
+   * @default true
+   */
+  nivelLiquidoFrenos: boolean;
+  /**
+   * Nivel de refrigerante
+   * @default true
+   */
+  nivelRefrigerante: boolean;
+  /**
+   * Nivel de aceite hidráulico (hidrolina)
+   * @default true
+   */
+  nivelAceiteHidraulico: boolean;
+  /**
+   * Nivel de agua para limpiaparabrisas
+   * @default true
+   */
+  nivelAguaLimpiaparabrisas: boolean;
+  /**
+   * Otros (Mecánico)
+   * @default false
+   */
+  otrosMecanico: boolean;
+  /**
+   * MobiliEye
+   * @default true
+   */
+  mobiliEye: boolean;
+  /**
+   * Sensor de Fatiga RDT401B (Sonido)
+   * @default true
+   */
+  sensorFatiga: boolean;
+  /**
+   * Frenos ABS
+   * @default true
+   */
+  frenosABS: boolean;
+  /**
+   * ESP/ESC
+   * @default true
+   */
+  espEsc: boolean;
+  /**
+   * Estado de Cinturones Pilotos
+   * @default true
+   */
+  cinturonesPilotos: boolean;
+  /**
+   * Estado de Cinturones Pasajes
+   * @default true
+   */
+  cinturonesPasajes: boolean;
+}
+
+export interface DocumentoItemDto {
+  /**
+   * Si el documento es requerido/habilitado
+   * @default true
+   */
+  habilitado: boolean;
+  /** Observación inicial */
+  observacion?: string;
+  /**
+   * Fecha de Vencimiento Inicial/Por defecto
+   * @example "2026-02-16T13:41:29.541Z"
+   */
+  fechaVencimiento?: string;
+}
+
+export interface InspeccionDocumentosDto {
+  soatVigente: DocumentoItemDto;
+  tarjetaPropiedad: DocumentoItemDto;
+  tarjetaCirculacion: DocumentoItemDto;
+  polizaVigente: DocumentoItemDto;
+  ctivVigente: DocumentoItemDto;
+  hojasMsdsVehiculo: DocumentoItemDto;
+  manualOperacion: DocumentoItemDto;
+  otroVehiculo: DocumentoItemDto;
+  licenciaMtc: DocumentoItemDto;
+  licenciaInterna: DocumentoItemDto;
+  checkListDiario: DocumentoItemDto;
+  iperc: DocumentoItemDto;
+  pets: DocumentoItemDto;
+  hojasMsdsConductor: DocumentoItemDto;
+  mapaRiesgos: DocumentoItemDto;
+  otroConductor: DocumentoItemDto;
+}
+
+export interface LucesItemDto {
+  /**
+   * Estado del item (Operativo SI/NO)
+   * @default true
+   */
+  estado: boolean;
+  /** Observación o Acción Correctiva */
+  observacion?: string;
+}
+
+export interface LucesEmergenciaAlarmasDto {
+  alarmaRetroceso: LucesItemDto;
+  alarmaCinturon: LucesItemDto;
+  claxon: LucesItemDto;
+  lucesCabina: LucesItemDto;
+  lucesSalon: LucesItemDto;
+  lucesAltasDerecho: LucesItemDto;
+  lucesAltasIzquierdo: LucesItemDto;
+  lucesBajasDerecho: LucesItemDto;
+  lucesBajasIzquierdo: LucesItemDto;
+  lucesLateralesDerecho: LucesItemDto;
+  lucesLateralesIzquierdo: LucesItemDto;
+  lucesNeblineros: LucesItemDto;
+  lucesEstacionamientoDerecho: LucesItemDto;
+  lucesEstacionamientoIzquierdo: LucesItemDto;
+  lucesDireccionalesDerecho: LucesItemDto;
+  lucesDireccionalesIzquierdo: LucesItemDto;
+  luzEstroboscopica: LucesItemDto;
+  luzPertiga: LucesItemDto;
+  pruebaRadio: LucesItemDto;
+  botonPanico: LucesItemDto;
+}
+
+export interface CinturonItemDto {
+  /**
+   * Si el asiento existe/está habilitado
+   * @default true
+   */
+  habilitado: boolean;
+  /** Observación inicial o configuración */
+  observacion?: string;
+}
+
+export interface CinturonesSeguridadDto {
+  asientoPiloto: CinturonItemDto;
+  asientoCopiloto: CinturonItemDto;
+  asiento1: CinturonItemDto;
+  asiento2: CinturonItemDto;
+  asiento3: CinturonItemDto;
+  asiento4: CinturonItemDto;
+  asiento5: CinturonItemDto;
+  asiento6: CinturonItemDto;
+  asiento7: CinturonItemDto;
+  asiento8: CinturonItemDto;
+  asiento9: CinturonItemDto;
+  asiento10: CinturonItemDto;
+  asiento11: CinturonItemDto;
+  asiento12: CinturonItemDto;
+  asiento13: CinturonItemDto;
+  asiento14: CinturonItemDto;
+  asiento15: CinturonItemDto;
+  asiento16: CinturonItemDto;
+  asiento17: CinturonItemDto;
+  asiento18: CinturonItemDto;
+  asiento19: CinturonItemDto;
+  asiento20: CinturonItemDto;
+  asiento21: CinturonItemDto;
+  asiento22: CinturonItemDto;
+  asiento23: CinturonItemDto;
+  asiento24: CinturonItemDto;
+  asiento25: CinturonItemDto;
+  asiento26: CinturonItemDto;
+  asiento27: CinturonItemDto;
+  asiento28: CinturonItemDto;
+  asiento29: CinturonItemDto;
+  asiento30: CinturonItemDto;
+  asiento31: CinturonItemDto;
+  asiento32: CinturonItemDto;
+  asiento33: CinturonItemDto;
+  asiento34: CinturonItemDto;
+  asiento35: CinturonItemDto;
+  asiento36: CinturonItemDto;
+  asiento37: CinturonItemDto;
+  asiento38: CinturonItemDto;
+  asiento39: CinturonItemDto;
+  asiento40: CinturonItemDto;
+  asiento41: CinturonItemDto;
+  asiento42: CinturonItemDto;
+  asiento43: CinturonItemDto;
+  asiento44: CinturonItemDto;
+  asiento45: CinturonItemDto;
+  asiento46: CinturonItemDto;
+  asiento47: CinturonItemDto;
+  asiento48: CinturonItemDto;
+  asiento49: CinturonItemDto;
+  asiento50: CinturonItemDto;
+  asiento51: CinturonItemDto;
+  asiento52: CinturonItemDto;
+}
+
+export interface HerramientaItemDto {
+  /**
+   * Habilitada para uso (SI/NO)
+   * @default true
+   */
+  estado: boolean;
+  /** Stock actual */
+  stock?: string;
+  /** A: Herramienta sin grasa impregnada */
+  criterioA?: boolean;
+  /** B: Empalme y conexiones */
+  criterioB?: boolean;
+  /** C: Almacenamiento adecuado */
+  criterioC?: boolean;
+  /** D: Golpes y abolladuras */
+  criterioD?: boolean;
+  /** E: Limpia y ordenada */
+  criterioE?: boolean;
+  /** F: Otro */
+  criterioF?: boolean;
+  /** Accion Correctiva */
+  accionCorrectiva?: string;
+  /** Observación */
+  observacion?: string;
+}
+
+export interface InspeccionHerramientasDto {
+  llavesMixtas: HerramientaItemDto;
+  destornilladorEstrella: HerramientaItemDto;
+  destornilladorPlano: HerramientaItemDto;
+  alicate: HerramientaItemDto;
+  llaveRuedaPalanca: HerramientaItemDto;
+  trianguloSeguridad: HerramientaItemDto;
+  conosPeligro: HerramientaItemDto;
+  cableCorriente: HerramientaItemDto;
+  eslinga: HerramientaItemDto;
+  grilletes: HerramientaItemDto;
+  tacosCunas: HerramientaItemDto;
+  linterna: HerramientaItemDto;
+  extintor: HerramientaItemDto;
+  pico: HerramientaItemDto;
+  medidorAire: HerramientaItemDto;
+  varasLuminosas: HerramientaItemDto;
+  paletaPareSiga: HerramientaItemDto;
+  escoba: HerramientaItemDto;
+  balde: HerramientaItemDto;
+  cuadernoBitacora: HerramientaItemDto;
+  gataHidraulica: HerramientaItemDto;
+  cajaHerramientas: HerramientaItemDto;
+}
+
+export interface BotiquinItemDto {
+  /**
+   * Si el ítem debe estar en el vehículo
+   * @default true
+   */
+  habilitado: boolean;
+  /**
+   * Fecha de Vencimiento actual
+   * @example "2026-02-16T13:41:29.548Z"
+   */
+  fechaVencimiento?: string;
+  /**
+   * Fecha de Salida
+   * @example "2026-02-16T13:41:29.548Z"
+   */
+  fechaSalida?: string;
+  /**
+   * Fecha de Reposición
+   * @example "2026-02-16T13:41:29.548Z"
+   */
+  fechaReposicion?: string;
+}
+
+export interface InspeccionBotiquinesDto {
+  alcohol: BotiquinItemDto;
+  jabonLiquido: BotiquinItemDto;
+  gasaEsterilizada: BotiquinItemDto;
+  apositoEsterilizado: BotiquinItemDto;
+  esparadrapo: BotiquinItemDto;
+  vendaElastica: BotiquinItemDto;
+  banditasAdhesivas: BotiquinItemDto;
+  tijeraPuntaRoma: BotiquinItemDto;
+  guantesQuirurgicos: BotiquinItemDto;
+  algodon: BotiquinItemDto;
+  maletin: BotiquinItemDto;
+  /**
+   * Ubicación del Botiquín
+   * @default "Cabina"
+   */
+  ubicacionBotiquin: string;
+}
+
+export interface KitAntiderramesDto {
+  /**
+   * Mazo de goma
+   * @default true
+   */
+  mazoGoma: boolean;
+  /**
+   * Set de cuñas, tarugos, tacos, conos
+   * @default true
+   */
+  setCunas: boolean;
+  /**
+   * Bandeja
+   * @default true
+   */
+  bandeja: boolean;
+  /**
+   * Barreras en Tela Oleofilica
+   * @default true
+   */
+  barrerasOleofilicas: boolean;
+  /**
+   * Cinta de seguridad color rojo
+   * @default true
+   */
+  cintaRoja: boolean;
+  /**
+   * Cinta de seguridad color amarillo
+   * @default true
+   */
+  cintaAmarilla: boolean;
+  /**
+   * Bolsas de color rojo de tipo industrial
+   * @default true
+   */
+  bolsasRojas: boolean;
+  /**
+   * Paños oleofilicos de 40 cm x 50 cm
+   * @default true
+   */
+  panosOleofilicos: boolean;
+  /**
+   * Recogedor de plástico
+   * @default true
+   */
+  recogedorPlastico: boolean;
+  /**
+   * Manual de plan de contingencia
+   * @default true
+   */
+  manualContingencia: boolean;
+  /**
+   * Guantes de nitrilo
+   * @default true
+   */
+  guantesNitrilo: boolean;
+  /**
+   * Lente de seguridad
+   * @default true
+   */
+  lenteSeguridad: boolean;
+  /**
+   * Respirador Doble Cartucho
+   * @default true
+   */
+  respirador: boolean;
+  /**
+   * Traje tyvek resistente a hidrocarburos
+   * @default true
+   */
+  trajeTyvek: boolean;
+  /**
+   * Botas de PVC con puntera de seguridad
+   * @default true
+   */
+  botasPVC: boolean;
+  /**
+   * Maletín
+   * @default true
+   */
+  maletin: boolean;
+  /** Ubicación */
+  ubicacion?: string;
+}
+
+export interface RevisionVehiculosDto {
+  photo: PhotoItemDto;
 }
 
 export interface VehiculoMantenimientoListDto {
@@ -2686,6 +4261,11 @@ export interface MantenimientoResultDto {
    */
   kilometraje: number;
   /**
+   * Next Maintenance Mileage
+   * @example 60000
+   */
+  kilometrajeProximoMantenimiento: number | null;
+  /**
    * Status
    * @example "pendiente"
    */
@@ -2758,6 +4338,11 @@ export interface MantenimientoCreateDto {
    */
   kilometraje: number;
   /**
+   * Next maintenance mileage
+   * @example 60000
+   */
+  kilometrajeProximoMantenimiento: number;
+  /**
    * Status
    * @default "pendiente"
    */
@@ -2807,6 +4392,11 @@ export interface MantenimientoUpdateDto {
    * @example 55000
    */
   kilometraje?: number;
+  /**
+   * Next maintenance mileage
+   * @example 60000
+   */
+  kilometrajeProximoMantenimiento?: number;
   /**
    * Status
    * @default "pendiente"
@@ -3046,6 +4636,70 @@ export interface MantenimientoDocumentoUpdateDto {
   fechaExpiracion?: string;
 }
 
+export interface MantenimientoReporteEstadoDto {
+  /**
+   * ID del vehículo
+   * @example 1
+   */
+  vehiculoId: number;
+  /**
+   * Placa del vehículo
+   * @example "ABC-123"
+   */
+  placa: string;
+  /**
+   * Código interno del vehículo
+   * @example "V-001"
+   */
+  codigoInterno: string | null;
+  /**
+   * Imágenes del vehículo
+   * @example ["url1","url2"]
+   */
+  imagenes: string[] | null;
+  /**
+   * Kilometraje actual del vehículo
+   * @example 50000
+   */
+  kilometrajeActual: number;
+  /**
+   * Fecha del último mantenimiento
+   * @format date-time
+   * @example "2025-01-01"
+   */
+  ultimoMantenimientoFecha: string | null;
+  /**
+   * Kilometraje en el último mantenimiento
+   * @example 45000
+   */
+  ultimoMantenimientoKm: number | null;
+  /**
+   * Kilometraje programado para el próximo mantenimiento
+   * @example 55000
+   */
+  proxMantenimientoKm: number | null;
+  /**
+   * Kilómetros restantes para el próximo mantenimiento
+   * @example 5000
+   */
+  restante: number | null;
+  /**
+   * Kilómetros restantes para el próximo mantenimiento (alias)
+   * @example 5000
+   */
+  kilometrajeRestante: number | null;
+  /**
+   * Estado del mantenimiento (verde, amarillo, rojo)
+   * @example "verde"
+   */
+  estado: "verde" | "amarillo" | "rojo" | "n/a";
+}
+
+export interface PaginatedReporteEstadoResultDto {
+  data: MantenimientoReporteEstadoDto[];
+  meta: PaginationMetaDto;
+}
+
 export interface RutaResultDto {
   /**
    * Route ID
@@ -3113,90 +4767,196 @@ export interface PaginatedRutaResultDto {
   meta: PaginationMetaDto;
 }
 
-export interface RutaCreateDto {
+export interface RutaParadaResultDto {
   /**
-   * Origin city
+   * ID de la parada
+   * @example 1
+   */
+  id: number;
+  /**
+   * ID de la ruta a la que pertenece
+   * @example 1
+   */
+  rutaId: number;
+  /**
+   * Orden de la parada en la ruta
+   * @example 1
+   */
+  orden: number;
+  /**
+   * Nombre de la parada
+   * @example "PEIP - Educans"
+   */
+  nombre: string;
+  /**
+   * Latitud de la ubicación
+   * @example "-12.0464"
+   */
+  ubicacionLat?: string;
+  /**
+   * Longitud de la ubicación
+   * @example "-77.0428"
+   */
+  ubicacionLng?: string;
+  /**
+   * Distancia desde la parada anterior
+   * @example "10.5"
+   */
+  distanciaPreviaParada?: string;
+  /**
+   * Fecha de creación
+   * @format date-time
+   */
+  creadoEn: string;
+  /**
+   * Fecha de última actualización
+   * @format date-time
+   */
+  actualizadoEn: string;
+}
+
+export interface RutaCircuitoResultDto {
+  /**
+   * ID del circuito
+   * @example 1
+   */
+  id: number;
+  /**
+   * Nombre del circuito
+   * @example "Lima - Ica"
+   */
+  nombre: string;
+  /** Ruta de ida */
+  rutaIda: RutaResultDto;
+  /** Ruta de vuelta */
+  rutaVuelta: RutaResultDto;
+  /**
+   * Indica si la ruta de ida y vuelta son la misma
+   * @example true
+   */
+  esIgual: boolean;
+  /**
+   * Fecha de creación
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  creadoEn: string;
+  /**
+   * Fecha de actualización
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  actualizadoEn: string;
+}
+
+export interface PaginatedRutaCircuitoResultDto {
+  /** Lista de circuitos en la página actual */
+  data: RutaCircuitoResultDto[];
+  /** Metadatos de la paginación */
+  meta: PaginationMetaDto;
+}
+
+export interface RutaParadaCreateDto {
+  /**
+   * ID de la parada (opcional para updates)
+   * @example 1
+   */
+  id?: number;
+  /**
+   * Nombre de la parada
+   * @example "PEIP - Educans"
+   */
+  nombre: string;
+  /**
+   * Latitud de la ubicación
+   * @example "-12.0464"
+   */
+  ubicacionLat?: string;
+  /**
+   * Longitud de la ubicación
+   * @example "-77.0428"
+   */
+  ubicacionLng?: string;
+  /**
+   * Orden de la parada
+   * @default 0
+   * @example 1
+   */
+  orden?: number;
+  /**
+   * Distancia desde la parada anterior
+   * @example "10.5"
+   */
+  distanciaPreviaParada?: string;
+}
+
+export interface RutaCircuitoDetalleDto {
+  /**
+   * Ciudad de origen
    * @example "Lima"
    */
   origen: string;
   /**
-   * Destination city
+   * Ciudad de destino
    * @example "Ica"
    */
   destino: string;
   /**
-   * Origin latitude
+   * Latitud del origen
    * @example "-12.0464"
    */
   origenLat: string;
   /**
-   * Origin longitude
+   * Longitud del origen
    * @example "-77.0428"
    */
   origenLng: string;
   /**
-   * Destination latitude
+   * Latitud del destino
    * @example "-14.0678"
    */
   destinoLat: string;
   /**
-   * Destination longitude
+   * Longitud del destino
    * @example "-75.7286"
    */
   destinoLng: string;
   /**
-   * Distance in km
+   * Distancia en km
    * @example "300.5"
    */
   distancia: string;
   /**
-   * Base cost
-   * @example "50.0"
+   * Costo base
+   * @example "50.00"
    */
   costoBase: string;
+  /** Lista de paradas */
+  paradas: RutaParadaCreateDto[];
 }
 
-export interface RutaUpdateDto {
+export interface RutaCircuitoCreateDto {
   /**
-   * Origin city
-   * @example "Lima"
+   * Nombre del circuito
+   * @example "Lima - Ica"
    */
-  origen?: string;
+  nombre: string;
+  /** Detalle de la ruta de ida */
+  ida?: RutaCircuitoDetalleDto;
+  /** Detalle de la ruta de vuelta (opcional) */
+  vuelta?: RutaCircuitoDetalleDto;
+}
+
+export interface RutaCircuitoUpdateDto {
   /**
-   * Destination city
-   * @example "Ica"
+   * Nombre del circuito
+   * @example "Lima - Ica"
    */
-  destino?: string;
-  /**
-   * Origin latitude
-   * @example "-12.0464"
-   */
-  origenLat?: string;
-  /**
-   * Origin longitude
-   * @example "-77.0428"
-   */
-  origenLng?: string;
-  /**
-   * Destination latitude
-   * @example "-14.0678"
-   */
-  destinoLat?: string;
-  /**
-   * Destination longitude
-   * @example "-75.7286"
-   */
-  destinoLng?: string;
-  /**
-   * Distance in km
-   * @example "300.5"
-   */
-  distancia?: string;
-  /**
-   * Base cost
-   * @example "50.0"
-   */
-  costoBase?: string;
+  nombre?: string;
+  /** Detalle de la ruta de ida */
+  ida?: RutaCircuitoDetalleDto;
+  /** Detalle de la ruta de vuelta (opcional) */
+  vuelta?: RutaCircuitoDetalleDto;
 }
 
 export interface ConductorViajeDto {
@@ -3205,6 +4965,16 @@ export interface ConductorViajeDto {
    * @example 1
    */
   id: number;
+  /**
+   * Tipo de documento de identidad
+   * @example "DNI"
+   */
+  tipoDocumento: "DNI" | "CE" | "PTP" | "PASAPORTE" | "OTRO";
+  /**
+   * Nacionalidad del conductor
+   * @example "Peruana"
+   */
+  nacionalidad?: string;
   /**
    * Driver DNI
    * @example "12345678"
@@ -3247,9 +5017,16 @@ export interface ConductorViajeDto {
   claseLicencia: "A" | "B";
   /**
    * Driver license category
-   * @example "Uno"
+   * @example "I"
    */
-  categoriaLicencia: "Uno" | "Dos" | "Tres";
+  categoriaLicencia:
+    | "I"
+    | "II-a"
+    | "II-b"
+    | "II-c"
+    | "III-a"
+    | "III-b"
+    | "III-c";
   /**
    * Lista de URLs de fotochecks del conductor
    * @example ["https://res.cloudinary.com/xxx/fotocheck.jpg"]
@@ -3267,6 +5044,12 @@ export interface ConductorViajeDto {
    * @example "2023-01-01T00:00:00.000Z"
    */
   actualizadoEn: string;
+  /**
+   * Deletion date (if applicable)
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  eliminadoEn: string | null;
 }
 
 export interface VehiculoViajeDto {
@@ -3573,11 +5356,6 @@ export interface ViajeListDto {
    */
   clienteId: number;
   /**
-   * Lista de tripulantes
-   * @example ["Juan Pérez","María García"]
-   */
-  tripulantes?: string[];
-  /**
    * Modalidad de servicio
    * @example "regular"
    */
@@ -3593,6 +5371,16 @@ export interface ViajeListDto {
    * @example "programado"
    */
   estado: "programado" | "en_progreso" | "completado" | "cancelado";
+  /**
+   * Turno del viaje (día o noche)
+   * @example "dia"
+   */
+  turno?: "dia" | "noche";
+  /**
+   * Sentido del viaje (ida o vuelta)
+   * @example "ida"
+   */
+  sentido: "ida" | "vuelta";
   /**
    * Departure date
    * @format date-time
@@ -3637,6 +5425,16 @@ export interface ViajeConductorDetalleDto {
    */
   id: number;
   /**
+   * Tipo de documento de identidad
+   * @example "DNI"
+   */
+  tipoDocumento: "DNI" | "CE" | "PTP" | "PASAPORTE" | "OTRO";
+  /**
+   * Nacionalidad del conductor
+   * @example "Peruana"
+   */
+  nacionalidad?: string;
+  /**
    * Driver DNI
    * @example "12345678"
    */
@@ -3678,9 +5476,16 @@ export interface ViajeConductorDetalleDto {
   claseLicencia: "A" | "B";
   /**
    * Driver license category
-   * @example "Uno"
+   * @example "I"
    */
-  categoriaLicencia: "Uno" | "Dos" | "Tres";
+  categoriaLicencia:
+    | "I"
+    | "II-a"
+    | "II-b"
+    | "II-c"
+    | "III-a"
+    | "III-b"
+    | "III-c";
   /**
    * Lista de URLs de fotochecks del conductor
    * @example ["https://res.cloudinary.com/xxx/fotocheck.jpg"]
@@ -3698,6 +5503,12 @@ export interface ViajeConductorDetalleDto {
    * @example "2023-01-01T00:00:00.000Z"
    */
   actualizadoEn: string;
+  /**
+   * Deletion date (if applicable)
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  eliminadoEn: string | null;
   /**
    * Es conductor principal
    * @example true
@@ -4069,11 +5880,6 @@ export interface ViajeResultDto {
    */
   clienteId: number;
   /**
-   * Lista de tripulantes
-   * @example ["Juan Pérez","María García"]
-   */
-  tripulantes?: string[];
-  /**
    * Modalidad de servicio
    * @example "regular"
    */
@@ -4090,10 +5896,25 @@ export interface ViajeResultDto {
    */
   horasContrato: string;
   /**
-   * Trip status
+   * Estado del viaje
    * @example "programado"
    */
   estado: "programado" | "en_progreso" | "completado" | "cancelado";
+  /**
+   * Turno del viaje (día o noche)
+   * @example "dia"
+   */
+  turno?: "dia" | "noche";
+  /**
+   * Sentido del viaje (ida o vuelta)
+   * @example "ida"
+   */
+  sentido: "ida" | "vuelta";
+  /**
+   * Número de vale de combustible
+   * @example "242155"
+   */
+  numeroVale?: string;
   /**
    * Departure date
    * @format date-time
@@ -4123,6 +5944,16 @@ export interface ViajeResultDto {
   comentarios?: ViajeComentarioDetalleDto[];
   cliente?: ClienteViajeResultDto;
   ruta?: RutaResultDto;
+  /**
+   * Indica si el checklist de salida fue validado
+   * @example false
+   */
+  checkInSalida: boolean;
+  /**
+   * Indica si el checklist de llegada fue validado
+   * @example false
+   */
+  checkInLlegada: boolean;
 }
 
 export interface ViajeCreateDto {
@@ -4157,11 +5988,6 @@ export interface ViajeCreateDto {
    */
   clienteId: number;
   /**
-   * Lista de tripulantes
-   * @example ["Juan Pérez","María García"]
-   */
-  tripulantes?: string[];
-  /**
    * Modalidad de servicio
    * @default "regular"
    */
@@ -4190,10 +6016,25 @@ export interface ViajeCreateDto {
    */
   fechaLlegada?: string;
   /**
-   * Trip status
+   * Estado del viaje
    * @default "programado"
    */
   estado?: "programado" | "en_progreso" | "completado" | "cancelado";
+  /**
+   * Turno del viaje (día o noche)
+   * @example "dia"
+   */
+  turno?: "dia" | "noche";
+  /**
+   * Sentido del viaje (ida o vuelta)
+   * @default "ida"
+   */
+  sentido?: "ida" | "vuelta";
+  /**
+   * Número de vale de combustible
+   * @example "242155"
+   */
+  numeroVale?: string;
   /**
    * ID del conductor principal
    * @example 1
@@ -4238,11 +6079,6 @@ export interface ViajeUpdateDto {
    */
   clienteId?: number;
   /**
-   * Lista de tripulantes
-   * @example ["Juan Pérez","María García"]
-   */
-  tripulantes?: string[];
-  /**
    * Modalidad de servicio
    * @default "regular"
    */
@@ -4271,10 +6107,25 @@ export interface ViajeUpdateDto {
    */
   fechaLlegada?: string;
   /**
-   * Trip status
+   * Estado del viaje
    * @default "programado"
    */
   estado?: "programado" | "en_progreso" | "completado" | "cancelado";
+  /**
+   * Turno del viaje (día o noche)
+   * @example "dia"
+   */
+  turno?: "dia" | "noche";
+  /**
+   * Sentido del viaje (ida o vuelta)
+   * @default "ida"
+   */
+  sentido?: "ida" | "vuelta";
+  /**
+   * Número de vale de combustible
+   * @example "242155"
+   */
+  numeroVale?: string;
   /**
    * ID del conductor principal
    * @example 1
@@ -4505,6 +6356,592 @@ export interface ViajeComentarioUpdateDto {
    * @default "observacion"
    */
   tipo: "observacion" | "incidencia" | "novedad" | "general";
+}
+
+export interface ViajeServicioResultDto {
+  /**
+   * ID del servicio
+   * @example 1
+   */
+  id: number;
+  /**
+   * ID del viaje al que pertenece
+   * @example 1
+   */
+  viajeId: number;
+  /**
+   * Orden del servicio en el día
+   * @example 1
+   */
+  orden: number;
+  /**
+   * ID de la parada de partida
+   * @example 1
+   */
+  paradaPartidaId?: number;
+  /**
+   * Nombre de la parada de partida
+   * @example "Cochera Chorrillos"
+   */
+  paradaPartidaNombre?: string;
+  /**
+   * ID de la parada de llegada
+   * @example 2
+   */
+  paradaLlegadaId?: number;
+  /**
+   * Nombre de la parada de llegada
+   * @example "PEIP - Educans"
+   */
+  paradaLlegadaNombre?: string;
+  /**
+   * Hora de salida
+   * @example "06:45:00"
+   */
+  horaSalida: string;
+  /**
+   * Hora de término
+   * @example "07:45:00"
+   */
+  horaTermino?: string;
+  /**
+   * Kilometraje inicial
+   * @example 94880
+   */
+  kmInicial: number;
+  /**
+   * Kilometraje final
+   * @example 94891
+   */
+  kmFinal?: number;
+  /**
+   * Kilometraje del servicio (kmFinal - kmInicial)
+   * @example 11
+   */
+  kmServicio?: number;
+  /**
+   * Tiempo del servicio en minutos
+   * @example 60
+   */
+  tiempoServicioMinutos?: number;
+  /**
+   * Número de pasajeros
+   * @example 12
+   */
+  numeroPasajeros?: number;
+  /**
+   * Observaciones
+   * @example "Servicio sin novedad"
+   */
+  observaciones?: string;
+  /**
+   * Fecha de creación
+   * @format date-time
+   */
+  creadoEn: string;
+  /**
+   * Fecha de última actualización
+   * @format date-time
+   */
+  actualizadoEn: string;
+}
+
+export interface ViajeServicioNextStepResultDto {
+  /**
+   * Siguiente número de orden
+   * @example 1
+   */
+  orden: number;
+  /**
+   * ID de la parada de partida sugerida
+   * @example 1
+   */
+  paradaPartidaId: number;
+  /**
+   * ID de la parada de llegada sugerida
+   * @example 2
+   */
+  paradaLlegadaId: number;
+  /**
+   * Nombre de la parada de partida sugerida
+   * @example "Cochera"
+   */
+  paradaPartidaNombre: string;
+  /**
+   * Nombre de la parada de llegada sugerida
+   * @example "Almacén"
+   */
+  paradaLlegadaNombre: string;
+  /**
+   * Hora de salida sugerida
+   * @example "08:30"
+   */
+  horaSalida: string;
+  /**
+   * Kilometraje inicial sugerido
+   * @example 10500
+   */
+  kmInicial: number;
+  /**
+   * Número de pasajeros (siempre null por defecto)
+   * @example null
+   */
+  numeroPasajeros: number;
+  /**
+   * Progreso de paradas
+   * @example "1/4"
+   */
+  progreso: string;
+  /**
+   * Indica si es el primer tramo
+   * @example true
+   */
+  isStart: boolean;
+  /**
+   * Indica si es el último tramo
+   * @example false
+   */
+  isFinal: boolean;
+}
+
+export interface ViajeServicioCreateDto {
+  /**
+   * ID de la parada de partida
+   * @example 1
+   */
+  paradaPartidaId: number;
+  /**
+   * ID de la parada de llegada
+   * @example 2
+   */
+  paradaLlegadaId: number;
+  /**
+   * Hora de salida (formato HH:mm)
+   * @example "06:45"
+   */
+  horaSalida: string;
+  /**
+   * Hora de término (formato HH:mm)
+   * @example "07:45"
+   */
+  horaTermino?: string;
+  /**
+   * Kilometraje inicial del odómetro
+   * @example 94880
+   */
+  kmInicial: number;
+  /**
+   * Kilometraje final del odómetro
+   * @example 94891
+   */
+  kmFinal?: number;
+  /**
+   * Número de pasajeros transportados
+   * @example 12
+   */
+  numeroPasajeros?: number;
+  /**
+   * Observaciones del servicio
+   * @example "Servicio sin novedad"
+   */
+  observaciones?: string;
+}
+
+export interface ViajeServicioUpdateDto {
+  /**
+   * ID de la parada de partida
+   * @example 1
+   */
+  paradaPartidaId?: number;
+  /**
+   * ID de la parada de llegada
+   * @example 2
+   */
+  paradaLlegadaId?: number;
+  /**
+   * Hora de salida (formato HH:mm)
+   * @example "06:45"
+   */
+  horaSalida?: string;
+  /**
+   * Hora de término (formato HH:mm)
+   * @example "07:45"
+   */
+  horaTermino?: string;
+  /**
+   * Kilometraje inicial del odómetro
+   * @example 94880
+   */
+  kmInicial?: number;
+  /**
+   * Kilometraje final del odómetro
+   * @example 94891
+   */
+  kmFinal?: number;
+  /**
+   * Número de pasajeros transportados
+   * @example 12
+   */
+  numeroPasajeros?: number;
+  /**
+   * Observaciones del servicio
+   * @example "Servicio sin novedad"
+   */
+  observaciones?: string;
+}
+
+export interface ViajePasajeroDetalleDto {
+  /**
+   * ID del pasajero
+   * @example 1
+   */
+  id: number;
+  /**
+   * DNI del pasajero
+   * @example "12345678"
+   */
+  dni: string;
+  /**
+   * Nombres del pasajero
+   * @example "Juan"
+   */
+  nombres: string;
+  /**
+   * Apellidos del pasajero
+   * @example "Pérez"
+   */
+  apellidos: string;
+}
+
+export interface ViajePasajeroResultDto {
+  /**
+   * ID del viaje
+   * @example 1
+   */
+  viajeId: number;
+  /**
+   * ID del pasajero
+   * @example 1
+   */
+  pasajeroId: number;
+  /**
+   * Asistencia del pasajero
+   * @example false
+   */
+  asistencia: boolean;
+  /**
+   * Fecha de creación
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  creadoEn: string;
+  /**
+   * Fecha de actualización
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  actualizadoEn: string;
+  pasajero: ViajePasajeroDetalleDto;
+}
+
+export type PasajeroItemDto = object;
+
+export interface ViajePasajeroFillDto {
+  /**
+   * Lista de pasajeros con su estado de asistencia
+   * @example [{"pasajeroId":1,"asistencia":true},{"pasajeroId":2,"asistencia":false}]
+   */
+  pasajeros: PasajeroItemDto[];
+}
+
+export interface ChecklistItemResultDto {
+  /**
+   * ID del item
+   * @example 1
+   */
+  id: number;
+  /**
+   * Nombre del item
+   * @example "Reporte diario"
+   */
+  nombre: string;
+  /**
+   * Descripción
+   * @example "Bitácora actualizada"
+   */
+  descripcion?: string;
+  /**
+   * Orden de visualización
+   * @example 1
+   */
+  orden: number;
+  /**
+   * Fecha creación
+   * @format date-time
+   */
+  creadoEn: string;
+  /**
+   * Fecha actualización
+   * @format date-time
+   */
+  actualizadoEn: string;
+  /**
+   * Fecha eliminación
+   * @format date-time
+   */
+  eliminadoEn: string;
+}
+
+export interface ChecklistItemCreateDto {
+  /**
+   * Nombre del item
+   * @example "Reporte diario"
+   */
+  nombre: string;
+  /**
+   * Descripción del item
+   * @example "Bitácora actualizada"
+   */
+  descripcion?: string;
+  /**
+   * Orden de visualización
+   * @example 1
+   */
+  orden?: number;
+}
+
+export interface ChecklistItemUpdateDto {
+  /**
+   * Nombre del item
+   * @example "Reporte diario"
+   */
+  nombre?: string;
+  /**
+   * Descripción del item
+   * @example "Bitácora actualizada"
+   */
+  descripcion?: string;
+  /**
+   * Orden de visualización
+   * @example 1
+   */
+  orden?: number;
+}
+
+export interface ViajeChecklistItemDetalleDto {
+  /**
+   * ID del item del catálogo
+   * @example 1
+   */
+  checklistItemId: number;
+  /**
+   * ID del documento de configuración, null si no tiene
+   * @example 10
+   */
+  vehiculoChecklistDocumentId: number;
+  /**
+   * Observación del item
+   * @example "Sin novedad"
+   */
+  observacion?: string;
+  /**
+   * Fecha creación
+   * @format date-time
+   */
+  creadoEn: string | null;
+  /**
+   * Fecha actualización
+   * @format date-time
+   */
+  actualizadoEn: string | null;
+  /**
+   * Nombre del item (Catálogo)
+   * @example "Llantas"
+   */
+  nombre: string;
+  /**
+   * Descripción del item (Catálogo)
+   * @example "Revisión estado"
+   */
+  descripcion?: string;
+  /**
+   * Orden
+   * @example 1
+   */
+  orden: number;
+  /**
+   * Indica si es una actualización de un documento existente para este viaje
+   * @default false
+   * @example true
+   */
+  isUpdate?: boolean;
+}
+
+export interface ViajeChecklistResultDto {
+  /**
+   * ID del checklist
+   * @example 1
+   */
+  id: number | null;
+  /**
+   * ID del viaje
+   * @example 1
+   */
+  viajeId: number;
+  /** Tipo */
+  tipo: "salida" | "llegada";
+  /**
+   * ID de quien validó
+   * @example 1
+   */
+  validadoPor?: number;
+  /**
+   * Fecha de validación
+   * @format date-time
+   */
+  validadoEn?: string;
+  /**
+   * Observaciones
+   * @example "Sin observaciones"
+   */
+  observaciones?: string;
+  /**
+   * Fecha creación
+   * @format date-time
+   */
+  creadoEn: string | null;
+  /**
+   * Fecha actualización
+   * @format date-time
+   */
+  actualizadoEn: string | null;
+  /** Items del checklist */
+  items?: ViajeChecklistItemDetalleDto[];
+  /**
+   * Mensaje de estado de notificación
+   * @example "Notificación enviada por items faltantes."
+   */
+  message?: string;
+}
+
+export interface NotificacionListDto {
+  id: number;
+  titulo: string;
+  mensaje: string;
+  /** @default "info" */
+  tipo?: "info" | "warning" | "error" | "success";
+  /** @format date-time */
+  creadoEn: string;
+  leido: boolean;
+}
+
+export interface PaginatedNotificacionResultDto {
+  /** Lista de notificaciones */
+  data: NotificacionListDto[];
+  /** Metadatos de la paginación */
+  meta: PaginationMetaDto;
+}
+
+export interface NotificacionCreateDto {
+  titulo: string;
+  mensaje: string;
+  /** @default "info" */
+  tipo?: "info" | "warning" | "error" | "success";
+}
+
+export interface NotificacionResultDto {
+  /** @example 1 */
+  id: number;
+  /** @example "Título de la notificación" */
+  titulo: string;
+  /** @example "Cuerpo del mensaje de la notificación" */
+  mensaje: string;
+  /** @example "info" */
+  tipo: "info" | "warning" | "error" | "success";
+  /**
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  creadoEn: string;
+  /** @example false */
+  leido: boolean;
+}
+
+export interface VencimientoResumenDto {
+  /** @example 5 */
+  clientes: number;
+  /** @example 3 */
+  conductores: number;
+  /** @example 2 */
+  vehiculos: number;
+  /** @example 1 */
+  usuarios: number;
+  /** @example 2 */
+  vencidos: number;
+  /** @example 9 */
+  porVencer: number;
+}
+
+export interface NotificacionPreviewDto {
+  /** @example "DNI próximo a vencer" */
+  titulo: string;
+  /** @example "El documento DNI de Cliente Juan Pérez vencerá en 5 días" */
+  mensaje: string;
+  /** @example "warning" */
+  tipo: "info" | "warning" | "error" | "success";
+  /** @example "cliente" */
+  entidad: "cliente" | "conductor" | "vehiculo" | "usuario";
+  /** @example 1 */
+  entidadId: number;
+  /** @example "Juan Pérez" */
+  entidadNombre: string;
+  /** @example "dni" */
+  tipoDocumento: string;
+  /** @example 5 */
+  diasRestantes: number;
+}
+
+export interface PreviewVencimientosResultDto {
+  /** @example {"fechaReferencia":"2025-12-18","diasAnticipacion":7,"fechaLimite":"2025-12-25"} */
+  parametros: object;
+  /** @example 11 */
+  totalDocumentosEncontrados: number;
+  resumen: VencimientoResumenDto;
+  notificaciones: NotificacionPreviewDto[];
+}
+
+export interface GenerarVencimientosResultDto {
+  /** @example "Se crearon 5 notificaciones" */
+  message: string;
+  /** @example 5 */
+  created: number;
+  notifications?: NotificacionResultDto[];
+  previews: NotificacionPreviewDto[];
+  /** @example {"fechaReferencia":"2025-12-18","diasAnticipacion":7} */
+  parametros: object;
+}
+
+export interface SendEmailDto {
+  /**
+   * Correo del destinatario
+   * @example "example@gmail.com"
+   */
+  to: string;
+  /**
+   * Asunto
+   * @example "Asunto del correo"
+   */
+  subject: string;
+  /**
+   * Cuerpo del mensaje en texto plano
+   * @example "Contenido del correo"
+   */
+  text: string;
+  /**
+   * Cuerpo del mensaje en HTML
+   * @example "<h1>Hola</h1>"
+   */
+  html?: string;
 }
 
 export interface ClienteListDto {
@@ -4919,6 +7356,74 @@ export interface ClienteDocumentoUpdateDto {
   fechaEmision?: string;
 }
 
+export interface PasajeroResultDto {
+  /** @example 1 */
+  id: number;
+  /** @example 1 */
+  clienteId: number;
+  /** @example "12345678" */
+  dni: string;
+  /** @example "Juan" */
+  nombres: string;
+  /** @example "Pérez" */
+  apellidos: string;
+  /** @format date-time */
+  creadoEn: string;
+  /** @format date-time */
+  actualizadoEn: string;
+}
+
+export interface PaginatedPasajeroResultDto {
+  data: PasajeroResultDto[];
+  meta: object;
+}
+
+export interface PasajeroCreateDto {
+  /**
+   * ID del cliente propietario
+   * @example 1
+   */
+  clienteId: number;
+  /**
+   * DNI del pasajero
+   * @example "12345678"
+   */
+  dni: string;
+  /**
+   * Nombres del pasajero
+   * @example "Juan"
+   */
+  nombres: string;
+  /**
+   * Apellidos del pasajero
+   * @example "Pérez"
+   */
+  apellidos: string;
+}
+
+export interface PasajeroUpdateDto {
+  /**
+   * ID del cliente propietario
+   * @example 1
+   */
+  clienteId?: number;
+  /**
+   * DNI del pasajero
+   * @example "12345678"
+   */
+  dni?: string;
+  /**
+   * Nombres del pasajero
+   * @example "Juan"
+   */
+  nombres?: string;
+  /**
+   * Apellidos del pasajero
+   * @example "Pérez"
+   */
+  apellidos?: string;
+}
+
 export interface TallerCreateDto {
   /**
    * RUC del taller
@@ -5049,126 +7554,6 @@ export interface TallerUpdateDto {
    * @example "Av. Industrial 555"
    */
   direccion?: string;
-}
-
-export interface NotificacionListDto {
-  id: number;
-  titulo: string;
-  mensaje: string;
-  /** @default "info" */
-  tipo?: "info" | "warning" | "error" | "success";
-  /** @format date-time */
-  creadoEn: string;
-  leido: boolean;
-}
-
-export interface PaginatedNotificacionResultDto {
-  /** Lista de notificaciones */
-  data: NotificacionListDto[];
-  /** Metadatos de la paginación */
-  meta: PaginationMetaDto;
-}
-
-export interface NotificacionCreateDto {
-  titulo: string;
-  mensaje: string;
-  /** @default "info" */
-  tipo?: "info" | "warning" | "error" | "success";
-}
-
-export interface NotificacionResultDto {
-  /** @example 1 */
-  id: number;
-  /** @example "Título de la notificación" */
-  titulo: string;
-  /** @example "Cuerpo del mensaje de la notificación" */
-  mensaje: string;
-  /** @example "info" */
-  tipo: "info" | "warning" | "error" | "success";
-  /**
-   * @format date-time
-   * @example "2023-01-01T00:00:00.000Z"
-   */
-  creadoEn: string;
-  /** @example false */
-  leido: boolean;
-}
-
-export interface SendEmailDto {
-  /**
-   * Correo del destinatario
-   * @example "example@gmail.com"
-   */
-  to: string;
-  /**
-   * Asunto
-   * @example "Asunto del correo"
-   */
-  subject: string;
-  /**
-   * Cuerpo del mensaje en texto plano
-   * @example "Contenido del correo"
-   */
-  text: string;
-  /**
-   * Cuerpo del mensaje en HTML
-   * @example "<h1>Hola</h1>"
-   */
-  html?: string;
-}
-
-export interface VencimientoResumenDto {
-  /** @example 5 */
-  clientes: number;
-  /** @example 3 */
-  conductores: number;
-  /** @example 2 */
-  vehiculos: number;
-  /** @example 1 */
-  usuarios: number;
-  /** @example 2 */
-  vencidos: number;
-  /** @example 9 */
-  porVencer: number;
-}
-
-export interface NotificacionPreviewDto {
-  /** @example "DNI próximo a vencer" */
-  titulo: string;
-  /** @example "El documento DNI de Cliente Juan Pérez vencerá en 5 días" */
-  mensaje: string;
-  /** @example "warning" */
-  tipo: "info" | "warning" | "error" | "success";
-  /** @example "cliente" */
-  entidad: "cliente" | "conductor" | "vehiculo" | "usuario";
-  /** @example 1 */
-  entidadId: number;
-  /** @example "Juan Pérez" */
-  entidadNombre: string;
-  /** @example "dni" */
-  tipoDocumento: string;
-  /** @example 5 */
-  diasRestantes: number;
-}
-
-export interface PreviewVencimientosResultDto {
-  /** @example {"fechaReferencia":"2025-12-18","diasAnticipacion":7,"fechaLimite":"2025-12-25"} */
-  parametros: object;
-  /** @example 11 */
-  totalDocumentosEncontrados: number;
-  resumen: VencimientoResumenDto;
-  notificaciones: NotificacionPreviewDto[];
-}
-
-export interface GenerarVencimientosResultDto {
-  /** @example "Se crearon 5 notificaciones" */
-  message: string;
-  /** @example 5 */
-  created: number;
-  notifications?: NotificacionResultDto[];
-  previews: NotificacionPreviewDto[];
-  /** @example {"fechaReferencia":"2025-12-18","diasAnticipacion":7} */
-  parametros: object;
 }
 
 export interface ViajeDetalladoDto {
@@ -6199,6 +8584,8 @@ export type AppGetHelloData = any;
 
 export type AuthLoginData = LoginResultDto;
 
+export type AuthLoginConductorData = ConductorLoginResultDto;
+
 export interface UsuariosFindAllParams {
   /**
    * Número de página (comienza en 1)
@@ -6273,6 +8660,122 @@ export interface UsuariosDeleteDocumentoParams {
 
 export type UsuariosDeleteDocumentoData = UsuarioDocumentoResultDto;
 
+export interface ConductoresFindAllParams {
+  /**
+   * Número de página (comienza en 1)
+   * @default 1
+   * @example 1
+   */
+  page?: number;
+  /**
+   * Cantidad de elementos por página
+   * @default 10
+   * @example 10
+   */
+  limit?: number;
+  /** Búsqueda por nombre, DNI o número de licencia del conductor */
+  search?: string;
+  /** Fecha de inicio para filtrar por rango (formato: YYYY-MM-DD) */
+  fechaInicio?: string;
+  /** Fecha de fin para filtrar por rango (formato: YYYY-MM-DD) */
+  fechaFin?: string;
+  /**
+   * Filtrar por clase de licencia
+   * @example "A"
+   */
+  claseLicencia?: "A" | "B";
+  /**
+   * Filtrar por categoría de licencia
+   * @example "I"
+   */
+  categoriaLicencia?:
+    | "I"
+    | "II-a"
+    | "II-b"
+    | "II-c"
+    | "III-a"
+    | "III-b"
+    | "III-c";
+}
+
+export type ConductoresFindAllData = PaginatedConductorResultDto;
+
+export interface ConductoresFindAllEstadoDocumentosParams {
+  /**
+   * Número de página (comienza en 1)
+   * @default 1
+   * @example 1
+   */
+  page?: number;
+  /**
+   * Cantidad de elementos por página
+   * @default 10
+   * @example 10
+   */
+  limit?: number;
+  /**
+   * Filtrar por estado de documentos
+   * @example "incompleto"
+   */
+  filtro?: "completo" | "incompleto";
+}
+
+export type ConductoresFindAllEstadoDocumentosData =
+  PaginatedConductorEstadoDocumentosResultDto;
+
+export interface ConductoresFindOneParams {
+  /** Driver ID */
+  id: number;
+}
+
+export type ConductoresFindOneData = ConductorResultDto;
+
+export type ConductoresCreateData = ConductorResultDto;
+
+export interface ConductoresUpdateParams {
+  /** Driver ID */
+  id: number;
+}
+
+export type ConductoresUpdateData = ConductorResultDto;
+
+export interface ConductoresRemoveParams {
+  /** Driver ID */
+  id: number;
+}
+
+export type ConductoresRemoveData = ConductorResultDto;
+
+export interface ConductoresFindDocumentoParams {
+  /** ID del documento */
+  id: number;
+}
+
+export type ConductoresFindDocumentoData = ConductorDocumentoResultDto;
+
+export type ConductoresCreateDocumentoData = ConductorDocumentoResultDto;
+
+export interface ConductoresUpdateDocumentoParams {
+  /** ID del documento */
+  id: number;
+}
+
+export type ConductoresUpdateDocumentoData = ConductorDocumentoResultDto;
+
+export interface ConductoresDeleteDocumentoParams {
+  /** ID del documento */
+  id: number;
+}
+
+export type ConductoresDeleteDocumentoData = ConductorDocumentoResultDto;
+
+export interface ConductoresDownloadParams {
+  /** ID del conductor */
+  id: number;
+}
+
+export type ConductoresDownloadData = any;
+
 export type DashboardGetStatsData = DashboardStatsDto;
 
 export type DashboardGetVehiculosPorEstadoData = VehiculosPorEstadoDto;
@@ -6312,6 +8815,36 @@ export interface VehiculosFindAllParams {
 }
 
 export type VehiculosFindAllData = PaginatedVehiculoResultDto;
+
+export interface VehiculosFindAllEstadoDocumentosParams {
+  /**
+   * Número de página (comienza en 1)
+   * @default 1
+   * @example 1
+   */
+  page?: number;
+  /**
+   * Cantidad de elementos por página
+   * @default 10
+   * @example 10
+   */
+  limit?: number;
+  /**
+   * Filtrar por estado de documentos
+   * @example "incompleto"
+   */
+  filtro?: "completo" | "incompleto";
+}
+
+export type VehiculosFindAllEstadoDocumentosData =
+  PaginatedVehiculoEstadoDocumentosResultDto;
+
+export interface VehiculosDownloadParams {
+  /** ID del Vehículo */
+  id: number;
+}
+
+export type VehiculosDownloadData = any;
 
 export interface VehiculosFindOneParams {
   /** Vehicle ID */
@@ -6453,84 +8986,239 @@ export interface VehiculosDeleteModeloParams {
 
 export type VehiculosDeleteModeloData = ModeloResultDto;
 
-export interface ConductoresFindAllParams {
+export interface VehiculosFindChecklistHistoryParams {
   /**
-   * Número de página (comienza en 1)
+   * ID del ChecklistItem (Tipo de documento)
+   * @example 1
+   */
+  checklistItemId: number;
+  /**
+   * Página/Offset
    * @default 1
    * @example 1
    */
   page?: number;
   /**
-   * Cantidad de elementos por página
+   * Límite por página
    * @default 10
    * @example 10
    */
   limit?: number;
-  /** Búsqueda por nombre, DNI o número de licencia del conductor */
-  search?: string;
-  /** Fecha de inicio para filtrar por rango (formato: YYYY-MM-DD) */
-  fechaInicio?: string;
-  /** Fecha de fin para filtrar por rango (formato: YYYY-MM-DD) */
-  fechaFin?: string;
+  /** ID del Vehículo */
+  id: number;
+}
+
+export type VehiculosFindChecklistHistoryData =
+  PaginatedVehiculoChecklistHistoryResultDto;
+
+export interface VehiculosFindIpercContinuoParams {
+  /** ID específico del documento (opcional) */
+  documentId?: number;
+  /** ID del Vehículo */
+  id: number;
+}
+
+export type VehiculosFindIpercContinuoData = ResultIpercContinuoDto;
+
+export interface VehiculosFindHojaInspeccionParams {
+  /** ID específico del documento (opcional) */
+  documentId?: number;
+  /** ID del Vehículo */
+  id: number;
+}
+
+export type VehiculosFindHojaInspeccionData = ResultHojaInspeccionDto;
+
+export interface VehiculosFindInspeccionDocumentosParams {
+  /** ID específico del documento (opcional) */
+  documentId?: number;
+  /** ID del Vehículo */
+  id: number;
+}
+
+export type VehiculosFindInspeccionDocumentosData =
+  ResultInspeccionDocumentosDto;
+
+export interface VehiculosFindLucesParams {
+  /** ID específico del documento (opcional) */
+  documentId?: number;
+  /** ID del Vehículo */
+  id: number;
+}
+
+export type VehiculosFindLucesData = ResultLucesEmergenciaAlarmasDto;
+
+export interface VehiculosFindCinturonesParams {
+  /** ID específico del documento (opcional) */
+  documentId?: number;
+  /** ID del Vehículo */
+  id: number;
+}
+
+export type VehiculosFindCinturonesData = ResultCinturonesSeguridadDto;
+
+export interface VehiculosFindHerramientasParams {
+  /** ID específico del documento (opcional) */
+  documentId?: number;
+  /** ID del Vehículo */
+  id: number;
+}
+
+export type VehiculosFindHerramientasData = ResultInspeccionHerramientasDto;
+
+export interface VehiculosFindBotiquinesParams {
+  /** ID específico del documento (opcional) */
+  documentId?: number;
+  /** ID del Vehículo */
+  id: number;
+}
+
+export type VehiculosFindBotiquinesData = ResultInspeccionBotiquinesDto;
+
+export interface VehiculosFindKitAntiderramesParams {
+  /** ID específico del documento (opcional) */
+  documentId?: number;
+  /** ID del Vehículo */
+  id: number;
+}
+
+export type VehiculosFindKitAntiderramesData = ResultKitAntiderramesDto;
+
+export interface VehiculosFindRevisionVehiculosParams {
+  /** ID específico del documento (opcional) */
+  documentId?: number;
+  /** ID del Vehículo */
+  id: number;
+}
+
+export type VehiculosFindRevisionVehiculosData = ResultRevisionVehiculosDto;
+
+export interface VehiculosUpsertIpercContinuoParams {
   /**
-   * Filtrar por clase de licencia
-   * @example "A"
+   * Tipo de viaje (salida/llegada)
+   * @default "salida"
    */
-  claseLicencia?: "A" | "B";
+  tipo?: "salida" | "llegada";
+  /** ID del Vehículo */
+  id: number;
+  /** ID del Viaje */
+  viajeId: number;
+}
+
+export type VehiculosUpsertIpercContinuoData = ResultIpercContinuoDto;
+
+export interface VehiculosUpsertHojaInspeccionParams {
   /**
-   * Filtrar por categoría de licencia
-   * @example "Uno"
+   * Tipo de viaje (salida/llegada)
+   * @default "salida"
    */
-  categoriaLicencia?: "Uno" | "Dos" | "Tres";
-}
-
-export type ConductoresFindAllData = PaginatedConductorResultDto;
-
-export interface ConductoresFindOneParams {
-  /** Driver ID */
+  tipo?: "salida" | "llegada";
+  /** ID del Vehículo */
   id: number;
+  /** ID del Viaje */
+  viajeId: number;
 }
 
-export type ConductoresFindOneData = ConductorResultDto;
+export type VehiculosUpsertHojaInspeccionData = ResultHojaInspeccionDto;
 
-export type ConductoresCreateData = ConductorResultDto;
-
-export interface ConductoresUpdateParams {
-  /** Driver ID */
+export interface VehiculosUpsertInspeccionDocumentosParams {
+  /**
+   * Tipo de viaje (salida/llegada)
+   * @default "salida"
+   */
+  tipo?: "salida" | "llegada";
+  /** ID del Vehículo */
   id: number;
+  /** ID del Viaje */
+  viajeId: number;
 }
 
-export type ConductoresUpdateData = ConductorResultDto;
+export type VehiculosUpsertInspeccionDocumentosData =
+  ResultInspeccionDocumentosDto;
 
-export interface ConductoresRemoveParams {
-  /** Driver ID */
+export interface VehiculosUpsertLucesParams {
+  /**
+   * Tipo de viaje (salida/llegada)
+   * @default "salida"
+   */
+  tipo?: "salida" | "llegada";
+  /** ID del Vehículo */
   id: number;
+  /** ID del Viaje */
+  viajeId: number;
 }
 
-export type ConductoresRemoveData = ConductorResultDto;
+export type VehiculosUpsertLucesData = ResultLucesEmergenciaAlarmasDto;
 
-export interface ConductoresFindDocumentoParams {
-  /** ID del documento */
+export interface VehiculosUpsertCinturonesParams {
+  /**
+   * Tipo de viaje (salida/llegada)
+   * @default "salida"
+   */
+  tipo?: "salida" | "llegada";
+  /** ID del Vehículo */
   id: number;
+  /** ID del Viaje */
+  viajeId: number;
 }
 
-export type ConductoresFindDocumentoData = ConductorDocumentoResultDto;
+export type VehiculosUpsertCinturonesData = ResultCinturonesSeguridadDto;
 
-export type ConductoresCreateDocumentoData = ConductorDocumentoResultDto;
-
-export interface ConductoresUpdateDocumentoParams {
-  /** ID del documento */
+export interface VehiculosUpsertHerramientasParams {
+  /**
+   * Tipo de viaje (salida/llegada)
+   * @default "salida"
+   */
+  tipo?: "salida" | "llegada";
+  /** ID del Vehículo */
   id: number;
+  /** ID del Viaje */
+  viajeId: number;
 }
 
-export type ConductoresUpdateDocumentoData = ConductorDocumentoResultDto;
+export type VehiculosUpsertHerramientasData = ResultInspeccionHerramientasDto;
 
-export interface ConductoresDeleteDocumentoParams {
-  /** ID del documento */
+export interface VehiculosUpsertBotiquinesParams {
+  /**
+   * Tipo de viaje (salida/llegada)
+   * @default "salida"
+   */
+  tipo?: "salida" | "llegada";
+  /** ID del Vehículo */
   id: number;
+  /** ID del Viaje */
+  viajeId: number;
 }
 
-export type ConductoresDeleteDocumentoData = ConductorDocumentoResultDto;
+export type VehiculosUpsertBotiquinesData = ResultInspeccionBotiquinesDto;
+
+export interface VehiculosUpsertKitAntiderramesParams {
+  /**
+   * Tipo de viaje (salida/llegada)
+   * @default "salida"
+   */
+  tipo?: "salida" | "llegada";
+  /** ID del Vehículo */
+  id: number;
+  /** ID del Viaje */
+  viajeId: number;
+}
+
+export type VehiculosUpsertKitAntiderramesData = ResultKitAntiderramesDto;
+
+export interface VehiculosUpsertRevisionVehiculosParams {
+  /**
+   * Tipo de viaje (salida/llegada)
+   * @default "salida"
+   */
+  tipo?: "salida" | "llegada";
+  /** ID del Vehículo */
+  id: number;
+  /** ID del Viaje */
+  viajeId: number;
+}
+
+export type VehiculosUpsertRevisionVehiculosData = ResultRevisionVehiculosDto;
 
 export interface MantenimientosFindAllParams {
   /**
@@ -6672,6 +9360,29 @@ export interface MantenimientosDeleteDocumentoParams {
 
 export type MantenimientosDeleteDocumentoData = MantenimientoDocumentoResultDto;
 
+export interface MantenimientosGetReporteEstadoVehiculosParams {
+  /**
+   * Número de página
+   * @min 1
+   * @default 1
+   */
+  page?: number;
+  /**
+   * Elementos por página
+   * @min 1
+   * @default 10
+   */
+  limit?: number;
+  /**
+   * Ordenamiento: proximos (menor kilometraje restante) o ultimos (mayor fecha de mantenimiento)
+   * @default "proximos"
+   */
+  sort?: "proximos" | "ultimos";
+}
+
+export type MantenimientosGetReporteEstadoVehiculosData =
+  PaginatedReporteEstadoResultDto;
+
 export interface RutasFindAllParams {
   /**
    * Número de página (comienza en 1)
@@ -6696,27 +9407,66 @@ export interface RutasFindAllParams {
 export type RutasFindAllData = PaginatedRutaResultDto;
 
 export interface RutasFindOneParams {
-  /** Route ID */
+  /** ID de la ruta */
   id: number;
 }
 
 export type RutasFindOneData = RutaResultDto;
 
-export type RutasCreateData = RutaResultDto;
+export interface RutasFindParadasParams {
+  /** Buscar por nombre de parada */
+  search?: string;
+  /** ID de la ruta */
+  rutaId: number;
+}
 
-export interface RutasUpdateParams {
-  /** Route ID */
+export type RutasFindParadasData = RutaParadaResultDto[];
+
+export interface RutasFindAllCircuitosParams {
+  /**
+   * Número de página (comienza en 1)
+   * @default 1
+   * @example 1
+   */
+  page?: number;
+  /**
+   * Cantidad de elementos por página
+   * @default 10
+   * @example 10
+   */
+  limit?: number;
+  /** Búsqueda por nombre del circuito */
+  search?: string;
+  /** Fecha de inicio para filtrar por rango (formato: YYYY-MM-DD) */
+  fechaInicio?: string;
+  /** Fecha de fin para filtrar por rango (formato: YYYY-MM-DD) */
+  fechaFin?: string;
+}
+
+export type RutasFindAllCircuitosData = PaginatedRutaCircuitoResultDto;
+
+export interface RutasFindOneCircuitoParams {
+  /** ID del circuito */
   id: number;
 }
 
-export type RutasUpdateData = RutaResultDto;
+export type RutasFindOneCircuitoData = RutaCircuitoResultDto;
 
-export interface RutasRemoveParams {
-  /** Route ID */
+export type RutasCreateCircuitoData = RutaCircuitoResultDto;
+
+export interface RutasUpdateCircuitoParams {
+  /** ID del circuito */
   id: number;
 }
 
-export type RutasRemoveData = RutaResultDto;
+export type RutasUpdateCircuitoData = RutaCircuitoResultDto;
+
+export interface RutasRemoveCircuitoParams {
+  /** ID del circuito */
+  id: number;
+}
+
+export type RutasRemoveCircuitoData = any;
 
 export interface ViajesFindAllParams {
   /**
@@ -6737,10 +9487,7 @@ export interface ViajesFindAllParams {
   fechaInicio?: string;
   /** Fecha de fin para filtrar por rango (formato: YYYY-MM-DD) */
   fechaFin?: string;
-  /**
-   * Filtrar por modalidad de servicio
-   * @example "regular"
-   */
+  /** Filtrar por modalidad de servicio */
   modalidadServicio?:
     | "regular"
     | "expreso"
@@ -6748,22 +9495,34 @@ export interface ViajesFindAllParams {
     | "especial"
     | "turismo"
     | "corporativo";
-  /**
-   * Filtrar por tipo de ruta (ocasional, fija)
-   * @example "ocasional"
-   */
+  /** Filtrar por tipo de ruta (ocasional, fija) */
   tipoRuta?: "ocasional" | "fija";
-  /**
-   * Filtrar por estado del viaje
-   * @example "programado"
-   */
+  /** Filtrar por estado del viaje */
   estado?: "programado" | "en_progreso" | "completado" | "cancelado";
+  /** Filtrar por IDs de conductores (separados por coma) */
+  conductoresId?: string[];
+  /**
+   * Filtrar por ID de cliente
+   * @example 1
+   */
+  clienteId?: number;
+  /**
+   * Filtrar por ID de ruta
+   * @example 1
+   */
+  rutaId?: number;
+  /** Filtrar por IDs de vehículos (separados por coma) */
+  vehiculosId?: string[];
+  /** Filtrar por sentido del viaje */
+  sentido?: "ida" | "vuelta";
+  /** Filtrar por turno del viaje */
+  turno?: "dia" | "noche";
 }
 
 export type ViajesFindAllData = PaginatedViajeResultDto;
 
 export interface ViajesFindOneParams {
-  /** Trip ID */
+  /** ID del viaje */
   id: number;
 }
 
@@ -6772,14 +9531,14 @@ export type ViajesFindOneData = ViajeResultDto;
 export type ViajesCreateData = ViajeResultDto;
 
 export interface ViajesUpdateParams {
-  /** Trip ID */
+  /** ID del viaje */
   id: number;
 }
 
 export type ViajesUpdateData = ViajeResultDto;
 
 export interface ViajesRemoveParams {
-  /** Trip ID */
+  /** ID del viaje */
   id: number;
 }
 
@@ -6887,6 +9646,190 @@ export interface ViajesDeleteComentarioParams {
 
 export type ViajesDeleteComentarioData = ViajeComentarioResultDto;
 
+export interface ViajesFindServiciosParams {
+  /** ID del viaje */
+  viajeId: number;
+}
+
+export type ViajesFindServiciosData = ViajeServicioResultDto[];
+
+export interface ViajesGetNextStepParams {
+  /** ID del viaje */
+  viajeId: number;
+}
+
+export type ViajesGetNextStepData = ViajeServicioNextStepResultDto;
+
+export interface ViajesCreateServicioParams {
+  /** ID del viaje */
+  viajeId: number;
+}
+
+export type ViajesCreateServicioData = ViajeServicioResultDto;
+
+export interface ViajesUpdateServicioParams {
+  /** ID del servicio */
+  id: number;
+}
+
+export type ViajesUpdateServicioData = ViajeServicioResultDto;
+
+export interface ViajesDeleteServicioParams {
+  /** ID del servicio */
+  id: number;
+}
+
+export type ViajesDeleteServicioData = ViajeServicioResultDto;
+
+export interface ViajesFindPasajerosParams {
+  /** ID del viaje */
+  viajeId: number;
+}
+
+export type ViajesFindPasajerosData = ViajePasajeroResultDto[];
+
+export interface ViajesUpsertPasajerosParams {
+  /** ID del viaje */
+  viajeId: number;
+}
+
+export type ViajesUpsertPasajerosData = ViajePasajeroResultDto[];
+
+export type ViajesFindAllChecklistItemsData = ChecklistItemResultDto[];
+
+export interface ViajesFindChecklistItemParams {
+  /** ID del item */
+  id: number;
+}
+
+export type ViajesFindChecklistItemData = ChecklistItemResultDto;
+
+export type ViajesCreateChecklistItemData = ChecklistItemResultDto;
+
+export interface ViajesUpdateChecklistItemParams {
+  /** ID del item */
+  id: number;
+}
+
+export type ViajesUpdateChecklistItemData = ChecklistItemResultDto;
+
+export interface ViajesDeleteChecklistItemParams {
+  /** ID del item */
+  id: number;
+}
+
+export type ViajesDeleteChecklistItemData = ChecklistItemResultDto;
+
+export interface ViajesFindChecklistByTipoParams {
+  /**
+   * Tipo de checklist (salida o llegada)
+   * @example "salida"
+   */
+  tipo: "salida" | "llegada";
+  /** ID del viaje */
+  viajeId: number;
+}
+
+export type ViajesFindChecklistByTipoData = ViajeChecklistResultDto;
+
+export interface ViajesVerifyChecklistParams {
+  /**
+   * Tipo de checklist (salida o llegada)
+   * @example "salida"
+   */
+  tipo: "salida" | "llegada";
+  /** ID del viaje */
+  viajeId: number;
+}
+
+export type ViajesVerifyChecklistData = ViajeChecklistResultDto;
+
+export interface ViajesDeleteChecklistParams {
+  /** ID del checklist */
+  id: number;
+}
+
+export type ViajesDeleteChecklistData = ViajeChecklistResultDto;
+
+export interface NotificacionesFindAllParams {
+  /**
+   * Número de página (comienza en 1)
+   * @default 1
+   * @example 1
+   */
+  page?: number;
+  /**
+   * Cantidad de elementos por página
+   * @default 10
+   * @example 10
+   */
+  limit?: number;
+  /**
+   * ID del usuario
+   * @example 1
+   */
+  userId: number;
+}
+
+export type NotificacionesFindAllData = PaginatedNotificacionResultDto;
+
+export type NotificacionesCreateData = NotificacionResultDto;
+
+export interface NotificacionesMarkAsReadParams {
+  userId: number;
+  id: number;
+}
+
+export type NotificacionesMarkAsReadData = NotificacionResultDto;
+
+export interface NotificacionesPreviewVencimientosParams {
+  /**
+   * Fecha de referencia (YYYY-MM-DD). Punto de partida para la búsqueda.
+   * @example "2025-12-18"
+   */
+  fecha: string;
+  /**
+   * Días de anticipación a buscar (default: 7). Busca documentos que vencen hasta fecha + diasAnticipacion.
+   * @default 7
+   * @example 7
+   */
+  diasAnticipacion?: number;
+}
+
+export type NotificacionesPreviewVencimientosData =
+  PreviewVencimientosResultDto;
+
+export interface NotificacionesGenerarVencimientosParams {
+  /**
+   * Fecha de referencia (YYYY-MM-DD). Punto de partida para la búsqueda.
+   * @example "2025-12-18"
+   */
+  fecha: string;
+  /**
+   * Días de anticipación a buscar (default: 7). Busca documentos que vencen hasta fecha + diasAnticipacion.
+   * @default 7
+   * @example 7
+   */
+  diasAnticipacion?: number;
+}
+
+export type NotificacionesGenerarVencimientosData =
+  GenerarVencimientosResultDto;
+
+export type NotificacionesSendEmailData = any;
+
+export interface NotificacionesNotifyEachAdminParams {
+  diasAnticipacion: number;
+}
+
+export type NotificacionesNotifyEachAdminData = any;
+
+export interface NotificacionesNotifyEachConductorParams {
+  diasAnticipacion: number;
+}
+
+export type NotificacionesNotifyEachConductorData = any;
+
 export interface ClientesFindAllParams {
   /**
    * Número de página (comienza en 1)
@@ -6961,6 +9904,51 @@ export interface ClientesDeleteDocumentoParams {
 
 export type ClientesDeleteDocumentoData = ClienteDocumentoResultDto;
 
+export interface ClientesFindAllPasajerosParams {
+  /**
+   * Número de página
+   * @example 1
+   */
+  page?: number;
+  /**
+   * Límite de items por página
+   * @example 10
+   */
+  limit?: number;
+  /** Término de búsqueda (DNI, nombres, apellidos) */
+  search?: string;
+  /**
+   * ID del cliente para filtrar
+   * @example 1
+   */
+  clienteId?: number;
+}
+
+export type ClientesFindAllPasajerosData = PaginatedPasajeroResultDto;
+
+export interface ClientesFindPasajeroParams {
+  /** ID del pasajero */
+  id: number;
+}
+
+export type ClientesFindPasajeroData = PasajeroResultDto;
+
+export type ClientesCreatePasajeroData = PasajeroResultDto;
+
+export interface ClientesUpdatePasajeroParams {
+  /** ID del pasajero */
+  id: number;
+}
+
+export type ClientesUpdatePasajeroData = PasajeroResultDto;
+
+export interface ClientesDeletePasajeroParams {
+  /** ID del pasajero */
+  id: number;
+}
+
+export type ClientesDeletePasajeroData = PasajeroResultDto;
+
 export type TalleresCreateData = any;
 
 export interface TalleresFindAllParams {
@@ -7008,85 +9996,6 @@ export interface TalleresRemoveParams {
 }
 
 export type TalleresRemoveData = any;
-
-export interface NotificacionesFindAllParams {
-  /**
-   * Número de página (comienza en 1)
-   * @default 1
-   * @example 1
-   */
-  page?: number;
-  /**
-   * Cantidad de elementos por página
-   * @default 10
-   * @example 10
-   */
-  limit?: number;
-  /**
-   * ID del usuario
-   * @example 1
-   */
-  userId: number;
-}
-
-export type NotificacionesFindAllData = PaginatedNotificacionResultDto;
-
-export type NotificacionesCreateData = NotificacionResultDto;
-
-export interface NotificacionesMarkAsReadParams {
-  userId: number;
-  id: number;
-}
-
-export type NotificacionesMarkAsReadData = NotificacionResultDto;
-
-export type NotificacionesSendEmailData = any;
-
-export interface NotificacionesNotifyEachAdminParams {
-  diasAnticipacion: number;
-}
-
-export type NotificacionesNotifyEachAdminData = any;
-
-export interface NotificacionesNotifyEachConductorParams {
-  diasAnticipacion: number;
-}
-
-export type NotificacionesNotifyEachConductorData = any;
-
-export interface NotificacionesPreviewVencimientosParams {
-  /**
-   * Fecha de referencia (YYYY-MM-DD). Punto de partida para la búsqueda.
-   * @example "2025-12-18"
-   */
-  fecha: string;
-  /**
-   * Días de anticipación a buscar (default: 7). Busca documentos que vencen hasta fecha + diasAnticipacion.
-   * @default 7
-   * @example 7
-   */
-  diasAnticipacion?: number;
-}
-
-export type NotificacionesPreviewVencimientosData =
-  PreviewVencimientosResultDto;
-
-export interface NotificacionesGenerarVencimientosParams {
-  /**
-   * Fecha de referencia (YYYY-MM-DD). Punto de partida para la búsqueda.
-   * @example "2025-12-18"
-   */
-  fecha: string;
-  /**
-   * Días de anticipación a buscar (default: 7). Busca documentos que vencen hasta fecha + diasAnticipacion.
-   * @default 7
-   * @example 7
-   */
-  diasAnticipacion?: number;
-}
-
-export type NotificacionesGenerarVencimientosData =
-  GenerarVencimientosResultDto;
 
 export interface ReportesGetViajesDetalladosPorVehiculoParams {
   /** Fecha de inicio del reporte (YYYY-MM-DD) */
@@ -7342,10 +10251,10 @@ export namespace Auth {
    * No description
    * @tags auth
    * @name AuthLogin
-   * @summary User login
+   * @summary Login de usuario
    * @request POST:/auth/login
    * @response `200` `AuthLoginData`
-   * @response `401` `void` Unauthorized
+   * @response `401` `void` Credenciales inválidas
    */
   export namespace AuthLogin {
     export type RequestParams = {};
@@ -7354,6 +10263,23 @@ export namespace Auth {
     export type RequestHeaders = {};
     export type ResponseBody = AuthLoginData;
   }
+
+  /**
+   * No description
+   * @tags auth
+   * @name AuthLoginConductor
+   * @summary Login de conductor
+   * @request POST:/auth/conductor/login
+   * @response `200` `AuthLoginConductorData`
+   * @response `401` `void` Credenciales inválidas
+   */
+  export namespace AuthLoginConductor {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = ConductorLoginDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = AuthLoginConductorData;
+  }
 }
 
 export namespace Usuarios {
@@ -7361,7 +10287,7 @@ export namespace Usuarios {
    * @description Busca por nombre, apellido o email. Filtra por rango de fechas.
    * @tags usuarios
    * @name UsuariosFindAll
-   * @summary Obtener usuarios con paginación, búsqueda y filtros
+   * @summary Obtener usuarios con./dto/usuario/usuario-result.dtofiltros
    * @request GET:/usuario/find-all
    * @secure
    * @response `200` `UsuariosFindAllData`
@@ -7553,6 +10479,270 @@ export namespace Usuarios {
   }
 }
 
+export namespace Conductores {
+  /**
+   * @description Busca por nombre, DNI o número de licencia. Filtra por rango de fechas.
+   * @tags conductores
+   * @name ConductoresFindAll
+   * @summary Obtener conductores con paginación, búsqueda y filtros
+   * @request GET:/conductor/find-all
+   * @secure
+   * @response `200` `ConductoresFindAllData`
+   */
+  export namespace ConductoresFindAll {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /**
+       * Número de página (comienza en 1)
+       * @default 1
+       * @example 1
+       */
+      page?: number;
+      /**
+       * Cantidad de elementos por página
+       * @default 10
+       * @example 10
+       */
+      limit?: number;
+      /** Búsqueda por nombre, DNI o número de licencia del conductor */
+      search?: string;
+      /** Fecha de inicio para filtrar por rango (formato: YYYY-MM-DD) */
+      fechaInicio?: string;
+      /** Fecha de fin para filtrar por rango (formato: YYYY-MM-DD) */
+      fechaFin?: string;
+      /**
+       * Filtrar por clase de licencia
+       * @example "A"
+       */
+      claseLicencia?: "A" | "B";
+      /**
+       * Filtrar por categoría de licencia
+       * @example "I"
+       */
+      categoriaLicencia?:
+        | "I"
+        | "II-a"
+        | "II-b"
+        | "II-c"
+        | "III-a"
+        | "III-b"
+        | "III-c";
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ConductoresFindAllData;
+  }
+
+  /**
+   * No description
+   * @tags conductores
+   * @name ConductoresFindAllEstadoDocumentos
+   * @summary Obtener estado de documentos de conductores (activo/caducado/nulo)
+   * @request GET:/conductor/estado-documentos
+   * @secure
+   * @response `200` `ConductoresFindAllEstadoDocumentosData`
+   */
+  export namespace ConductoresFindAllEstadoDocumentos {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /**
+       * Número de página (comienza en 1)
+       * @default 1
+       * @example 1
+       */
+      page?: number;
+      /**
+       * Cantidad de elementos por página
+       * @default 10
+       * @example 10
+       */
+      limit?: number;
+      /**
+       * Filtrar por estado de documentos
+       * @example "incompleto"
+       */
+      filtro?: "completo" | "incompleto";
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ConductoresFindAllEstadoDocumentosData;
+  }
+
+  /**
+   * No description
+   * @tags conductores
+   * @name ConductoresFindOne
+   * @summary Get a driver by ID
+   * @request GET:/conductor/find-one/{id}
+   * @secure
+   * @response `200` `ConductoresFindOneData`
+   */
+  export namespace ConductoresFindOne {
+    export type RequestParams = {
+      /** Driver ID */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ConductoresFindOneData;
+  }
+
+  /**
+   * No description
+   * @tags conductores
+   * @name ConductoresCreate
+   * @summary Create a new driver
+   * @request POST:/conductor/create
+   * @secure
+   * @response `200` `ConductoresCreateData`
+   */
+  export namespace ConductoresCreate {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = ConductorCreateDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = ConductoresCreateData;
+  }
+
+  /**
+   * No description
+   * @tags conductores
+   * @name ConductoresUpdate
+   * @summary Update a driver
+   * @request PATCH:/conductor/update/{id}
+   * @secure
+   * @response `200` `ConductoresUpdateData`
+   */
+  export namespace ConductoresUpdate {
+    export type RequestParams = {
+      /** Driver ID */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = ConductorUpdateDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = ConductoresUpdateData;
+  }
+
+  /**
+   * No description
+   * @tags conductores
+   * @name ConductoresRemove
+   * @summary Delete a driver
+   * @request DELETE:/conductor/delete/{id}
+   * @secure
+   * @response `200` `ConductoresRemoveData`
+   */
+  export namespace ConductoresRemove {
+    export type RequestParams = {
+      /** Driver ID */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ConductoresRemoveData;
+  }
+
+  /**
+   * No description
+   * @tags conductores
+   * @name ConductoresFindDocumento
+   * @summary Obtener un documento por ID
+   * @request GET:/conductor/documento/{id}
+   * @secure
+   * @response `200` `ConductoresFindDocumentoData`
+   */
+  export namespace ConductoresFindDocumento {
+    export type RequestParams = {
+      /** ID del documento */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ConductoresFindDocumentoData;
+  }
+
+  /**
+   * No description
+   * @tags conductores
+   * @name ConductoresCreateDocumento
+   * @summary Crear un nuevo documento de conductor
+   * @request POST:/conductor/documento/create
+   * @secure
+   * @response `201` `ConductoresCreateDocumentoData`
+   */
+  export namespace ConductoresCreateDocumento {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = ConductorDocumentoCreateDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = ConductoresCreateDocumentoData;
+  }
+
+  /**
+   * No description
+   * @tags conductores
+   * @name ConductoresUpdateDocumento
+   * @summary Actualizar un documento de conductor
+   * @request PATCH:/conductor/documento/update/{id}
+   * @secure
+   * @response `200` `ConductoresUpdateDocumentoData`
+   */
+  export namespace ConductoresUpdateDocumento {
+    export type RequestParams = {
+      /** ID del documento */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = ConductorDocumentoUpdateDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = ConductoresUpdateDocumentoData;
+  }
+
+  /**
+   * No description
+   * @tags conductores
+   * @name ConductoresDeleteDocumento
+   * @summary Eliminar un documento de conductor
+   * @request DELETE:/conductor/documento/delete/{id}
+   * @secure
+   * @response `200` `ConductoresDeleteDocumentoData`
+   */
+  export namespace ConductoresDeleteDocumento {
+    export type RequestParams = {
+      /** ID del documento */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ConductoresDeleteDocumentoData;
+  }
+
+  /**
+   * No description
+   * @tags conductores
+   * @name ConductoresDownload
+   * @summary Descargar documentos del conductor en ZIP
+   * @request GET:/conductor/download/{id}
+   * @secure
+   * @response `200` `ConductoresDownloadData`
+   */
+  export namespace ConductoresDownload {
+    export type RequestParams = {
+      /** ID del conductor */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ConductoresDownloadData;
+  }
+}
+
 export namespace Dashboard {
   /**
    * No description
@@ -7697,6 +10887,61 @@ export namespace Vehiculos {
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = VehiculosFindAllData;
+  }
+
+  /**
+   * No description
+   * @tags vehiculos
+   * @name VehiculosFindAllEstadoDocumentos
+   * @summary Obtener estado de documentos de vehículos (activo/caducado/nulo)
+   * @request GET:/vehiculo/estado-documentos
+   * @secure
+   * @response `200` `VehiculosFindAllEstadoDocumentosData`
+   */
+  export namespace VehiculosFindAllEstadoDocumentos {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /**
+       * Número de página (comienza en 1)
+       * @default 1
+       * @example 1
+       */
+      page?: number;
+      /**
+       * Cantidad de elementos por página
+       * @default 10
+       * @example 10
+       */
+      limit?: number;
+      /**
+       * Filtrar por estado de documentos
+       * @example "incompleto"
+       */
+      filtro?: "completo" | "incompleto";
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = VehiculosFindAllEstadoDocumentosData;
+  }
+
+  /**
+   * No description
+   * @tags vehiculos
+   * @name VehiculosDownload
+   * @summary Descargar información y documentos del vehículo (ZIP)
+   * @request GET:/vehiculo/download/{id}
+   * @secure
+   * @response `200` `VehiculosDownloadData`
+   */
+  export namespace VehiculosDownload {
+    export type RequestParams = {
+      /** ID del Vehículo */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = VehiculosDownloadData;
   }
 
   /**
@@ -8080,207 +11325,493 @@ export namespace Vehiculos {
     export type RequestHeaders = {};
     export type ResponseBody = VehiculosDeleteModeloData;
   }
-}
 
-export namespace Conductores {
   /**
-   * @description Busca por nombre, DNI o número de licencia. Filtra por rango de fechas.
-   * @tags conductores
-   * @name ConductoresFindAll
-   * @summary Obtener conductores con paginación, búsqueda y filtros
-   * @request GET:/conductor/find-all
+   * No description
+   * @tags vehiculos
+   * @name VehiculosFindChecklistHistory
+   * @summary Obtener historial de documentos de checklist
+   * @request GET:/vehiculo/{id}/checklist-document/history
    * @secure
-   * @response `200` `ConductoresFindAllData`
+   * @response `200` `VehiculosFindChecklistHistoryData`
    */
-  export namespace ConductoresFindAll {
-    export type RequestParams = {};
+  export namespace VehiculosFindChecklistHistory {
+    export type RequestParams = {
+      /** ID del Vehículo */
+      id: number;
+    };
     export type RequestQuery = {
       /**
-       * Número de página (comienza en 1)
+       * ID del ChecklistItem (Tipo de documento)
+       * @example 1
+       */
+      checklistItemId: number;
+      /**
+       * Página/Offset
        * @default 1
        * @example 1
        */
       page?: number;
       /**
-       * Cantidad de elementos por página
+       * Límite por página
        * @default 10
        * @example 10
        */
       limit?: number;
-      /** Búsqueda por nombre, DNI o número de licencia del conductor */
-      search?: string;
-      /** Fecha de inicio para filtrar por rango (formato: YYYY-MM-DD) */
-      fechaInicio?: string;
-      /** Fecha de fin para filtrar por rango (formato: YYYY-MM-DD) */
-      fechaFin?: string;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = VehiculosFindChecklistHistoryData;
+  }
+
+  /**
+   * No description
+   * @tags vehiculos
+   * @name VehiculosFindIpercContinuo
+   * @summary Obtener configuración: IPERC continuo
+   * @request GET:/vehiculo/{id}/checklist-document/iperc-continuo/find
+   * @secure
+   * @response `200` `VehiculosFindIpercContinuoData`
+   */
+  export namespace VehiculosFindIpercContinuo {
+    export type RequestParams = {
+      /** ID del Vehículo */
+      id: number;
+    };
+    export type RequestQuery = {
+      /** ID específico del documento (opcional) */
+      documentId?: number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = VehiculosFindIpercContinuoData;
+  }
+
+  /**
+   * No description
+   * @tags vehiculos
+   * @name VehiculosFindHojaInspeccion
+   * @summary Obtener configuración: Hoja de Inspección
+   * @request GET:/vehiculo/{id}/checklist-document/hoja-inspeccion/find
+   * @secure
+   * @response `200` `VehiculosFindHojaInspeccionData`
+   */
+  export namespace VehiculosFindHojaInspeccion {
+    export type RequestParams = {
+      /** ID del Vehículo */
+      id: number;
+    };
+    export type RequestQuery = {
+      /** ID específico del documento (opcional) */
+      documentId?: number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = VehiculosFindHojaInspeccionData;
+  }
+
+  /**
+   * No description
+   * @tags vehiculos
+   * @name VehiculosFindInspeccionDocumentos
+   * @summary Obtener configuración: Inspección de Documentos
+   * @request GET:/vehiculo/{id}/checklist-document/inspeccion-documentos/find
+   * @secure
+   * @response `200` `VehiculosFindInspeccionDocumentosData`
+   */
+  export namespace VehiculosFindInspeccionDocumentos {
+    export type RequestParams = {
+      /** ID del Vehículo */
+      id: number;
+    };
+    export type RequestQuery = {
+      /** ID específico del documento (opcional) */
+      documentId?: number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = VehiculosFindInspeccionDocumentosData;
+  }
+
+  /**
+   * No description
+   * @tags vehiculos
+   * @name VehiculosFindLuces
+   * @summary Obtener configuración: Luces de Emergencia y Alarmas
+   * @request GET:/vehiculo/{id}/checklist-document/luces-emergencia-alarmas/find
+   * @secure
+   * @response `200` `VehiculosFindLucesData`
+   */
+  export namespace VehiculosFindLuces {
+    export type RequestParams = {
+      /** ID del Vehículo */
+      id: number;
+    };
+    export type RequestQuery = {
+      /** ID específico del documento (opcional) */
+      documentId?: number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = VehiculosFindLucesData;
+  }
+
+  /**
+   * No description
+   * @tags vehiculos
+   * @name VehiculosFindCinturones
+   * @summary Obtener configuración: Cinturones de Seguridad
+   * @request GET:/vehiculo/{id}/checklist-document/cinturones-seguridad/find
+   * @secure
+   * @response `200` `VehiculosFindCinturonesData`
+   */
+  export namespace VehiculosFindCinturones {
+    export type RequestParams = {
+      /** ID del Vehículo */
+      id: number;
+    };
+    export type RequestQuery = {
+      /** ID específico del documento (opcional) */
+      documentId?: number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = VehiculosFindCinturonesData;
+  }
+
+  /**
+   * No description
+   * @tags vehiculos
+   * @name VehiculosFindHerramientas
+   * @summary Obtener configuración: Inspección de Herramientas
+   * @request GET:/vehiculo/{id}/checklist-document/inspeccion-herramientas/find
+   * @secure
+   * @response `200` `VehiculosFindHerramientasData`
+   */
+  export namespace VehiculosFindHerramientas {
+    export type RequestParams = {
+      /** ID del Vehículo */
+      id: number;
+    };
+    export type RequestQuery = {
+      /** ID específico del documento (opcional) */
+      documentId?: number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = VehiculosFindHerramientasData;
+  }
+
+  /**
+   * No description
+   * @tags vehiculos
+   * @name VehiculosFindBotiquines
+   * @summary Obtener configuración: Inspección de Botiquines
+   * @request GET:/vehiculo/{id}/checklist-document/inspeccion-botiquines/find
+   * @secure
+   * @response `200` `VehiculosFindBotiquinesData`
+   */
+  export namespace VehiculosFindBotiquines {
+    export type RequestParams = {
+      /** ID del Vehículo */
+      id: number;
+    };
+    export type RequestQuery = {
+      /** ID específico del documento (opcional) */
+      documentId?: number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = VehiculosFindBotiquinesData;
+  }
+
+  /**
+   * No description
+   * @tags vehiculos
+   * @name VehiculosFindKitAntiderrames
+   * @summary Obtener configuración: Kit Antiderrames
+   * @request GET:/vehiculo/{id}/checklist-document/kit-antiderrames/find
+   * @secure
+   * @response `200` `VehiculosFindKitAntiderramesData`
+   */
+  export namespace VehiculosFindKitAntiderrames {
+    export type RequestParams = {
+      /** ID del Vehículo */
+      id: number;
+    };
+    export type RequestQuery = {
+      /** ID específico del documento (opcional) */
+      documentId?: number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = VehiculosFindKitAntiderramesData;
+  }
+
+  /**
+   * No description
+   * @tags vehiculos
+   * @name VehiculosFindRevisionVehiculos
+   * @summary Obtener configuración: Revisión de Vehículos
+   * @request GET:/vehiculo/{id}/checklist-document/revision-vehiculos/find
+   * @secure
+   * @response `200` `VehiculosFindRevisionVehiculosData`
+   */
+  export namespace VehiculosFindRevisionVehiculos {
+    export type RequestParams = {
+      /** ID del Vehículo */
+      id: number;
+    };
+    export type RequestQuery = {
+      /** ID específico del documento (opcional) */
+      documentId?: number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = VehiculosFindRevisionVehiculosData;
+  }
+
+  /**
+   * No description
+   * @tags vehiculos
+   * @name VehiculosUpsertIpercContinuo
+   * @request POST:/vehiculo/{id}/viaje/{viajeId}/checklist-document/iperc-continuo/upsert
+   * @secure
+   * @response `201` `VehiculosUpsertIpercContinuoData`
+   */
+  export namespace VehiculosUpsertIpercContinuo {
+    export type RequestParams = {
+      /** ID del Vehículo */
+      id: number;
+      /** ID del Viaje */
+      viajeId: number;
+    };
+    export type RequestQuery = {
       /**
-       * Filtrar por clase de licencia
-       * @example "A"
+       * Tipo de viaje (salida/llegada)
+       * @default "salida"
        */
-      claseLicencia?: "A" | "B";
+      tipo?: "salida" | "llegada";
+    };
+    export type RequestBody = IpercContinuoDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = VehiculosUpsertIpercContinuoData;
+  }
+
+  /**
+   * No description
+   * @tags vehiculos
+   * @name VehiculosUpsertHojaInspeccion
+   * @request POST:/vehiculo/{id}/viaje/{viajeId}/checklist-document/hoja-inspeccion/upsert
+   * @secure
+   * @response `201` `VehiculosUpsertHojaInspeccionData`
+   */
+  export namespace VehiculosUpsertHojaInspeccion {
+    export type RequestParams = {
+      /** ID del Vehículo */
+      id: number;
+      /** ID del Viaje */
+      viajeId: number;
+    };
+    export type RequestQuery = {
       /**
-       * Filtrar por categoría de licencia
-       * @example "Uno"
+       * Tipo de viaje (salida/llegada)
+       * @default "salida"
        */
-      categoriaLicencia?: "Uno" | "Dos" | "Tres";
+      tipo?: "salida" | "llegada";
     };
-    export type RequestBody = never;
+    export type RequestBody = HojaInspeccionDto;
     export type RequestHeaders = {};
-    export type ResponseBody = ConductoresFindAllData;
+    export type ResponseBody = VehiculosUpsertHojaInspeccionData;
   }
 
   /**
    * No description
-   * @tags conductores
-   * @name ConductoresFindOne
-   * @summary Get a driver by ID
-   * @request GET:/conductor/find-one/{id}
+   * @tags vehiculos
+   * @name VehiculosUpsertInspeccionDocumentos
+   * @request POST:/vehiculo/{id}/viaje/{viajeId}/checklist-document/inspeccion-documentos/upsert
    * @secure
-   * @response `200` `ConductoresFindOneData`
+   * @response `201` `VehiculosUpsertInspeccionDocumentosData`
    */
-  export namespace ConductoresFindOne {
+  export namespace VehiculosUpsertInspeccionDocumentos {
     export type RequestParams = {
-      /** Driver ID */
+      /** ID del Vehículo */
       id: number;
+      /** ID del Viaje */
+      viajeId: number;
     };
-    export type RequestQuery = {};
-    export type RequestBody = never;
+    export type RequestQuery = {
+      /**
+       * Tipo de viaje (salida/llegada)
+       * @default "salida"
+       */
+      tipo?: "salida" | "llegada";
+    };
+    export type RequestBody = InspeccionDocumentosDto;
     export type RequestHeaders = {};
-    export type ResponseBody = ConductoresFindOneData;
+    export type ResponseBody = VehiculosUpsertInspeccionDocumentosData;
   }
 
   /**
    * No description
-   * @tags conductores
-   * @name ConductoresCreate
-   * @summary Create a new driver
-   * @request POST:/conductor/create
+   * @tags vehiculos
+   * @name VehiculosUpsertLuces
+   * @request POST:/vehiculo/{id}/viaje/{viajeId}/checklist-document/luces-emergencia-alarmas/upsert
    * @secure
-   * @response `200` `ConductoresCreateData`
+   * @response `201` `VehiculosUpsertLucesData`
    */
-  export namespace ConductoresCreate {
-    export type RequestParams = {};
-    export type RequestQuery = {};
-    export type RequestBody = ConductorCreateDto;
-    export type RequestHeaders = {};
-    export type ResponseBody = ConductoresCreateData;
-  }
-
-  /**
-   * No description
-   * @tags conductores
-   * @name ConductoresUpdate
-   * @summary Update a driver
-   * @request PATCH:/conductor/update/{id}
-   * @secure
-   * @response `200` `ConductoresUpdateData`
-   */
-  export namespace ConductoresUpdate {
+  export namespace VehiculosUpsertLuces {
     export type RequestParams = {
-      /** Driver ID */
+      /** ID del Vehículo */
       id: number;
+      /** ID del Viaje */
+      viajeId: number;
     };
-    export type RequestQuery = {};
-    export type RequestBody = ConductorUpdateDto;
+    export type RequestQuery = {
+      /**
+       * Tipo de viaje (salida/llegada)
+       * @default "salida"
+       */
+      tipo?: "salida" | "llegada";
+    };
+    export type RequestBody = LucesEmergenciaAlarmasDto;
     export type RequestHeaders = {};
-    export type ResponseBody = ConductoresUpdateData;
+    export type ResponseBody = VehiculosUpsertLucesData;
   }
 
   /**
    * No description
-   * @tags conductores
-   * @name ConductoresRemove
-   * @summary Delete a driver
-   * @request DELETE:/conductor/delete/{id}
+   * @tags vehiculos
+   * @name VehiculosUpsertCinturones
+   * @request POST:/vehiculo/{id}/viaje/{viajeId}/checklist-document/cinturones-seguridad/upsert
    * @secure
-   * @response `200` `ConductoresRemoveData`
+   * @response `201` `VehiculosUpsertCinturonesData`
    */
-  export namespace ConductoresRemove {
+  export namespace VehiculosUpsertCinturones {
     export type RequestParams = {
-      /** Driver ID */
+      /** ID del Vehículo */
       id: number;
+      /** ID del Viaje */
+      viajeId: number;
     };
-    export type RequestQuery = {};
-    export type RequestBody = never;
+    export type RequestQuery = {
+      /**
+       * Tipo de viaje (salida/llegada)
+       * @default "salida"
+       */
+      tipo?: "salida" | "llegada";
+    };
+    export type RequestBody = CinturonesSeguridadDto;
     export type RequestHeaders = {};
-    export type ResponseBody = ConductoresRemoveData;
+    export type ResponseBody = VehiculosUpsertCinturonesData;
   }
 
   /**
    * No description
-   * @tags conductores
-   * @name ConductoresFindDocumento
-   * @summary Obtener un documento por ID
-   * @request GET:/conductor/documento/{id}
+   * @tags vehiculos
+   * @name VehiculosUpsertHerramientas
+   * @request POST:/vehiculo/{id}/viaje/{viajeId}/checklist-document/inspeccion-herramientas/upsert
    * @secure
-   * @response `200` `ConductoresFindDocumentoData`
+   * @response `201` `VehiculosUpsertHerramientasData`
    */
-  export namespace ConductoresFindDocumento {
+  export namespace VehiculosUpsertHerramientas {
     export type RequestParams = {
-      /** ID del documento */
+      /** ID del Vehículo */
       id: number;
+      /** ID del Viaje */
+      viajeId: number;
     };
-    export type RequestQuery = {};
-    export type RequestBody = never;
+    export type RequestQuery = {
+      /**
+       * Tipo de viaje (salida/llegada)
+       * @default "salida"
+       */
+      tipo?: "salida" | "llegada";
+    };
+    export type RequestBody = InspeccionHerramientasDto;
     export type RequestHeaders = {};
-    export type ResponseBody = ConductoresFindDocumentoData;
+    export type ResponseBody = VehiculosUpsertHerramientasData;
   }
 
   /**
    * No description
-   * @tags conductores
-   * @name ConductoresCreateDocumento
-   * @summary Crear un nuevo documento de conductor
-   * @request POST:/conductor/documento/create
+   * @tags vehiculos
+   * @name VehiculosUpsertBotiquines
+   * @request POST:/vehiculo/{id}/viaje/{viajeId}/checklist-document/inspeccion-botiquines/upsert
    * @secure
-   * @response `201` `ConductoresCreateDocumentoData`
+   * @response `201` `VehiculosUpsertBotiquinesData`
    */
-  export namespace ConductoresCreateDocumento {
-    export type RequestParams = {};
-    export type RequestQuery = {};
-    export type RequestBody = ConductorDocumentoCreateDto;
-    export type RequestHeaders = {};
-    export type ResponseBody = ConductoresCreateDocumentoData;
-  }
-
-  /**
-   * No description
-   * @tags conductores
-   * @name ConductoresUpdateDocumento
-   * @summary Actualizar un documento de conductor
-   * @request PATCH:/conductor/documento/update/{id}
-   * @secure
-   * @response `200` `ConductoresUpdateDocumentoData`
-   */
-  export namespace ConductoresUpdateDocumento {
+  export namespace VehiculosUpsertBotiquines {
     export type RequestParams = {
-      /** ID del documento */
+      /** ID del Vehículo */
       id: number;
+      /** ID del Viaje */
+      viajeId: number;
     };
-    export type RequestQuery = {};
-    export type RequestBody = ConductorDocumentoUpdateDto;
+    export type RequestQuery = {
+      /**
+       * Tipo de viaje (salida/llegada)
+       * @default "salida"
+       */
+      tipo?: "salida" | "llegada";
+    };
+    export type RequestBody = InspeccionBotiquinesDto;
     export type RequestHeaders = {};
-    export type ResponseBody = ConductoresUpdateDocumentoData;
+    export type ResponseBody = VehiculosUpsertBotiquinesData;
   }
 
   /**
    * No description
-   * @tags conductores
-   * @name ConductoresDeleteDocumento
-   * @summary Eliminar un documento de conductor
-   * @request DELETE:/conductor/documento/delete/{id}
+   * @tags vehiculos
+   * @name VehiculosUpsertKitAntiderrames
+   * @request POST:/vehiculo/{id}/viaje/{viajeId}/checklist-document/kit-antiderrames/upsert
    * @secure
-   * @response `200` `ConductoresDeleteDocumentoData`
+   * @response `201` `VehiculosUpsertKitAntiderramesData`
    */
-  export namespace ConductoresDeleteDocumento {
+  export namespace VehiculosUpsertKitAntiderrames {
     export type RequestParams = {
-      /** ID del documento */
+      /** ID del Vehículo */
       id: number;
+      /** ID del Viaje */
+      viajeId: number;
     };
-    export type RequestQuery = {};
-    export type RequestBody = never;
+    export type RequestQuery = {
+      /**
+       * Tipo de viaje (salida/llegada)
+       * @default "salida"
+       */
+      tipo?: "salida" | "llegada";
+    };
+    export type RequestBody = KitAntiderramesDto;
     export type RequestHeaders = {};
-    export type ResponseBody = ConductoresDeleteDocumentoData;
+    export type ResponseBody = VehiculosUpsertKitAntiderramesData;
+  }
+
+  /**
+   * No description
+   * @tags vehiculos
+   * @name VehiculosUpsertRevisionVehiculos
+   * @request POST:/vehiculo/{id}/viaje/{viajeId}/checklist-document/revision-vehiculos/upsert
+   * @secure
+   * @response `201` `VehiculosUpsertRevisionVehiculosData`
+   */
+  export namespace VehiculosUpsertRevisionVehiculos {
+    export type RequestParams = {
+      /** ID del Vehículo */
+      id: number;
+      /** ID del Viaje */
+      viajeId: number;
+    };
+    export type RequestQuery = {
+      /**
+       * Tipo de viaje (salida/llegada)
+       * @default "salida"
+       */
+      tipo?: "salida" | "llegada";
+    };
+    export type RequestBody = RevisionVehiculosDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = VehiculosUpsertRevisionVehiculosData;
   }
 }
 
@@ -8650,6 +12181,41 @@ export namespace Mantenimientos {
     export type RequestHeaders = {};
     export type ResponseBody = MantenimientosDeleteDocumentoData;
   }
+
+  /**
+   * No description
+   * @tags mantenimientos
+   * @name MantenimientosGetReporteEstadoVehiculos
+   * @summary Obtener reporte de estado de mantenimiento de vehículos
+   * @request GET:/mantenimiento/reporte-estado-vehiculos
+   * @secure
+   * @response `200` `MantenimientosGetReporteEstadoVehiculosData`
+   */
+  export namespace MantenimientosGetReporteEstadoVehiculos {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /**
+       * Número de página
+       * @min 1
+       * @default 1
+       */
+      page?: number;
+      /**
+       * Elementos por página
+       * @min 1
+       * @default 10
+       */
+      limit?: number;
+      /**
+       * Ordenamiento: proximos (menor kilometraje restante) o ultimos (mayor fecha de mantenimiento)
+       * @default "proximos"
+       */
+      sort?: "proximos" | "ultimos";
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = MantenimientosGetReporteEstadoVehiculosData;
+  }
 }
 
 export namespace Rutas {
@@ -8693,14 +12259,14 @@ export namespace Rutas {
    * No description
    * @tags rutas
    * @name RutasFindOne
-   * @summary Get a route by ID
+   * @summary Obtener una ruta por ID con sus paradas
    * @request GET:/ruta/find-one/{id}
    * @secure
    * @response `200` `RutasFindOneData`
    */
   export namespace RutasFindOne {
     export type RequestParams = {
-      /** Route ID */
+      /** ID de la ruta */
       id: number;
     };
     export type RequestQuery = {};
@@ -8712,64 +12278,143 @@ export namespace Rutas {
   /**
    * No description
    * @tags rutas
-   * @name RutasCreate
-   * @summary Create a new route
-   * @request POST:/ruta/create
+   * @name RutasFindParadas
+   * @summary Obtener todas las paradas de una ruta
+   * @request GET:/ruta/{rutaId}/paradas
    * @secure
-   * @response `200` `RutasCreateData`
+   * @response `200` `RutasFindParadasData`
    */
-  export namespace RutasCreate {
-    export type RequestParams = {};
-    export type RequestQuery = {};
-    export type RequestBody = RutaCreateDto;
-    export type RequestHeaders = {};
-    export type ResponseBody = RutasCreateData;
-  }
-
-  /**
-   * No description
-   * @tags rutas
-   * @name RutasUpdate
-   * @summary Update a route
-   * @request PATCH:/ruta/update/{id}
-   * @secure
-   * @response `200` `RutasUpdateData`
-   */
-  export namespace RutasUpdate {
+  export namespace RutasFindParadas {
     export type RequestParams = {
-      /** Route ID */
-      id: number;
+      /** ID de la ruta */
+      rutaId: number;
     };
-    export type RequestQuery = {};
-    export type RequestBody = RutaUpdateDto;
+    export type RequestQuery = {
+      /** Buscar por nombre de parada */
+      search?: string;
+    };
+    export type RequestBody = never;
     export type RequestHeaders = {};
-    export type ResponseBody = RutasUpdateData;
+    export type ResponseBody = RutasFindParadasData;
   }
 
   /**
    * No description
    * @tags rutas
-   * @name RutasRemove
-   * @summary Delete a route
-   * @request DELETE:/ruta/delete/{id}
+   * @name RutasFindAllCircuitos
+   * @summary Obtener circuitos con paginación, búsqueda y filtros
+   * @request GET:/ruta/circuito/find-all
    * @secure
-   * @response `200` `RutasRemoveData`
+   * @response `200` `RutasFindAllCircuitosData`
    */
-  export namespace RutasRemove {
+  export namespace RutasFindAllCircuitos {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /**
+       * Número de página (comienza en 1)
+       * @default 1
+       * @example 1
+       */
+      page?: number;
+      /**
+       * Cantidad de elementos por página
+       * @default 10
+       * @example 10
+       */
+      limit?: number;
+      /** Búsqueda por nombre del circuito */
+      search?: string;
+      /** Fecha de inicio para filtrar por rango (formato: YYYY-MM-DD) */
+      fechaInicio?: string;
+      /** Fecha de fin para filtrar por rango (formato: YYYY-MM-DD) */
+      fechaFin?: string;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = RutasFindAllCircuitosData;
+  }
+
+  /**
+   * No description
+   * @tags rutas
+   * @name RutasFindOneCircuito
+   * @summary Obtener un circuito por ID con sus rutas y paradas
+   * @request GET:/ruta/circuito/find-one/{id}
+   * @secure
+   * @response `200` `RutasFindOneCircuitoData`
+   */
+  export namespace RutasFindOneCircuito {
     export type RequestParams = {
-      /** Route ID */
+      /** ID del circuito */
       id: number;
     };
     export type RequestQuery = {};
     export type RequestBody = never;
     export type RequestHeaders = {};
-    export type ResponseBody = RutasRemoveData;
+    export type ResponseBody = RutasFindOneCircuitoData;
+  }
+
+  /**
+   * No description
+   * @tags rutas
+   * @name RutasCreateCircuito
+   * @summary Crear un nuevo circuito con rutas de ida y vuelta
+   * @request POST:/ruta/circuito/create
+   * @secure
+   * @response `200` `RutasCreateCircuitoData`
+   */
+  export namespace RutasCreateCircuito {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = RutaCircuitoCreateDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = RutasCreateCircuitoData;
+  }
+
+  /**
+   * No description
+   * @tags rutas
+   * @name RutasUpdateCircuito
+   * @summary Actualizar un circuito y sus rutas (reemplazo inteligente)
+   * @request PATCH:/ruta/circuito/update/{id}
+   * @secure
+   * @response `200` `RutasUpdateCircuitoData`
+   */
+  export namespace RutasUpdateCircuito {
+    export type RequestParams = {
+      /** ID del circuito */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = RutaCircuitoUpdateDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = RutasUpdateCircuitoData;
+  }
+
+  /**
+   * No description
+   * @tags rutas
+   * @name RutasRemoveCircuito
+   * @summary Eliminar un circuito y sus rutas asociadas
+   * @request DELETE:/ruta/circuito/delete/{id}
+   * @secure
+   * @response `200` `RutasRemoveCircuitoData` Mensaje de confirmación
+   */
+  export namespace RutasRemoveCircuito {
+    export type RequestParams = {
+      /** ID del circuito */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = RutasRemoveCircuitoData;
   }
 }
 
 export namespace Viajes {
   /**
-   * @description Busca por estado, ruta ocasional y modalidad. Filtra por rango de fechas, modalidad de servicio y tipo de viaje (ocasional o regular).
+   * @description Busca por estado, ruta ocasional y modalidad. Filtra por rango de fechas, modalidad de servicio y tipo de viaje (ocasional o regular). Si el token es de un conductor, solo retorna sus viajes asignados.
    * @tags viajes
    * @name ViajesFindAll
    * @summary Obtener viajes con paginación, búsqueda y filtros
@@ -8798,10 +12443,7 @@ export namespace Viajes {
       fechaInicio?: string;
       /** Fecha de fin para filtrar por rango (formato: YYYY-MM-DD) */
       fechaFin?: string;
-      /**
-       * Filtrar por modalidad de servicio
-       * @example "regular"
-       */
+      /** Filtrar por modalidad de servicio */
       modalidadServicio?:
         | "regular"
         | "expreso"
@@ -8809,16 +12451,28 @@ export namespace Viajes {
         | "especial"
         | "turismo"
         | "corporativo";
-      /**
-       * Filtrar por tipo de ruta (ocasional, fija)
-       * @example "ocasional"
-       */
+      /** Filtrar por tipo de ruta (ocasional, fija) */
       tipoRuta?: "ocasional" | "fija";
-      /**
-       * Filtrar por estado del viaje
-       * @example "programado"
-       */
+      /** Filtrar por estado del viaje */
       estado?: "programado" | "en_progreso" | "completado" | "cancelado";
+      /** Filtrar por IDs de conductores (separados por coma) */
+      conductoresId?: string[];
+      /**
+       * Filtrar por ID de cliente
+       * @example 1
+       */
+      clienteId?: number;
+      /**
+       * Filtrar por ID de ruta
+       * @example 1
+       */
+      rutaId?: number;
+      /** Filtrar por IDs de vehículos (separados por coma) */
+      vehiculosId?: string[];
+      /** Filtrar por sentido del viaje */
+      sentido?: "ida" | "vuelta";
+      /** Filtrar por turno del viaje */
+      turno?: "dia" | "noche";
     };
     export type RequestBody = never;
     export type RequestHeaders = {};
@@ -8829,14 +12483,14 @@ export namespace Viajes {
    * No description
    * @tags viajes
    * @name ViajesFindOne
-   * @summary Get a trip by ID
+   * @summary Obtener viaje por ID
    * @request GET:/viaje/find-one/{id}
    * @secure
    * @response `200` `ViajesFindOneData`
    */
   export namespace ViajesFindOne {
     export type RequestParams = {
-      /** Trip ID */
+      /** ID del viaje */
       id: number;
     };
     export type RequestQuery = {};
@@ -8849,7 +12503,7 @@ export namespace Viajes {
    * No description
    * @tags viajes
    * @name ViajesCreate
-   * @summary Create a new trip
+   * @summary Crear un nuevo viaje
    * @request POST:/viaje/create
    * @secure
    * @response `200` `ViajesCreateData`
@@ -8866,14 +12520,14 @@ export namespace Viajes {
    * No description
    * @tags viajes
    * @name ViajesUpdate
-   * @summary Update a trip
+   * @summary Actualizar un viaje
    * @request PATCH:/viaje/update/{id}
    * @secure
    * @response `200` `ViajesUpdateData`
    */
   export namespace ViajesUpdate {
     export type RequestParams = {
-      /** Trip ID */
+      /** ID del viaje */
       id: number;
     };
     export type RequestQuery = {};
@@ -8886,14 +12540,14 @@ export namespace Viajes {
    * No description
    * @tags viajes
    * @name ViajesRemove
-   * @summary Delete a trip
+   * @summary Eliminar un viaje
    * @request DELETE:/viaje/delete/{id}
    * @secure
    * @response `200` `ViajesRemoveData`
    */
   export namespace ViajesRemove {
     export type RequestParams = {
-      /** Trip ID */
+      /** ID del viaje */
       id: number;
     };
     export type RequestQuery = {};
@@ -9204,6 +12858,492 @@ export namespace Viajes {
     export type RequestHeaders = {};
     export type ResponseBody = ViajesDeleteComentarioData;
   }
+
+  /**
+   * No description
+   * @tags viajes
+   * @name ViajesFindServicios
+   * @summary Obtener todos los servicios/tramos de un viaje
+   * @request GET:/viaje/{viajeId}/servicios
+   * @secure
+   * @response `200` `ViajesFindServiciosData`
+   */
+  export namespace ViajesFindServicios {
+    export type RequestParams = {
+      /** ID del viaje */
+      viajeId: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ViajesFindServiciosData;
+  }
+
+  /**
+   * No description
+   * @tags viajes
+   * @name ViajesGetNextStep
+   * @summary Obtener sugerencia para el siguiente tramo del viaje
+   * @request GET:/viaje/{viajeId}/servicio/next-step
+   * @secure
+   * @response `200` `ViajesGetNextStepData`
+   */
+  export namespace ViajesGetNextStep {
+    export type RequestParams = {
+      /** ID del viaje */
+      viajeId: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ViajesGetNextStepData;
+  }
+
+  /**
+   * No description
+   * @tags viajes
+   * @name ViajesCreateServicio
+   * @summary Crear un nuevo servicio/tramo para un viaje
+   * @request POST:/viaje/{viajeId}/servicio/create
+   * @secure
+   * @response `201` `ViajesCreateServicioData`
+   */
+  export namespace ViajesCreateServicio {
+    export type RequestParams = {
+      /** ID del viaje */
+      viajeId: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = ViajeServicioCreateDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = ViajesCreateServicioData;
+  }
+
+  /**
+   * No description
+   * @tags viajes
+   * @name ViajesUpdateServicio
+   * @summary Actualizar un servicio/tramo
+   * @request PATCH:/viaje/servicio/update/{id}
+   * @secure
+   * @response `200` `ViajesUpdateServicioData`
+   */
+  export namespace ViajesUpdateServicio {
+    export type RequestParams = {
+      /** ID del servicio */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = ViajeServicioUpdateDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = ViajesUpdateServicioData;
+  }
+
+  /**
+   * No description
+   * @tags viajes
+   * @name ViajesDeleteServicio
+   * @summary Eliminar un servicio/tramo
+   * @request DELETE:/viaje/servicio/delete/{id}
+   * @secure
+   * @response `200` `ViajesDeleteServicioData`
+   */
+  export namespace ViajesDeleteServicio {
+    export type RequestParams = {
+      /** ID del servicio */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ViajesDeleteServicioData;
+  }
+
+  /**
+   * No description
+   * @tags viajes
+   * @name ViajesFindPasajeros
+   * @summary Obtener todos los pasajeros de un viaje
+   * @request GET:/viaje/{viajeId}/pasajeros
+   * @secure
+   * @response `200` `ViajesFindPasajerosData`
+   */
+  export namespace ViajesFindPasajeros {
+    export type RequestParams = {
+      /** ID del viaje */
+      viajeId: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ViajesFindPasajerosData;
+  }
+
+  /**
+   * No description
+   * @tags viajes
+   * @name ViajesUpsertPasajeros
+   * @summary Agregar o actualizar pasajeros en un viaje
+   * @request POST:/viaje/{viajeId}/pasajeros/upsert
+   * @secure
+   * @response `201` `ViajesUpsertPasajerosData`
+   */
+  export namespace ViajesUpsertPasajeros {
+    export type RequestParams = {
+      /** ID del viaje */
+      viajeId: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = ViajePasajeroFillDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = ViajesUpsertPasajerosData;
+  }
+
+  /**
+   * No description
+   * @tags viajes
+   * @name ViajesFindAllChecklistItems
+   * @summary Obtener todos los items del catálogo de checklist
+   * @request GET:/viaje/checklist-item/find-all
+   * @secure
+   * @response `200` `ViajesFindAllChecklistItemsData`
+   */
+  export namespace ViajesFindAllChecklistItems {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ViajesFindAllChecklistItemsData;
+  }
+
+  /**
+   * No description
+   * @tags viajes
+   * @name ViajesFindChecklistItem
+   * @summary Obtener un item del catálogo por ID
+   * @request GET:/viaje/checklist-item/{id}
+   * @secure
+   * @response `200` `ViajesFindChecklistItemData`
+   */
+  export namespace ViajesFindChecklistItem {
+    export type RequestParams = {
+      /** ID del item */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ViajesFindChecklistItemData;
+  }
+
+  /**
+   * No description
+   * @tags viajes
+   * @name ViajesCreateChecklistItem
+   * @summary Crear un nuevo item en el catálogo
+   * @request POST:/viaje/checklist-item/create
+   * @secure
+   * @response `201` `ViajesCreateChecklistItemData`
+   */
+  export namespace ViajesCreateChecklistItem {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = ChecklistItemCreateDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = ViajesCreateChecklistItemData;
+  }
+
+  /**
+   * No description
+   * @tags viajes
+   * @name ViajesUpdateChecklistItem
+   * @summary Actualizar un item del catálogo
+   * @request PATCH:/viaje/checklist-item/update/{id}
+   * @secure
+   * @response `200` `ViajesUpdateChecklistItemData`
+   */
+  export namespace ViajesUpdateChecklistItem {
+    export type RequestParams = {
+      /** ID del item */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = ChecklistItemUpdateDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = ViajesUpdateChecklistItemData;
+  }
+
+  /**
+   * No description
+   * @tags viajes
+   * @name ViajesDeleteChecklistItem
+   * @summary Eliminar un item del catálogo
+   * @request DELETE:/viaje/checklist-item/delete/{id}
+   * @secure
+   * @response `200` `ViajesDeleteChecklistItemData`
+   */
+  export namespace ViajesDeleteChecklistItem {
+    export type RequestParams = {
+      /** ID del item */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ViajesDeleteChecklistItemData;
+  }
+
+  /**
+   * No description
+   * @tags viajes
+   * @name ViajesFindChecklistByTipo
+   * @summary Obtener un checklist de un viaje por tipo (salida/llegada)
+   * @request GET:/viaje/{viajeId}/checklist
+   * @secure
+   * @response `200` `ViajesFindChecklistByTipoData`
+   */
+  export namespace ViajesFindChecklistByTipo {
+    export type RequestParams = {
+      /** ID del viaje */
+      viajeId: number;
+    };
+    export type RequestQuery = {
+      /**
+       * Tipo de checklist (salida o llegada)
+       * @example "salida"
+       */
+      tipo: "salida" | "llegada";
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ViajesFindChecklistByTipoData;
+  }
+
+  /**
+   * No description
+   * @tags viajes
+   * @name ViajesVerifyChecklist
+   * @summary Verificar y generar un checklist de viaje (salida/llegada) basado en la configuración actual
+   * @request POST:/viaje/{viajeId}/checklist/verify
+   * @secure
+   * @response `200` `ViajesVerifyChecklistData`
+   */
+  export namespace ViajesVerifyChecklist {
+    export type RequestParams = {
+      /** ID del viaje */
+      viajeId: number;
+    };
+    export type RequestQuery = {
+      /**
+       * Tipo de checklist (salida o llegada)
+       * @example "salida"
+       */
+      tipo: "salida" | "llegada";
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ViajesVerifyChecklistData;
+  }
+
+  /**
+   * No description
+   * @tags viajes
+   * @name ViajesDeleteChecklist
+   * @summary Eliminar un checklist
+   * @request DELETE:/viaje/checklist/delete/{id}
+   * @secure
+   * @response `200` `ViajesDeleteChecklistData`
+   */
+  export namespace ViajesDeleteChecklist {
+    export type RequestParams = {
+      /** ID del checklist */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ViajesDeleteChecklistData;
+  }
+}
+
+export namespace Notificaciones {
+  /**
+   * No description
+   * @tags notificaciones
+   * @name NotificacionesFindAll
+   * @summary Obtener notificaciones del usuario
+   * @request GET:/notificacion/find-all
+   * @response `200` `NotificacionesFindAllData`
+   */
+  export namespace NotificacionesFindAll {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /**
+       * Número de página (comienza en 1)
+       * @default 1
+       * @example 1
+       */
+      page?: number;
+      /**
+       * Cantidad de elementos por página
+       * @default 10
+       * @example 10
+       */
+      limit?: number;
+      /**
+       * ID del usuario
+       * @example 1
+       */
+      userId: number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = NotificacionesFindAllData;
+  }
+
+  /**
+   * No description
+   * @tags notificaciones
+   * @name NotificacionesCreate
+   * @summary Crear una nueva notificación general
+   * @request POST:/notificacion/create
+   * @response `201` `NotificacionesCreateData`
+   */
+  export namespace NotificacionesCreate {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = NotificacionCreateDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = NotificacionesCreateData;
+  }
+
+  /**
+   * No description
+   * @tags notificaciones
+   * @name NotificacionesMarkAsRead
+   * @summary Marcar notificación como leída
+   * @request POST:/notificacion/leido/{id}
+   * @response `200` `NotificacionesMarkAsReadData`
+   */
+  export namespace NotificacionesMarkAsRead {
+    export type RequestParams = {
+      id: number;
+    };
+    export type RequestQuery = {
+      userId: number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = NotificacionesMarkAsReadData;
+  }
+
+  /**
+   * No description
+   * @tags notificaciones
+   * @name NotificacionesPreviewVencimientos
+   * @summary TEST: Previsualizar notificaciones de documentos por vencer
+   * @request GET:/notificacion/vencimientos/test
+   * @response `200` `NotificacionesPreviewVencimientosData`
+   */
+  export namespace NotificacionesPreviewVencimientos {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /**
+       * Fecha de referencia (YYYY-MM-DD). Punto de partida para la búsqueda.
+       * @example "2025-12-18"
+       */
+      fecha: string;
+      /**
+       * Días de anticipación a buscar (default: 7). Busca documentos que vencen hasta fecha + diasAnticipacion.
+       * @default 7
+       * @example 7
+       */
+      diasAnticipacion?: number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = NotificacionesPreviewVencimientosData;
+  }
+
+  /**
+   * @description Busca documentos por vencer/vencidos y CREA las notificaciones en la base de datos.
+   * @tags notificaciones
+   * @name NotificacionesGenerarVencimientos
+   * @summary Generar y guardar notificaciones de documentos por vencer
+   * @request POST:/notificacion/vencimientos/generar
+   * @response `201` `NotificacionesGenerarVencimientosData`
+   */
+  export namespace NotificacionesGenerarVencimientos {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /**
+       * Fecha de referencia (YYYY-MM-DD). Punto de partida para la búsqueda.
+       * @example "2025-12-18"
+       */
+      fecha: string;
+      /**
+       * Días de anticipación a buscar (default: 7). Busca documentos que vencen hasta fecha + diasAnticipacion.
+       * @default 7
+       * @example 7
+       */
+      diasAnticipacion?: number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = NotificacionesGenerarVencimientosData;
+  }
+
+  /**
+   * No description
+   * @tags notificaciones
+   * @name NotificacionesSendEmail
+   * @summary Enviar un correo electrónico
+   * @request POST:/notificacion/send-email
+   * @response `200` `NotificacionesSendEmailData` Correo enviado correctamente
+   */
+  export namespace NotificacionesSendEmail {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = SendEmailDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = NotificacionesSendEmailData;
+  }
+
+  /**
+   * No description
+   * @tags notificaciones
+   * @name NotificacionesNotifyEachAdmin
+   * @summary Enviar lista de conductores con documentos por vencer a todos los administradores
+   * @request POST:/notificacion/notify-each-admin
+   * @response `200` `NotificacionesNotifyEachAdminData` Correos enviados con el reporte
+   */
+  export namespace NotificacionesNotifyEachAdmin {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      diasAnticipacion: number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = NotificacionesNotifyEachAdminData;
+  }
+
+  /**
+   * No description
+   * @tags notificaciones
+   * @name NotificacionesNotifyEachConductor
+   * @summary Enviar correo personalizado a cada conductor con sus documentos por vencer
+   * @request POST:/notificacion/notify-each-conductor
+   * @response `200` `NotificacionesNotifyEachConductorData` Proceso de notificación por correo finalizado
+   */
+  export namespace NotificacionesNotifyEachConductor {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      diasAnticipacion: number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = NotificacionesNotifyEachConductorData;
+  }
 }
 
 export namespace Clientes {
@@ -9401,12 +13541,124 @@ export namespace Clientes {
     export type RequestHeaders = {};
     export type ResponseBody = ClientesDeleteDocumentoData;
   }
+
+  /**
+   * No description
+   * @tags clientes
+   * @name ClientesFindAllPasajeros
+   * @summary Obtener pasajeros con paginación, búsqueda y filtro por cliente
+   * @request GET:/cliente/pasajero/find-all
+   * @secure
+   * @response `200` `ClientesFindAllPasajerosData`
+   */
+  export namespace ClientesFindAllPasajeros {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /**
+       * Número de página
+       * @example 1
+       */
+      page?: number;
+      /**
+       * Límite de items por página
+       * @example 10
+       */
+      limit?: number;
+      /** Término de búsqueda (DNI, nombres, apellidos) */
+      search?: string;
+      /**
+       * ID del cliente para filtrar
+       * @example 1
+       */
+      clienteId?: number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ClientesFindAllPasajerosData;
+  }
+
+  /**
+   * No description
+   * @tags clientes
+   * @name ClientesFindPasajero
+   * @summary Obtener un pasajero por ID
+   * @request GET:/cliente/pasajero/find-one/{id}
+   * @secure
+   * @response `200` `ClientesFindPasajeroData`
+   */
+  export namespace ClientesFindPasajero {
+    export type RequestParams = {
+      /** ID del pasajero */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ClientesFindPasajeroData;
+  }
+
+  /**
+   * No description
+   * @tags clientes
+   * @name ClientesCreatePasajero
+   * @summary Crear un nuevo pasajero
+   * @request POST:/cliente/pasajero/create
+   * @secure
+   * @response `201` `ClientesCreatePasajeroData`
+   */
+  export namespace ClientesCreatePasajero {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = PasajeroCreateDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = ClientesCreatePasajeroData;
+  }
+
+  /**
+   * No description
+   * @tags clientes
+   * @name ClientesUpdatePasajero
+   * @summary Actualizar un pasajero
+   * @request PATCH:/cliente/pasajero/update/{id}
+   * @secure
+   * @response `200` `ClientesUpdatePasajeroData`
+   */
+  export namespace ClientesUpdatePasajero {
+    export type RequestParams = {
+      /** ID del pasajero */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = PasajeroUpdateDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = ClientesUpdatePasajeroData;
+  }
+
+  /**
+   * No description
+   * @tags clientes
+   * @name ClientesDeletePasajero
+   * @summary Eliminar un pasajero
+   * @request DELETE:/cliente/pasajero/delete/{id}
+   * @secure
+   * @response `200` `ClientesDeletePasajeroData`
+   */
+  export namespace ClientesDeletePasajero {
+    export type RequestParams = {
+      /** ID del pasajero */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ClientesDeletePasajeroData;
+  }
 }
 
 export namespace Talleres {
   /**
    * No description
-   * @tags Talleres
+   * @tags talleres
    * @name TalleresCreate
    * @summary Crear un nuevo taller
    * @request POST:/taller/create
@@ -9423,7 +13675,7 @@ export namespace Talleres {
 
   /**
    * No description
-   * @tags Talleres
+   * @tags talleres
    * @name TalleresFindAll
    * @summary Listar talleres de forma paginada
    * @request GET:/taller/find-all
@@ -9464,7 +13716,7 @@ export namespace Talleres {
 
   /**
    * No description
-   * @tags Talleres
+   * @tags talleres
    * @name TalleresFindOne
    * @summary Obtener un taller por ID
    * @request GET:/taller/find-one/{id}
@@ -9483,7 +13735,7 @@ export namespace Talleres {
 
   /**
    * No description
-   * @tags Talleres
+   * @tags talleres
    * @name TalleresUpdate
    * @summary Actualizar un taller por ID
    * @request PATCH:/taller/update/{id}
@@ -9502,7 +13754,7 @@ export namespace Talleres {
 
   /**
    * No description
-   * @tags Talleres
+   * @tags talleres
    * @name TalleresRemove
    * @summary Eliminar un taller por ID
    * @request DELETE:/taller/delete/{id}
@@ -9520,190 +13772,10 @@ export namespace Talleres {
   }
 }
 
-export namespace Notificaciones {
-  /**
-   * No description
-   * @tags Notificaciones
-   * @name NotificacionesFindAll
-   * @summary Obtener notificaciones del usuario
-   * @request GET:/notificacion/find-all
-   * @response `200` `NotificacionesFindAllData`
-   */
-  export namespace NotificacionesFindAll {
-    export type RequestParams = {};
-    export type RequestQuery = {
-      /**
-       * Número de página (comienza en 1)
-       * @default 1
-       * @example 1
-       */
-      page?: number;
-      /**
-       * Cantidad de elementos por página
-       * @default 10
-       * @example 10
-       */
-      limit?: number;
-      /**
-       * ID del usuario
-       * @example 1
-       */
-      userId: number;
-    };
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = NotificacionesFindAllData;
-  }
-
-  /**
-   * No description
-   * @tags Notificaciones
-   * @name NotificacionesCreate
-   * @summary Crear una nueva notificación general
-   * @request POST:/notificacion/create
-   * @response `201` `NotificacionesCreateData`
-   */
-  export namespace NotificacionesCreate {
-    export type RequestParams = {};
-    export type RequestQuery = {};
-    export type RequestBody = NotificacionCreateDto;
-    export type RequestHeaders = {};
-    export type ResponseBody = NotificacionesCreateData;
-  }
-
-  /**
-   * No description
-   * @tags Notificaciones
-   * @name NotificacionesMarkAsRead
-   * @summary Marcar notificación como leída
-   * @request POST:/notificacion/leido/{id}
-   * @response `200` `NotificacionesMarkAsReadData`
-   */
-  export namespace NotificacionesMarkAsRead {
-    export type RequestParams = {
-      id: number;
-    };
-    export type RequestQuery = {
-      userId: number;
-    };
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = NotificacionesMarkAsReadData;
-  }
-
-  /**
-   * No description
-   * @tags Notificaciones
-   * @name NotificacionesSendEmail
-   * @summary Enviar un correo electrónico
-   * @request POST:/notificacion/send-email
-   * @response `200` `NotificacionesSendEmailData` Correo enviado correctamente
-   */
-  export namespace NotificacionesSendEmail {
-    export type RequestParams = {};
-    export type RequestQuery = {};
-    export type RequestBody = SendEmailDto;
-    export type RequestHeaders = {};
-    export type ResponseBody = NotificacionesSendEmailData;
-  }
-
-  /**
-   * No description
-   * @tags Notificaciones
-   * @name NotificacionesNotifyEachAdmin
-   * @summary Enviar lista de conductores con documentos por vencer a todos los administradores
-   * @request POST:/notificacion/notify-each-admin
-   * @response `200` `NotificacionesNotifyEachAdminData` Correos enviados con el reporte
-   */
-  export namespace NotificacionesNotifyEachAdmin {
-    export type RequestParams = {};
-    export type RequestQuery = {
-      diasAnticipacion: number;
-    };
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = NotificacionesNotifyEachAdminData;
-  }
-
-  /**
-   * No description
-   * @tags Notificaciones
-   * @name NotificacionesNotifyEachConductor
-   * @summary Enviar correo personalizado a cada conductor con sus documentos por vencer
-   * @request POST:/notificacion/notify-each-conductor
-   * @response `200` `NotificacionesNotifyEachConductorData` Proceso de notificación por correo finalizado
-   */
-  export namespace NotificacionesNotifyEachConductor {
-    export type RequestParams = {};
-    export type RequestQuery = {
-      diasAnticipacion: number;
-    };
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = NotificacionesNotifyEachConductorData;
-  }
-
-  /**
-   * No description
-   * @tags Notificaciones
-   * @name NotificacionesPreviewVencimientos
-   * @summary TEST: Previsualizar notificaciones de documentos por vencer
-   * @request GET:/notificacion/vencimientos/test
-   * @response `200` `NotificacionesPreviewVencimientosData`
-   */
-  export namespace NotificacionesPreviewVencimientos {
-    export type RequestParams = {};
-    export type RequestQuery = {
-      /**
-       * Fecha de referencia (YYYY-MM-DD). Punto de partida para la búsqueda.
-       * @example "2025-12-18"
-       */
-      fecha: string;
-      /**
-       * Días de anticipación a buscar (default: 7). Busca documentos que vencen hasta fecha + diasAnticipacion.
-       * @default 7
-       * @example 7
-       */
-      diasAnticipacion?: number;
-    };
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = NotificacionesPreviewVencimientosData;
-  }
-
-  /**
-   * @description Busca documentos por vencer/vencidos y CREA las notificaciones en la base de datos.
-   * @tags Notificaciones
-   * @name NotificacionesGenerarVencimientos
-   * @summary Generar y guardar notificaciones de documentos por vencer
-   * @request POST:/notificacion/vencimientos/generar
-   * @response `201` `NotificacionesGenerarVencimientosData`
-   */
-  export namespace NotificacionesGenerarVencimientos {
-    export type RequestParams = {};
-    export type RequestQuery = {
-      /**
-       * Fecha de referencia (YYYY-MM-DD). Punto de partida para la búsqueda.
-       * @example "2025-12-18"
-       */
-      fecha: string;
-      /**
-       * Días de anticipación a buscar (default: 7). Busca documentos que vencen hasta fecha + diasAnticipacion.
-       * @default 7
-       * @example 7
-       */
-      diasAnticipacion?: number;
-    };
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = NotificacionesGenerarVencimientosData;
-  }
-}
-
 export namespace Reportes {
   /**
    * No description
-   * @tags Reportes
+   * @tags reportes
    * @name ReportesGetViajesDetalladosPorVehiculo
    * @summary Viajes detallados de un vehículo específico
    * @request GET:/reportes/viajes-detallados/vehiculo/{id}
@@ -9728,7 +13800,7 @@ export namespace Reportes {
 
   /**
    * No description
-   * @tags Reportes
+   * @tags reportes
    * @name ReportesGetViajesDetalladosPorConductor
    * @summary Viajes detallados de un conductor específico
    * @request GET:/reportes/viajes-detallados/conductor/{id}
@@ -9753,7 +13825,7 @@ export namespace Reportes {
 
   /**
    * No description
-   * @tags Reportes
+   * @tags reportes
    * @name ReportesGetViajesDetalladosPorCliente
    * @summary Viajes detallados de un cliente específico
    * @request GET:/reportes/viajes-detallados/cliente/{id}
@@ -9778,7 +13850,7 @@ export namespace Reportes {
 
   /**
    * No description
-   * @tags Reportes
+   * @tags reportes
    * @name ReportesGetMantenimientosDetalladosPorVehiculo
    * @summary Mantenimientos detallados de un vehículo específico
    * @request GET:/reportes/mantenimientos-detallados/vehiculo/{id}
@@ -9804,7 +13876,7 @@ export namespace Reportes {
 
   /**
    * No description
-   * @tags Reportes
+   * @tags reportes
    * @name ReportesGetMantenimientosDetalladosPorTaller
    * @summary Mantenimientos detallados de un taller específico
    * @request GET:/reportes/mantenimientos-detallados/taller/{id}
@@ -9829,7 +13901,7 @@ export namespace Reportes {
 
   /**
    * No description
-   * @tags Reportes
+   * @tags reportes
    * @name ReportesGetReporteConductores
    * @summary Reporte general de conductores con vencimientos
    * @request GET:/reportes/conductores/general
@@ -10578,14 +14650,34 @@ export class Api<SecurityDataType extends unknown> {
      *
      * @tags auth
      * @name AuthLogin
-     * @summary User login
+     * @summary Login de usuario
      * @request POST:/auth/login
      * @response `200` `AuthLoginData`
-     * @response `401` `void` Unauthorized
+     * @response `401` `void` Credenciales inválidas
      */
     login: (data: LoginDto, params: RequestParams = {}) =>
       this.http.request<AuthLoginData, void>({
         path: `/auth/login`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags auth
+     * @name AuthLoginConductor
+     * @summary Login de conductor
+     * @request POST:/auth/conductor/login
+     * @response `200` `AuthLoginConductorData`
+     * @response `401` `void` Credenciales inválidas
+     */
+    loginConductor: (data: ConductorLoginDto, params: RequestParams = {}) =>
+      this.http.request<AuthLoginConductorData, void>({
+        path: `/auth/conductor/login`,
         method: "POST",
         body: data,
         type: ContentType.Json,
@@ -10599,7 +14691,7 @@ export class Api<SecurityDataType extends unknown> {
      *
      * @tags usuarios
      * @name UsuariosFindAll
-     * @summary Obtener usuarios con paginación, búsqueda y filtros
+     * @summary Obtener usuarios con./dto/usuario/usuario-result.dtofiltros
      * @request GET:/usuario/find-all
      * @secure
      * @response `200` `UsuariosFindAllData`
@@ -10800,6 +14892,257 @@ export class Api<SecurityDataType extends unknown> {
         ...params,
       }),
   };
+  conductores = {
+    /**
+     * @description Busca por nombre, DNI o número de licencia. Filtra por rango de fechas.
+     *
+     * @tags conductores
+     * @name ConductoresFindAll
+     * @summary Obtener conductores con paginación, búsqueda y filtros
+     * @request GET:/conductor/find-all
+     * @secure
+     * @response `200` `ConductoresFindAllData`
+     */
+    findAll: (
+      query: ConductoresFindAllParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ConductoresFindAllData, any>({
+        path: `/conductor/find-all`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags conductores
+     * @name ConductoresFindAllEstadoDocumentos
+     * @summary Obtener estado de documentos de conductores (activo/caducado/nulo)
+     * @request GET:/conductor/estado-documentos
+     * @secure
+     * @response `200` `ConductoresFindAllEstadoDocumentosData`
+     */
+    findAllEstadoDocumentos: (
+      query: ConductoresFindAllEstadoDocumentosParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ConductoresFindAllEstadoDocumentosData, any>({
+        path: `/conductor/estado-documentos`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags conductores
+     * @name ConductoresFindOne
+     * @summary Get a driver by ID
+     * @request GET:/conductor/find-one/{id}
+     * @secure
+     * @response `200` `ConductoresFindOneData`
+     */
+    findOne: (
+      { id, ...query }: ConductoresFindOneParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ConductoresFindOneData, any>({
+        path: `/conductor/find-one/${id}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags conductores
+     * @name ConductoresCreate
+     * @summary Create a new driver
+     * @request POST:/conductor/create
+     * @secure
+     * @response `200` `ConductoresCreateData`
+     */
+    create: (data: ConductorCreateDto, params: RequestParams = {}) =>
+      this.http.request<ConductoresCreateData, any>({
+        path: `/conductor/create`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags conductores
+     * @name ConductoresUpdate
+     * @summary Update a driver
+     * @request PATCH:/conductor/update/{id}
+     * @secure
+     * @response `200` `ConductoresUpdateData`
+     */
+    update: (
+      { id, ...query }: ConductoresUpdateParams,
+      data: ConductorUpdateDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ConductoresUpdateData, any>({
+        path: `/conductor/update/${id}`,
+        method: "PATCH",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags conductores
+     * @name ConductoresRemove
+     * @summary Delete a driver
+     * @request DELETE:/conductor/delete/{id}
+     * @secure
+     * @response `200` `ConductoresRemoveData`
+     */
+    remove: (
+      { id, ...query }: ConductoresRemoveParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ConductoresRemoveData, any>({
+        path: `/conductor/delete/${id}`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags conductores
+     * @name ConductoresFindDocumento
+     * @summary Obtener un documento por ID
+     * @request GET:/conductor/documento/{id}
+     * @secure
+     * @response `200` `ConductoresFindDocumentoData`
+     */
+    findDocumento: (
+      { id, ...query }: ConductoresFindDocumentoParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ConductoresFindDocumentoData, any>({
+        path: `/conductor/documento/${id}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags conductores
+     * @name ConductoresCreateDocumento
+     * @summary Crear un nuevo documento de conductor
+     * @request POST:/conductor/documento/create
+     * @secure
+     * @response `201` `ConductoresCreateDocumentoData`
+     */
+    createDocumento: (
+      data: ConductorDocumentoCreateDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ConductoresCreateDocumentoData, any>({
+        path: `/conductor/documento/create`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags conductores
+     * @name ConductoresUpdateDocumento
+     * @summary Actualizar un documento de conductor
+     * @request PATCH:/conductor/documento/update/{id}
+     * @secure
+     * @response `200` `ConductoresUpdateDocumentoData`
+     */
+    updateDocumento: (
+      { id, ...query }: ConductoresUpdateDocumentoParams,
+      data: ConductorDocumentoUpdateDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ConductoresUpdateDocumentoData, any>({
+        path: `/conductor/documento/update/${id}`,
+        method: "PATCH",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags conductores
+     * @name ConductoresDeleteDocumento
+     * @summary Eliminar un documento de conductor
+     * @request DELETE:/conductor/documento/delete/{id}
+     * @secure
+     * @response `200` `ConductoresDeleteDocumentoData`
+     */
+    deleteDocumento: (
+      { id, ...query }: ConductoresDeleteDocumentoParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ConductoresDeleteDocumentoData, any>({
+        path: `/conductor/documento/delete/${id}`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags conductores
+     * @name ConductoresDownload
+     * @summary Descargar documentos del conductor en ZIP
+     * @request GET:/conductor/download/{id}
+     * @secure
+     * @response `200` `ConductoresDownloadData`
+     */
+    download: (
+      { id, ...query }: ConductoresDownloadParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ConductoresDownloadData, any>({
+        path: `/conductor/download/${id}`,
+        method: "GET",
+        secure: true,
+        ...params,
+      }),
+  };
   dashboard = {
     /**
      * No description
@@ -10936,6 +15279,50 @@ export class Api<SecurityDataType extends unknown> {
         query: query,
         secure: true,
         format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags vehiculos
+     * @name VehiculosFindAllEstadoDocumentos
+     * @summary Obtener estado de documentos de vehículos (activo/caducado/nulo)
+     * @request GET:/vehiculo/estado-documentos
+     * @secure
+     * @response `200` `VehiculosFindAllEstadoDocumentosData`
+     */
+    findAllEstadoDocumentos: (
+      query: VehiculosFindAllEstadoDocumentosParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<VehiculosFindAllEstadoDocumentosData, any>({
+        path: `/vehiculo/estado-documentos`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags vehiculos
+     * @name VehiculosDownload
+     * @summary Descargar información y documentos del vehículo (ZIP)
+     * @request GET:/vehiculo/download/{id}
+     * @secure
+     * @response `200` `VehiculosDownloadData`
+     */
+    download: (
+      { id, ...query }: VehiculosDownloadParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<VehiculosDownloadData, any>({
+        path: `/vehiculo/download/${id}`,
+        method: "GET",
+        secure: true,
         ...params,
       }),
 
@@ -11350,24 +15737,23 @@ export class Api<SecurityDataType extends unknown> {
         format: "json",
         ...params,
       }),
-  };
-  conductores = {
+
     /**
-     * @description Busca por nombre, DNI o número de licencia. Filtra por rango de fechas.
+     * No description
      *
-     * @tags conductores
-     * @name ConductoresFindAll
-     * @summary Obtener conductores con paginación, búsqueda y filtros
-     * @request GET:/conductor/find-all
+     * @tags vehiculos
+     * @name VehiculosFindChecklistHistory
+     * @summary Obtener historial de documentos de checklist
+     * @request GET:/vehiculo/{id}/checklist-document/history
      * @secure
-     * @response `200` `ConductoresFindAllData`
+     * @response `200` `VehiculosFindChecklistHistoryData`
      */
-    findAll: (
-      query: ConductoresFindAllParams,
+    findChecklistHistory: (
+      { id, ...query }: VehiculosFindChecklistHistoryParams,
       params: RequestParams = {},
     ) =>
-      this.http.request<ConductoresFindAllData, any>({
-        path: `/conductor/find-all`,
+      this.http.request<VehiculosFindChecklistHistoryData, any>({
+        path: `/vehiculo/${id}/checklist-document/history`,
         method: "GET",
         query: query,
         secure: true,
@@ -11378,20 +15764,21 @@ export class Api<SecurityDataType extends unknown> {
     /**
      * No description
      *
-     * @tags conductores
-     * @name ConductoresFindOne
-     * @summary Get a driver by ID
-     * @request GET:/conductor/find-one/{id}
+     * @tags vehiculos
+     * @name VehiculosFindIpercContinuo
+     * @summary Obtener configuración: IPERC continuo
+     * @request GET:/vehiculo/{id}/checklist-document/iperc-continuo/find
      * @secure
-     * @response `200` `ConductoresFindOneData`
+     * @response `200` `VehiculosFindIpercContinuoData`
      */
-    findOne: (
-      { id, ...query }: ConductoresFindOneParams,
+    findIpercContinuo: (
+      { id, ...query }: VehiculosFindIpercContinuoParams,
       params: RequestParams = {},
     ) =>
-      this.http.request<ConductoresFindOneData, any>({
-        path: `/conductor/find-one/${id}`,
+      this.http.request<VehiculosFindIpercContinuoData, any>({
+        path: `/vehiculo/${id}/checklist-document/iperc-continuo/find`,
         method: "GET",
+        query: query,
         secure: true,
         format: "json",
         ...params,
@@ -11400,88 +15787,21 @@ export class Api<SecurityDataType extends unknown> {
     /**
      * No description
      *
-     * @tags conductores
-     * @name ConductoresCreate
-     * @summary Create a new driver
-     * @request POST:/conductor/create
+     * @tags vehiculos
+     * @name VehiculosFindHojaInspeccion
+     * @summary Obtener configuración: Hoja de Inspección
+     * @request GET:/vehiculo/{id}/checklist-document/hoja-inspeccion/find
      * @secure
-     * @response `200` `ConductoresCreateData`
+     * @response `200` `VehiculosFindHojaInspeccionData`
      */
-    create: (data: ConductorCreateDto, params: RequestParams = {}) =>
-      this.http.request<ConductoresCreateData, any>({
-        path: `/conductor/create`,
-        method: "POST",
-        body: data,
-        secure: true,
-        type: ContentType.Json,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags conductores
-     * @name ConductoresUpdate
-     * @summary Update a driver
-     * @request PATCH:/conductor/update/{id}
-     * @secure
-     * @response `200` `ConductoresUpdateData`
-     */
-    update: (
-      { id, ...query }: ConductoresUpdateParams,
-      data: ConductorUpdateDto,
+    findHojaInspeccion: (
+      { id, ...query }: VehiculosFindHojaInspeccionParams,
       params: RequestParams = {},
     ) =>
-      this.http.request<ConductoresUpdateData, any>({
-        path: `/conductor/update/${id}`,
-        method: "PATCH",
-        body: data,
-        secure: true,
-        type: ContentType.Json,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags conductores
-     * @name ConductoresRemove
-     * @summary Delete a driver
-     * @request DELETE:/conductor/delete/{id}
-     * @secure
-     * @response `200` `ConductoresRemoveData`
-     */
-    remove: (
-      { id, ...query }: ConductoresRemoveParams,
-      params: RequestParams = {},
-    ) =>
-      this.http.request<ConductoresRemoveData, any>({
-        path: `/conductor/delete/${id}`,
-        method: "DELETE",
-        secure: true,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags conductores
-     * @name ConductoresFindDocumento
-     * @summary Obtener un documento por ID
-     * @request GET:/conductor/documento/{id}
-     * @secure
-     * @response `200` `ConductoresFindDocumentoData`
-     */
-    findDocumento: (
-      { id, ...query }: ConductoresFindDocumentoParams,
-      params: RequestParams = {},
-    ) =>
-      this.http.request<ConductoresFindDocumentoData, any>({
-        path: `/conductor/documento/${id}`,
+      this.http.request<VehiculosFindHojaInspeccionData, any>({
+        path: `/vehiculo/${id}/checklist-document/hoja-inspeccion/find`,
         method: "GET",
+        query: query,
         secure: true,
         format: "json",
         ...params,
@@ -11490,20 +15810,182 @@ export class Api<SecurityDataType extends unknown> {
     /**
      * No description
      *
-     * @tags conductores
-     * @name ConductoresCreateDocumento
-     * @summary Crear un nuevo documento de conductor
-     * @request POST:/conductor/documento/create
+     * @tags vehiculos
+     * @name VehiculosFindInspeccionDocumentos
+     * @summary Obtener configuración: Inspección de Documentos
+     * @request GET:/vehiculo/{id}/checklist-document/inspeccion-documentos/find
      * @secure
-     * @response `201` `ConductoresCreateDocumentoData`
+     * @response `200` `VehiculosFindInspeccionDocumentosData`
      */
-    createDocumento: (
-      data: ConductorDocumentoCreateDto,
+    findInspeccionDocumentos: (
+      { id, ...query }: VehiculosFindInspeccionDocumentosParams,
       params: RequestParams = {},
     ) =>
-      this.http.request<ConductoresCreateDocumentoData, any>({
-        path: `/conductor/documento/create`,
+      this.http.request<VehiculosFindInspeccionDocumentosData, any>({
+        path: `/vehiculo/${id}/checklist-document/inspeccion-documentos/find`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags vehiculos
+     * @name VehiculosFindLuces
+     * @summary Obtener configuración: Luces de Emergencia y Alarmas
+     * @request GET:/vehiculo/{id}/checklist-document/luces-emergencia-alarmas/find
+     * @secure
+     * @response `200` `VehiculosFindLucesData`
+     */
+    findLuces: (
+      { id, ...query }: VehiculosFindLucesParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<VehiculosFindLucesData, any>({
+        path: `/vehiculo/${id}/checklist-document/luces-emergencia-alarmas/find`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags vehiculos
+     * @name VehiculosFindCinturones
+     * @summary Obtener configuración: Cinturones de Seguridad
+     * @request GET:/vehiculo/{id}/checklist-document/cinturones-seguridad/find
+     * @secure
+     * @response `200` `VehiculosFindCinturonesData`
+     */
+    findCinturones: (
+      { id, ...query }: VehiculosFindCinturonesParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<VehiculosFindCinturonesData, any>({
+        path: `/vehiculo/${id}/checklist-document/cinturones-seguridad/find`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags vehiculos
+     * @name VehiculosFindHerramientas
+     * @summary Obtener configuración: Inspección de Herramientas
+     * @request GET:/vehiculo/{id}/checklist-document/inspeccion-herramientas/find
+     * @secure
+     * @response `200` `VehiculosFindHerramientasData`
+     */
+    findHerramientas: (
+      { id, ...query }: VehiculosFindHerramientasParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<VehiculosFindHerramientasData, any>({
+        path: `/vehiculo/${id}/checklist-document/inspeccion-herramientas/find`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags vehiculos
+     * @name VehiculosFindBotiquines
+     * @summary Obtener configuración: Inspección de Botiquines
+     * @request GET:/vehiculo/{id}/checklist-document/inspeccion-botiquines/find
+     * @secure
+     * @response `200` `VehiculosFindBotiquinesData`
+     */
+    findBotiquines: (
+      { id, ...query }: VehiculosFindBotiquinesParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<VehiculosFindBotiquinesData, any>({
+        path: `/vehiculo/${id}/checklist-document/inspeccion-botiquines/find`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags vehiculos
+     * @name VehiculosFindKitAntiderrames
+     * @summary Obtener configuración: Kit Antiderrames
+     * @request GET:/vehiculo/{id}/checklist-document/kit-antiderrames/find
+     * @secure
+     * @response `200` `VehiculosFindKitAntiderramesData`
+     */
+    findKitAntiderrames: (
+      { id, ...query }: VehiculosFindKitAntiderramesParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<VehiculosFindKitAntiderramesData, any>({
+        path: `/vehiculo/${id}/checklist-document/kit-antiderrames/find`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags vehiculos
+     * @name VehiculosFindRevisionVehiculos
+     * @summary Obtener configuración: Revisión de Vehículos
+     * @request GET:/vehiculo/{id}/checklist-document/revision-vehiculos/find
+     * @secure
+     * @response `200` `VehiculosFindRevisionVehiculosData`
+     */
+    findRevisionVehiculos: (
+      { id, ...query }: VehiculosFindRevisionVehiculosParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<VehiculosFindRevisionVehiculosData, any>({
+        path: `/vehiculo/${id}/checklist-document/revision-vehiculos/find`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags vehiculos
+     * @name VehiculosUpsertIpercContinuo
+     * @request POST:/vehiculo/{id}/viaje/{viajeId}/checklist-document/iperc-continuo/upsert
+     * @secure
+     * @response `201` `VehiculosUpsertIpercContinuoData`
+     */
+    upsertIpercContinuo: (
+      { id, viajeId, ...query }: VehiculosUpsertIpercContinuoParams,
+      data: IpercContinuoDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<VehiculosUpsertIpercContinuoData, any>({
+        path: `/vehiculo/${id}/viaje/${viajeId}/checklist-document/iperc-continuo/upsert`,
         method: "POST",
+        query: query,
         body: data,
         secure: true,
         type: ContentType.Json,
@@ -11514,21 +15996,21 @@ export class Api<SecurityDataType extends unknown> {
     /**
      * No description
      *
-     * @tags conductores
-     * @name ConductoresUpdateDocumento
-     * @summary Actualizar un documento de conductor
-     * @request PATCH:/conductor/documento/update/{id}
+     * @tags vehiculos
+     * @name VehiculosUpsertHojaInspeccion
+     * @request POST:/vehiculo/{id}/viaje/{viajeId}/checklist-document/hoja-inspeccion/upsert
      * @secure
-     * @response `200` `ConductoresUpdateDocumentoData`
+     * @response `201` `VehiculosUpsertHojaInspeccionData`
      */
-    updateDocumento: (
-      { id, ...query }: ConductoresUpdateDocumentoParams,
-      data: ConductorDocumentoUpdateDto,
+    upsertHojaInspeccion: (
+      { id, viajeId, ...query }: VehiculosUpsertHojaInspeccionParams,
+      data: HojaInspeccionDto,
       params: RequestParams = {},
     ) =>
-      this.http.request<ConductoresUpdateDocumentoData, any>({
-        path: `/conductor/documento/update/${id}`,
-        method: "PATCH",
+      this.http.request<VehiculosUpsertHojaInspeccionData, any>({
+        path: `/vehiculo/${id}/viaje/${viajeId}/checklist-document/hoja-inspeccion/upsert`,
+        method: "POST",
+        query: query,
         body: data,
         secure: true,
         type: ContentType.Json,
@@ -11539,21 +16021,174 @@ export class Api<SecurityDataType extends unknown> {
     /**
      * No description
      *
-     * @tags conductores
-     * @name ConductoresDeleteDocumento
-     * @summary Eliminar un documento de conductor
-     * @request DELETE:/conductor/documento/delete/{id}
+     * @tags vehiculos
+     * @name VehiculosUpsertInspeccionDocumentos
+     * @request POST:/vehiculo/{id}/viaje/{viajeId}/checklist-document/inspeccion-documentos/upsert
      * @secure
-     * @response `200` `ConductoresDeleteDocumentoData`
+     * @response `201` `VehiculosUpsertInspeccionDocumentosData`
      */
-    deleteDocumento: (
-      { id, ...query }: ConductoresDeleteDocumentoParams,
+    upsertInspeccionDocumentos: (
+      { id, viajeId, ...query }: VehiculosUpsertInspeccionDocumentosParams,
+      data: InspeccionDocumentosDto,
       params: RequestParams = {},
     ) =>
-      this.http.request<ConductoresDeleteDocumentoData, any>({
-        path: `/conductor/documento/delete/${id}`,
-        method: "DELETE",
+      this.http.request<VehiculosUpsertInspeccionDocumentosData, any>({
+        path: `/vehiculo/${id}/viaje/${viajeId}/checklist-document/inspeccion-documentos/upsert`,
+        method: "POST",
+        query: query,
+        body: data,
         secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags vehiculos
+     * @name VehiculosUpsertLuces
+     * @request POST:/vehiculo/{id}/viaje/{viajeId}/checklist-document/luces-emergencia-alarmas/upsert
+     * @secure
+     * @response `201` `VehiculosUpsertLucesData`
+     */
+    upsertLuces: (
+      { id, viajeId, ...query }: VehiculosUpsertLucesParams,
+      data: LucesEmergenciaAlarmasDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<VehiculosUpsertLucesData, any>({
+        path: `/vehiculo/${id}/viaje/${viajeId}/checklist-document/luces-emergencia-alarmas/upsert`,
+        method: "POST",
+        query: query,
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags vehiculos
+     * @name VehiculosUpsertCinturones
+     * @request POST:/vehiculo/{id}/viaje/{viajeId}/checklist-document/cinturones-seguridad/upsert
+     * @secure
+     * @response `201` `VehiculosUpsertCinturonesData`
+     */
+    upsertCinturones: (
+      { id, viajeId, ...query }: VehiculosUpsertCinturonesParams,
+      data: CinturonesSeguridadDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<VehiculosUpsertCinturonesData, any>({
+        path: `/vehiculo/${id}/viaje/${viajeId}/checklist-document/cinturones-seguridad/upsert`,
+        method: "POST",
+        query: query,
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags vehiculos
+     * @name VehiculosUpsertHerramientas
+     * @request POST:/vehiculo/{id}/viaje/{viajeId}/checklist-document/inspeccion-herramientas/upsert
+     * @secure
+     * @response `201` `VehiculosUpsertHerramientasData`
+     */
+    upsertHerramientas: (
+      { id, viajeId, ...query }: VehiculosUpsertHerramientasParams,
+      data: InspeccionHerramientasDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<VehiculosUpsertHerramientasData, any>({
+        path: `/vehiculo/${id}/viaje/${viajeId}/checklist-document/inspeccion-herramientas/upsert`,
+        method: "POST",
+        query: query,
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags vehiculos
+     * @name VehiculosUpsertBotiquines
+     * @request POST:/vehiculo/{id}/viaje/{viajeId}/checklist-document/inspeccion-botiquines/upsert
+     * @secure
+     * @response `201` `VehiculosUpsertBotiquinesData`
+     */
+    upsertBotiquines: (
+      { id, viajeId, ...query }: VehiculosUpsertBotiquinesParams,
+      data: InspeccionBotiquinesDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<VehiculosUpsertBotiquinesData, any>({
+        path: `/vehiculo/${id}/viaje/${viajeId}/checklist-document/inspeccion-botiquines/upsert`,
+        method: "POST",
+        query: query,
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags vehiculos
+     * @name VehiculosUpsertKitAntiderrames
+     * @request POST:/vehiculo/{id}/viaje/{viajeId}/checklist-document/kit-antiderrames/upsert
+     * @secure
+     * @response `201` `VehiculosUpsertKitAntiderramesData`
+     */
+    upsertKitAntiderrames: (
+      { id, viajeId, ...query }: VehiculosUpsertKitAntiderramesParams,
+      data: KitAntiderramesDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<VehiculosUpsertKitAntiderramesData, any>({
+        path: `/vehiculo/${id}/viaje/${viajeId}/checklist-document/kit-antiderrames/upsert`,
+        method: "POST",
+        query: query,
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags vehiculos
+     * @name VehiculosUpsertRevisionVehiculos
+     * @request POST:/vehiculo/{id}/viaje/{viajeId}/checklist-document/revision-vehiculos/upsert
+     * @secure
+     * @response `201` `VehiculosUpsertRevisionVehiculosData`
+     */
+    upsertRevisionVehiculos: (
+      { id, viajeId, ...query }: VehiculosUpsertRevisionVehiculosParams,
+      data: RevisionVehiculosDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<VehiculosUpsertRevisionVehiculosData, any>({
+        path: `/vehiculo/${id}/viaje/${viajeId}/checklist-document/revision-vehiculos/upsert`,
+        method: "POST",
+        query: query,
+        body: data,
+        secure: true,
+        type: ContentType.Json,
         format: "json",
         ...params,
       }),
@@ -11954,6 +16589,29 @@ export class Api<SecurityDataType extends unknown> {
         format: "json",
         ...params,
       }),
+
+    /**
+     * No description
+     *
+     * @tags mantenimientos
+     * @name MantenimientosGetReporteEstadoVehiculos
+     * @summary Obtener reporte de estado de mantenimiento de vehículos
+     * @request GET:/mantenimiento/reporte-estado-vehiculos
+     * @secure
+     * @response `200` `MantenimientosGetReporteEstadoVehiculosData`
+     */
+    getReporteEstadoVehiculos: (
+      query: MantenimientosGetReporteEstadoVehiculosParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<MantenimientosGetReporteEstadoVehiculosData, any>({
+        path: `/mantenimiento/reporte-estado-vehiculos`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
   };
   rutas = {
     /**
@@ -11981,7 +16639,7 @@ export class Api<SecurityDataType extends unknown> {
      *
      * @tags rutas
      * @name RutasFindOne
-     * @summary Get a route by ID
+     * @summary Obtener una ruta por ID con sus paradas
      * @request GET:/ruta/find-one/{id}
      * @secure
      * @response `200` `RutasFindOneData`
@@ -12002,15 +16660,86 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags rutas
-     * @name RutasCreate
-     * @summary Create a new route
-     * @request POST:/ruta/create
+     * @name RutasFindParadas
+     * @summary Obtener todas las paradas de una ruta
+     * @request GET:/ruta/{rutaId}/paradas
      * @secure
-     * @response `200` `RutasCreateData`
+     * @response `200` `RutasFindParadasData`
      */
-    create: (data: RutaCreateDto, params: RequestParams = {}) =>
-      this.http.request<RutasCreateData, any>({
-        path: `/ruta/create`,
+    findParadas: (
+      { rutaId, ...query }: RutasFindParadasParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<RutasFindParadasData, any>({
+        path: `/ruta/${rutaId}/paradas`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags rutas
+     * @name RutasFindAllCircuitos
+     * @summary Obtener circuitos con paginación, búsqueda y filtros
+     * @request GET:/ruta/circuito/find-all
+     * @secure
+     * @response `200` `RutasFindAllCircuitosData`
+     */
+    findAllCircuitos: (
+      query: RutasFindAllCircuitosParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<RutasFindAllCircuitosData, any>({
+        path: `/ruta/circuito/find-all`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags rutas
+     * @name RutasFindOneCircuito
+     * @summary Obtener un circuito por ID con sus rutas y paradas
+     * @request GET:/ruta/circuito/find-one/{id}
+     * @secure
+     * @response `200` `RutasFindOneCircuitoData`
+     */
+    findOneCircuito: (
+      { id, ...query }: RutasFindOneCircuitoParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<RutasFindOneCircuitoData, any>({
+        path: `/ruta/circuito/find-one/${id}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags rutas
+     * @name RutasCreateCircuito
+     * @summary Crear un nuevo circuito con rutas de ida y vuelta
+     * @request POST:/ruta/circuito/create
+     * @secure
+     * @response `200` `RutasCreateCircuitoData`
+     */
+    createCircuito: (
+      data: RutaCircuitoCreateDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<RutasCreateCircuitoData, any>({
+        path: `/ruta/circuito/create`,
         method: "POST",
         body: data,
         secure: true,
@@ -12023,19 +16752,19 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags rutas
-     * @name RutasUpdate
-     * @summary Update a route
-     * @request PATCH:/ruta/update/{id}
+     * @name RutasUpdateCircuito
+     * @summary Actualizar un circuito y sus rutas (reemplazo inteligente)
+     * @request PATCH:/ruta/circuito/update/{id}
      * @secure
-     * @response `200` `RutasUpdateData`
+     * @response `200` `RutasUpdateCircuitoData`
      */
-    update: (
-      { id, ...query }: RutasUpdateParams,
-      data: RutaUpdateDto,
+    updateCircuito: (
+      { id, ...query }: RutasUpdateCircuitoParams,
+      data: RutaCircuitoUpdateDto,
       params: RequestParams = {},
     ) =>
-      this.http.request<RutasUpdateData, any>({
-        path: `/ruta/update/${id}`,
+      this.http.request<RutasUpdateCircuitoData, any>({
+        path: `/ruta/circuito/update/${id}`,
         method: "PATCH",
         body: data,
         secure: true,
@@ -12048,27 +16777,26 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags rutas
-     * @name RutasRemove
-     * @summary Delete a route
-     * @request DELETE:/ruta/delete/{id}
+     * @name RutasRemoveCircuito
+     * @summary Eliminar un circuito y sus rutas asociadas
+     * @request DELETE:/ruta/circuito/delete/{id}
      * @secure
-     * @response `200` `RutasRemoveData`
+     * @response `200` `RutasRemoveCircuitoData` Mensaje de confirmación
      */
-    remove: (
-      { id, ...query }: RutasRemoveParams,
+    removeCircuito: (
+      { id, ...query }: RutasRemoveCircuitoParams,
       params: RequestParams = {},
     ) =>
-      this.http.request<RutasRemoveData, any>({
-        path: `/ruta/delete/${id}`,
+      this.http.request<RutasRemoveCircuitoData, any>({
+        path: `/ruta/circuito/delete/${id}`,
         method: "DELETE",
         secure: true,
-        format: "json",
         ...params,
       }),
   };
   viajes = {
     /**
-     * @description Busca por estado, ruta ocasional y modalidad. Filtra por rango de fechas, modalidad de servicio y tipo de viaje (ocasional o regular).
+     * @description Busca por estado, ruta ocasional y modalidad. Filtra por rango de fechas, modalidad de servicio y tipo de viaje (ocasional o regular). Si el token es de un conductor, solo retorna sus viajes asignados.
      *
      * @tags viajes
      * @name ViajesFindAll
@@ -12092,7 +16820,7 @@ export class Api<SecurityDataType extends unknown> {
      *
      * @tags viajes
      * @name ViajesFindOne
-     * @summary Get a trip by ID
+     * @summary Obtener viaje por ID
      * @request GET:/viaje/find-one/{id}
      * @secure
      * @response `200` `ViajesFindOneData`
@@ -12114,7 +16842,7 @@ export class Api<SecurityDataType extends unknown> {
      *
      * @tags viajes
      * @name ViajesCreate
-     * @summary Create a new trip
+     * @summary Crear un nuevo viaje
      * @request POST:/viaje/create
      * @secure
      * @response `200` `ViajesCreateData`
@@ -12135,7 +16863,7 @@ export class Api<SecurityDataType extends unknown> {
      *
      * @tags viajes
      * @name ViajesUpdate
-     * @summary Update a trip
+     * @summary Actualizar un viaje
      * @request PATCH:/viaje/update/{id}
      * @secure
      * @response `200` `ViajesUpdateData`
@@ -12160,7 +16888,7 @@ export class Api<SecurityDataType extends unknown> {
      *
      * @tags viajes
      * @name ViajesRemove
-     * @summary Delete a trip
+     * @summary Eliminar un viaje
      * @request DELETE:/viaje/delete/{id}
      * @secure
      * @response `200` `ViajesRemoveData`
@@ -12521,6 +17249,514 @@ export class Api<SecurityDataType extends unknown> {
         format: "json",
         ...params,
       }),
+
+    /**
+     * No description
+     *
+     * @tags viajes
+     * @name ViajesFindServicios
+     * @summary Obtener todos los servicios/tramos de un viaje
+     * @request GET:/viaje/{viajeId}/servicios
+     * @secure
+     * @response `200` `ViajesFindServiciosData`
+     */
+    findServicios: (
+      { viajeId, ...query }: ViajesFindServiciosParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ViajesFindServiciosData, any>({
+        path: `/viaje/${viajeId}/servicios`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags viajes
+     * @name ViajesGetNextStep
+     * @summary Obtener sugerencia para el siguiente tramo del viaje
+     * @request GET:/viaje/{viajeId}/servicio/next-step
+     * @secure
+     * @response `200` `ViajesGetNextStepData`
+     */
+    getNextStep: (
+      { viajeId, ...query }: ViajesGetNextStepParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ViajesGetNextStepData, any>({
+        path: `/viaje/${viajeId}/servicio/next-step`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags viajes
+     * @name ViajesCreateServicio
+     * @summary Crear un nuevo servicio/tramo para un viaje
+     * @request POST:/viaje/{viajeId}/servicio/create
+     * @secure
+     * @response `201` `ViajesCreateServicioData`
+     */
+    createServicio: (
+      { viajeId, ...query }: ViajesCreateServicioParams,
+      data: ViajeServicioCreateDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ViajesCreateServicioData, any>({
+        path: `/viaje/${viajeId}/servicio/create`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags viajes
+     * @name ViajesUpdateServicio
+     * @summary Actualizar un servicio/tramo
+     * @request PATCH:/viaje/servicio/update/{id}
+     * @secure
+     * @response `200` `ViajesUpdateServicioData`
+     */
+    updateServicio: (
+      { id, ...query }: ViajesUpdateServicioParams,
+      data: ViajeServicioUpdateDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ViajesUpdateServicioData, any>({
+        path: `/viaje/servicio/update/${id}`,
+        method: "PATCH",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags viajes
+     * @name ViajesDeleteServicio
+     * @summary Eliminar un servicio/tramo
+     * @request DELETE:/viaje/servicio/delete/{id}
+     * @secure
+     * @response `200` `ViajesDeleteServicioData`
+     */
+    deleteServicio: (
+      { id, ...query }: ViajesDeleteServicioParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ViajesDeleteServicioData, any>({
+        path: `/viaje/servicio/delete/${id}`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags viajes
+     * @name ViajesFindPasajeros
+     * @summary Obtener todos los pasajeros de un viaje
+     * @request GET:/viaje/{viajeId}/pasajeros
+     * @secure
+     * @response `200` `ViajesFindPasajerosData`
+     */
+    findPasajeros: (
+      { viajeId, ...query }: ViajesFindPasajerosParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ViajesFindPasajerosData, any>({
+        path: `/viaje/${viajeId}/pasajeros`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags viajes
+     * @name ViajesUpsertPasajeros
+     * @summary Agregar o actualizar pasajeros en un viaje
+     * @request POST:/viaje/{viajeId}/pasajeros/upsert
+     * @secure
+     * @response `201` `ViajesUpsertPasajerosData`
+     */
+    upsertPasajeros: (
+      { viajeId, ...query }: ViajesUpsertPasajerosParams,
+      data: ViajePasajeroFillDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ViajesUpsertPasajerosData, any>({
+        path: `/viaje/${viajeId}/pasajeros/upsert`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags viajes
+     * @name ViajesFindAllChecklistItems
+     * @summary Obtener todos los items del catálogo de checklist
+     * @request GET:/viaje/checklist-item/find-all
+     * @secure
+     * @response `200` `ViajesFindAllChecklistItemsData`
+     */
+    findAllChecklistItems: (params: RequestParams = {}) =>
+      this.http.request<ViajesFindAllChecklistItemsData, any>({
+        path: `/viaje/checklist-item/find-all`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags viajes
+     * @name ViajesFindChecklistItem
+     * @summary Obtener un item del catálogo por ID
+     * @request GET:/viaje/checklist-item/{id}
+     * @secure
+     * @response `200` `ViajesFindChecklistItemData`
+     */
+    findChecklistItem: (
+      { id, ...query }: ViajesFindChecklistItemParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ViajesFindChecklistItemData, any>({
+        path: `/viaje/checklist-item/${id}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags viajes
+     * @name ViajesCreateChecklistItem
+     * @summary Crear un nuevo item en el catálogo
+     * @request POST:/viaje/checklist-item/create
+     * @secure
+     * @response `201` `ViajesCreateChecklistItemData`
+     */
+    createChecklistItem: (
+      data: ChecklistItemCreateDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ViajesCreateChecklistItemData, any>({
+        path: `/viaje/checklist-item/create`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags viajes
+     * @name ViajesUpdateChecklistItem
+     * @summary Actualizar un item del catálogo
+     * @request PATCH:/viaje/checklist-item/update/{id}
+     * @secure
+     * @response `200` `ViajesUpdateChecklistItemData`
+     */
+    updateChecklistItem: (
+      { id, ...query }: ViajesUpdateChecklistItemParams,
+      data: ChecklistItemUpdateDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ViajesUpdateChecklistItemData, any>({
+        path: `/viaje/checklist-item/update/${id}`,
+        method: "PATCH",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags viajes
+     * @name ViajesDeleteChecklistItem
+     * @summary Eliminar un item del catálogo
+     * @request DELETE:/viaje/checklist-item/delete/{id}
+     * @secure
+     * @response `200` `ViajesDeleteChecklistItemData`
+     */
+    deleteChecklistItem: (
+      { id, ...query }: ViajesDeleteChecklistItemParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ViajesDeleteChecklistItemData, any>({
+        path: `/viaje/checklist-item/delete/${id}`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags viajes
+     * @name ViajesFindChecklistByTipo
+     * @summary Obtener un checklist de un viaje por tipo (salida/llegada)
+     * @request GET:/viaje/{viajeId}/checklist
+     * @secure
+     * @response `200` `ViajesFindChecklistByTipoData`
+     */
+    findChecklistByTipo: (
+      { viajeId, ...query }: ViajesFindChecklistByTipoParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ViajesFindChecklistByTipoData, any>({
+        path: `/viaje/${viajeId}/checklist`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags viajes
+     * @name ViajesVerifyChecklist
+     * @summary Verificar y generar un checklist de viaje (salida/llegada) basado en la configuración actual
+     * @request POST:/viaje/{viajeId}/checklist/verify
+     * @secure
+     * @response `200` `ViajesVerifyChecklistData`
+     */
+    verifyChecklist: (
+      { viajeId, ...query }: ViajesVerifyChecklistParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ViajesVerifyChecklistData, any>({
+        path: `/viaje/${viajeId}/checklist/verify`,
+        method: "POST",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags viajes
+     * @name ViajesDeleteChecklist
+     * @summary Eliminar un checklist
+     * @request DELETE:/viaje/checklist/delete/{id}
+     * @secure
+     * @response `200` `ViajesDeleteChecklistData`
+     */
+    deleteChecklist: (
+      { id, ...query }: ViajesDeleteChecklistParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ViajesDeleteChecklistData, any>({
+        path: `/viaje/checklist/delete/${id}`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+  };
+  notificaciones = {
+    /**
+     * No description
+     *
+     * @tags notificaciones
+     * @name NotificacionesFindAll
+     * @summary Obtener notificaciones del usuario
+     * @request GET:/notificacion/find-all
+     * @response `200` `NotificacionesFindAllData`
+     */
+    findAll: (
+      query: NotificacionesFindAllParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<NotificacionesFindAllData, any>({
+        path: `/notificacion/find-all`,
+        method: "GET",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags notificaciones
+     * @name NotificacionesCreate
+     * @summary Crear una nueva notificación general
+     * @request POST:/notificacion/create
+     * @response `201` `NotificacionesCreateData`
+     */
+    create: (
+      data: NotificacionCreateDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<NotificacionesCreateData, any>({
+        path: `/notificacion/create`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags notificaciones
+     * @name NotificacionesMarkAsRead
+     * @summary Marcar notificación como leída
+     * @request POST:/notificacion/leido/{id}
+     * @response `200` `NotificacionesMarkAsReadData`
+     */
+    markAsRead: (
+      { id, ...query }: NotificacionesMarkAsReadParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<NotificacionesMarkAsReadData, any>({
+        path: `/notificacion/leido/${id}`,
+        method: "POST",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags notificaciones
+     * @name NotificacionesPreviewVencimientos
+     * @summary TEST: Previsualizar notificaciones de documentos por vencer
+     * @request GET:/notificacion/vencimientos/test
+     * @response `200` `NotificacionesPreviewVencimientosData`
+     */
+    previewVencimientos: (
+      query: NotificacionesPreviewVencimientosParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<NotificacionesPreviewVencimientosData, any>({
+        path: `/notificacion/vencimientos/test`,
+        method: "GET",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Busca documentos por vencer/vencidos y CREA las notificaciones en la base de datos.
+     *
+     * @tags notificaciones
+     * @name NotificacionesGenerarVencimientos
+     * @summary Generar y guardar notificaciones de documentos por vencer
+     * @request POST:/notificacion/vencimientos/generar
+     * @response `201` `NotificacionesGenerarVencimientosData`
+     */
+    generarVencimientos: (
+      query: NotificacionesGenerarVencimientosParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<NotificacionesGenerarVencimientosData, any>({
+        path: `/notificacion/vencimientos/generar`,
+        method: "POST",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags notificaciones
+     * @name NotificacionesSendEmail
+     * @summary Enviar un correo electrónico
+     * @request POST:/notificacion/send-email
+     * @response `200` `NotificacionesSendEmailData` Correo enviado correctamente
+     */
+    sendEmail: (data: SendEmailDto, params: RequestParams = {}) =>
+      this.http.request<NotificacionesSendEmailData, any>({
+        path: `/notificacion/send-email`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags notificaciones
+     * @name NotificacionesNotifyEachAdmin
+     * @summary Enviar lista de conductores con documentos por vencer a todos los administradores
+     * @request POST:/notificacion/notify-each-admin
+     * @response `200` `NotificacionesNotifyEachAdminData` Correos enviados con el reporte
+     */
+    notifyEachAdmin: (
+      query: NotificacionesNotifyEachAdminParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<NotificacionesNotifyEachAdminData, any>({
+        path: `/notificacion/notify-each-admin`,
+        method: "POST",
+        query: query,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags notificaciones
+     * @name NotificacionesNotifyEachConductor
+     * @summary Enviar correo personalizado a cada conductor con sus documentos por vencer
+     * @request POST:/notificacion/notify-each-conductor
+     * @response `200` `NotificacionesNotifyEachConductorData` Proceso de notificación por correo finalizado
+     */
+    notifyEachConductor: (
+      query: NotificacionesNotifyEachConductorParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<NotificacionesNotifyEachConductorData, any>({
+        path: `/notificacion/notify-each-conductor`,
+        method: "POST",
+        query: query,
+        ...params,
+      }),
   };
   clientes = {
     /**
@@ -12728,12 +17964,128 @@ export class Api<SecurityDataType extends unknown> {
         format: "json",
         ...params,
       }),
+
+    /**
+     * No description
+     *
+     * @tags clientes
+     * @name ClientesFindAllPasajeros
+     * @summary Obtener pasajeros con paginación, búsqueda y filtro por cliente
+     * @request GET:/cliente/pasajero/find-all
+     * @secure
+     * @response `200` `ClientesFindAllPasajerosData`
+     */
+    findAllPasajeros: (
+      query: ClientesFindAllPasajerosParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ClientesFindAllPasajerosData, any>({
+        path: `/cliente/pasajero/find-all`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags clientes
+     * @name ClientesFindPasajero
+     * @summary Obtener un pasajero por ID
+     * @request GET:/cliente/pasajero/find-one/{id}
+     * @secure
+     * @response `200` `ClientesFindPasajeroData`
+     */
+    findPasajero: (
+      { id, ...query }: ClientesFindPasajeroParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ClientesFindPasajeroData, any>({
+        path: `/cliente/pasajero/find-one/${id}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags clientes
+     * @name ClientesCreatePasajero
+     * @summary Crear un nuevo pasajero
+     * @request POST:/cliente/pasajero/create
+     * @secure
+     * @response `201` `ClientesCreatePasajeroData`
+     */
+    createPasajero: (
+      data: PasajeroCreateDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ClientesCreatePasajeroData, any>({
+        path: `/cliente/pasajero/create`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags clientes
+     * @name ClientesUpdatePasajero
+     * @summary Actualizar un pasajero
+     * @request PATCH:/cliente/pasajero/update/{id}
+     * @secure
+     * @response `200` `ClientesUpdatePasajeroData`
+     */
+    updatePasajero: (
+      { id, ...query }: ClientesUpdatePasajeroParams,
+      data: PasajeroUpdateDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ClientesUpdatePasajeroData, any>({
+        path: `/cliente/pasajero/update/${id}`,
+        method: "PATCH",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags clientes
+     * @name ClientesDeletePasajero
+     * @summary Eliminar un pasajero
+     * @request DELETE:/cliente/pasajero/delete/{id}
+     * @secure
+     * @response `200` `ClientesDeletePasajeroData`
+     */
+    deletePasajero: (
+      { id, ...query }: ClientesDeletePasajeroParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ClientesDeletePasajeroData, any>({
+        path: `/cliente/pasajero/delete/${id}`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
   };
   talleres = {
     /**
      * No description
      *
-     * @tags Talleres
+     * @tags talleres
      * @name TalleresCreate
      * @summary Crear un nuevo taller
      * @request POST:/taller/create
@@ -12753,7 +18105,7 @@ export class Api<SecurityDataType extends unknown> {
     /**
      * No description
      *
-     * @tags Talleres
+     * @tags talleres
      * @name TalleresFindAll
      * @summary Listar talleres de forma paginada
      * @request GET:/taller/find-all
@@ -12776,7 +18128,7 @@ export class Api<SecurityDataType extends unknown> {
     /**
      * No description
      *
-     * @tags Talleres
+     * @tags talleres
      * @name TalleresFindOne
      * @summary Obtener un taller por ID
      * @request GET:/taller/find-one/{id}
@@ -12798,7 +18150,7 @@ export class Api<SecurityDataType extends unknown> {
     /**
      * No description
      *
-     * @tags Talleres
+     * @tags talleres
      * @name TalleresUpdate
      * @summary Actualizar un taller por ID
      * @request PATCH:/taller/update/{id}
@@ -12822,7 +18174,7 @@ export class Api<SecurityDataType extends unknown> {
     /**
      * No description
      *
-     * @tags Talleres
+     * @tags talleres
      * @name TalleresRemove
      * @summary Eliminar un taller por ID
      * @request DELETE:/taller/delete/{id}
@@ -12840,176 +18192,11 @@ export class Api<SecurityDataType extends unknown> {
         ...params,
       }),
   };
-  notificaciones = {
-    /**
-     * No description
-     *
-     * @tags Notificaciones
-     * @name NotificacionesFindAll
-     * @summary Obtener notificaciones del usuario
-     * @request GET:/notificacion/find-all
-     * @response `200` `NotificacionesFindAllData`
-     */
-    findAll: (
-      query: NotificacionesFindAllParams,
-      params: RequestParams = {},
-    ) =>
-      this.http.request<NotificacionesFindAllData, any>({
-        path: `/notificacion/find-all`,
-        method: "GET",
-        query: query,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Notificaciones
-     * @name NotificacionesCreate
-     * @summary Crear una nueva notificación general
-     * @request POST:/notificacion/create
-     * @response `201` `NotificacionesCreateData`
-     */
-    create: (
-      data: NotificacionCreateDto,
-      params: RequestParams = {},
-    ) =>
-      this.http.request<NotificacionesCreateData, any>({
-        path: `/notificacion/create`,
-        method: "POST",
-        body: data,
-        type: ContentType.Json,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Notificaciones
-     * @name NotificacionesMarkAsRead
-     * @summary Marcar notificación como leída
-     * @request POST:/notificacion/leido/{id}
-     * @response `200` `NotificacionesMarkAsReadData`
-     */
-    markAsRead: (
-      { id, ...query }: NotificacionesMarkAsReadParams,
-      params: RequestParams = {},
-    ) =>
-      this.http.request<NotificacionesMarkAsReadData, any>({
-        path: `/notificacion/leido/${id}`,
-        method: "POST",
-        query: query,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Notificaciones
-     * @name NotificacionesSendEmail
-     * @summary Enviar un correo electrónico
-     * @request POST:/notificacion/send-email
-     * @response `200` `NotificacionesSendEmailData` Correo enviado correctamente
-     */
-    sendEmail: (data: SendEmailDto, params: RequestParams = {}) =>
-      this.http.request<NotificacionesSendEmailData, any>({
-        path: `/notificacion/send-email`,
-        method: "POST",
-        body: data,
-        type: ContentType.Json,
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Notificaciones
-     * @name NotificacionesNotifyEachAdmin
-     * @summary Enviar lista de conductores con documentos por vencer a todos los administradores
-     * @request POST:/notificacion/notify-each-admin
-     * @response `200` `NotificacionesNotifyEachAdminData` Correos enviados con el reporte
-     */
-    notifyEachAdmin: (
-      query: NotificacionesNotifyEachAdminParams,
-      params: RequestParams = {},
-    ) =>
-      this.http.request<NotificacionesNotifyEachAdminData, any>({
-        path: `/notificacion/notify-each-admin`,
-        method: "POST",
-        query: query,
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Notificaciones
-     * @name NotificacionesNotifyEachConductor
-     * @summary Enviar correo personalizado a cada conductor con sus documentos por vencer
-     * @request POST:/notificacion/notify-each-conductor
-     * @response `200` `NotificacionesNotifyEachConductorData` Proceso de notificación por correo finalizado
-     */
-    notifyEachConductor: (
-      query: NotificacionesNotifyEachConductorParams,
-      params: RequestParams = {},
-    ) =>
-      this.http.request<NotificacionesNotifyEachConductorData, any>({
-        path: `/notificacion/notify-each-conductor`,
-        method: "POST",
-        query: query,
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Notificaciones
-     * @name NotificacionesPreviewVencimientos
-     * @summary TEST: Previsualizar notificaciones de documentos por vencer
-     * @request GET:/notificacion/vencimientos/test
-     * @response `200` `NotificacionesPreviewVencimientosData`
-     */
-    previewVencimientos: (
-      query: NotificacionesPreviewVencimientosParams,
-      params: RequestParams = {},
-    ) =>
-      this.http.request<NotificacionesPreviewVencimientosData, any>({
-        path: `/notificacion/vencimientos/test`,
-        method: "GET",
-        query: query,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Busca documentos por vencer/vencidos y CREA las notificaciones en la base de datos.
-     *
-     * @tags Notificaciones
-     * @name NotificacionesGenerarVencimientos
-     * @summary Generar y guardar notificaciones de documentos por vencer
-     * @request POST:/notificacion/vencimientos/generar
-     * @response `201` `NotificacionesGenerarVencimientosData`
-     */
-    generarVencimientos: (
-      query: NotificacionesGenerarVencimientosParams,
-      params: RequestParams = {},
-    ) =>
-      this.http.request<NotificacionesGenerarVencimientosData, any>({
-        path: `/notificacion/vencimientos/generar`,
-        method: "POST",
-        query: query,
-        format: "json",
-        ...params,
-      }),
-  };
   reportes = {
     /**
      * No description
      *
-     * @tags Reportes
+     * @tags reportes
      * @name ReportesGetViajesDetalladosPorVehiculo
      * @summary Viajes detallados de un vehículo específico
      * @request GET:/reportes/viajes-detallados/vehiculo/{id}
@@ -13032,7 +18219,7 @@ export class Api<SecurityDataType extends unknown> {
     /**
      * No description
      *
-     * @tags Reportes
+     * @tags reportes
      * @name ReportesGetViajesDetalladosPorConductor
      * @summary Viajes detallados de un conductor específico
      * @request GET:/reportes/viajes-detallados/conductor/{id}
@@ -13055,7 +18242,7 @@ export class Api<SecurityDataType extends unknown> {
     /**
      * No description
      *
-     * @tags Reportes
+     * @tags reportes
      * @name ReportesGetViajesDetalladosPorCliente
      * @summary Viajes detallados de un cliente específico
      * @request GET:/reportes/viajes-detallados/cliente/{id}
@@ -13078,7 +18265,7 @@ export class Api<SecurityDataType extends unknown> {
     /**
      * No description
      *
-     * @tags Reportes
+     * @tags reportes
      * @name ReportesGetMantenimientosDetalladosPorVehiculo
      * @summary Mantenimientos detallados de un vehículo específico
      * @request GET:/reportes/mantenimientos-detallados/vehiculo/{id}
@@ -13104,7 +18291,7 @@ export class Api<SecurityDataType extends unknown> {
     /**
      * No description
      *
-     * @tags Reportes
+     * @tags reportes
      * @name ReportesGetMantenimientosDetalladosPorTaller
      * @summary Mantenimientos detallados de un taller específico
      * @request GET:/reportes/mantenimientos-detallados/taller/{id}
@@ -13127,7 +18314,7 @@ export class Api<SecurityDataType extends unknown> {
     /**
      * No description
      *
-     * @tags Reportes
+     * @tags reportes
      * @name ReportesGetReporteConductores
      * @summary Reporte general de conductores con vencimientos
      * @request GET:/reportes/conductores/general

@@ -29,6 +29,17 @@ export class ViajeService {
   async delete(id: ApiParam<'viajes', 'remove', 'id'>) {
     return await this.api.viajes.remove({ id }).then((response) => response.data);
   }
+
+  // Pasajeros
+  async findPasajeros(viajeId: number) {
+    return await this.api.viajes.findPasajeros({ viajeId }).then((response) => response.data);
+  }
+
+  async upsertPasajeros(viajeId: number, pasajeros: { pasajeroId: number; asistencia: boolean }[]) {
+    return await this.api.viajes
+      .upsertPasajeros({ viajeId }, { pasajeros })
+      .then((response) => response.data);
+  }
   // Conductores
   async getConductores(viajeId: ApiParam<'viajes', 'findConductores', 'viajeId'>) {
     return await this.api.viajes.findConductores({ viajeId }).then((response) => response.data);
@@ -36,11 +47,22 @@ export class ViajeService {
   async assignConductor(data: ApiBody<'viajes', 'assignConductor'>) {
     return await this.api.viajes.assignConductor(data).then((response) => response.data);
   }
-  async updateConductor(viajeId: ApiParam<'viajes', 'updateConductor', 'viajeId'>, conductorId: ApiParam<'viajes', 'updateConductor', 'conductorId'>, data: ApiBody<'viajes', 'updateConductor'>) {
-    return await this.api.viajes.updateConductor({ viajeId, conductorId }, data).then((response) => response.data);
+  async updateConductor(
+    viajeId: ApiParam<'viajes', 'updateConductor', 'viajeId'>,
+    conductorId: ApiParam<'viajes', 'updateConductor', 'conductorId'>,
+    data: ApiBody<'viajes', 'updateConductor'>,
+  ) {
+    return await this.api.viajes
+      .updateConductor({ viajeId, conductorId }, data)
+      .then((response) => response.data);
   }
-  async removeConductor(viajeId: ApiParam<'viajes', 'removeConductor', 'viajeId'>, conductorId: ApiParam<'viajes', 'removeConductor', 'conductorId'>) {
-    return await this.api.viajes.removeConductor({ viajeId, conductorId }).then((response) => response.data);
+  async removeConductor(
+    viajeId: ApiParam<'viajes', 'removeConductor', 'viajeId'>,
+    conductorId: ApiParam<'viajes', 'removeConductor', 'conductorId'>,
+  ) {
+    return await this.api.viajes
+      .removeConductor({ viajeId, conductorId })
+      .then((response) => response.data);
   }
   // Vehiculos
   async getVehiculos(viajeId: ApiParam<'viajes', 'findVehiculos', 'viajeId'>) {
@@ -49,11 +71,22 @@ export class ViajeService {
   async assignVehiculo(data: ApiBody<'viajes', 'assignVehiculo'>) {
     return await this.api.viajes.assignVehiculo(data).then((response) => response.data);
   }
-  async updateVehiculo(viajeId: ApiParam<'viajes', 'updateVehiculo', 'viajeId'>, vehiculoId: ApiParam<'viajes', 'updateVehiculo', 'vehiculoId'>, data: ApiBody<'viajes', 'updateVehiculo'>) {
-    return await this.api.viajes.updateVehiculo({ viajeId, vehiculoId }, data).then((response) => response.data);
+  async updateVehiculo(
+    viajeId: ApiParam<'viajes', 'updateVehiculo', 'viajeId'>,
+    vehiculoId: ApiParam<'viajes', 'updateVehiculo', 'vehiculoId'>,
+    data: ApiBody<'viajes', 'updateVehiculo'>,
+  ) {
+    return await this.api.viajes
+      .updateVehiculo({ viajeId, vehiculoId }, data)
+      .then((response) => response.data);
   }
-  async removeVehiculo(viajeId: ApiParam<'viajes', 'removeVehiculo', 'viajeId'>, vehiculoId: ApiParam<'viajes', 'removeVehiculo', 'vehiculoId'>) {
-    return await this.api.viajes.removeVehiculo({ viajeId, vehiculoId }).then((response) => response.data);
+  async removeVehiculo(
+    viajeId: ApiParam<'viajes', 'removeVehiculo', 'viajeId'>,
+    vehiculoId: ApiParam<'viajes', 'removeVehiculo', 'vehiculoId'>,
+  ) {
+    return await this.api.viajes
+      .removeVehiculo({ viajeId, vehiculoId })
+      .then((response) => response.data);
   }
   // Comentarios
   async getComentarios(viajeId: ApiParam<'viajes', 'findComentarios', 'viajeId'>) {
@@ -62,7 +95,10 @@ export class ViajeService {
   async createComentario(data: ApiBody<'viajes', 'createComentario'>) {
     return await this.api.viajes.createComentario(data).then((response) => response.data);
   }
-  async updateComentario(id: ApiParam<'viajes', 'updateComentario', 'id'>, data: ApiBody<'viajes', 'updateComentario'>) {
+  async updateComentario(
+    id: ApiParam<'viajes', 'updateComentario', 'id'>,
+    data: ApiBody<'viajes', 'updateComentario'>,
+  ) {
     return await this.api.viajes.updateComentario({ id }, data).then((response) => response.data);
   }
   async deleteComentario(id: ApiParam<'viajes', 'deleteComentario', 'id'>) {

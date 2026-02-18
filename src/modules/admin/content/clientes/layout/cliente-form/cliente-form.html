@@ -49,106 +49,108 @@
   </div>
 
   @if (clienteForm.get('tipoDocumento')?.value === 'DNI') {
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-    <div>
-      <label class="block text-xs font-inter-semibold text-text mb-1.5">DNI</label>
-      <input
-        type="text"
-        formControlName="dni"
-        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-        placeholder="12345678"
-      />
-      @if (clienteForm.get('dni')?.touched && clienteForm.get('dni')?.errors) {
-      <p class="text-danger text-xs font-inter-medium mt-1">
-        El DNI es requerido (máx. 20 caracteres)
-      </p>
-      }
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div>
+        <label class="block text-xs font-inter-semibold text-text mb-1.5">DNI</label>
+        <input
+          type="text"
+          formControlName="dni"
+          class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+          placeholder="12345678"
+        />
+        @if (clienteForm.get('dni')?.touched && clienteForm.get('dni')?.errors) {
+          <p class="text-danger text-xs font-inter-medium mt-1">
+            El DNI es requerido (máx. 20 caracteres)
+          </p>
+        }
+      </div>
+
+      <div>
+        <label class="block text-xs font-inter-semibold text-text mb-1.5">Horas de Contrato</label>
+        <input
+          type="number"
+          step="0.01"
+          formControlName="horasContrato"
+          class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+          placeholder="0.00"
+        />
+      </div>
     </div>
 
-    <div>
-      <label class="block text-xs font-inter-semibold text-text mb-1.5">Horas de Contrato</label>
-      <input
-        type="number"
-        step="0.01"
-        formControlName="horasContrato"
-        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-        placeholder="0.00"
-      />
-    </div>
-  </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div>
+        <label class="block text-xs font-inter-semibold text-text mb-1.5">Nombres</label>
+        <input
+          type="text"
+          formControlName="nombres"
+          class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+          placeholder="Juan"
+        />
+        @if (clienteForm.get('nombres')?.touched && clienteForm.get('nombres')?.errors) {
+          <p class="text-danger text-xs font-inter-medium mt-1">
+            El nombre es requerido (mín. 2 caracteres)
+          </p>
+        }
+      </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-    <div>
-      <label class="block text-xs font-inter-semibold text-text mb-1.5">Nombres</label>
-      <input
-        type="text"
-        formControlName="nombres"
-        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-        placeholder="Juan"
-      />
-      @if (clienteForm.get('nombres')?.touched && clienteForm.get('nombres')?.errors) {
-      <p class="text-danger text-xs font-inter-medium mt-1">
-        El nombre es requerido (mín. 2 caracteres)
-      </p>
-      }
+      <div>
+        <label class="block text-xs font-inter-semibold text-text mb-1.5">Apellidos</label>
+        <input
+          type="text"
+          formControlName="apellidos"
+          class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+          placeholder="Pérez"
+        />
+        @if (clienteForm.get('apellidos')?.touched && clienteForm.get('apellidos')?.errors) {
+          <p class="text-danger text-xs font-inter-medium mt-1">
+            El apellido es requerido (mín. 2 caracteres)
+          </p>
+        }
+      </div>
     </div>
-
-    <div>
-      <label class="block text-xs font-inter-semibold text-text mb-1.5">Apellidos</label>
-      <input
-        type="text"
-        formControlName="apellidos"
-        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-        placeholder="Pérez"
-      />
-      @if (clienteForm.get('apellidos')?.touched && clienteForm.get('apellidos')?.errors) {
-      <p class="text-danger text-xs font-inter-medium mt-1">
-        El apellido es requerido (mín. 2 caracteres)
-      </p>
-      }
-    </div>
-  </div>
   } @else {
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div>
+        <label class="block text-xs font-inter-semibold text-text mb-1.5">RUC</label>
+        <input
+          type="text"
+          formControlName="ruc"
+          class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+          placeholder="20123456789"
+        />
+        @if (clienteForm.get('ruc')?.touched && clienteForm.get('ruc')?.errors) {
+          <p class="text-danger text-xs font-inter-medium mt-1">
+            El RUC es requerido (máx. 20 caracteres)
+          </p>
+        }
+      </div>
+
+      <div>
+        <label class="block text-xs font-inter-semibold text-text mb-1.5"
+          >Horas de Contrato (opcional)</label
+        >
+        <input
+          type="number"
+          step="0.01"
+          formControlName="horasContrato"
+          class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+          placeholder="0.00"
+        />
+      </div>
+    </div>
+
     <div>
-      <label class="block text-xs font-inter-semibold text-text mb-1.5">RUC</label>
+      <label class="block text-xs font-inter-semibold text-text mb-1.5">Razón Social</label>
       <input
         type="text"
-        formControlName="ruc"
+        formControlName="razonSocial"
         class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-        placeholder="20123456789"
+        placeholder="Empresa S.A.C."
       />
-      @if (clienteForm.get('ruc')?.touched && clienteForm.get('ruc')?.errors) {
-      <p class="text-danger text-xs font-inter-medium mt-1">
-        El RUC es requerido (máx. 20 caracteres)
-      </p>
+      @if (clienteForm.get('razonSocial')?.touched && clienteForm.get('razonSocial')?.errors) {
+        <p class="text-danger text-xs font-inter-medium mt-1">La razón social es requerida</p>
       }
     </div>
-
-    <div>
-      <label class="block text-xs font-inter-semibold text-text mb-1.5">Horas de Contrato (opcional)</label>
-      <input
-        type="number"
-        step="0.01"
-        formControlName="horasContrato"
-        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-        placeholder="0.00"
-      />
-    </div>
-  </div>
-
-  <div>
-    <label class="block text-xs font-inter-semibold text-text mb-1.5">Razón Social</label>
-    <input
-      type="text"
-      formControlName="razonSocial"
-      class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-      placeholder="Empresa S.A.C."
-    />
-    @if (clienteForm.get('razonSocial')?.touched && clienteForm.get('razonSocial')?.errors) {
-    <p class="text-danger text-xs font-inter-medium mt-1">La razón social es requerida</p>
-    }
-  </div>
   }
 
   <div>
@@ -160,7 +162,7 @@
       placeholder="juan.perez@example.com"
     />
     @if (clienteForm.get('email')?.touched && clienteForm.get('email')?.errors) {
-    <p class="text-danger text-xs font-inter-medium mt-1">Email inválido</p>
+      <p class="text-danger text-xs font-inter-medium mt-1">Email inválido</p>
     }
   </div>
 
@@ -174,9 +176,9 @@
         placeholder="987654321"
       />
       @if (clienteForm.get('telefono')?.touched && clienteForm.get('telefono')?.errors) {
-      <p class="text-danger text-xs font-inter-medium mt-1">
-        Teléfono inválido (máx. 20 caracteres)
-      </p>
+        <p class="text-danger text-xs font-inter-medium mt-1">
+          Teléfono inválido (máx. 20 caracteres)
+        </p>
       }
     </div>
 
@@ -189,14 +191,12 @@
         placeholder="Av. Principal 123"
       />
       @if (clienteForm.get('direccion')?.touched && clienteForm.get('direccion')?.errors) {
-      <p class="text-danger text-xs font-inter-medium mt-1">
-        Dirección inválida (máx. 255 caracteres)
-      </p>
+        <p class="text-danger text-xs font-inter-medium mt-1">
+          Dirección inválida (máx. 255 caracteres)
+        </p>
       }
     </div>
   </div>
-
-
 
   <!-- Imágenes -->
   <app-images-upload
@@ -207,24 +207,98 @@
     (imagesChange)="onImagesChange($event)"
   />
 
+  <!-- Pasajeros -->
+  @if (editMode() && cliente()) {
+    <div class="space-y-4 mt-6">
+      <div class="flex items-center justify-between">
+        <h3 class="text-sm font-inter-bold text-text">Pasajeros</h3>
+        <button
+          type="button"
+          (click)="openPasajeroModal()"
+          class="text-xs font-inter-medium text-secondary hover:text-secondary/80 flex items-center gap-1 transition-colors"
+        >
+          <i class="fas fa-plus"></i> Agregar
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+        @for (pasajero of pasajeros(); track pasajero.id) {
+          <div
+            class="bg-background rounded-lg p-3 border border-text/10 flex items-center justify-between group hover:border-text/20 transition-all"
+          >
+            <div class="flex items-center gap-3">
+              <div
+                class="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center text-secondary"
+              >
+                <i class="fas fa-user text-xs"></i>
+              </div>
+              <div>
+                <p class="text-sm font-inter-medium text-text">
+                  {{ pasajero.nombres }} {{ pasajero.apellidos }}
+                </p>
+                <p class="text-xs text-text/60">DNI: {{ pasajero.dni }}</p>
+              </div>
+            </div>
+            <div
+              class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              <button
+                type="button"
+                (click)="openPasajeroModal(pasajero)"
+                class="w-8 h-8 flex items-center justify-center rounded-lg bg-text/5 text-text hover:bg-text/10 transition-colors"
+                title="Editar"
+              >
+                <i class="fas fa-pen text-xs"></i>
+              </button>
+              <button
+                type="button"
+                (click)="deletePasajero(pasajero.id)"
+                class="w-8 h-8 flex items-center justify-center rounded-lg bg-danger/10 text-danger hover:bg-danger/20 transition-colors"
+                title="Eliminar"
+              >
+                <i class="fas fa-trash-alt text-xs"></i>
+              </button>
+            </div>
+          </div>
+        }
+        @if (pasajeros().length === 0) {
+          <div
+            class="text-xs text-text/40 text-center py-4 border-2 border-dashed border-text/10 rounded-lg"
+          >
+            No hay pasajeros registrados
+          </div>
+        }
+      </div>
+    </div>
+  }
+
   <!-- Documentos -->
   @if (editMode() && cliente()) {
-  <div class="space-y-4 mt-6">
-    <h3 class="text-sm font-inter-bold text-text mb-4">Documentos</h3>
-    <div class="grid grid-cols-1 gap-4">
-      @for (docType of documentTypes; track docType.value) {
-      <div class="bg-background rounded-lg p-4 border border-text/10">
-        <app-documents-date-upload
-          [label]="docType.label"
-          [documents]="getDocuments(docType.value)"
-          [maxDocuments]="10"
-          (onUpload)="handleDocumentUpload($event, docType.value)"
-          (onUpdate)="handleDocumentUpdate($event)"
-          (onDelete)="deleteDocument($event, docType.value)"
-        ></app-documents-date-upload>
+    <div class="space-y-4 mt-6">
+      <h3 class="text-sm font-inter-bold text-text mb-4">Documentos</h3>
+      <div class="grid grid-cols-1 gap-4">
+        @for (docType of documentTypes; track docType.value) {
+          <div class="bg-background rounded-lg p-4 border border-text/10">
+            <app-documents-date-upload
+              [label]="docType.label"
+              [documents]="getDocuments(docType.value)"
+              [maxDocuments]="10"
+              (onUpload)="handleDocumentUpload($event, docType.value)"
+              (onUpdate)="handleDocumentUpdate($event)"
+              (onDelete)="deleteDocument($event, docType.value)"
+            ></app-documents-date-upload>
+          </div>
+        }
       </div>
-      }
     </div>
-  </div>
+  }
+
+  @if (showPasajeroModal()) {
+    <app-pasajero-form
+      [pasajero]="selectedPasajero()"
+      [clienteId]="cliente()!.id"
+      (onCancel)="closePasajeroModal()"
+      (onSave)="handleSavePasajero($event)"
+    />
   }
 </form>

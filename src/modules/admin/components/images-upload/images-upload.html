@@ -1,24 +1,63 @@
 <div class="space-y-2">
   <label class="block text-xs font-inter-semibold text-text">
     {{ label() }}
-    <span class="text-text/50 font-inter-regular">({{ imagesList().length }}/{{ maxImages() }})</span>
+    <span class="text-text/50 font-inter-regular"
+      >({{ imagesList().length }}/{{ maxImages() }})</span
+    >
   </label>
 
   <!-- Grid de imágenes -->
   @if (imagesList().length > 0) {
     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
       @for (image of imagesList(); track image; let i = $index) {
-        <div class="relative group aspect-square rounded-lg overflow-hidden bg-text/5">
-          <img
-            [src]="image"
-            alt="Imagen {{ i + 1 }}"
-            class="w-full h-full object-cover"
-          />
-          <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+        <div
+          class="relative group aspect-square rounded-lg overflow-hidden bg-text/5 border border-text/10 transition-all hover:shadow-md cursor-move"
+          [class.border-secondary]="i === 0"
+          [class.border-2]="i === 0"
+          draggable="true"
+          (dragstart)="onDragStartItem($event, i)"
+          (dragover)="onDragOverItem($event)"
+          (drop)="onDropItem($event, i)"
+        >
+          <img [src]="image" alt="Imagen {{ i + 1 }}" class="w-full h-full object-cover" />
+
+          @if (i === 0) {
+            <div
+              class="absolute top-2 left-2 bg-secondary text-background text-[10px] uppercase font-inter-bold px-2 py-1 rounded shadow-sm z-10 flex items-center gap-1 leading-none"
+            >
+              <i class="fas fa-star text-[10px]"></i> Principal
+            </div>
+          }
+
+          <!-- Expand Button (Top Right) -->
+          <button
+            type="button"
+            (click)="selectImage(image); $event.stopPropagation()"
+            class="absolute top-2 right-2 w-8 h-8 bg-background/90 hover:bg-secondary text-text hover:text-background rounded-full flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 z-20 shadow-sm"
+            title="Expandir imagen"
+          >
+            <i class="fas fa-expand text-xs"></i>
+          </button>
+
+          <div
+            class="absolute inset-0 bg-text/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2"
+          >
+            @if (i !== 0) {
+              <button
+                type="button"
+                (click)="setAsMain(i); $event.stopPropagation()"
+                class="w-8 h-8 bg-background/90 hover:bg-secondary text-secondary hover:text-background rounded-full flex items-center justify-center transition-all scale-90 hover:scale-100 shadow-sm"
+                title="Establecer como principal"
+              >
+                <i class="fas fa-star text-xs"></i>
+              </button>
+            }
+
             <button
               type="button"
-              (click)="removeImage(i)"
-              class="w-8 h-8 bg-danger rounded-full flex items-center justify-center text-white hover:bg-danger/80 transition-colors"
+              (click)="removeImage(i); $event.stopPropagation()"
+              class="w-8 h-8 bg-background/90 hover:bg-danger text-danger hover:text-background rounded-full flex items-center justify-center transition-all scale-90 hover:scale-100 shadow-sm"
+              title="Eliminar imagen"
             >
               <i class="fas fa-trash text-xs"></i>
             </button>
@@ -52,7 +91,9 @@
 
       @if (uploading()) {
         <div class="flex items-center justify-center gap-2">
-          <div class="w-4 h-4 border-2 border-text/30 border-t-transparent rounded-full animate-spin"></div>
+          <div
+            class="w-4 h-4 border-2 border-text/30 border-t-transparent rounded-full animate-spin"
+          ></div>
           <p class="text-xs text-text/50 font-inter-medium">Subiendo...</p>
         </div>
       } @else {
@@ -64,5 +105,18 @@
         </div>
       }
     </div>
+  }
+
+  <!-- Image Modal View -->
+  @if (selectedImage()) {
+    <app-modal-info title="Vista Previa" maxWidth="xl" (onClose)="closePreview()">
+      <div class="w-full flex justify-center bg-text/5 rounded-lg overflow-hidden">
+        <img
+          [src]="selectedImage()"
+          class="w-full h-auto max-h-[80vh] object-contain"
+          alt="Vista previa"
+        />
+      </div>
+    </app-modal-info>
   }
 </div>

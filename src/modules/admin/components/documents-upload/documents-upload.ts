@@ -2,6 +2,7 @@ import { Component, inject, input, output, signal, effect } from '@angular/core'
 import { CommonModule } from '@angular/common';
 import { StorageService } from '@service/admin/storage.service';
 import { ApiResponse } from 'api/backend.api';
+import { AlertService } from '@service/alert.service';
 
 export interface DocumentItem {
   url: string;
@@ -17,6 +18,7 @@ export interface DocumentItem {
 })
 export class DocumentsUpload {
   private storageService = inject(StorageService);
+  private alertService = inject(AlertService);
 
   // Inputs
   documents = input<string[]>([]);
@@ -160,7 +162,7 @@ export class DocumentsUpload {
         })
         .catch((err) => {
           console.error('Error uploading document:', err);
-        })
+        }),
     );
 
     await Promise.all(uploadPromises);
@@ -174,29 +176,35 @@ export class DocumentsUpload {
   }
 
   removeDocument(index: number) {
-    const currentDocs = this.documentsList();
-    const doc = currentDocs[index];
-    const publicId = this.extractPublicId(doc.url);
+    this.alertService.delete(
+      'Eliminar documento',
+      '¿Estás seguro de que deseas eliminar este documento?',
+      () => {
+        const currentDocs = this.documentsList();
+        const doc = currentDocs[index];
+        const publicId = this.extractPublicId(doc.url);
 
-    const updateState = () => {
-      const updatedList = currentDocs.filter((_, i) => i !== index);
-      this.documentsList.set(updatedList);
-      this.emitUrls(updatedList);
-    };
+        const updateState = () => {
+          const updatedList = currentDocs.filter((_, i) => i !== index);
+          this.documentsList.set(updatedList);
+          this.emitUrls(updatedList);
+        };
 
-    if (publicId) {
-      this.storageService
-        .delete(publicId)
-        .then(() => {
+        if (publicId) {
+          this.storageService
+            .delete(publicId)
+            .then(() => {
+              updateState();
+            })
+            .catch((err) => {
+              console.error('Error deleting document:', err);
+              updateState();
+            });
+        } else {
           updateState();
-        })
-        .catch((err) => {
-          console.error('Error deleting document:', err);
-          updateState();
-        });
-    } else {
-      updateState();
-    }
+        }
+      },
+    );
   }
 
   private extractPublicId(url: string): string | null {

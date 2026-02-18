@@ -56,6 +56,7 @@ export class MantenimientoForm implements OnInit {
     fechaIngreso: ['', [Validators.required]],
     fechaSalida: ['', [Validators.required]],
     kilometraje: [{ value: '', disabled: true }, [Validators.required, Validators.min(0)]],
+    kilometrajeProximoMantenimiento: ['', [Validators.required, Validators.min(0)]],
     estado: ['pendiente', [Validators.required]],
   });
 
@@ -113,6 +114,7 @@ export class MantenimientoForm implements OnInit {
             ? this.formatDateTimeForInput(mantenimientoData.fechaSalida)
             : '',
           kilometraje: mantenimientoData.kilometraje,
+          kilometrajeProximoMantenimiento: mantenimientoData.kilometrajeProximoMantenimiento,
           estado: mantenimientoData.estado,
         });
         this.localDocuments.set(JSON.parse(JSON.stringify(mantenimientoData.documentos)));
@@ -160,6 +162,7 @@ export class MantenimientoForm implements OnInit {
       fechaIngreso: formValue.fechaIngreso ? `${formValue.fechaIngreso}:00.000Z` : '',
       fechaSalida: formValue.fechaSalida ? `${formValue.fechaSalida}:00.000Z` : '',
       kilometraje: Number(formValue.kilometraje),
+      kilometrajeProximoMantenimiento: Number(formValue.kilometrajeProximoMantenimiento),
       estado: formValue.estado,
     };
 
@@ -169,7 +172,7 @@ export class MantenimientoForm implements OnInit {
   // Document Management
   handleDocumentUpload(
     event: DocumentWithDate,
-    tipo: keyof ApiField<'mantenimientos', 'findOne', 'documentos'>
+    tipo: keyof ApiField<'mantenimientos', 'findOne', 'documentos'>,
   ) {
     if (!this.mantenimiento()) return;
 
@@ -224,7 +227,7 @@ export class MantenimientoForm implements OnInit {
   }
 
   private addDocumentToLocalList(
-    doc: ApiField<'mantenimientos', 'findOne', 'documentos'>['factura'][number]
+    doc: ApiField<'mantenimientos', 'findOne', 'documentos'>['factura'][number],
   ) {
     const docs = this.localDocuments();
     if (docs) {
@@ -239,7 +242,7 @@ export class MantenimientoForm implements OnInit {
   }
 
   private updateDocumentInLocalList(
-    doc: ApiField<'mantenimientos', 'findOne', 'documentos'>['factura'][number]
+    doc: ApiField<'mantenimientos', 'findOne', 'documentos'>['factura'][number],
   ) {
     const docs = this.localDocuments();
     if (docs) {
@@ -254,7 +257,7 @@ export class MantenimientoForm implements OnInit {
 
   private removeDocumentFromLocalList(
     id: number,
-    tipo: keyof ApiField<'mantenimientos', 'findOne', 'documentos'>
+    tipo: keyof ApiField<'mantenimientos', 'findOne', 'documentos'>,
   ) {
     const docs = this.localDocuments();
     if (docs) {

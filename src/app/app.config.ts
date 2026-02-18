@@ -51,10 +51,12 @@ export const appConfig: ApplicationConfig = {
                 // Retornamos una promesa "falsa" que resuelve nada.
                 // Esto imita el "return EMPTY" de RxJS.
                 // Evita el error 401 y el crash en consola.
-                return Promise.resolve(new Response(JSON.stringify({}), {
-                  status: 200,
-                  headers: { 'Content-Type': 'application/json' }
-                }));
+                return Promise.resolve(
+                  new Response(JSON.stringify({}), {
+                    status: 200,
+                    headers: { 'Content-Type': 'application/json' },
+                  }),
+                );
               }
 
               // Si estamos en el NAVEGADOR, hacemos el fetch real
@@ -69,8 +71,8 @@ export const appConfig: ApplicationConfig = {
               }
 
               return response;
-            }
-          })
+            },
+          }),
         );
       },
     },

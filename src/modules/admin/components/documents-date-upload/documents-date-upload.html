@@ -5,182 +5,201 @@
     </label>
 
     @if (canAddMore()) {
-    <label
-      class="cursor-pointer text-xs font-inter-semibold text-secondary hover:text-secondary/80 flex items-center gap-1"
-    >
-      <i class="fas fa-upload"></i>
-      <span>Subir</span>
-      <input type="file" class="hidden" [accept]="accept()" (change)="onFileSelected($event)" />
-    </label>
+      <label
+        class="cursor-pointer text-xs font-inter-semibold text-secondary hover:text-secondary/80 flex items-center gap-1"
+      >
+        <i class="fas fa-upload"></i>
+        <span>Subir</span>
+        <input type="file" class="hidden" [accept]="accept()" (change)="onFileSelected($event)" />
+      </label>
     }
   </div>
 
   <!-- Lista de documentos -->
   @if (documents().length > 0) {
-  <div class="space-y-2">
-    @for (doc of documents(); track doc.id) {
-    <div
-      class="flex flex-col sm:flex-row sm:items-center justify-between bg-background p-2 rounded border border-text/5 gap-2"
-    >
-      <div class="flex items-center gap-3 min-w-0 flex-1">
+    <div class="space-y-2">
+      @for (doc of documents(); track doc.id) {
         <div
-          class="w-8 h-8 rounded bg-secondary/10 flex items-center justify-center text-secondary shrink-0"
+          class="flex flex-col sm:flex-row sm:items-center justify-between bg-background p-2 rounded border border-text/5 gap-2"
         >
-          <i class="fas fa-file-pdf"></i>
-        </div>
-        <div class="min-w-0 flex-1">
-          <span class="block truncate font-inter-medium text-xs text-text mb-0.5">{{
-            doc.nombre
-          }}</span>
-          <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] text-text/60">
-            <span>Emisión: {{ doc.fechaEmision | date : 'dd/MM/yyyy' }}</span>
-            <span class="hidden sm:inline">•</span>
-            <span>Expira: {{ doc.fechaExpiracion | date : 'dd/MM/yyyy' }}</span>
+          <div class="flex items-center gap-3 min-w-0 flex-1">
+            <div
+              class="w-8 h-8 rounded bg-secondary/10 flex items-center justify-center text-secondary shrink-0"
+            >
+              <i class="fas fa-file-pdf"></i>
+            </div>
+            <div class="min-w-0 flex-1">
+              <span class="block truncate font-inter-medium text-xs text-text mb-0.5">{{
+                doc.nombre
+              }}</span>
+              <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] text-text/60">
+                <span>Emisión: {{ doc.fechaEmision | date: 'dd/MM/yyyy' }}</span>
+                <span class="hidden sm:inline">•</span>
+                <span>Expira: {{ doc.fechaExpiracion | date: 'dd/MM/yyyy' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-1 shrink-0 self-end sm:self-center">
+            <a
+              [href]="doc.url"
+              target="_blank"
+              class="w-7 h-7 flex items-center justify-center rounded hover:bg-text/5 text-text/60 hover:text-secondary transition-colors"
+              title="Ver documento"
+            >
+              <i class="fas fa-eye text-xs"></i>
+            </a>
+
+            <button
+              type="button"
+              (click)="editDocument(doc)"
+              class="w-7 h-7 flex items-center justify-center rounded hover:bg-secondary/10 text-text/60 hover:text-secondary transition-colors"
+              title="Editar fechas"
+            >
+              <i class="fas fa-pencil-alt text-xs"></i>
+            </button>
+
+            <button
+              type="button"
+              (click)="deleteDocument(doc.id)"
+              class="w-7 h-7 flex items-center justify-center rounded hover:bg-danger/10 text-text/60 hover:text-danger transition-colors"
+              title="Eliminar documento"
+            >
+              <i class="fas fa-trash text-xs"></i>
+            </button>
           </div>
         </div>
-      </div>
-
-      <div class="flex items-center gap-1 shrink-0 self-end sm:self-center">
-        <a
-          [href]="doc.url"
-          target="_blank"
-          class="w-7 h-7 flex items-center justify-center rounded hover:bg-text/5 text-text/60 hover:text-secondary transition-colors"
-          title="Ver documento"
-        >
-          <i class="fas fa-eye text-xs"></i>
-        </a>
-
-        <button
-          type="button"
-          (click)="editDocument(doc)"
-          class="w-7 h-7 flex items-center justify-center rounded hover:bg-secondary/10 text-text/60 hover:text-secondary transition-colors"
-          title="Editar fechas"
-        >
-          <i class="fas fa-pencil-alt text-xs"></i>
-        </button>
-
-        <button
-          type="button"
-          (click)="deleteDocument(doc.id)"
-          class="w-7 h-7 flex items-center justify-center rounded hover:bg-danger/10 text-text/60 hover:text-danger transition-colors"
-          title="Eliminar documento"
-        >
-          <i class="fas fa-trash text-xs"></i>
-        </button>
-      </div>
+      }
     </div>
-    }
-  </div>
   } @else {
-  <div class="bg-text/5 rounded-lg p-4 border border-dashed border-text/20 text-center">
-    <p class="text-xs text-text/40 italic">Sin documentos</p>
-  </div>
+    <div class="bg-text/5 rounded-lg p-4 border border-dashed border-text/20 text-center">
+      <p class="text-xs text-text/40 italic">Sin documentos</p>
+    </div>
   }
 
   <!-- Modal de subida -->
   @if (showUploadModal()) {
-  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
     <div
-      class="bg-background rounded-xl shadow-xl w-full max-w-md overflow-hidden border border-text/10"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
     >
-      <div class="p-4 border-b border-text/10 flex items-center justify-between bg-text/5">
-        <h3 class="text-sm font-inter-bold text-text">
-          {{ editingDocId() ? 'Editar Fechas' : 'Subir Documento' }}
-        </h3>
-        <button
-          type="button"
-          (click)="cancelUpload()"
-          [disabled]="uploading()"
-          class="text-text/60 hover:text-text transition-colors disabled:opacity-50"
-        >
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-
-      <div class="p-4 space-y-4" [formGroup]="documentUploadForm">
-        <!-- File info -->
-        <div
-          class="bg-secondary/5 border border-secondary/20 rounded-lg p-3 flex items-center gap-3"
-        >
-          <div
-            class="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center text-secondary shrink-0"
-          >
-            @if (uploading()) {
-            <i class="fas fa-spinner fa-spin"></i>
-            } @else {
-            <i class="fas fa-file-alt"></i>
-            }
-          </div>
-          <div class="flex-1 min-w-0">
-            <p class="text-xs font-inter-medium text-text/60">
-              {{
-                editingDocId() ? 'Documento' : uploading() ? 'Subiendo...' : 'Archivo seleccionado'
-              }}
-            </p>
-            <p class="text-sm font-inter-semibold text-text truncate">
-              {{ editingDocId() ? editingDocName : pendingFile?.name }}
-            </p>
-          </div>
-        </div>
-
-        <!-- Dates -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-inter-semibold text-text mb-1.5">Fecha Emisión</label>
-            <input
-              type="date"
-              formControlName="fechaEmision"
-              [disabled]="uploading()"
-              class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all disabled:opacity-50"
-            />
-            @if (documentUploadForm.get('fechaEmision')?.touched &&
-            documentUploadForm.get('fechaEmision')?.errors) {
-            <p class="text-danger text-[10px] font-inter-medium mt-1">Requerido</p>
-            }
-          </div>
-          <div>
-            <label class="block text-xs font-inter-semibold text-text mb-1.5"
-              >Fecha Expiración</label
-            >
-            <input
-              type="date"
-              formControlName="fechaExpiracion"
-              [disabled]="uploading()"
-              class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all disabled:opacity-50"
-            />
-            @if (documentUploadForm.get('fechaExpiracion')?.touched &&
-            documentUploadForm.get('fechaExpiracion')?.errors) {
-            <p class="text-danger text-[10px] font-inter-medium mt-1">Requerido</p>
-            }
-          </div>
-        </div>
-
-        <!-- Actions -->
-        <div class="flex flex-col sm:flex-row items-center gap-2 pt-2">
+      <div
+        class="bg-background rounded-xl shadow-xl w-full max-w-md overflow-hidden border border-text/10"
+      >
+        <div class="p-4 border-b border-text/10 flex items-center justify-between bg-text/5">
+          <h3 class="text-sm font-inter-bold text-text">
+            {{ editingDocId() ? 'Editar Fechas' : 'Subir Documento' }}
+          </h3>
           <button
             type="button"
             (click)="cancelUpload()"
             [disabled]="uploading()"
-            class="w-full sm:flex-1 px-4 py-2 rounded-lg border-2 border-text/10 text-text text-sm font-inter-semibold hover:bg-text/5 transition-colors disabled:opacity-50"
+            class="text-text/60 hover:text-text transition-colors disabled:opacity-50"
           >
-            Cancelar
+            <i class="fas fa-times"></i>
           </button>
-          <button
-            type="button"
-            (click)="confirmUpload()"
-            [disabled]="uploading() || documentUploadForm.invalid"
-            class="w-full sm:flex-1 px-4 py-2 rounded-lg bg-secondary text-white text-sm font-inter-semibold hover:bg-secondary/90 transition-colors shadow-lg shadow-secondary/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        </div>
+
+        <div class="p-4 space-y-4" [formGroup]="documentUploadForm">
+          <!-- File info -->
+          <div
+            class="bg-secondary/5 border border-secondary/20 rounded-lg p-3 flex items-center gap-3"
           >
-            @if (uploading()) {
-            <i class="fas fa-spinner fa-spin"></i>
-            <span>Subiendo...</span>
-            } @else {
-            <span>{{ editingDocId() ? 'Guardar Cambios' : 'Subir Documento' }}</span>
+            <div
+              class="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center text-secondary shrink-0"
+            >
+              @if (uploading()) {
+                <i class="fas fa-spinner fa-spin"></i>
+              } @else {
+                <i class="fas fa-file-alt"></i>
+              }
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-xs font-inter-medium text-text/60">
+                {{
+                  editingDocId()
+                    ? 'Documento'
+                    : uploading()
+                      ? 'Subiendo...'
+                      : 'Archivo seleccionado'
+                }}
+              </p>
+              <p class="text-sm font-inter-semibold text-text truncate">
+                {{ editingDocId() ? editingDocName : pendingFile?.name }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Dates -->
+          <div
+            class="grid grid-cols-1 gap-3"
+            [class.sm:grid-cols-2]="requireIssueDate() && requireExpirationDate()"
+          >
+            @if (requireIssueDate()) {
+              <div>
+                <label class="block text-xs font-inter-semibold text-text mb-1.5"
+                  >Fecha Emisión</label
+                >
+                <input
+                  type="date"
+                  formControlName="fechaEmision"
+                  [disabled]="uploading()"
+                  class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all disabled:opacity-50"
+                />
+                @if (
+                  documentUploadForm.get('fechaEmision')?.touched &&
+                  documentUploadForm.get('fechaEmision')?.errors
+                ) {
+                  <p class="text-danger text-[10px] font-inter-medium mt-1">Requerido</p>
+                }
+              </div>
             }
-          </button>
+            @if (requireExpirationDate()) {
+              <div>
+                <label class="block text-xs font-inter-semibold text-text mb-1.5"
+                  >Fecha Expiración</label
+                >
+                <input
+                  type="date"
+                  formControlName="fechaExpiracion"
+                  [disabled]="uploading()"
+                  class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all disabled:opacity-50"
+                />
+                @if (
+                  documentUploadForm.get('fechaExpiracion')?.touched &&
+                  documentUploadForm.get('fechaExpiracion')?.errors
+                ) {
+                  <p class="text-danger text-[10px] font-inter-medium mt-1">Requerido</p>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Actions -->
+          <div class="flex flex-col sm:flex-row items-center gap-2 pt-2">
+            <button
+              type="button"
+              (click)="cancelUpload()"
+              [disabled]="uploading()"
+              class="w-full sm:flex-1 px-4 py-2 rounded-lg border-2 border-text/10 text-text text-sm font-inter-semibold hover:bg-text/5 transition-colors disabled:opacity-50"
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              (click)="confirmUpload()"
+              [disabled]="uploading() || documentUploadForm.invalid"
+              class="w-full sm:flex-1 px-4 py-2 rounded-lg bg-secondary text-white text-sm font-inter-semibold hover:bg-secondary/90 transition-colors shadow-lg shadow-secondary/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              @if (uploading()) {
+                <i class="fas fa-spinner fa-spin"></i>
+                <span>Subiendo...</span>
+              } @else {
+                <span>{{ editingDocId() ? 'Guardar Cambios' : 'Subir Documento' }}</span>
+              }
+            </button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
   }
 </div>

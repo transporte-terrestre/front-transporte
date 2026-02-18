@@ -34,7 +34,9 @@ export class ConductorForm implements OnInit {
   localDocuments = signal<ApiResponse<'conductores', 'findOne'>['documentos'] | null>(null);
 
   conductorForm: FormGroup = this.fb.group({
-    dni: ['', [Validators.required, Validators.pattern(/^\d{8}$/)]],
+    tipoDocumento: ['DNI', [Validators.required]],
+    dni: ['', [Validators.required, Validators.pattern(/^\d{8}$/)]], // Se actualiza dinámicamente
+    nacionalidad: ['Peruana'], // Opcional o default
     nombres: ['', [Validators.required, Validators.minLength(2)]],
     apellidos: ['', [Validators.required, Validators.minLength(2)]],
     email: [''],
@@ -44,8 +46,35 @@ export class ConductorForm implements OnInit {
     categoriaLicencia: ['', [Validators.required]],
   });
 
+  tiposDocumento = [
+    { value: 'DNI', label: 'DNI' },
+    { value: 'CE', label: 'Carnet de Extranjería' },
+    { value: 'PTP', label: 'PTP' },
+    { value: 'PASAPORTE', label: 'Pasaporte' },
+    { value: 'OTRO', label: 'Otro' },
+  ];
+
+  nacionalidades = [
+    'Peruana',
+    'Venezolana',
+    'Colombiana',
+    'Ecuatoriana',
+    'Argentina',
+    'Chilena',
+    'Boliviana',
+    'Brasileña',
+    'Otra',
+  ];
+
   clases: ApiField<'conductores', 'findOne', 'claseLicencia'>[] = ['A', 'B'];
-  categorias: ApiField<'conductores', 'findOne', 'categoriaLicencia'>[] = ['Uno', 'Dos', 'Tres'];
+  // Categorias se llenan dinámicamente según la clase seleccionada
+  categorias = signal<ApiField<'conductores', 'findOne', 'categoriaLicencia'>[]>([]);
+
+  // Mapeo de Clase -> Categorías posibles
+  categoriasPorClase: Record<string, ApiField<'conductores', 'findOne', 'categoriaLicencia'>[]> = {
+    A: ['I', 'II-a', 'II-b', 'III-a', 'III-b', 'III-c'],
+    B: ['I', 'II-a', 'II-b', 'II-c'],
+  };
 
   documentTypes: {
     value: keyof ApiField<'conductores', 'findOne', 'documentos'>;
@@ -79,7 +108,9 @@ export class ConductorForm implements OnInit {
 
       if (isEditMode && conductorData) {
         this.conductorForm.patchValue({
+          tipoDocumento: conductorData.tipoDocumento || 'DNI',
           dni: conductorData.dni,
+          nacionalidad: conductorData.nacionalidad || 'Peruana',
           nombres: conductorData.nombres,
           apellidos: conductorData.apellidos,
           email: conductorData.email,
@@ -88,17 +119,64 @@ export class ConductorForm implements OnInit {
           claseLicencia: conductorData.claseLicencia,
           categoriaLicencia: conductorData.categoriaLicencia,
         });
+        this.updateCategorias(conductorData.claseLicencia);
         this.imagenes.set(conductorData.fotocheck || []);
         this.localDocuments.set(JSON.parse(JSON.stringify(conductorData.documentos)));
+
+        // Trigger validator update
+        this.updateDniValidators(conductorData.tipoDocumento || 'DNI');
       } else {
-        this.conductorForm.reset();
+        // Inicializar con valores por defecto
+        this.updateCategorias('A');
+        this.conductorForm.reset({
+          tipoDocumento: 'DNI',
+          nacionalidad: 'Peruana',
+          claseLicencia: 'A',
+          categoriaLicencia: 'III-c', // Default recomendado para transporte profesional
+        });
         this.imagenes.set([]);
         this.localDocuments.set(null);
+        this.updateDniValidators('DNI');
       }
     });
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.conductorForm.get('tipoDocumento')?.valueChanges.subscribe((tipo) => {
+      this.updateDniValidators(tipo);
+      this.conductorForm.get('dni')?.updateValueAndValidity();
+    });
+
+    this.conductorForm.get('claseLicencia')?.valueChanges.subscribe((clase) => {
+      this.updateCategorias(clase);
+    });
+  }
+
+  updateCategorias(clase: string) {
+    if (this.categoriasPorClase[clase]) {
+      this.categorias.set(this.categoriasPorClase[clase]);
+    } else {
+      this.categorias.set([]);
+    }
+  }
+
+  updateDniValidators(tipo: string) {
+    const dniControl = this.conductorForm.get('dni');
+    dniControl?.clearValidators();
+    dniControl?.setValidators([Validators.required]);
+
+    if (tipo === 'DNI') {
+      dniControl?.addValidators(Validators.pattern(/^\d{8}$/));
+    } else if (tipo === 'CE') {
+      // CE usually 9 digits or alphanumeric, let's allow alphanumeric but required length maybe?
+      // Keeping it flexible for foreigners as requested "no deja ingresar un CI"
+      // We can just set required for others.
+      dniControl?.addValidators(Validators.pattern(/^[a-zA-Z0-9]{4,15}$/));
+    } else {
+      // Pasaporte, PTP, etc. Just required and decent length
+      dniControl?.addValidators(Validators.minLength(4));
+    }
+  }
 
   onImagesChange(images: string[]) {
     this.imagenes.set(images);
@@ -125,7 +203,7 @@ export class ConductorForm implements OnInit {
   // Document Management
   handleDocumentUpload(
     event: DocumentWithDate,
-    tipo: keyof ApiField<'conductores', 'findOne', 'documentos'>
+    tipo: keyof ApiField<'conductores', 'findOne', 'documentos'>,
   ) {
     if (!this.conductor()) return;
 
@@ -167,6 +245,13 @@ export class ConductorForm implements OnInit {
       });
   }
 
+  downloadAllDocuments() {
+    const conductorId = this.conductor()?.id;
+    if (conductorId) {
+      this.conductorService.downloadDocumentos(conductorId);
+    }
+  }
+
   deleteDocument(id: number, tipo: keyof ApiField<'conductores', 'findOne', 'documentos'>) {
     this.conductorService
       .deleteDocumento(id)
@@ -181,7 +266,7 @@ export class ConductorForm implements OnInit {
   }
 
   private addDocumentToLocalList(
-    doc: ApiField<'conductores', 'findOne', 'documentos'>['dni'][number]
+    doc: ApiField<'conductores', 'findOne', 'documentos'>['dni'][number],
   ) {
     const docs = this.localDocuments();
     if (docs) {
@@ -196,7 +281,7 @@ export class ConductorForm implements OnInit {
   }
 
   private updateDocumentInLocalList(
-    doc: ApiField<'conductores', 'findOne', 'documentos'>['dni'][number]
+    doc: ApiField<'conductores', 'findOne', 'documentos'>['dni'][number],
   ) {
     const docs = this.localDocuments();
     if (docs) {
@@ -211,7 +296,7 @@ export class ConductorForm implements OnInit {
 
   private removeDocumentFromLocalList(
     id: number,
-    tipo: keyof ApiField<'conductores', 'findOne', 'documentos'>
+    tipo: keyof ApiField<'conductores', 'findOne', 'documentos'>,
   ) {
     const docs = this.localDocuments();
     if (docs) {
@@ -224,7 +309,7 @@ export class ConductorForm implements OnInit {
   }
 
   getDocuments(
-    tipo: keyof ApiField<'conductores', 'findOne', 'documentos'>
+    tipo: keyof ApiField<'conductores', 'findOne', 'documentos'>,
   ): ApiField<'conductores', 'findOne', 'documentos'>['dni'] {
     const docs = this.localDocuments();
     if (!docs) return [];

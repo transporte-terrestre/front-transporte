@@ -12,7 +12,7 @@ export class ClienteService {
   async findOne(id: ApiParam<'clientes', 'findOne', 'id'>) {
     return await this.api.clientes.findOne({ id }).then((response) => response.data);
   }
-  async create(cliente: ApiBody<'clientes','create'>) {
+  async create(cliente: ApiBody<'clientes', 'create'>) {
     return await this.api.clientes.create(cliente).then((response) => response.data);
   }
   async update(id: ApiParam<'clientes', 'update', 'id'>, cliente: ApiBody<'clientes', 'update'>) {
@@ -29,11 +29,39 @@ export class ClienteService {
   }
   async updateDocumento(
     id: ApiParam<'clientes', 'updateDocumento', 'id'>,
-    documento: ApiBody<'clientes', 'updateDocumento'>
+    documento: ApiBody<'clientes', 'updateDocumento'>,
   ) {
-    return await this.api.clientes.updateDocumento({ id }, documento).then((response) => response.data);
+    return await this.api.clientes
+      .updateDocumento({ id }, documento)
+      .then((response) => response.data);
   }
   async deleteDocumento(id: ApiParam<'clientes', 'deleteDocumento', 'id'>) {
     return await this.api.clientes.deleteDocumento({ id }).then((response) => response.data);
+  }
+
+  // Pasajeros
+  async findAllPasajeros(query: ApiQuery<'clientes', 'findAllPasajeros'>) {
+    return await this.api.clientes.findAllPasajeros(query).then((response) => response.data);
+  }
+
+  async findPasajero(id: ApiParam<'clientes', 'findPasajero', 'id'>) {
+    return await this.api.clientes.findPasajero({ id }).then((response) => response.data);
+  }
+
+  async createPasajero(pasajero: ApiBody<'clientes', 'createPasajero'>) {
+    return await this.api.clientes.createPasajero(pasajero).then((response) => response.data);
+  }
+
+  async updatePasajero(
+    id: ApiParam<'clientes', 'updatePasajero', 'id'>,
+    pasajero: ApiBody<'clientes', 'updatePasajero'>,
+  ) {
+    return await this.api.clientes
+      .updatePasajero({ id }, pasajero)
+      .then((response) => response.data);
+  }
+
+  async deletePasajero(id: ApiParam<'clientes', 'deletePasajero', 'id'>) {
+    return await this.api.clientes.deletePasajero({ id }).then((response) => response.data);
   }
 }

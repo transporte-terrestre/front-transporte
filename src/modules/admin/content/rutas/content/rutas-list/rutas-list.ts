@@ -1,4 +1,4 @@
-import { Component, signal, inject, OnInit, OnDestroy, viewChild } from '@angular/core';
+import { Component, signal, inject, OnInit, OnDestroy, viewChild, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -31,7 +31,7 @@ export class RutasList implements OnInit, OnDestroy {
 
   private searchSubject = new Subject<string>();
 
-  rutas = signal<ApiResponse<'rutas', 'findAll'>['data']>([]);
+  rutas = signal<ApiResponse<'rutas', 'findAllCircuitos'>['data']>([]);
   loading = signal(false);
   showModal = signal(false);
   viewMode = signal<'grid' | 'table'>('table');
@@ -39,7 +39,7 @@ export class RutasList implements OnInit, OnDestroy {
   // Paginación
   currentPage = signal(1);
   pageSize = signal(10);
-  meta = signal<ApiResponse<'rutas', 'findAll'>['meta'] | null>(null);
+  meta = signal<ApiResponse<'rutas', 'findAllCircuitos'>['meta'] | null>(null);
 
   // Filtros
   searchTerm = signal('');
@@ -64,7 +64,7 @@ export class RutasList implements OnInit, OnDestroy {
   loadRutas() {
     this.loading.set(true);
     this.rutaService
-      .findAll({
+      .findAllCircuitos({
         page: this.currentPage(),
         limit: this.pageSize(),
         search: this.searchTerm() || undefined,
@@ -83,6 +83,46 @@ export class RutasList implements OnInit, OnDestroy {
         this.loading.set(false);
       });
   }
+
+  processedRows = computed(() => {
+    const rows: {
+      circuito: ApiResponse<'rutas', 'findAllCircuitos'>['data'][0];
+      ruta: ApiResponse<'rutas', 'findAll'>['data'][0] | null;
+      tipo: 'ida' | 'vuelta';
+      isFirst: boolean;
+      rowSpan: number;
+    }[] = [];
+
+    this.rutas().forEach((circuito) => {
+      const subRows: { tipo: 'ida' | 'vuelta'; ruta: any }[] = [];
+      if (circuito.rutaIda) subRows.push({ tipo: 'ida', ruta: circuito.rutaIda });
+      if (circuito.rutaVuelta) subRows.push({ tipo: 'vuelta', ruta: circuito.rutaVuelta });
+
+      // Si no hay rutas (caso raro), mostrar al menos una fila vacía o manejarlo
+      if (subRows.length === 0) {
+        rows.push({
+          circuito,
+          ruta: null,
+          tipo: 'ida', // default
+          isFirst: true,
+          rowSpan: 1,
+        });
+        return;
+      }
+
+      subRows.forEach((sub, index) => {
+        rows.push({
+          circuito,
+          ruta: sub.ruta,
+          tipo: sub.tipo,
+          isFirst: index === 0,
+          rowSpan: subRows.length,
+        });
+      });
+    });
+
+    return rows;
+  });
 
   onSearch() {
     this.currentPage.set(1);
@@ -125,8 +165,8 @@ export class RutasList implements OnInit, OnDestroy {
     this.showModal.set(true);
   }
 
-  navigateToEdit(ruta: ApiResponse<'rutas', 'findAll'>['data'][number]) {
-    const path = buildPath(PATH.admin.rutas.edit).replace(':id', ruta.id.toString());
+  navigateToEdit(circuito: any) {
+    const path = buildPath(PATH.admin.rutas.edit).replace(':id', circuito.id.toString());
     this.router.navigate([path]);
   }
 
@@ -134,15 +174,15 @@ export class RutasList implements OnInit, OnDestroy {
     this.showModal.set(false);
   }
 
-  handleFormSubmit(data: ApiBody<'rutas', 'create'> | ApiBody<'rutas', 'update'>) {
-    this.createRuta(data as ApiBody<'rutas', 'create'>);
+  handleFormSubmit(data: ApiBody<'rutas', 'createCircuito'> | any) {
+    this.createRuta(data as ApiBody<'rutas', 'createCircuito'>);
   }
 
   handleModalSubmit() {
     this.rutaFormComponent()?.submitForm();
   }
 
-  createRuta(data: ApiBody<'rutas', 'create'>) {
+  createRuta(data: ApiBody<'rutas', 'createCircuito'>) {
     this.loading.set(true);
     this.rutaService
       .create(data)
@@ -162,24 +202,24 @@ export class RutasList implements OnInit, OnDestroy {
 
   deleteRuta(id: number) {
     this.alertService.delete(
-      'Eliminar Ruta',
-      '¿Estás seguro de que deseas eliminar esta ruta? Esta acción no se puede deshacer.',
+      'Eliminar Circuito',
+      '¿Estás seguro que deseas eliminar este circuito y sus rutas asociadas?',
       () => {
         this.loading.set(true);
         this.rutaService
           .delete(id)
           .then(() => {
-            this.toastService.success('Ruta eliminada exitosamente');
+            this.toastService.success('Circuito eliminado correctamente');
             this.loadRutas();
           })
           .catch((error) => {
-            console.error('Error al eliminar ruta:', error);
-            this.toastService.error(getErrorMessage(error, 'Error al eliminar ruta'));
+            console.error('Error al eliminar circuito:', error);
+            this.toastService.error(getErrorMessage(error, 'Error al eliminar circuito'));
           })
           .finally(() => {
             this.loading.set(false);
           });
-      }
+      },
     );
   }
 

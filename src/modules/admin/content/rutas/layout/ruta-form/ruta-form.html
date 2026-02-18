@@ -1,169 +1,554 @@
-<form [formGroup]="rutaForm" class="p-4 space-y-3">
-  <!-- Contenedor Principal: Mapa + Coordenadas -->
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-    <!-- Columna Izquierda: Mapa -->
-    <div class="space-y-2 flex flex-col">
+<form [formGroup]="rutaForm" class="p-4 space-y-4">
+  <!-- Nombre + Trayectos (alineados con mapa | paradas) -->
+  <div class="flex flex-col xl:flex-row gap-4 xl:gap-6">
+    <!-- Nombre (alineado con columna mapa) -->
+    <div class="xl:flex-1 xl:min-w-0 flex flex-col space-y-1.5">
       <label class="text-xs font-inter-bold text-text uppercase flex items-center gap-2">
-        <i class="fas fa-map text-secondary"></i>
-        Mapa de la Ruta
+        <i class="fas fa-route text-secondary"></i>
+        Nombre
       </label>
-      <div class="bg-text/5 rounded-lg border border-text/10 overflow-hidden h-[300px] flex-1">
-        @if (mapUrl()) {
-          <iframe
-            [src]="mapUrl()"
-            class="w-full h-full"
-            frameborder="0"
-            style="border:0"
-            allowfullscreen
-          ></iframe>
-        } @else {
-          <div class="w-full h-full flex items-center justify-center">
-            <div class="text-center">
-              <i class="fas fa-map-marked-alt text-4xl text-text/20 mb-2"></i>
-              <p class="text-xs text-text/50 font-inter-regular">Ingresa las coordenadas para ver el mapa</p>
-            </div>
-          </div>
-        }
-      </div>
+      <input
+        type="text"
+        formControlName="nombre"
+        placeholder="Ej: Lima - Ica"
+        class="w-full px-3 py-1.5 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+      />
     </div>
 
-    <!-- Columna Derecha: Ciudades y Coordenadas -->
-    <div class="space-y-3 flex flex-col justify-end">
-      <!-- Lugar Origen -->
-      <div>
-        <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
-          <i class="fas fa-location-dot text-success"></i>
-          Lugar Origen
-        </label>
-        <input
-          type="text"
-          formControlName="origen"
-          class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-          placeholder="Lima"
-        />
-        @if (rutaForm.get('origen')?.touched && rutaForm.get('origen')?.errors) {
-          <p class="text-danger text-xs font-inter-medium mt-1">Lugar de origen requerido (mín. 3 caracteres)</p>
+    <!-- Trayectos (alineado con columna paradas) -->
+    <div class="xl:w-[380px] xl:shrink-0 flex flex-col space-y-1.5">
+      <div class="flex items-center justify-between min-h-4">
+        @if (tipoTrayecto() !== 'ambos') {
+          <label class="text-xs font-inter-bold text-text uppercase flex items-center gap-2">
+            <i class="fas fa-exchange-alt text-secondary"></i>
+            Trayectos
+          </label>
+        } @else {
+          <label class="text-xs font-inter-bold text-text uppercase flex items-center gap-2"
+            >Opciones de Vuelta</label
+          >
+        }
+
+        @if (tipoTrayecto() === 'ambos') {
+          <div class="flex items-center gap-2">
+            <label
+              class="text-[10px] font-inter-semibold text-text cursor-pointer select-none"
+              for="switch-vuelta"
+            >
+              ¿Iguales?
+            </label>
+            <label class="inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                id="switch-vuelta"
+                [checked]="esVueltaIgual()"
+                (change)="toggleVueltaSeparada()"
+                class="sr-only peer"
+              />
+              <div
+                class="relative w-7 h-4 bg-text/10 peer-focus:outline-none rounded-full peer peer-checked:bg-secondary after:content-[''] after:absolute after:top-0.5 after:start-0.5 after:bg-background after:border-text/20 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:after:translate-x-3 peer-checked:after:border-background"
+              ></div>
+            </label>
+          </div>
         }
       </div>
 
-      <!-- Coordenadas Origen -->
-      <div class="bg-text/5 p-4 rounded-lg border border-text/10">
-        <label class="text-xs font-inter-bold text-text uppercase mb-2 flex items-center gap-2">
-          <i class="fas fa-map-marker-alt text-success"></i>
-          Coordenadas del Origen
-        </label>
-        <div class="grid grid-cols-2 gap-2">
-          <div>
-            <input
-              type="text"
-              formControlName="origenLat"
-              placeholder="Latitud"
-              class="w-full px-3 py-2 text-sm bg-background border border-text/20 focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-            />
-            @if (rutaForm.get('origenLat')?.touched && rutaForm.get('origenLat')?.errors) {
-              <p class="text-danger text-xs font-inter-medium mt-1">Latitud válida requerida</p>
-            }
-          </div>
-          <div>
-            <input
-              type="text"
-              formControlName="origenLng"
-              placeholder="Longitud"
-              class="w-full px-3 py-2 text-sm bg-background border border-text/20 focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-            />
-            @if (rutaForm.get('origenLng')?.touched && rutaForm.get('origenLng')?.errors) {
-              <p class="text-danger text-xs font-inter-medium mt-1">Longitud válida requerida</p>
-            }
-          </div>
-        </div>
-        <p class="text-xs text-text/50 mt-2">Ej: -12.0464, -77.0428 (Lima)</p>
-      </div>
-
-      <!-- Lugar Destino -->
-      <div>
-        <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
-          <i class="fas fa-location-dot text-danger"></i>
-          Lugar Destino
-        </label>
-        <input
-          type="text"
-          formControlName="destino"
-          class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-          placeholder="Ica"
-        />
-        @if (rutaForm.get('destino')?.touched && rutaForm.get('destino')?.errors) {
-          <p class="text-danger text-xs font-inter-medium mt-1">Lugar de destino requerido (mín. 3 caracteres)</p>
-        }
-      </div>
-
-      <!-- Coordenadas Destino -->
-      <div class="bg-text/5 p-4 rounded-lg border border-text/10">
-        <label class="text-xs font-inter-bold text-text uppercase mb-2 flex items-center gap-2">
-          <i class="fas fa-map-marker-alt text-danger"></i>
-          Coordenadas del Destino
-        </label>
-        <div class="grid grid-cols-2 gap-2">
-          <div>
-            <input
-              type="text"
-              formControlName="destinoLat"
-              placeholder="Latitud"
-              class="w-full px-3 py-2 text-sm bg-background border border-text/20 focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-            />
-            @if (rutaForm.get('destinoLat')?.touched && rutaForm.get('destinoLat')?.errors) {
-              <p class="text-danger text-xs font-inter-medium mt-1">Latitud válida requerida</p>
-            }
-          </div>
-          <div>
-            <input
-              type="text"
-              formControlName="destinoLng"
-              placeholder="Longitud"
-              class="w-full px-3 py-2 text-sm bg-background border border-text/20 focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-            />
-            @if (rutaForm.get('destinoLng')?.touched && rutaForm.get('destinoLng')?.errors) {
-              <p class="text-danger text-xs font-inter-medium mt-1">Longitud válida requerida</p>
-            }
-          </div>
-        </div>
-        <p class="text-xs text-text/50 mt-2">Ej: -14.0678, -75.7286 (Ica)</p>
+      <div class="flex gap-2 flex-1">
+        <button
+          type="button"
+          (click)="tipoTrayecto.set('ida')"
+          class="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-xs font-inter-semibold border transition-all cursor-pointer"
+          [class]="
+            tipoTrayecto() === 'ida'
+              ? 'bg-secondary/15 border-secondary/40 text-secondary'
+              : 'bg-text/5 border-text/15 text-text/40'
+          "
+        >
+          <i class="fas" [class]="tipoTrayecto() === 'ida' ? 'fa-check-circle' : 'fa-circle'"></i>
+          Solo ida
+        </button>
+        <button
+          type="button"
+          (click)="tipoTrayecto.set('vuelta')"
+          class="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-xs font-inter-semibold border transition-all cursor-pointer"
+          [class]="
+            tipoTrayecto() === 'vuelta'
+              ? 'bg-secondary/15 border-secondary/40 text-secondary'
+              : 'bg-text/5 border-text/15 text-text/40'
+          "
+        >
+          <i
+            class="fas"
+            [class]="tipoTrayecto() === 'vuelta' ? 'fa-check-circle' : 'fa-circle'"
+          ></i>
+          Solo vuelta
+        </button>
+        <button
+          type="button"
+          (click)="tipoTrayecto.set('ambos')"
+          class="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-xs font-inter-semibold border transition-all cursor-pointer"
+          [class]="
+            tipoTrayecto() === 'ambos'
+              ? 'bg-secondary/15 border-secondary/40 text-secondary'
+              : 'bg-text/5 border-text/15 text-text/40'
+          "
+        >
+          <i class="fas" [class]="tipoTrayecto() === 'ambos' ? 'fa-check-circle' : 'fa-circle'"></i>
+          Ida y vuelta
+        </button>
       </div>
     </div>
   </div>
 
-  <!-- Distancia y Costo -->
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-    <div>
-      <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
-        <i class="fas fa-road text-info"></i>
-        Distancia (km) - Calculada automáticamente
-      </label>
-      <input
-        type="text"
-        formControlName="distancia"
-        readonly
-        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent rounded-lg text-text font-inter-semibold outline-none"
-        placeholder="300.00"
-      />
-      @if (rutaForm.get('distancia')?.touched && rutaForm.get('distancia')?.errors) {
-        <p class="text-danger text-xs font-inter-medium mt-1">Distancia válida requerida</p>
-      }
+  <!-- Layout principal: IDA -->
+  <div class="flex flex-col xl:flex-row gap-4 xl:gap-6">
+    <!-- Columna Izquierda: Mapa + Distancia/Costo -->
+    <div class="flex flex-col gap-4 xl:flex-1 xl:min-w-0">
+      <div class="space-y-1.5 flex flex-col">
+        <div class="flex justify-between items-center">
+          <label class="text-xs font-inter-bold text-text uppercase flex items-center gap-2">
+            <i class="fas fa-map text-secondary"></i>
+            Mapa ({{ tipoTrayecto() === 'vuelta' ? 'Vuelta' : 'Ida' }})
+          </label>
+          <span class="text-xs text-text/60 font-inter-regular">
+            <i class="fas fa-hand-pointer mr-1"></i> Arrastra los marcadores
+          </span>
+        </div>
+
+        <div
+          class="bg-text/5 rounded-lg border border-text/10 overflow-hidden h-[300px] xl:h-[380px] relative z-0"
+        >
+          <div id="map" class="w-full h-full z-0"></div>
+        </div>
+      </div>
+
+      <!-- Distancia y Costo -->
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="text-xs font-inter-semibold text-text mb-1 flex items-center gap-2">
+            <i class="fas fa-road text-info"></i>
+            Distancia (km)
+          </label>
+          <input
+            type="text"
+            formControlName="distancia"
+            readonly
+            class="w-full px-3 py-1.5 text-sm bg-text/5 border-2 border-transparent rounded-lg text-text font-inter-semibold outline-none"
+            placeholder="0.00"
+          />
+        </div>
+
+        <div>
+          <label class="text-xs font-inter-semibold text-text mb-1 flex items-center gap-2">
+            <i class="fas fa-dollar-sign text-success"></i>
+            Costo Base (S/)
+          </label>
+          <input
+            type="text"
+            formControlName="costoBase"
+            class="w-full px-3 py-1.5 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+            placeholder="0.00"
+          />
+        </div>
+      </div>
     </div>
 
-    <div>
-      <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
-        <i class="fas fa-dollar-sign text-success"></i>
-        Costo Base (S/)
-      </label>
-      <input
-        type="text"
-        formControlName="costoBase"
-        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-        placeholder="150.00"
-      />
-      @if (rutaForm.get('costoBase')?.touched && rutaForm.get('costoBase')?.errors) {
-        <p class="text-danger text-xs font-inter-medium mt-1">Costo base válido requerido</p>
-      }
+    <!-- Columna Derecha: Paradas IDA -->
+    <div class="xl:w-[380px] xl:shrink-0">
+      <div class="border-t border-text/10 pt-3 xl:border-t-0 xl:pt-0">
+        <div class="flex items-center justify-between pb-2 mb-2">
+          <div class="flex items-center gap-2">
+            <i class="fas fa-map-marked-alt text-secondary"></i>
+            <h3 class="text-xs font-inter-bold text-text uppercase">
+              Paradas ({{ tipoTrayecto() === 'vuelta' ? 'Vuelta' : 'Ida' }})
+            </h3>
+          </div>
+        </div>
+
+        @if (loadingParadas()) {
+          <div class="flex justify-center py-6">
+            <i class="fas fa-spinner fa-spin text-2xl text-secondary"></i>
+          </div>
+        } @else {
+          <div class="relative space-y-0">
+            @for (
+              parada of paradas();
+              track parada.id;
+              let i = $index;
+              let first = $first;
+              let last = $last
+            ) {
+              <div
+                class="relative flex items-center gap-6 py-2 group transition-all duration-300 ease-out"
+              >
+                @if (!last) {
+                  <div
+                    class="absolute left-[9px] top-1/2 h-full border-l-2 border-dashed border-text/20"
+                  ></div>
+                  @if (paradas()[i + 1]?.distanciaPreviaParada) {
+                    <div
+                      class="absolute left-2.5 top-full -translate-y-1/2 -translate-x-1/2 z-20 bg-background border border-text/10 px-1 py-0.5 rounded text-[8px] text-text/60 font-inter-bold shadow-sm whitespace-nowrap"
+                    >
+                      {{ paradas()[i + 1].distanciaPreviaParada }} km
+                    </div>
+                  }
+                }
+
+                <div
+                  class="relative z-10 shrink-0 w-5 h-5 rounded-full border-2 bg-background flex items-center justify-center transition-colors"
+                  [class.border-success]="first"
+                  [class.border-danger]="last"
+                  [class.border-info]="!first && !last"
+                >
+                  @if (first) {
+                    <i class="fas fa-play text-[8px] text-success ml-0.5"></i>
+                  } @else if (last) {
+                    <i class="fas fa-flag-checkered text-[8px] text-danger"></i>
+                  } @else {
+                    <span class="text-[8px] font-inter-bold text-info">{{ i }}</span>
+                  }
+                </div>
+
+                <div
+                  class="flex-1 bg-text/5 border border-text/10 rounded-lg p-2 transition-all min-w-0"
+                >
+                  <div class="flex items-center justify-between gap-1.5">
+                    <div class="flex-1 min-w-0">
+                      <div class="flex items-center gap-1.5">
+                        <input
+                          type="text"
+                          [value]="parada.nombre"
+                          (input)="updateParadaName(parada.id, $any($event.target).value, 'ida')"
+                          class="bg-transparent border-b border-dashed border-text/10 focus:border-text/40 outline-none font-inter-semibold text-text text-xs w-full transition-colors pb-1"
+                          placeholder="Nombre"
+                        />
+                        @if (first) {
+                          <span
+                            class="text-[10px] font-inter-regular text-success whitespace-nowrap"
+                            >(Origen)</span
+                          >
+                        }
+                        @if (last) {
+                          <span class="text-[10px] font-inter-regular text-danger whitespace-nowrap"
+                            >(Destino)</span
+                          >
+                        }
+                      </div>
+                      <div
+                        class="flex items-center gap-1.5 text-[10px] text-text/50 font-inter-regular mt-1"
+                      >
+                        <i class="fas fa-location-crosshairs text-[8px] shrink-0"></i>
+                        <input
+                          type="text"
+                          [value]="parada.ubicacionLat"
+                          (change)="
+                            updateParadaCoords(
+                              parada.id,
+                              $any($event.target).value,
+                              parada.ubicacionLng || '',
+                              'ida'
+                            )
+                          "
+                          class="bg-transparent outline-none text-[10px] text-text/60 w-[85px]"
+                          placeholder="Lat"
+                        />
+                        <span class="text-text/30">,</span>
+                        <input
+                          type="text"
+                          [value]="parada.ubicacionLng"
+                          (change)="
+                            updateParadaCoords(
+                              parada.id,
+                              parada.ubicacionLat || '',
+                              $any($event.target).value,
+                              'ida'
+                            )
+                          "
+                          class="bg-transparent outline-none text-[10px] text-text/60 w-[85px]"
+                          placeholder="Lng"
+                        />
+                      </div>
+                    </div>
+
+                    @if (!isExtremo(i, 'ida')) {
+                      <div class="flex items-center gap-0.5 shrink-0">
+                        <div class="flex flex-col gap-0">
+                          <button
+                            (click)="moveParada(i, 'up', 'ida')"
+                            [disabled]="i <= 1"
+                            class="p-0.5 rounded hover:bg-secondary/10 w-5 h-3.5 flex items-center justify-center"
+                          >
+                            <i class="fas fa-caret-up text-[10px]"></i>
+                          </button>
+                          <button
+                            (click)="moveParada(i, 'down', 'ida')"
+                            [disabled]="i >= paradas().length - 2"
+                            class="p-0.5 rounded hover:bg-secondary/10 w-5 h-3.5 flex items-center justify-center"
+                          >
+                            <i class="fas fa-caret-down text-[10px]"></i>
+                          </button>
+                        </div>
+                        <div class="w-px h-3 bg-text/10 mx-0.5"></div>
+                        <button
+                          (click)="deleteParada(parada.id, 'ida')"
+                          class="p-1 text-text/40 hover:text-danger hover:bg-danger/10 rounded"
+                        >
+                          <i class="fas fa-trash-alt text-[10px]"></i>
+                        </button>
+                      </div>
+                    }
+                  </div>
+                </div>
+
+                @if (!last) {
+                  <button
+                    type="button"
+                    class="absolute left-[42px] -bottom-3 w-[calc(100%-42px)] h-6 flex items-center z-20 opacity-0 group-hover:opacity-100 transition-all cursor-pointer border-none bg-transparent outline-none"
+                    (click)="addDefaultParada(i + 1, 'ida')"
+                    title="Insertar"
+                  >
+                    <div
+                      class="flex-1 h-0.5 bg-secondary/20 group-hover:bg-secondary/50 transition-colors relative"
+                    >
+                      <div
+                        class="absolute right-0 -top-2 w-4 h-4 rounded-full bg-secondary text-background flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
+                      >
+                        <i class="fas fa-plus text-[7px]"></i>
+                      </div>
+                    </div>
+                  </button>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
     </div>
+  </div>
+
+  <!-- Layout VUELTA (Condicional) -->
+  @if (showVuelta()) {
+    <div class="border-t border-text/10 pt-6 mt-2">
+      <div class="flex flex-col xl:flex-row gap-4 xl:gap-6">
+        <!-- Columna Izquierda: Mapa Vuelta -->
+        <div class="flex flex-col gap-4 xl:flex-1 xl:min-w-0">
+          <div class="space-y-1.5 flex flex-col">
+            <div class="flex justify-between items-center">
+              <label class="text-xs font-inter-bold text-text uppercase flex items-center gap-2">
+                <i class="fas fa-map text-secondary"></i> Mapa (Vuelta)
+              </label>
+            </div>
+            <div
+              class="bg-text/5 rounded-lg border border-text/10 overflow-hidden h-[300px] xl:h-[380px] relative z-0"
+            >
+              <div id="map-vuelta" class="w-full h-full z-0"></div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="text-xs font-inter-semibold text-text mb-1 flex items-center gap-2">
+                <i class="fas fa-road text-info"></i> Distancia (km)
+              </label>
+              <input
+                type="text"
+                formControlName="distanciaVuelta"
+                readonly
+                class="w-full px-3 py-1.5 text-sm bg-text/5 border-2 border-transparent rounded-lg text-text font-inter-semibold outline-none"
+                placeholder="0.00"
+              />
+            </div>
+            <div>
+              <label class="text-xs font-inter-semibold text-text mb-1 flex items-center gap-2">
+                <i class="fas fa-dollar-sign text-success"></i> Costo Base (S/)
+              </label>
+              <input
+                type="text"
+                formControlName="costoBaseVuelta"
+                class="w-full px-3 py-1.5 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+                placeholder="0.00"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Columna Derecha: Paradas Vuelta -->
+        <div class="xl:w-[380px] xl:shrink-0">
+          <div class="border-t border-text/10 pt-3 xl:border-t-0 xl:pt-0">
+            <div class="flex items-center justify-between pb-2 mb-2">
+              <div class="flex items-center gap-2">
+                <i class="fas fa-map-marked-alt text-secondary"></i>
+                <h3 class="text-xs font-inter-bold text-text uppercase">Paradas (Vuelta)</h3>
+              </div>
+            </div>
+
+            <div class="relative space-y-0">
+              @for (
+                parada of paradasVuelta();
+                track parada.id;
+                let i = $index;
+                let first = $first;
+                let last = $last
+              ) {
+                <div
+                  class="relative flex items-center gap-6 py-2 group transition-all duration-300 ease-out"
+                >
+                  @if (!last) {
+                    <div
+                      class="absolute left-[9px] top-1/2 h-full border-l-2 border-dashed border-text/20"
+                    ></div>
+                    @if (paradasVuelta()[i + 1]?.distanciaPreviaParada) {
+                      <div
+                        class="absolute left-2.5 top-full -translate-y-1/2 -translate-x-1/2 z-20 bg-background border border-text/10 px-1 py-0.5 rounded text-[8px] text-text/60 font-inter-bold shadow-sm whitespace-nowrap"
+                      >
+                        {{ paradasVuelta()[i + 1].distanciaPreviaParada }} km
+                      </div>
+                    }
+                  }
+
+                  <div
+                    class="relative z-10 shrink-0 w-5 h-5 rounded-full border-2 bg-background flex items-center justify-center transition-colors"
+                    [class.border-success]="first"
+                    [class.border-danger]="last"
+                    [class.border-info]="!first && !last"
+                  >
+                    @if (first) {
+                      <i class="fas fa-play text-[8px] text-success ml-0.5"></i>
+                    } @else if (last) {
+                      <i class="fas fa-flag-checkered text-[8px] text-danger"></i>
+                    } @else {
+                      <span class="text-[8px] font-inter-bold text-info">{{ i }}</span>
+                    }
+                  </div>
+
+                  <div
+                    class="flex-1 bg-text/5 border border-text/10 rounded-lg p-2 transition-all min-w-0"
+                  >
+                    <div class="flex items-center justify-between gap-1.5">
+                      <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-1.5">
+                          <input
+                            type="text"
+                            [value]="parada.nombre"
+                            (input)="
+                              updateParadaName(parada.id, $any($event.target).value, 'vuelta')
+                            "
+                            class="bg-transparent border-b border-dashed border-text/10 focus:border-text/40 outline-none font-inter-semibold text-text text-xs w-full transition-colors pb-1"
+                            placeholder="Nombre"
+                          />
+                          @if (first) {
+                            <span
+                              class="text-[10px] font-inter-regular text-success whitespace-nowrap"
+                              >(Origen)</span
+                            >
+                          }
+                          @if (last) {
+                            <span
+                              class="text-[10px] font-inter-regular text-danger whitespace-nowrap"
+                              >(Destino)</span
+                            >
+                          }
+                        </div>
+                        <div
+                          class="flex items-center gap-1.5 text-[10px] text-text/50 font-inter-regular mt-1"
+                        >
+                          <i class="fas fa-location-crosshairs text-[8px] shrink-0"></i>
+                          <input
+                            type="text"
+                            [value]="parada.ubicacionLat"
+                            (change)="
+                              updateParadaCoords(
+                                parada.id,
+                                $any($event.target).value,
+                                parada.ubicacionLng || '',
+                                'vuelta'
+                              )
+                            "
+                            class="bg-transparent outline-none text-[10px] text-text/60 w-[85px]"
+                            placeholder="Lat"
+                          />
+                          <span class="text-text/30">,</span>
+                          <input
+                            type="text"
+                            [value]="parada.ubicacionLng"
+                            (change)="
+                              updateParadaCoords(
+                                parada.id,
+                                parada.ubicacionLat || '',
+                                $any($event.target).value,
+                                'vuelta'
+                              )
+                            "
+                            class="bg-transparent outline-none text-[10px] text-text/60 w-[85px]"
+                            placeholder="Lng"
+                          />
+                        </div>
+                      </div>
+
+                      @if (!isExtremo(i, 'vuelta')) {
+                        <div class="flex items-center gap-0.5 shrink-0">
+                          <div class="flex flex-col gap-0">
+                            <button
+                              (click)="moveParada(i, 'up', 'vuelta')"
+                              [disabled]="i <= 1"
+                              class="p-0.5 rounded hover:bg-secondary/10 w-5 h-3.5 flex items-center justify-center"
+                            >
+                              <i class="fas fa-caret-up text-[10px]"></i>
+                            </button>
+                            <button
+                              (click)="moveParada(i, 'down', 'vuelta')"
+                              [disabled]="i >= paradasVuelta().length - 2"
+                              class="p-0.5 rounded hover:bg-secondary/10 w-5 h-3.5 flex items-center justify-center"
+                            >
+                              <i class="fas fa-caret-down text-[10px]"></i>
+                            </button>
+                          </div>
+                          <div class="w-px h-3 bg-text/10 mx-0.5"></div>
+                          <button
+                            (click)="deleteParada(parada.id, 'vuelta')"
+                            class="p-1 text-text/40 hover:text-danger hover:bg-danger/10 rounded"
+                          >
+                            <i class="fas fa-trash-alt text-[10px]"></i>
+                          </button>
+                        </div>
+                      }
+                    </div>
+                  </div>
+
+                  @if (!last) {
+                    <button
+                      type="button"
+                      class="absolute left-[42px] -bottom-3 w-[calc(100%-42px)] h-6 flex items-center z-20 opacity-0 group-hover:opacity-100 transition-all cursor-pointer border-none bg-transparent outline-none"
+                      (click)="addDefaultParada(i + 1, 'vuelta')"
+                      title="Insertar"
+                    >
+                      <div
+                        class="flex-1 h-0.5 bg-secondary/20 group-hover:bg-secondary/50 transition-colors relative"
+                      >
+                        <div
+                          class="absolute right-0 -top-2 w-4 h-4 rounded-full bg-secondary text-background flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
+                        >
+                          <i class="fas fa-plus text-[7px]"></i>
+                        </div>
+                      </div>
+                    </button>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Hidden Fields (Coordinates, Cities) -->
+  <div class="hidden">
+    <input type="text" formControlName="origen" />
+    <input type="text" formControlName="destino" />
+    <input type="text" formControlName="origenLat" />
+    <input type="text" formControlName="origenLng" />
+    <input type="text" formControlName="destinoLat" />
+    <input type="text" formControlName="destinoLng" />
   </div>
 </form>
