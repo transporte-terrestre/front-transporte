@@ -36,18 +36,18 @@ export class Sidebar {
       path: buildPath(PATH.admin.dashboard),
       icon: 'fas fa-home',
     },
-    {
-      label: 'Viajes',
-      path: buildPath(PATH.admin.viajes),
-      icon: 'fas fa-shipping-fast',
-      children: [
-        {
-          label: 'Rutas',
-          path: buildPath(PATH.admin.rutas),
-          icon: 'fas fa-route',
-        },
-      ],
-    },
+    // {
+    //   label: 'Viajes',
+    //   path: buildPath(PATH.admin.viajes),
+    //   icon: 'fas fa-shipping-fast',
+    //   children: [
+    //     {
+    //       label: 'Rutas',
+    //       path: buildPath(PATH.admin.rutas),
+    //       icon: 'fas fa-route',
+    //     },
+    //   ],
+    // },
     {
       label: 'Mantenimientos',
       path: buildPath(PATH.admin.mantenimientos),

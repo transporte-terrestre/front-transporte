@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { StorageService } from '@service/admin/storage.service';
 import { ToastService } from '@service/toast.service';
+import { AlertService } from '@service/alert.service';
 
 export interface DocumentWithDate {
   url: string;
@@ -29,6 +30,7 @@ export class DocumentsDateUpload {
   private fb = inject(FormBuilder);
   private storageService = inject(StorageService);
   private toastService = inject(ToastService);
+  private alertService = inject(AlertService);
 
   // Inputs
   documents = input<DocumentItem[]>([]);
@@ -162,7 +164,13 @@ export class DocumentsDateUpload {
 
   deleteDocument(id: number | undefined) {
     if (id !== undefined) {
-      this.onDelete.emit(id);
+      this.alertService.delete(
+        'Eliminar documento',
+        '¿Estás seguro de que deseas eliminar este documento?',
+        () => {
+          this.onDelete.emit(id);
+        },
+      );
     }
   }
 

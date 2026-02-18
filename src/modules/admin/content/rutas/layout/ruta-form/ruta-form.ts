@@ -144,8 +144,8 @@ export class RutaForm implements OnInit, AfterViewInit, OnDestroy {
         if (rutaData.rutaIda && rutaData.rutaVuelta) {
           this.tipoTrayecto.set('ambos');
 
-          if ('es_igual' in rutaData) {
-            this.esVueltaIgual.set((rutaData as any).es_igual);
+          if ('esIgual' in rutaData || 'es_igual' in rutaData) {
+            this.esVueltaIgual.set((rutaData as any).esIgual ?? (rutaData as any).es_igual);
           } else {
             this.esVueltaIgual.set(false);
           }
@@ -278,8 +278,14 @@ export class RutaForm implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    if (this.map) this.map.remove();
-    if (this.mapVuelta) this.mapVuelta.remove();
+    if (this.map) {
+      this.map.remove();
+      this.map = undefined;
+    }
+    if (this.mapVuelta) {
+      this.mapVuelta.remove();
+      this.mapVuelta = undefined;
+    }
   }
 
   initMap(target: TrayectoTarget = 'ida') {
@@ -303,6 +309,8 @@ export class RutaForm implements OnInit, AfterViewInit, OnDestroy {
     else this.map = m;
 
     this.updateMapMarkers(target);
+    const paradasSignal = target === 'ida' ? this.paradas : this.paradasVuelta;
+    this.syncMarkersWithParadas(paradasSignal(), target);
 
     // Set defaults if new for IDA only
     if (!isVuelta) {
@@ -700,17 +708,19 @@ export class RutaForm implements OnInit, AfterViewInit, OnDestroy {
         const dist = (route.distance / 1000).toFixed(2);
 
         if (target === 'ida') {
+          if (!this.map) return;
           this.rutaForm.patchValue({ distancia: dist }, { emitEvent: false });
           if (this.routeLayer) this.routeLayer.remove();
           this.routeLayer = L.geoJSON(route.geometry, {
             style: { color: '#3b82f6', weight: 5, opacity: 0.8 },
-          }).addTo(this.map!);
+          }).addTo(this.map);
         } else {
+          if (!this.mapVuelta) return;
           this.rutaForm.patchValue({ distanciaVuelta: dist }, { emitEvent: false });
           if (this.routeLayerVuelta) this.routeLayerVuelta.remove();
           this.routeLayerVuelta = L.geoJSON(route.geometry, {
             style: { color: '#ef4444', weight: 5, opacity: 0.8 },
-          }).addTo(this.mapVuelta!);
+          }).addTo(this.mapVuelta);
         }
 
         if (route.legs && route.legs.length > 0) {
@@ -751,6 +761,19 @@ export class RutaForm implements OnInit, AfterViewInit, OnDestroy {
         distanciaPreviaParada: p.distanciaPreviaParada?.toString(),
       }));
 
+    // Sincronizar nombres de paradas origen/destino con inputs
+    const currentParadas = [...this.paradas()];
+    if (currentParadas.length >= 2) {
+      // Origen es index 0
+      currentParadas[0] = { ...currentParadas[0], nombre: val.origen };
+      // Destino es último
+      currentParadas[currentParadas.length - 1] = {
+        ...currentParadas[currentParadas.length - 1],
+        nombre: val.destino,
+      };
+      this.paradas.set(currentParadas);
+    }
+
     // Detalle Base IDA
     const detalleIda = {
       origen: val.origen,
@@ -766,6 +789,7 @@ export class RutaForm implements OnInit, AfterViewInit, OnDestroy {
 
     const payload: any = {
       nombre: val.nombre,
+      esIgual: tipo === 'ambos' && this.esVueltaIgual(),
     };
 
     if (tipo === 'ambos' || tipo === 'ida') {
