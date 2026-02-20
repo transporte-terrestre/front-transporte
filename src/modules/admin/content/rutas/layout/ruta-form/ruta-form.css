@@ -1,12 +1,35 @@
-/* Leaflet Marker Color Filters */
-::ng-deep .marker-green {
-  filter: hue-rotate(260deg) saturate(1.5) brightness(1.1);
+/* Custom Marker styles */
+::ng-deep .custom-div-icon {
+  background: none;
+  border: none;
 }
 
-::ng-deep .marker-red {
-  filter: hue-rotate(150deg) saturate(1.5) brightness(0.9);
+::ng-deep .marker-pin {
+  width: 26px;
+  height: 26px;
+  border-radius: 50% 50% 50% 0;
+  position: absolute;
+  transform: rotate(-45deg);
+  left: 50%;
+  top: 50%;
+  margin: -20px 0 0 -13px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  border: 2px solid white;
 }
 
-#map {
-  z-index: 10;
+::ng-deep .marker-pin::after {
+  content: '';
+  width: 20px;
+  height: 20px;
+  margin: 1px 0 0 1px;
+  background: rgba(255, 255, 255, 0.2);
+  position: absolute;
+  border-radius: 50%;
+}
+
+#map,
+#map-vuelta {
+  z-index: 1;
+  border-radius: 12px;
+  border: 2px solid rgba(var(--text-rgb), 0.1);
 }

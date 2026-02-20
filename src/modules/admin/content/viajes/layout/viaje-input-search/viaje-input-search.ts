@@ -64,9 +64,9 @@ export class ViajeInputSearch implements ControlValueAccessor {
               },
             });
           return from(this.viajeService.findAll({ search: term || '', limit: 10 })).pipe(
-            finalize(() => this.loading.set(false))
+            finalize(() => this.loading.set(false)),
           );
-        })
+        }),
       )
       .subscribe({
         next: (response) => {
@@ -98,7 +98,7 @@ export class ViajeInputSearch implements ControlValueAccessor {
   }
 
   registerOnChange(
-    fn: (value: ApiResponse<'viajes', 'findAll'>['data'][number] | null) => void
+    fn: (value: ApiResponse<'viajes', 'findAll'>['data'][number] | null) => void,
   ): void {
     this.onChange = fn;
   }
@@ -141,7 +141,11 @@ export class ViajeInputSearch implements ControlValueAccessor {
   getDisplayText(): string {
     const v = this.selectedViaje();
     if (!v) return 'Seleccionar viaje...';
-    return `Viaje #${v.id} - ${v.ruta?.origen} a ${v.ruta?.destino}`;
+
+    const trip = v.ida || v.vuelta;
+    if (!trip) return `Circuito #${v.id}`;
+
+    return `Circuito #${v.id} - ${trip.ruta?.origen || '...'} a ${trip.ruta?.destino || '...'}`;
   }
 
   @HostListener('document:click', ['$event'])

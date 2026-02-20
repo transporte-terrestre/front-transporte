@@ -14,6 +14,8 @@ import { PaginationComponent } from '../../../../components/pagination/paginatio
 import { PATH, buildPath } from '@route/path.route';
 import { getErrorMessage } from '@helper/error.helper';
 
+export type ViajeIndividual = NonNullable<ApiResponse<'viajes', 'findAll'>['data'][0]['ida']>;
+
 interface WeekDay {
   date: Date;
   dayName: string;
@@ -22,7 +24,7 @@ interface WeekDay {
 }
 
 interface CalendarEvent {
-  viaje: ApiResponse<'viajes', 'findAll'>['data'][number];
+  viaje: ViajeIndividual;
   top: number;
   height: number;
   dayIndex: number;
@@ -99,7 +101,14 @@ export class ViajesList implements OnInit, OnDestroy {
     const weekStart = this.currentWeekStart();
     const events: CalendarEvent[] = [];
 
-    for (const viaje of this.viajes()) {
+    const allTrips = this.viajes().flatMap((c) => {
+      const trips = [];
+      if (c.ida) trips.push(c.ida);
+      if (c.vuelta) trips.push(c.vuelta);
+      return trips;
+    });
+
+    for (const viaje of allTrips) {
       const fechaSalida = this.parseIsoAsLocal(viaje.fechaSalida);
       const fechaLlegada = viaje.fechaLlegada
         ? this.parseIsoAsLocal(viaje.fechaLlegada)
@@ -376,6 +385,48 @@ export class ViajesList implements OnInit, OnDestroy {
     }
   }
 
+  processedRows = computed(() => {
+    const rows: {
+      circuito: ApiResponse<'viajes', 'findAll'>['data'][0];
+      viaje: ViajeIndividual | null;
+      tipo: 'ida' | 'vuelta';
+      isFirst: boolean;
+      rowSpan: number;
+    }[] = [];
+
+    this.viajes().forEach((circuito) => {
+      const subRows: {
+        tipo: 'ida' | 'vuelta';
+        viaje: ViajeIndividual;
+      }[] = [];
+      if (circuito.ida) subRows.push({ tipo: 'ida', viaje: circuito.ida });
+      if (circuito.vuelta) subRows.push({ tipo: 'vuelta', viaje: circuito.vuelta });
+
+      if (subRows.length === 0) {
+        rows.push({
+          circuito,
+          viaje: null,
+          tipo: 'ida', // default
+          isFirst: true,
+          rowSpan: 1,
+        });
+        return;
+      }
+
+      subRows.forEach((sub, index) => {
+        rows.push({
+          circuito,
+          viaje: sub.viaje,
+          tipo: sub.tipo,
+          isFirst: index === 0,
+          rowSpan: subRows.length,
+        });
+      });
+    });
+
+    return rows;
+  });
+
   onSearch() {
     this.currentPage.set(1);
     this.loadViajes();
@@ -425,7 +476,7 @@ export class ViajesList implements OnInit, OnDestroy {
     this.showModal.set(true);
   }
 
-  navigateToEdit(viaje: ApiResponse<'viajes', 'findAll'>['data'][number]) {
+  navigateToEdit(viaje: ViajeIndividual) {
     const path = buildPath(PATH.admin.viajes.edit).replace(':id', viaje.id.toString());
     this.router.navigate([path]);
   }
@@ -438,41 +489,8 @@ export class ViajesList implements OnInit, OnDestroy {
     this.viajeFormComponent()?.submitForm();
   }
 
-  handleFormSubmit(data: ApiBody<'viajes', 'create'> | ApiBody<'viajes', 'update'> | any) {
-    if (Array.isArray(data)) {
-      this.createViajesBatch(data);
-    } else {
-      // Si tiene ID es update, sino create.
-      // Pero el output original combinaba ambos.
-      // Asumiremos que si viene del form create y no es array, es create.
-      // Si estamos editando, data tendrá id? ApiBody create no tiene id.
-      // La lógica original llamaba a createViaje que llamaba a this.viajeService.create (solo create).
-      // ¿Dónde se maneja el update?
-      // Ah, navigateToEdit va a otra pagina? No, openCreateModal usa el form en modal.
-      // navigateToEdit usa router.navigate. Así que el modal SOLO CREA.
-      // La edición se hace en otra pantalla (viajes-edit).
-      // Por tanto, aquí solo manejamos CREATE via modal.
-      this.createViaje(data);
-    }
-  }
-
-  async createViajesBatch(data: ApiBody<'viajes', 'create'>[]) {
-    this.loading.set(true);
-    try {
-      // Ejecutar promesas en paralelo o serie.
-      await Promise.all(data.map((d) => this.viajeService.create(d)));
-      this.toastService.success('Viajes creados exitosamente');
-      this.closeModal();
-      if (this.viewMode() === 'calendar') {
-        this.loadViajesForCalendar();
-      } else {
-        this.loadViajes();
-      }
-    } catch (error) {
-      console.error('Error al crear viajes:', error);
-      this.toastService.error(getErrorMessage(error, 'Error al crear viajes'));
-      this.loading.set(false);
-    }
+  handleFormSubmit(data: ApiBody<'viajes', 'create'> | ApiBody<'viajes', 'update'>) {
+    this.createViaje(data);
   }
 
   async createViaje(data: ApiBody<'viajes', 'create'> | ApiBody<'viajes', 'update'>) {
@@ -518,14 +536,14 @@ export class ViajesList implements OnInit, OnDestroy {
     );
   }
 
-  getRutaDisplay(viaje: ApiResponse<'viajes', 'findAll'>['data'][number]): string {
+  getRutaDisplay(viaje: ViajeIndividual): string {
     if (viaje.ruta) {
       return `${viaje.ruta.origen} → ${viaje.ruta.destino}`;
     }
     return viaje.rutaOcasional || 'Ruta no especificada';
   }
 
-  getVehiculoDisplay(viaje: ApiResponse<'viajes', 'findAll'>['data'][number]): string {
+  getVehiculoDisplay(viaje: ViajeIndividual): string {
     return viaje.vehiculoPrincipal
       ? `${viaje.vehiculoPrincipal.marca ?? ''} ${viaje.vehiculoPrincipal.modelo ?? ''} - ${
           viaje.vehiculoPrincipal.placa
@@ -533,11 +551,11 @@ export class ViajesList implements OnInit, OnDestroy {
       : 'Sin vehículo';
   }
 
-  getConductorDisplay(viaje: ApiResponse<'viajes', 'findAll'>['data'][number]): string {
+  getConductorDisplay(viaje: ViajeIndividual): string {
     return viaje.conductorPrincipal?.nombreCompleto || 'Sin conductor';
   }
 
-  getClienteDisplay(viaje: ApiResponse<'viajes', 'findAll'>['data'][number]): string {
+  getClienteDisplay(viaje: ViajeIndividual): string {
     return viaje.cliente?.razonSocial || viaje.cliente?.nombreCompleto || 'Sin cliente';
   }
 
@@ -587,7 +605,9 @@ export class ViajesList implements OnInit, OnDestroy {
   }
 
   getSentidoBadgeClass(sentido: 'ida' | 'vuelta' | undefined): string {
-    return 'bg-text/5 text-text/60';
+    return sentido === 'vuelta'
+      ? 'bg-info/10 text-info uppercase'
+      : 'bg-success/10 text-success uppercase';
   }
 
   getSentidoLabel(sentido: 'ida' | 'vuelta' | undefined): string {

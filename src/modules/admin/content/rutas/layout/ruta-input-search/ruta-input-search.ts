@@ -64,9 +64,9 @@ export class RutaInputSearch implements ControlValueAccessor {
               },
             });
           return from(this.rutaService.findAll({ search: term || '', limit: 10 })).pipe(
-            finalize(() => this.loading.set(false))
+            finalize(() => this.loading.set(false)),
           );
-        })
+        }),
       )
       .subscribe({
         next: (response) => {
@@ -98,7 +98,7 @@ export class RutaInputSearch implements ControlValueAccessor {
   }
 
   registerOnChange(
-    fn: (value: ApiResponse<'rutas', 'findAll'>['data'][number] | null) => void
+    fn: (value: ApiResponse<'rutas', 'findAll'>['data'][number] | null) => void,
   ): void {
     this.onChange = fn;
   }
@@ -143,6 +143,21 @@ export class RutaInputSearch implements ControlValueAccessor {
     const r = this.selectedRuta();
     if (!r) return 'Seleccionar ruta...';
     return `${r.origen} - ${r.destino}`;
+  }
+
+  formatTime(minutes: number | string | undefined | null): string {
+    if (minutes === undefined || minutes === null) return '-';
+    const totalMinutes = Number(minutes);
+    if (isNaN(totalMinutes) || totalMinutes <= 0) return '-';
+
+    const h = Math.floor(totalMinutes / 60);
+    const m = totalMinutes % 60;
+
+    let result = '';
+    if (h > 0) result += `${h}h `;
+    if (m > 0 || h === 0) result += `${m}min`;
+
+    return result.trim();
   }
 
   @HostListener('document:click', ['$event'])

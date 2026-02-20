@@ -30,12 +30,15 @@
             <th class="px-4 py-3 text-xs font-inter-bold text-text/60 uppercase w-10 text-center">
               #
             </th>
-            <th class="px-4 py-3 text-xs font-inter-bold text-text/60 uppercase">Tramo</th>
-            <th class="px-4 py-3 text-xs font-inter-bold text-text/60 uppercase">Horarios</th>
+            <th class="px-4 py-3 text-xs font-inter-bold text-text/60 uppercase text-center">
+              Tipo
+            </th>
+            <th class="px-4 py-3 text-xs font-inter-bold text-text/60 uppercase">Lugar</th>
+            <th class="px-4 py-3 text-xs font-inter-bold text-text/60 uppercase">Hora</th>
+            <th class="px-4 py-3 text-xs font-inter-bold text-text/60 uppercase">Kilometraje</th>
             <th class="px-4 py-3 text-xs font-inter-bold text-text/60 uppercase text-center">
               Pasaj.
             </th>
-            <th class="px-4 py-3 text-xs font-inter-bold text-text/60 uppercase">Kilometraje</th>
             <th class="px-4 py-3 text-xs font-inter-bold text-text/60 uppercase text-right">
               Acciones
             </th>
@@ -66,75 +69,49 @@
                 </span>
               </td>
 
-              <!-- Tramo -->
-              <td class="px-4 py-3">
-                <div class="flex flex-col gap-0.5">
-                  <div class="flex items-center gap-2">
-                    <span
-                      class="text-sm font-inter-medium text-text truncate max-w-[140px]"
-                      [title]="servicio.paradaPartidaNombre"
-                    >
-                      {{ servicio.paradaPartidaNombre }}
-                    </span>
-
-                    <i class="fas fa-long-arrow-alt-right text-text/30"></i>
-
-                    <span
-                      class="text-sm font-inter-medium text-text truncate max-w-[140px]"
-                      [title]="servicio.paradaLlegadaNombre"
-                    >
-                      {{ servicio.paradaLlegadaNombre }}
-                    </span>
-                  </div>
-                </div>
-              </td>
-
-              <!-- Horarios -->
-              <td class="px-4 py-3">
-                <div class="flex flex-col gap-0.5">
-                  <div class="flex items-center gap-2 text-sm text-text">
-                    <i class="far fa-clock text-text/40 text-[10px]"></i>
-                    <span class="font-inter-medium">{{ servicio.horaSalida.substring(0, 5) }}</span>
-                    @if (servicio.horaTermino) {
-                      <span class="text-text/40">-</span>
-                      <span class="font-inter-medium">{{
-                        servicio.horaTermino.substring(0, 5)
-                      }}</span>
-                    }
-                  </div>
-                  @if (servicio.tiempoServicioMinutos) {
-                    <span class="text-[10px] text-secondary font-inter-semibold"
-                      >({{ servicio.tiempoServicioMinutos }} min)</span
-                    >
-                  }
-                </div>
-              </td>
-
-              <!-- Pasajeros -->
+              <!-- Tipo -->
               <td class="px-4 py-3 text-center">
-                <div
-                  class="inline-flex items-center gap-1 px-2 py-1 rounded bg-text/5 text-xs font-inter-medium text-text"
+                <span
+                  class="inline-flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-inter-semibold uppercase"
+                  [ngClass]="{
+                    'bg-info/10 text-info': servicio.tipo === 'trayecto',
+                    'bg-warning/10 text-warning': servicio.tipo === 'descanso',
+                  }"
                 >
-                  <i class="fas fa-users text-[10px] text-text/40"></i>
-                  {{ servicio.numeroPasajeros }}
+                  <i
+                    class="fas"
+                    [ngClass]="servicio.tipo === 'trayecto' ? 'fa-route' : 'fa-coffee'"
+                  ></i>
+                  {{ servicio.tipo }}
+                </span>
+              </td>
+
+              <!-- Lugar -->
+              <td class="px-4 py-3">
+                <span
+                  class="text-sm font-inter-medium text-text truncate max-w-[140px]"
+                  [title]="servicio.nombreLugar || '-'"
+                >
+                  {{ servicio.nombreLugar || '-' }}
+                </span>
+              </td>
+
+              <!-- Hora -->
+              <td class="px-4 py-3">
+                <div class="flex items-center gap-2 text-sm text-text">
+                  <i class="far fa-clock text-text/40 text-[10px]"></i>
+                  <span class="font-inter-medium">
+                    {{ servicio.horaFinal ? (servicio.horaFinal | date: 'dd/MM/yy HH:mm') : '-' }}
+                  </span>
                 </div>
               </td>
 
               <!-- Kilometraje -->
               <td class="px-4 py-3">
-                <div class="flex flex-col gap-0.5 text-xs">
-                  <span class="text-text font-inter-medium">
-                    {{ servicio.kmInicial }}
-                    @if (servicio.kmFinal) {
-                      -> {{ servicio.kmFinal }}
-                    }
-                    km
+                <div class="flex items-center gap-2 text-sm text-text">
+                  <span class="font-inter-medium">
+                    {{ servicio.kilometrajeFinal ? servicio.kilometrajeFinal + ' km' : '-' }}
                   </span>
-                  @if (servicio.kmServicio) {
-                    <span class="text-secondary font-inter-semibold text-[10px]"
-                      >({{ servicio.kmServicio }} km)</span
-                    >
-                  }
                 </div>
               </td>
 
@@ -175,92 +152,53 @@
         (onSubmit)="saveServicio()"
       >
         <form [formGroup]="servicioForm" class="p-4 space-y-4">
-          <!-- Selector Origen -->
-          <div class="space-y-1">
-            <label class="text-xs font-inter-semibold text-text">Punto de Partida</label>
-            <div class="relative group">
-              <select
-                formControlName="paradaPartidaId"
-                class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all appearance-none cursor-pointer disabled:cursor-not-allowed"
-              >
-                <option [value]="null">Seleccione una parada...</option>
-                @for (parada of paradasRuta(); track parada.id) {
-                  <option [value]="parada.id">{{ parada.nombre }}</option>
-                }
-              </select>
-              <span
-                class="absolute inset-y-0 right-3 flex items-center text-text/60 pointer-events-none group-has-disabled:opacity-30"
-              >
-                <i class="fas fa-chevron-down text-xs"></i>
-              </span>
-            </div>
+          <!-- Tipo -->
+          <div>
+            <label class="text-xs font-inter-semibold text-text mb-1 block">Tipo *</label>
+            <select
+              formControlName="tipo"
+              class="w-full px-3 py-2 text-sm bg-text/5 border border-transparent focus:border-secondary rounded-lg outline-none disabled:cursor-not-allowed"
+            >
+              <option value="trayecto">Trayecto / Avance</option>
+              <option value="descanso">Descanso / Parada</option>
+            </select>
           </div>
 
-          <!-- Arrow Divider -->
-          <div class="flex justify-center -my-2 opacity-30">
-            <i class="fas fa-arrow-down text-text"></i>
-          </div>
-
-          <!-- Selector Destino -->
-          <div class="space-y-1">
-            <label class="text-xs font-inter-semibold text-text">Punto de Llegada</label>
-            <div class="relative group">
-              <select
-                formControlName="paradaLlegadaId"
-                class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all appearance-none cursor-pointer disabled:cursor-not-allowed"
-              >
-                <option [value]="null">Seleccione una parada...</option>
-                @for (parada of paradasRuta(); track parada.id) {
-                  <option [value]="parada.id">{{ parada.nombre }}</option>
-                }
-              </select>
-              <span
-                class="absolute inset-y-0 right-3 flex items-center text-text/60 pointer-events-none group-has-disabled:opacity-30"
-              >
-                <i class="fas fa-chevron-down text-xs"></i>
-              </span>
-            </div>
+          <!-- Input Nombre Lugar -->
+          <div>
+            <label class="text-xs font-inter-semibold text-text mb-1 block"
+              >Lugar / Ubicación *</label
+            >
+            <input
+              type="text"
+              formControlName="nombreLugar"
+              class="w-full px-3 py-2 text-sm bg-text/5 border border-transparent focus:border-secondary rounded-lg outline-none disabled:cursor-not-allowed placeholder:text-text/30"
+              placeholder="Ej. Grifo Repsol, Paracas"
+            />
           </div>
 
           <div class="h-px bg-text/10 my-4"></div>
 
-          <!-- Horarios -->
+          <!-- Horario y Kilometraje -->
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="text-xs font-inter-semibold text-text mb-1 block">Hora Salida *</label>
+              <label class="text-xs font-inter-semibold text-text mb-1 block"
+                >Hora Registrada *</label
+              >
               <input
-                type="time"
-                formControlName="horaSalida"
+                type="datetime-local"
+                formControlName="horaFinal"
                 class="w-full px-3 py-2 text-sm bg-text/5 border border-transparent focus:border-secondary rounded-lg outline-none disabled:cursor-not-allowed"
               />
             </div>
             <div>
-              <label class="text-xs font-inter-semibold text-text mb-1 block">Hora Término</label>
-              <input
-                type="time"
-                formControlName="horaTermino"
-                class="w-full px-3 py-2 text-sm bg-text/5 border border-transparent focus:border-secondary rounded-lg outline-none disabled:cursor-not-allowed"
-              />
-            </div>
-          </div>
-
-          <!-- Kilometraje -->
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label class="text-xs font-inter-semibold text-text mb-1 block">KM Inicial *</label>
+              <label class="text-xs font-inter-semibold text-text mb-1 block"
+                >Kilometraje Actual *</label
+              >
               <input
                 type="number"
                 min="0"
-                formControlName="kmInicial"
-                class="w-full px-3 py-2 text-sm bg-text/5 border border-transparent focus:border-secondary rounded-lg outline-none disabled:cursor-not-allowed"
-              />
-            </div>
-            <div>
-              <label class="text-xs font-inter-semibold text-text mb-1 block">KM Final</label>
-              <input
-                type="number"
-                min="0"
-                formControlName="kmFinal"
+                formControlName="kilometrajeFinal"
                 class="w-full px-3 py-2 text-sm bg-text/5 border border-transparent focus:border-secondary rounded-lg outline-none disabled:cursor-not-allowed"
               />
             </div>

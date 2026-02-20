@@ -11,27 +11,17 @@ import {
   computed,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {
-  FormBuilder,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-  FormControl,
-} from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ApiResponse, ApiBody } from 'api/backend.api';
 import { RutaService } from '@service/admin/ruta.service';
 import { ToastService } from '@service/toast.service';
-import { AlertService } from '@service/alert.service';
 import * as L from 'leaflet';
 
-// Fix Leaflet marker icons
-const iconRetinaUrl = 'assets/leaflet/marker-icon-2x.png';
-const iconUrl = 'assets/leaflet/marker-icon.png';
-const shadowUrl = 'assets/leaflet/marker-shadow.png';
+// Leaflet Icon Setup
 const iconDefault = L.icon({
-  iconRetinaUrl,
-  iconUrl,
-  shadowUrl,
+  iconRetinaUrl: 'assets/leaflet/marker-icon-2x.png',
+  iconUrl: 'assets/leaflet/marker-icon.png',
+  shadowUrl: 'assets/leaflet/marker-shadow.png',
   iconSize: [25, 41],
   iconAnchor: [12, 41],
   popupAnchor: [1, -34],
@@ -40,28 +30,30 @@ const iconDefault = L.icon({
 });
 L.Marker.prototype.options.icon = iconDefault;
 
-type TrayectoTarget = 'ida' | 'vuelta';
+type MapType = 'ida' | 'vuelta';
 
-interface ParadaUI {
-  id: number;
-  nombre: string;
-  ubicacionLat?: string;
-  ubicacionLng?: string;
-  orden: number;
-  distanciaPreviaParada?: string;
-  rutaId?: number;
-}
+type CreateBody = ApiBody<'rutas', 'createCircuito'>;
+type DetalleInput = Required<CreateBody>['ida'];
+type RutaResult = ApiResponse<'rutas', 'findOneCircuito'>;
 
-interface RutaDetalle {
-  origen: string;
-  destino: string;
-  origenLat: string;
-  origenLng: string;
-  destinoLat: string;
-  destinoLng: string;
-  distancia: string;
-  costoBase: string;
-  paradas?: ParadaUI[];
+interface RutaFormValue {
+  nombre: CreateBody['nombre'];
+  origen: DetalleInput['origen'];
+  destino: DetalleInput['destino'];
+  origenLat: DetalleInput['origenLat'];
+  origenLng: DetalleInput['origenLng'];
+  destinoLat: DetalleInput['destinoLat'];
+  destinoLng: DetalleInput['destinoLng'];
+  distancia: DetalleInput['distancia'];
+  tiempoEstimado: DetalleInput['tiempoEstimado'];
+  origenVuelta: DetalleInput['origen'];
+  destinoVuelta: DetalleInput['destino'];
+  origenLatVuelta: DetalleInput['origenLat'];
+  origenLngVuelta: DetalleInput['origenLng'];
+  destinoLatVuelta: DetalleInput['destinoLat'];
+  destinoLngVuelta: DetalleInput['destinoLng'];
+  distanciaVuelta: DetalleInput['distancia'];
+  tiempoEstimadoVuelta: DetalleInput['tiempoEstimado'];
 }
 
 @Component({
@@ -74,51 +66,37 @@ export class RutaForm implements OnInit, AfterViewInit, OnDestroy {
   private fb = inject(FormBuilder);
   private rutaService = inject(RutaService);
   private toastService = inject(ToastService);
-  private alertService = inject(AlertService);
 
-  // Maps
-  private map: L.Map | undefined;
-  private mapVuelta: L.Map | undefined;
+  // Maps & Markers
+  private maps: Record<MapType, L.Map | undefined> = { ida: undefined, vuelta: undefined };
+  private markers: Record<MapType, { origin?: L.Marker; dest?: L.Marker }> = {
+    ida: {},
+    vuelta: {},
+  };
+  private routeLayers: Record<MapType, L.Layer | undefined> = { ida: undefined, vuelta: undefined };
 
-  // Markers
-  private markers: { [key: string]: L.Marker } = {};
-  private markersVuelta: { [key: string]: L.Marker } = {};
-
-  // Layers
-  private routeLayer: L.Layer | undefined;
-  private routeLayerVuelta: L.Layer | undefined;
-
-  // Inputs
-  ruta = input<ApiResponse<'rutas', 'findOneCircuito'> | null>(null);
+  // Inputs/Outputs
+  ruta = input<RutaResult | null>(null);
   editMode = input<boolean>(false);
+  onSubmitForm = output<void>();
 
-  // Outputs
-  onSubmitForm = output<any>();
-
-  // Signals
-  paradas = signal<ParadaUI[]>([]);
-  loadingParadas = signal(false);
-  tipoTrayecto = signal<'ida' | 'vuelta' | 'ambos'>('ambos');
-
-  // Logic for Independent Vuelta
+  // State
   esVueltaIgual = signal(true);
-  paradasVuelta = signal<ParadaUI[]>([]);
-
+  tipoTrayecto = signal<'ida' | 'vuelta' | 'ambos'>('ambos');
   showVuelta = computed(() => this.tipoTrayecto() === 'ambos' && !this.esVueltaIgual());
 
-  private lastCoordsHash = '';
-  private lastCoordsHashVuelta = '';
+  private lastCoordsHash: Record<MapType, string> = { ida: '', vuelta: '' };
 
-  rutaForm: FormGroup = this.fb.group({
+  rutaForm = this.fb.nonNullable.group({
     nombre: ['', [Validators.required, Validators.minLength(3)]],
-    origen: ['', [Validators.required, Validators.minLength(3)]],
-    destino: ['', [Validators.required, Validators.minLength(3)]],
+    origen: ['', [Validators.required]],
+    destino: ['', [Validators.required]],
     origenLat: ['', [Validators.required, Validators.pattern(/^-?\d+(\.\d+)?$/)]],
     origenLng: ['', [Validators.required, Validators.pattern(/^-?\d+(\.\d+)?$/)]],
     destinoLat: ['', [Validators.required, Validators.pattern(/^-?\d+(\.\d+)?$/)]],
     destinoLng: ['', [Validators.required, Validators.pattern(/^-?\d+(\.\d+)?$/)]],
     distancia: ['', [Validators.required, Validators.pattern(/^\d+(\.\d+)?$/)]],
-    costoBase: ['', [Validators.required, Validators.pattern(/^\d+(\.\d+)?$/)]],
+    tiempoEstimado: [0, [Validators.required, Validators.min(1)]],
     // VUELTA
     origenVuelta: [''],
     destinoVuelta: [''],
@@ -127,150 +105,113 @@ export class RutaForm implements OnInit, AfterViewInit, OnDestroy {
     destinoLatVuelta: ['', [Validators.pattern(/^-?\d+(\.\d+)?$/)]],
     destinoLngVuelta: ['', [Validators.pattern(/^-?\d+(\.\d+)?$/)]],
     distanciaVuelta: ['', [Validators.pattern(/^\d+(\.\d+)?$/)]],
-    costoBaseVuelta: ['', [Validators.pattern(/^\d+(\.\d+)?$/)]],
+    tiempoEstimadoVuelta: [0],
   });
 
   constructor() {
+    // Load Data Effect
     effect(() => {
-      const rutaData = this.ruta();
-      const isEditMode = this.editMode();
-
-      if (isEditMode && rutaData) {
-        // Usar rutaIda como referencia principal
-        const rutaReferencia = (rutaData.rutaIda || rutaData.rutaVuelta) as unknown as RutaDetalle;
-        const rutaVueltaRef = rutaData.rutaVuelta as unknown as RutaDetalle;
-
-        // Determinar tipo de trayecto
-        if (rutaData.rutaIda && rutaData.rutaVuelta) {
-          this.tipoTrayecto.set('ambos');
-
-          if ('esIgual' in rutaData || 'es_igual' in rutaData) {
-            this.esVueltaIgual.set((rutaData as any).esIgual ?? (rutaData as any).es_igual);
-          } else {
-            this.esVueltaIgual.set(false);
-          }
-        } else if (rutaData.rutaIda) {
-          this.tipoTrayecto.set('ida');
-        } else if (rutaData.rutaVuelta) {
-          this.tipoTrayecto.set('vuelta');
-        }
-
-        if (rutaReferencia) {
-          this.rutaForm.patchValue({
-            nombre: rutaData.nombre,
-            origen: rutaReferencia.origen,
-            destino: rutaReferencia.destino,
-            origenLat: rutaReferencia.origenLat,
-            origenLng: rutaReferencia.origenLng,
-            destinoLat: rutaReferencia.destinoLat,
-            destinoLng: rutaReferencia.destinoLng,
-            distancia: rutaReferencia.distancia,
-            costoBase: rutaReferencia.costoBase,
-          });
-
-          if (rutaReferencia.paradas) {
-            const sortedParadas = [...rutaReferencia.paradas].sort((a, b) => a.orden - b.orden);
-            this.paradas.set(sortedParadas as unknown as ParadaUI[]);
-          }
-        }
-
-        // Cargar vuelta si existe
-        if (rutaVueltaRef && rutaData.rutaIda) {
-          // Solo si hay AMBAS, consideramos cargar la segunda como tal
-          this.rutaForm.patchValue({
-            origenVuelta: rutaVueltaRef.origen,
-            destinoVuelta: rutaVueltaRef.destino,
-            origenLatVuelta: rutaVueltaRef.origenLat,
-            origenLngVuelta: rutaVueltaRef.origenLng,
-            destinoLatVuelta: rutaVueltaRef.destinoLat,
-            destinoLngVuelta: rutaVueltaRef.destinoLng,
-            distanciaVuelta: rutaVueltaRef.distancia,
-            costoBaseVuelta: rutaVueltaRef.costoBase,
-          });
-
-          if (rutaVueltaRef.paradas) {
-            const sorted = [...rutaVueltaRef.paradas].sort((a: any, b: any) => a.orden - b.orden);
-            this.paradasVuelta.set(sorted);
-          }
-
-          // Si cargamos ambas, asumimos que son vuelta separada por ahora si el usuario está en modo AMBOS?
-          // O verificamos si son espejo? Por simplicidad, si hay datos explícitos de vuelta, podríamos activar el switch OFF (separada).
-          // Pero dejemos en true (igual) por defecto y que toggleen ellos, salvo que detectemos gran diferencia.
-          // Mejor: DEJAR EN TRUE por defecto.
-        }
-
-        setTimeout(() => this.updateMapMarkers('ida'), 500);
+      const data = this.ruta();
+      if (this.editMode() && data) {
+        this.loadRutaData(data);
       } else {
-        this.rutaForm.reset();
-        this.clearMarkers('ida');
-        this.clearMarkers('vuelta');
-        this.paradas.set([]);
-        this.paradasVuelta.set([]);
-        this.esVueltaIgual.set(true);
+        this.resetForm();
       }
     });
 
-    // Watch paradas IDA changes
+    // Toggle Vuelta Map
     effect(() => {
-      const currentParadas = this.paradas();
-      const hash = JSON.stringify(
-        currentParadas.map((p) => ({ lat: p.ubicacionLat, lng: p.ubicacionLng, orden: p.orden })),
-      );
-
-      if (hash !== this.lastCoordsHash) {
-        this.lastCoordsHash = hash;
-        if (this.map) this.syncMarkersWithParadas(currentParadas, 'ida');
-      }
-    });
-
-    // Watch paradas VUELTA changes
-    effect(() => {
-      // Activar mapa vuelta si es necesario
       if (this.showVuelta()) {
         setTimeout(() => this.initMap('vuelta'), 100);
       } else {
-        if (this.mapVuelta) {
-          this.mapVuelta.remove();
-          this.mapVuelta = undefined;
-        }
+        this.maps.vuelta?.remove();
+        this.maps.vuelta = undefined;
       }
+    });
 
-      const current = this.paradasVuelta();
-      const hash = JSON.stringify(
-        current.map((p) => ({ lat: p.ubicacionLat, lng: p.ubicacionLng, orden: p.orden })),
-      );
-
-      if (hash !== this.lastCoordsHashVuelta) {
-        this.lastCoordsHashVuelta = hash;
-        if (this.mapVuelta) this.syncMarkersWithParadas(current, 'vuelta');
-      }
+    // Also update when toggle changes
+    effect(() => {
+      this.esVueltaIgual(); // dependency
+      this.tipoTrayecto(); // dependency
+      this.updateSuggestedName();
     });
   }
 
   ngOnInit() {
-    // Listeners Ida
-    ['origenLat', 'origenLng'].forEach((field) =>
-      this.rutaForm
-        .get(field)
-        ?.valueChanges.subscribe(() => this.onCoordinateChange('input', 'origin', 'ida')),
-    );
-    ['destinoLat', 'destinoLng'].forEach((field) =>
-      this.rutaForm
-        .get(field)
-        ?.valueChanges.subscribe(() => this.onCoordinateChange('input', 'destination', 'ida')),
-    );
+    // Monitor coordinates for map updates
+    this.rutaForm.valueChanges.subscribe(() => {
+      this.checkCoordsChange('ida');
+      if (this.showVuelta()) this.checkCoordsChange('vuelta');
+    });
 
-    // Listeners Vuelta
-    ['origenLatVuelta', 'origenLngVuelta'].forEach((field) =>
-      this.rutaForm
-        .get(field)
-        ?.valueChanges.subscribe(() => this.onCoordinateChange('input', 'origin', 'vuelta')),
-    );
-    ['destinoLatVuelta', 'destinoLngVuelta'].forEach((field) =>
-      this.rutaForm
-        .get(field)
-        ?.valueChanges.subscribe(() => this.onCoordinateChange('input', 'destination', 'vuelta')),
-    );
+    // Auto-generate name based on route details
+    const nameFields: (keyof RutaFormValue)[] = [
+      'origen',
+      'destino',
+      'origenVuelta',
+      'destinoVuelta',
+    ];
+    nameFields.forEach((field) => {
+      this.rutaForm.get(field)?.valueChanges.subscribe(() => this.updateSuggestedName());
+    });
+
+    // Sync Destino Ida -> Origen Vuelta for independent routes (Circuit logic)
+    const syncFields = ['destino', 'destinoLat', 'destinoLng'] as const;
+    syncFields.forEach((field) => {
+      this.rutaForm.get(field)?.valueChanges.subscribe((val) => {
+        if (!this.esVueltaIgual() && this.tipoTrayecto() === 'ambos') {
+          let targetField: keyof RutaFormValue = 'origenVuelta';
+          if (field === 'destinoLat') targetField = 'origenLatVuelta';
+          if (field === 'destinoLng') targetField = 'origenLngVuelta';
+
+          this.rutaForm.patchValue({ [targetField]: val }, { emitEvent: false });
+        }
+      });
+    });
+  }
+
+  private updateSuggestedName() {
+    const val = this.rutaForm.getRawValue();
+    const type = this.tipoTrayecto();
+    const esIgual = this.esVueltaIgual();
+
+    // Safety check for nulls
+    const origen = val.origen || '';
+    const destino = val.destino || '';
+
+    // If user manually edited name significantly different from pattern, maybe don't overwrite?
+    // But user asked for "logic", implying automation.
+    // We'll proceed with overwriting for consistency as requested.
+
+    if (!origen || !destino) return;
+
+    let newName = `${origen} - ${destino}`;
+
+    if (type === 'ambos') {
+      if (esIgual) {
+        // Round trip pattern: A - B - A
+        newName = `${origen} - ${destino} - ${origen}`;
+      } else {
+        const origenVuelta = val.origenVuelta || '';
+        const destinoVuelta = val.destinoVuelta || '';
+
+        if (origenVuelta && destinoVuelta) {
+          // Check for triangulation (Chain: A -> B -> C)
+          if (origenVuelta.toLowerCase().trim() === destino.toLowerCase().trim()) {
+            newName = `${origen} - ${destino} - ${destinoVuelta}`;
+          } else {
+            // Completely independent segments
+            newName = `${origen} - ${destino} / ${origenVuelta} - ${destinoVuelta}`;
+          }
+        }
+      }
+    }
+
+    // Update name field without triggering valueChanges again if possible (though we didn't subscribe to name)
+    const currentName = this.rutaForm.get('nombre')?.value;
+    if (currentName !== newName) {
+      this.rutaForm.patchValue({ nombre: newName }, { emitEvent: false });
+    }
   }
 
   ngAfterViewInit() {
@@ -278,563 +219,383 @@ export class RutaForm implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    if (this.map) {
-      this.map.remove();
-      this.map = undefined;
-    }
-    if (this.mapVuelta) {
-      this.mapVuelta.remove();
-      this.mapVuelta = undefined;
-    }
-  }
-
-  initMap(target: TrayectoTarget = 'ida') {
-    const mapId = target === 'ida' ? 'map' : 'map-vuelta';
-    const isVuelta = target === 'vuelta';
-
-    // Check if element exists (it might be hidden by ngIf)
-    if (!document.getElementById(mapId)) return;
-
-    // Check if map instance exists
-    if (isVuelta && this.mapVuelta) return;
-    if (!isVuelta && this.map) return;
-
-    const m = L.map(mapId).setView([-12.1568, -76.9812], 12);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '© OpenStreetMap contributors',
-    }).addTo(m);
-
-    if (isVuelta) this.mapVuelta = m;
-    else this.map = m;
-
-    this.updateMapMarkers(target);
-    const paradasSignal = target === 'ida' ? this.paradas : this.paradasVuelta;
-    this.syncMarkersWithParadas(paradasSignal(), target);
-
-    // Set defaults if new for IDA only
-    if (!isVuelta) {
-      const current = this.rutaForm.value;
-      if (!current.origenLat && !current.destinoLat && !this.editMode()) {
-        this.rutaForm.patchValue({
-          nombre: 'Villa el Salvador - Surco',
-          origen: 'Villa el Salvador',
-          destino: 'Surco',
-          costoBase: '0.00',
-          origenLat: -12.2125,
-          origenLng: -76.9416,
-          destinoLat: -12.1464,
-          destinoLng: -76.9912,
-        });
-
-        this.paradas.set([
-          {
-            id: -1,
-            nombre: 'Villa el Salvador',
-            orden: 0,
-            ubicacionLat: '-12.2125',
-            ubicacionLng: '-76.9416',
-          },
-          { id: -2, nombre: 'Surco', orden: 1, ubicacionLat: '-12.1464', ubicacionLng: '-76.9912' },
-        ] as any);
-      }
-    }
+    Object.values(this.maps).forEach((map) => map?.remove());
   }
 
   toggleVueltaSeparada() {
-    const nuevo = !this.esVueltaIgual();
-    this.esVueltaIgual.set(nuevo);
+    const wasEqual = this.esVueltaIgual();
+    this.esVueltaIgual.update((v) => !v);
 
-    // Si se separa y está vacía la vuelta, clonar inversa
-    if (!nuevo && this.paradasVuelta().length === 0 && this.paradas().length > 0) {
-      const val = this.rutaForm.value;
+    // If we are breaking the link (Mirror -> Independent),
+    // copy Ida fields to Vuelta but inverted
+    if (wasEqual) {
+      const v = this.rutaForm.getRawValue();
       this.rutaForm.patchValue({
-        origenVuelta: val.destino,
-        destinoVuelta: val.origen,
-        origenLatVuelta: val.destinoLat,
-        origenLngVuelta: val.destinoLng,
-        destinoLatVuelta: val.origenLat,
-        destinoLngVuelta: val.origenLng,
-        costoBaseVuelta: val.costoBase,
+        origenVuelta: v.destino,
+        destinoVuelta: v.origen,
+        origenLatVuelta: v.destinoLat,
+        origenLngVuelta: v.destinoLng,
+        destinoLatVuelta: v.origenLat,
+        destinoLngVuelta: v.origenLng,
+        distanciaVuelta: String(v.distancia || ''),
+        tiempoEstimadoVuelta: Number(v.tiempoEstimado) || 0,
       });
 
-      const inversa = [...this.paradas()].reverse().map((p, i) => ({
-        ...p,
-        id: -Date.now() - Math.floor(Math.random() * 10000) - i,
-        orden: i,
-        nombre: p.nombre, // Mantiene nombre origen->destino invertido? Si.
-      }));
-      this.paradasVuelta.set(inversa);
+      // Trigger map update for vuelta after a short delay for the map container to exist
+      setTimeout(() => this.updateMapMarkers('vuelta'), 150);
+    }
+  }
+
+  private loadRutaData(data: RutaResult) {
+    const isVueltaOnly = !data.rutaIda && !!data.rutaVuelta;
+    const isIdaOnly = !!data.rutaIda && !data.rutaVuelta;
+    const isAmbos = !!data.rutaIda && !!data.rutaVuelta;
+
+    if (isAmbos) {
+      this.tipoTrayecto.set('ambos');
+      this.esVueltaIgual.set(data.esIgual);
+    } else if (isVueltaOnly) {
+      this.tipoTrayecto.set('vuelta');
+      this.esVueltaIgual.set(true);
+    } else if (isIdaOnly) {
+      this.tipoTrayecto.set('ida');
+      this.esVueltaIgual.set(true);
+    }
+
+    // Load Main Reference (Ida or Vuelta if Ida missing)
+    const ref = data.rutaIda || data.rutaVuelta;
+    if (ref) {
+      this.rutaForm.patchValue({
+        nombre: data.nombre,
+        origen: ref.origen,
+        destino: ref.destino,
+        origenLat: ref.origenLat,
+        origenLng: ref.origenLng,
+        destinoLat: ref.destinoLat,
+        destinoLng: ref.destinoLng,
+        distancia: String(ref.distancia || ''),
+        tiempoEstimado: Number(ref.tiempoEstimado) || 0,
+      });
+    }
+
+    // Load Vuelta Specifics if independent
+    if (isAmbos && !data.esIgual && data.rutaVuelta) {
+      const v = data.rutaVuelta;
+      this.rutaForm.patchValue({
+        origenVuelta: v.origen,
+        destinoVuelta: v.destino,
+        origenLatVuelta: v.origenLat,
+        origenLngVuelta: v.origenLng,
+        destinoLatVuelta: v.destinoLat,
+        destinoLngVuelta: v.destinoLng,
+        distanciaVuelta: String(v.distancia || ''),
+        tiempoEstimadoVuelta: Number(v.tiempoEstimado) || 0,
+      });
     }
 
     setTimeout(() => {
-      if (!nuevo) this.initMap('vuelta');
-    }, 200);
+      this.updateMapMarkers('ida');
+      if (this.showVuelta()) this.updateMapMarkers('vuelta');
+    }, 500);
   }
 
-  // --- PARADAS LOGIC ---
+  private resetForm() {
+    this.rutaForm.reset();
 
-  async addDefaultParada(orden?: number, target: TrayectoTarget = 'ida') {
-    const ruta = this.ruta();
-    const paradasSignal = target === 'ida' ? this.paradas : this.paradasVuelta;
-    const currentParadas = paradasSignal();
-
-    let targetIndex = orden !== undefined ? orden : currentParadas.length;
-    if (targetIndex < 0) targetIndex = 0;
-    if (targetIndex > currentParadas.length) targetIndex = currentParadas.length;
-
-    let lat = 0,
-      lng = 0;
-    const prev = currentParadas[targetIndex - 1];
-    const next = currentParadas[targetIndex];
-
-    if (prev && next) {
-      lat = (Number(prev.ubicacionLat) + Number(next.ubicacionLat)) / 2;
-      lng = (Number(prev.ubicacionLng) + Number(next.ubicacionLng)) / 2;
-    } else {
-      // Fallback logic
-      const val = this.rutaForm.value;
-      const suffix = target === 'ida' ? '' : 'Vuelta';
-      const oLat = val[`origenLat${suffix}`];
-      const dLat = val[`destinoLat${suffix}`];
-      const oLng = val[`origenLng${suffix}`];
-      const dLng = val[`destinoLng${suffix}`];
-
-      if (oLat && dLat) {
-        lat = (Number(oLat) + Number(dLat)) / 2;
-        lng = (Number(oLng) + Number(dLng)) / 2;
-      }
-    }
-
-    const newParada: ParadaUI = {
-      id: -Date.now() - Math.floor(Math.random() * 10000),
-      nombre: `Parada X`,
-      ubicacionLat: lat.toString(),
-      ubicacionLng: lng.toString(),
-      orden: targetIndex,
-      rutaId: ruta?.id || 0,
-    };
-
-    const newParadas = [...currentParadas];
-    newParadas.splice(targetIndex, 0, newParada);
-    newParadas.forEach((p, index) => (p.orden = index));
-    this.renumberDefaultParadas(newParadas);
-    paradasSignal.set(newParadas);
-  }
-
-  renumberDefaultParadas(paradas: ParadaUI[]) {
-    if (paradas.length < 3) return;
-    let intermediateCounter = 1;
-    for (let i = 1; i < paradas.length - 1; i++) {
-      const p = paradas[i];
-      if (/^Parada (\d+|X)$/.test(p.nombre)) {
-        p.nombre = `Parada ${intermediateCounter}`;
-      }
-      intermediateCounter++;
-    }
-  }
-
-  async moveParada(index: number, direction: 'up' | 'down', target: TrayectoTarget = 'ida') {
-    const paradasSignal = target === 'ida' ? this.paradas : this.paradasVuelta;
-    const paradas = [...paradasSignal()];
-    const neighborIndex = direction === 'up' ? index - 1 : index + 1;
-    if (neighborIndex <= 0 || neighborIndex >= paradas.length - 1) return;
-
-    [paradas[index], paradas[neighborIndex]] = [paradas[neighborIndex], paradas[index]];
-    paradas.forEach((p, i) => (p.orden = i));
-    this.renumberDefaultParadas(paradas);
-    paradasSignal.set(paradas);
-  }
-
-  deleteParada(paradaId: number, target: TrayectoTarget = 'ida') {
-    this.alertService.delete(
-      'Eliminar Parada',
-      '¿Estás seguro de eliminar esta parada de la ruta?',
-      () => {
-        const paradasSignal = target === 'ida' ? this.paradas : this.paradasVuelta;
-        const paradas = paradasSignal().filter((p) => p.id !== paradaId);
-        paradas.forEach((p, i) => (p.orden = i));
-        this.renumberDefaultParadas(paradas);
-        paradasSignal.set(paradas);
-      },
-    );
-  }
-
-  updateParadaName(id: number, name: string, target: TrayectoTarget = 'ida') {
-    const paradasSignal = target === 'ida' ? this.paradas : this.paradasVuelta;
-    const paradas = [...paradasSignal()];
-    const index = paradas.findIndex((p) => p.id === id);
-    if (index !== -1) {
-      paradas[index] = { ...paradas[index], nombre: name };
-      paradasSignal.set(paradas);
-    }
-  }
-
-  updateParadaFromMap(id: number, lat: number, lng: number, target: TrayectoTarget = 'ida') {
-    const paradasSignal = target === 'ida' ? this.paradas : this.paradasVuelta;
-    const paradas = [...paradasSignal()];
-    const index = paradas.findIndex((p) => p.id === id);
-    if (index !== -1) {
-      paradas[index] = {
-        ...paradas[index],
-        ubicacionLat: lat.toString(),
-        ubicacionLng: lng.toString(),
-      };
-      paradasSignal.set(paradas);
-    }
-  }
-
-  updateParadaCoords(id: number, latStr: string, lngStr: string, target: TrayectoTarget = 'ida') {
-    const lat = parseFloat(latStr);
-    const lng = parseFloat(lngStr);
-    if (isNaN(lat) || isNaN(lng)) return;
-
-    const paradasSignal = target === 'ida' ? this.paradas : this.paradasVuelta;
-    const paradas = [...paradasSignal()];
-    const index = paradas.findIndex((p) => p.id === id);
-    if (index === -1) return;
-
-    paradas[index] = {
-      ...paradas[index],
-      ubicacionLat: lat.toString(),
-      ubicacionLng: lng.toString(),
-    };
-    paradasSignal.set(paradas);
-
-    if (index === 0) {
-      this.updateFormCoordinates(target, 'origin', lat, lng);
-    } else if (index === paradas.length - 1) {
-      this.updateFormCoordinates(target, 'destination', lat, lng);
-    }
-  }
-
-  updateFormCoordinates(
-    target: TrayectoTarget,
-    type: 'origin' | 'destination',
-    lat: number,
-    lng: number,
-  ) {
-    const suffix = target === 'ida' ? '' : 'Vuelta';
-    const prefix = type === 'origin' ? 'origen' : 'destino';
-    this.rutaForm.patchValue(
-      {
-        [`${prefix}Lat${suffix}`]: lat.toFixed(6),
-        [`${prefix}Lng${suffix}`]: lng.toFixed(6),
-      },
-      { emitEvent: false },
-    );
-  }
-
-  updateEndCoordinates(
-    type: 'origin' | 'destination',
-    lat: number,
-    lng: number,
-    target: TrayectoTarget = 'ida',
-  ) {
-    const paradasSignal = target === 'ida' ? this.paradas : this.paradasVuelta;
-    const paradas = [...paradasSignal()];
-    if (paradas.length < 2) return;
-    const index = type === 'origin' ? 0 : paradas.length - 1;
-    paradas[index] = {
-      ...paradas[index],
-      ubicacionLat: lat.toString(),
-      ubicacionLng: lng.toString(),
-    };
-    paradasSignal.set(paradas);
-  }
-
-  isExtremo(index: number, target: TrayectoTarget = 'ida'): boolean {
-    const list = target === 'ida' ? this.paradas() : this.paradasVuelta();
-    if (list.length < 2) return false;
-    return index === 0 || index === list.length - 1;
-  }
-
-  // --- MAP LOGIC ---
-
-  syncMarkersWithParadas(paradas: any[], target: TrayectoTarget = 'ida') {
-    const map = target === 'ida' ? this.map : this.mapVuelta;
-    const markersDict = target === 'ida' ? this.markers : this.markersVuelta;
-
-    if (!map) return;
-
-    // Clean existing intermediate markers
-    Object.keys(markersDict).forEach((key) => {
-      if (key.startsWith('parada-')) {
-        markersDict[key].remove();
-        delete markersDict[key];
-      }
+    // Default values (so map isn't empty)
+    this.rutaForm.patchValue({
+      origen: 'Villa El Salvador',
+      destino: 'Santiago de Surco',
+      origenLat: '-12.2111',
+      origenLng: '-76.9367',
+      destinoLat: '-12.1287',
+      destinoLng: '-76.9852',
     });
 
-    paradas.forEach((p, index) => {
-      if (index === 0 || index === paradas.length - 1) return; // Skip Ends
-      if (p.ubicacionLat && p.ubicacionLng) {
-        const id = `parada-${p.id}`;
-        const icon = L.icon({ ...iconDefault.options, className: 'marker-blue' });
-        const m = L.marker([Number(p.ubicacionLat), Number(p.ubicacionLng)], {
-          draggable: true,
-          icon,
-        })
-          .addTo(map)
-          .bindTooltip(`#${index}`, {
-            permanent: true,
-            direction: 'top',
-            className: 'bg-background px-1 font-bold text-xs rounded shadow',
-          })
-          .bindPopup(p.nombre)
-          .on('dragend', (e) => {
-            const pos = e.target.getLatLng();
-            this.updateParadaFromMap(p.id, pos.lat, pos.lng, target);
-          });
-        markersDict[id] = m;
+    this.clearMarkers('ida');
+    this.clearMarkers('vuelta');
+    this.esVueltaIgual.set(true);
+    this.tipoTrayecto.set('ambos');
+
+    // Force marker update if map exists
+    if (this.maps.ida) {
+      this.updateMapMarkers('ida');
+    }
+  }
+
+  // --- Map Logic ---
+
+  private initMap(type: MapType) {
+    const elementId = type === 'ida' ? 'map' : 'map-vuelta';
+    if (!document.getElementById(elementId)) return;
+    if (this.maps[type]) return;
+
+    const map = L.map(elementId).setView([-12.0464, -77.0428], 12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap',
+    }).addTo(map);
+
+    this.maps[type] = map;
+
+    // Initial check
+    this.updateMapMarkers(type);
+
+    map.on('click', (e: L.LeafletMouseEvent) => {
+      const { lat, lng } = e.latlng;
+      const m = this.markers[type];
+      const isOriginLocked = type === 'vuelta' && !this.esVueltaIgual();
+
+      if (!m.origin && !isOriginLocked) {
+        this.setFormCoords(type, 'origin', lat, lng);
+        this.addMarker(type, 'origin', lat, lng);
+      } else if (!m.dest) {
+        this.setFormCoords(type, 'dest', lat, lng);
+        this.addMarker(type, 'dest', lat, lng);
+      } else {
+        this.toastService.info(
+          isOriginLocked
+            ? 'El origen de vuelta está sincronizado con el destino de ida.'
+            : 'Arrastra los marcadores para ajustar.',
+        );
       }
+      // Force update of visual route
+      this.updateMapMarkers(type);
     });
-    this.updateMapMarkers(target);
   }
 
-  clearMarkers(target: TrayectoTarget) {
-    const markersDict = target === 'ida' ? this.markers : this.markersVuelta;
-    Object.values(markersDict).forEach((m) => m.remove());
-    if (target === 'ida') this.markers = {};
-    else this.markersVuelta = {};
+  private setFormCoords(mapType: MapType, point: 'origin' | 'dest', lat: number, lng: number) {
+    const suffix = mapType === 'ida' ? '' : 'Vuelta';
+    const fieldPrefix = point === 'origin' ? 'origen' : 'destino';
+    const latField = `${fieldPrefix}Lat${suffix}` as keyof RutaFormValue;
+    const lngField = `${fieldPrefix}Lng${suffix}` as keyof RutaFormValue;
+
+    this.rutaForm.patchValue({
+      [latField]: lat.toString(),
+      [lngField]: lng.toString(),
+    });
   }
 
-  onCoordinateChange(
-    source: 'input' | 'map',
-    type: 'origin' | 'destination',
-    target: TrayectoTarget = 'ida',
-  ) {
-    if (source === 'input') {
-      const val = this.rutaForm.value;
-      const suffix = target === 'ida' ? '' : 'Vuelta';
-      const latName = type === 'origin' ? `origenLat${suffix}` : `destinoLat${suffix}`;
-      const lngName = type === 'origin' ? `origenLng${suffix}` : `destinoLng${suffix}`;
+  private checkCoordsChange(type: MapType) {
+    const v = this.rutaForm.getRawValue();
+    const suffix = type === 'ida' ? '' : 'Vuelta';
 
-      const lat = val[latName];
-      const lng = val[lngName];
+    const hash = JSON.stringify({
+      ol: v[`origenLat${suffix}` as keyof RutaFormValue],
+      olg: v[`origenLng${suffix}` as keyof RutaFormValue],
+      dl: v[`destinoLat${suffix}` as keyof RutaFormValue],
+      dlg: v[`destinoLng${suffix}` as keyof RutaFormValue],
+    });
 
-      if (lat && lng) {
-        this.updateEndCoordinates(type, lat, lng, target);
-      }
-      this.updateMapMarkers(target);
+    if (hash !== this.lastCoordsHash[type]) {
+      this.lastCoordsHash[type] = hash;
+      if (this.maps[type]) this.updateMapMarkers(type);
     }
   }
 
-  updateMapMarkers(target: TrayectoTarget = 'ida') {
-    const map = target === 'ida' ? this.map : this.mapVuelta;
-    if (!map) return;
-
-    const markersDict = target === 'ida' ? this.markers : this.markersVuelta;
-    const val = this.rutaForm.value;
-    const suffix = target === 'ida' ? '' : 'Vuelta';
-
-    const origenLat = parseFloat(val[`origenLat${suffix}`]);
-    const origenLng = parseFloat(val[`origenLng${suffix}`]);
-    const destinoLat = parseFloat(val[`destinoLat${suffix}`]);
-    const destinoLng = parseFloat(val[`destinoLng${suffix}`]);
-
-    // Origen
-    if (!isNaN(origenLat) && !isNaN(origenLng)) {
-      if (!markersDict['origen']) {
-        const icon = L.icon({ ...iconDefault.options, className: 'marker-green' });
-        markersDict['origen'] = L.marker([origenLat, origenLng], {
-          draggable: true,
-          icon,
-          zIndexOffset: 1000,
-        })
-          .addTo(map)
-          .bindPopup('Origen')
-          .on('dragend', (e) => {
-            const pos = e.target.getLatLng();
-            this.updateFormCoordinates(target, 'origin', pos.lat, pos.lng);
-            this.updateEndCoordinates('origin', pos.lat, pos.lng, target);
-          });
-      } else {
-        markersDict['origen'].setLatLng([origenLat, origenLng]);
-      }
-    }
-
-    // Destino
-    if (!isNaN(destinoLat) && !isNaN(destinoLng)) {
-      if (!markersDict['destino']) {
-        const icon = L.icon({ ...iconDefault.options, className: 'marker-red' });
-        markersDict['destino'] = L.marker([destinoLat, destinoLng], {
-          draggable: true,
-          icon,
-          zIndexOffset: 1000,
-        })
-          .addTo(map)
-          .bindPopup('Destino')
-          .on('dragend', (e) => {
-            const pos = e.target.getLatLng();
-            this.updateFormCoordinates(target, 'destination', pos.lat, pos.lng);
-            this.updateEndCoordinates('destination', pos.lat, pos.lng, target);
-          });
-      } else {
-        markersDict['destino'].setLatLng([destinoLat, destinoLng]);
-      }
-    }
-
-    // Route Line
-    if (markersDict['origen'] && markersDict['destino']) {
-      let points: [number, number][] = [];
-      const start = markersDict['origen'].getLatLng();
-      const end = markersDict['destino'].getLatLng();
-
-      points.push([start.lat, start.lng]);
-
-      const intermediates = target === 'ida' ? this.paradas() : this.paradasVuelta();
-      if (intermediates.length > 2) {
-        const mids = intermediates.slice(1, -1);
-        mids.forEach((p) => {
-          if (p.ubicacionLat) points.push([Number(p.ubicacionLat), Number(p.ubicacionLng)]);
-        });
-      }
-
-      points.push([end.lat, end.lng]);
-      this.calculateRoute(points, target);
-    }
-  }
-
-  async calculateRoute(points: [number, number][], target: TrayectoTarget) {
+  private async getRoadRoute(
+    p1: L.LatLng,
+    p2: L.LatLng,
+  ): Promise<{ points: L.LatLng[]; distance: number }> {
     try {
-      const coordsString = points.map((p) => `${p[1]},${p[0]}`).join(';');
-      const url = `https://router.project-osrm.org/route/v1/driving/${coordsString}?overview=full&geometries=geojson&steps=true`;
-
-      const response = await fetch(url);
-      const data = await response.json();
-
+      const resp = await fetch(
+        `https://router.project-osrm.org/route/v1/driving/${p1.lng},${p1.lat};${p2.lng},${p2.lat}?overview=full&geometries=geojson`,
+      );
+      const data = await resp.json();
       if (data.routes && data.routes.length > 0) {
-        const route = data.routes[0];
-        const dist = (route.distance / 1000).toFixed(2);
-
-        if (target === 'ida') {
-          if (!this.map) return;
-          this.rutaForm.patchValue({ distancia: dist }, { emitEvent: false });
-          if (this.routeLayer) this.routeLayer.remove();
-          this.routeLayer = L.geoJSON(route.geometry, {
-            style: { color: '#3b82f6', weight: 5, opacity: 0.8 },
-          }).addTo(this.map);
-        } else {
-          if (!this.mapVuelta) return;
-          this.rutaForm.patchValue({ distanciaVuelta: dist }, { emitEvent: false });
-          if (this.routeLayerVuelta) this.routeLayerVuelta.remove();
-          this.routeLayerVuelta = L.geoJSON(route.geometry, {
-            style: { color: '#ef4444', weight: 5, opacity: 0.8 },
-          }).addTo(this.mapVuelta);
-        }
-
-        if (route.legs && route.legs.length > 0) {
-          const paradasSignal = target === 'ida' ? this.paradas : this.paradasVuelta;
-          const paradas = [...paradasSignal()];
-          route.legs.forEach((leg: any, index: number) => {
-            const paradaIndex = index + 1;
-            if (paradas[paradaIndex]) {
-              paradas[paradaIndex] = {
-                ...paradas[paradaIndex],
-                distanciaPreviaParada: (leg.distance / 1000).toFixed(2),
-              };
-            }
-          });
-          paradasSignal.set(paradas);
-        }
+        const coords = data.routes[0].geometry.coordinates as [number, number][];
+        const distance = data.routes[0].distance / 1000; // units are meters, convert to km
+        return {
+          points: coords.map((c: [number, number]) => L.latLng(c[1], c[0])),
+          distance: parseFloat(distance.toFixed(2)),
+        };
       }
     } catch (e) {
-      console.error(e);
+      console.error('Error fetching route:', e);
+    }
+    return { points: [p1, p2], distance: 0 }; // Fallback to straight line
+  }
+
+  private async updateMapMarkers(type: MapType) {
+    const map = this.maps[type];
+    if (!map) return;
+
+    const v = this.rutaForm.getRawValue();
+    const suffix = type === 'ida' ? '' : 'Vuelta';
+
+    const oLatField = `origenLat${suffix}` as keyof RutaFormValue;
+    const oLngField = `origenLng${suffix}` as keyof RutaFormValue;
+    const dLatField = `destinoLat${suffix}` as keyof RutaFormValue;
+    const dLngField = `destinoLng${suffix}` as keyof RutaFormValue;
+
+    const oLat = parseFloat(String(v[oLatField] || ''));
+    const oLng = parseFloat(String(v[oLngField] || ''));
+    const dLat = parseFloat(String(v[dLatField] || ''));
+    const dLng = parseFloat(String(v[dLngField] || ''));
+
+    this.clearMarkers(type);
+
+    let originPt: L.LatLng | null = null;
+    let destPt: L.LatLng | null = null;
+
+    if (!isNaN(oLat) && !isNaN(oLng)) {
+      originPt = L.latLng(oLat, oLng);
+      this.addMarker(type, 'origin', oLat, oLng);
+    }
+    if (!isNaN(dLat) && !isNaN(dLng)) {
+      destPt = L.latLng(dLat, dLng);
+      this.addMarker(type, 'dest', dLat, dLng);
+    }
+
+    if (originPt && destPt) {
+      const routeData = await this.getRoadRoute(originPt, destPt);
+
+      if (this.routeLayers[type]) this.routeLayers[type]!.remove();
+
+      // Sky blue color logic
+      this.routeLayers[type] = L.polyline(routeData.points, {
+        color: '#0ea5e9',
+        weight: 6,
+        opacity: 0.8,
+        lineCap: 'round',
+        lineJoin: 'round',
+      }).addTo(map);
+
+      // Auto update distance in form if 0 or changed
+      const distField = `distancia${suffix}` as keyof RutaFormValue;
+      if (routeData.distance > 0) {
+        this.rutaForm
+          .get(distField)
+          ?.patchValue(routeData.distance.toString(), { emitEvent: false });
+      }
+
+      const bounds = L.latLngBounds(routeData.points);
+      map.fitBounds(bounds, { padding: [50, 50] });
+    } else if (originPt) {
+      map.setView(originPt, 13);
+    } else if (destPt) {
+      map.setView(destPt, 13);
     }
   }
 
-  submitForm() {
+  private addMarker(type: MapType, point: 'origin' | 'dest', lat: number, lng: number) {
+    const map = this.maps[type];
+    if (!map) return;
+
+    // Prevent duplicates
+    if (this.markers[type][point]) return;
+
+    // Lock Vuelta Origin to sync with Ida Destination
+    const isDraggable = !(type === 'vuelta' && point === 'origin');
+
+    // Custom Icons using FontAwesome
+    const markerIcon = L.divIcon({
+      className: 'custom-div-icon',
+      html: `<div class="marker-pin" style="background: ${
+        point === 'origin' ? '#22c55e' : '#ef4444'
+      }; opacity: ${isDraggable ? '1' : '0.7'}"></div><i class="fas ${
+        point === 'origin' ? 'fa-play' : 'fa-flag-checkered'
+      }" style="color: white; font-size: 10px; position: absolute; top: 7px; left: 50%; transform: translateX(-50%); z-index: 10;"></i>`,
+      iconSize: [30, 42],
+      iconAnchor: [15, 42],
+    });
+
+    const marker = L.marker([lat, lng], {
+      draggable: isDraggable,
+      icon: markerIcon,
+      title: point === 'origin' ? (isDraggable ? 'Origen' : 'Origen (Sincronizado)') : 'Destino',
+    }).addTo(map);
+
+    marker.on('dragend', () => {
+      const { lat, lng } = marker.getLatLng();
+      this.setFormCoords(type, point, lat, lng);
+    });
+
+    this.markers[type][point] = marker;
+  }
+
+  private clearMarkers(type: MapType) {
+    const m = this.markers[type];
+    if (m.origin) m.origin.remove();
+    if (m.dest) m.dest.remove();
+    if (this.routeLayers[type]) this.routeLayers[type]!.remove();
+
+    this.markers[type] = {};
+    this.routeLayers[type] = undefined;
+  }
+
+  async submitForm() {
     if (this.rutaForm.invalid) {
       this.rutaForm.markAllAsTouched();
+      this.toastService.warning('Complete todos los campos requeridos.');
       return;
     }
 
-    const val = this.rutaForm.value;
-    const tipo = this.tipoTrayecto();
+    const val = this.rutaForm.getRawValue();
+    const type = this.tipoTrayecto();
+    const esIgual = this.esVueltaIgual();
 
-    const mapParadas = (pList: ParadaUI[]) =>
-      pList.map((p, index) => ({
-        nombre: p.nombre,
-        orden: index,
-        ubicacionLat: p.ubicacionLat?.toString(),
-        ubicacionLng: p.ubicacionLng?.toString(),
-        distanciaPreviaParada: p.distanciaPreviaParada?.toString(),
-      }));
-
-    // Sincronizar nombres de paradas origen/destino con inputs
-    const currentParadas = [...this.paradas()];
-    if (currentParadas.length >= 2) {
-      // Origen es index 0
-      currentParadas[0] = { ...currentParadas[0], nombre: val.origen };
-      // Destino es último
-      currentParadas[currentParadas.length - 1] = {
-        ...currentParadas[currentParadas.length - 1],
-        nombre: val.destino,
+    // Base Ida Helper
+    const buildDetalle = (isVueltaField = false): DetalleInput => {
+      const s = isVueltaField ? 'Vuelta' : '';
+      return {
+        origen: String(val[('origen' + s) as keyof RutaFormValue] || ''),
+        destino: String(val[('destino' + s) as keyof RutaFormValue] || ''),
+        origenLat: String(val[('origenLat' + s) as keyof RutaFormValue] || ''),
+        origenLng: String(val[('origenLng' + s) as keyof RutaFormValue] || ''),
+        destinoLat: String(val[('destinoLat' + s) as keyof RutaFormValue] || ''),
+        destinoLng: String(val[('destinoLng' + s) as keyof RutaFormValue] || ''),
+        distancia: String(val[('distancia' + s) as keyof RutaFormValue] || ''),
+        tiempoEstimado: Number(val[('tiempoEstimado' + s) as keyof RutaFormValue]) || 0,
       };
-      this.paradas.set(currentParadas);
-    }
-
-    // Detalle Base IDA
-    const detalleIda = {
-      origen: val.origen,
-      destino: val.destino,
-      origenLat: val.origenLat?.toString(),
-      origenLng: val.origenLng?.toString(),
-      destinoLat: val.destinoLat?.toString(),
-      destinoLng: val.destinoLng?.toString(),
-      distancia: val.distancia?.toString(),
-      costoBase: val.costoBase?.toString(),
-      paradas: mapParadas(this.paradas()),
     };
 
-    const payload: any = {
-      nombre: val.nombre,
-      esIgual: tipo === 'ambos' && this.esVueltaIgual(),
+    const idaDetalle = buildDetalle(false);
+    const payload: Partial<ApiBody<'rutas', 'createCircuito'>> = {
+      nombre: val.nombre!,
+      esIgual: esIgual,
     };
 
-    if (tipo === 'ambos' || tipo === 'ida') {
-      payload.ida = detalleIda;
+    if (type === 'ida' || type === 'ambos') {
+      payload.ida = idaDetalle;
     }
 
-    if (tipo === 'ambos' || tipo === 'vuelta') {
-      if (tipo !== 'vuelta' && this.esVueltaIgual()) {
-        // Invertir automáticamente para 'ambos' espejo
+    if (type === 'vuelta' || type === 'ambos') {
+      if (type === 'vuelta') {
+        // Solo Vuelta means we used the main fields for the Return route
+        payload.vuelta = idaDetalle;
+      } else if (esIgual) {
+        // Ambos + Igual: Switch origin/dest for Vuelta
         payload.vuelta = {
-          origen: val.destino,
-          destino: val.origen,
-          origenLat: val.destinoLat?.toString(),
-          origenLng: val.destinoLng?.toString(),
-          destinoLat: val.origenLat?.toString(),
-          destinoLng: val.origenLng?.toString(),
-          distancia: val.distancia?.toString(),
-          costoBase: val.costoBase?.toString(),
-          paradas: mapParadas([...this.paradas()].reverse()),
+          origen: idaDetalle.destino,
+          destino: idaDetalle.origen,
+          origenLat: idaDetalle.destinoLat,
+          origenLng: idaDetalle.destinoLng,
+          destinoLat: idaDetalle.origenLat,
+          destinoLng: idaDetalle.origenLng,
+          distancia: idaDetalle.distancia,
+          tiempoEstimado: idaDetalle.tiempoEstimado,
         };
       } else {
-        // Vuelta independiente O solo vuelta
-        // Si solo vuelta, usamos los datos del formulario principal como vuelta?
-        // No, el form principal se usó para Ida. Si es solo vuelta, quizás debió ser detalleIda asignado a vuelta.
-        // Pero mantengamos simple: Si es vuelta independiente, usamos los datos de vuelta.
-        if (tipo === 'vuelta') {
-          // Caso raro UI: Solo vuelta. Usamos detalleIda como vuelta
-          payload.vuelta = detalleIda;
-        } else {
-          // Ambos independiente
-          payload.vuelta = {
-            origen: val.origenVuelta,
-            destino: val.destinoVuelta,
-            origenLat: val.origenLatVuelta?.toString(),
-            origenLng: val.origenLngVuelta?.toString(),
-            destinoLat: val.destinoLatVuelta?.toString(),
-            destinoLng: val.destinoLngVuelta?.toString(),
-            distancia: val.distanciaVuelta?.toString(),
-            costoBase: val.costoBaseVuelta?.toString(),
-            paradas: mapParadas(this.paradasVuelta()),
-          };
-        }
+        // Ambos + Independiente
+        payload.vuelta = buildDetalle(true);
       }
     }
 
-    this.onSubmitForm.emit(payload);
+    try {
+      if (this.editMode() && this.ruta()) {
+        await this.rutaService.updateCircuito(
+          this.ruta()!.id,
+          payload as ApiBody<'rutas', 'updateCircuito'>,
+        );
+        this.toastService.success('Ruta actualizada exitosamente');
+      } else {
+        await this.rutaService.createCircuito(payload as ApiBody<'rutas', 'createCircuito'>);
+        this.toastService.success('Ruta creada exitosamente');
+      }
+      this.onSubmitForm.emit();
+    } catch (e) {
+      console.error(e);
+      this.toastService.error('Error al guardar la ruta');
+    }
   }
 }

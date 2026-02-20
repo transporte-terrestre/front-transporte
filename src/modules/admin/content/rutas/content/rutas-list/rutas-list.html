@@ -144,7 +144,7 @@
               <th
                 class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
               >
-                Costo
+                Tiempo
               </th>
               <th
                 class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase tracking-wider"
@@ -217,9 +217,9 @@
                   >
                 </td>
                 <td class="px-4 py-3 whitespace-nowrap">
-                  <span class="text-xs font-inter-semibold text-success"
-                    >S/ {{ row.ruta?.costoBase || '0.00' }}</span
-                  >
+                  <span class="text-xs font-inter-semibold text-success">
+                    {{ row.ruta?.tiempoEstimado || 0 }} min
+                  </span>
                 </td>
 
                 <!-- Acciones agrupadas (Circuito) -->
@@ -274,6 +274,6 @@
     (onSubmit)="handleModalSubmit()"
     (onClose)="closeModal()"
   >
-    <app-ruta-form [editMode]="false" (onSubmitForm)="handleFormSubmit($event)" />
+    <app-ruta-form [editMode]="false" (onSubmitForm)="handleFormSubmit()" />
   </app-modal-form>
 }

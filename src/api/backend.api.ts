@@ -910,7 +910,7 @@ export interface ConductorCreateDto {
    * Contraseña del conductor (mínimo 6 caracteres)
    * @example "password123"
    */
-  contrasenia?: string;
+  contrasenia: string;
   /**
    * Celular del conductor
    * @example "999888777"
@@ -3292,7 +3292,7 @@ export interface DocumentoItemDto {
   observacion?: string;
   /**
    * Fecha de Vencimiento Inicial/Por defecto
-   * @example "2026-02-16T13:41:29.541Z"
+   * @example "2026-02-20T06:16:43.192Z"
    */
   fechaVencimiento?: string;
 }
@@ -3475,17 +3475,17 @@ export interface BotiquinItemDto {
   habilitado: boolean;
   /**
    * Fecha de Vencimiento actual
-   * @example "2026-02-16T13:41:29.548Z"
+   * @example "2026-02-20T06:16:43.195Z"
    */
   fechaVencimiento?: string;
   /**
    * Fecha de Salida
-   * @example "2026-02-16T13:41:29.548Z"
+   * @example "2026-02-20T06:16:43.195Z"
    */
   fechaSalida?: string;
   /**
    * Fecha de Reposición
-   * @example "2026-02-16T13:41:29.548Z"
+   * @example "2026-02-20T06:16:43.195Z"
    */
   fechaReposicion?: string;
 }
@@ -4742,10 +4742,10 @@ export interface RutaResultDto {
    */
   distancia: string;
   /**
-   * Base cost
-   * @example "50.0"
+   * Tiempo estimado de viaje en minutos
+   * @example 210
    */
-  costoBase: string;
+  tiempoEstimado: number;
   /**
    * Creation date
    * @format date-time
@@ -4765,54 +4765,6 @@ export interface PaginatedRutaResultDto {
   data: RutaResultDto[];
   /** Metadatos de la paginación */
   meta: PaginationMetaDto;
-}
-
-export interface RutaParadaResultDto {
-  /**
-   * ID de la parada
-   * @example 1
-   */
-  id: number;
-  /**
-   * ID de la ruta a la que pertenece
-   * @example 1
-   */
-  rutaId: number;
-  /**
-   * Orden de la parada en la ruta
-   * @example 1
-   */
-  orden: number;
-  /**
-   * Nombre de la parada
-   * @example "PEIP - Educans"
-   */
-  nombre: string;
-  /**
-   * Latitud de la ubicación
-   * @example "-12.0464"
-   */
-  ubicacionLat?: string;
-  /**
-   * Longitud de la ubicación
-   * @example "-77.0428"
-   */
-  ubicacionLng?: string;
-  /**
-   * Distancia desde la parada anterior
-   * @example "10.5"
-   */
-  distanciaPreviaParada?: string;
-  /**
-   * Fecha de creación
-   * @format date-time
-   */
-  creadoEn: string;
-  /**
-   * Fecha de última actualización
-   * @format date-time
-   */
-  actualizadoEn: string;
 }
 
 export interface RutaCircuitoResultDto {
@@ -4856,40 +4808,6 @@ export interface PaginatedRutaCircuitoResultDto {
   meta: PaginationMetaDto;
 }
 
-export interface RutaParadaCreateDto {
-  /**
-   * ID de la parada (opcional para updates)
-   * @example 1
-   */
-  id?: number;
-  /**
-   * Nombre de la parada
-   * @example "PEIP - Educans"
-   */
-  nombre: string;
-  /**
-   * Latitud de la ubicación
-   * @example "-12.0464"
-   */
-  ubicacionLat?: string;
-  /**
-   * Longitud de la ubicación
-   * @example "-77.0428"
-   */
-  ubicacionLng?: string;
-  /**
-   * Orden de la parada
-   * @default 0
-   * @example 1
-   */
-  orden?: number;
-  /**
-   * Distancia desde la parada anterior
-   * @example "10.5"
-   */
-  distanciaPreviaParada?: string;
-}
-
 export interface RutaCircuitoDetalleDto {
   /**
    * Ciudad de origen
@@ -4927,12 +4845,10 @@ export interface RutaCircuitoDetalleDto {
    */
   distancia: string;
   /**
-   * Costo base
-   * @example "50.00"
+   * Tiempo estimado de viaje en minutos
+   * @example 210
    */
-  costoBase: string;
-  /** Lista de paradas */
-  paradas: RutaParadaCreateDto[];
+  tiempoEstimado: number;
 }
 
 export interface RutaCircuitoCreateDto {
@@ -4941,6 +4857,11 @@ export interface RutaCircuitoCreateDto {
    * @example "Lima - Ica"
    */
   nombre: string;
+  /**
+   * Indica si la ruta de vuelta es espejo de la ida
+   * @example false
+   */
+  esIgual: boolean;
   /** Detalle de la ruta de ida */
   ida?: RutaCircuitoDetalleDto;
   /** Detalle de la ruta de vuelta (opcional) */
@@ -4953,6 +4874,11 @@ export interface RutaCircuitoUpdateDto {
    * @example "Lima - Ica"
    */
   nombre?: string;
+  /**
+   * Indica si la ruta de vuelta es espejo de la ida
+   * @example false
+   */
+  esIgual?: boolean;
   /** Detalle de la ruta de ida */
   ida?: RutaCircuitoDetalleDto;
   /** Detalle de la ruta de vuelta (opcional) */
@@ -5411,9 +5337,86 @@ export interface ViajeListDto {
   ruta?: RutaResultDto;
 }
 
+export interface ViajeCircuitoResultDto {
+  /**
+   * ID del circuito de viaje
+   * @example 1
+   */
+  id: number;
+  /** Viaje de ida */
+  ida?: ViajeListDto;
+  /** Viaje de vuelta */
+  vuelta?: ViajeListDto;
+  /**
+   * Fecha de creación
+   * @format date-time
+   * @example "2025-01-01T10:00:00Z"
+   */
+  creadoEn: string;
+}
+
 export interface PaginatedViajeResultDto {
-  /** Lista de viajes en la página actual */
-  data: ViajeListDto[];
+  /** Lista de circuitos de viajes en la página actual */
+  data: ViajeCircuitoResultDto[];
+  /** Metadatos de la paginación */
+  meta: PaginationMetaDto;
+}
+
+export interface ViajeLightResultDto {
+  /**
+   * ID del viaje
+   * @example 1
+   */
+  id: number;
+  /**
+   * Nombre de la ruta
+   * @example "Lima - Ica"
+   */
+  rutaNombre: string;
+  /**
+   * Estado del viaje
+   * @example "programado"
+   */
+  estado: "programado" | "en_progreso" | "completado" | "cancelado";
+  /**
+   * Fecha de salida
+   * @format date-time
+   * @example "2025-01-01T10:00:00Z"
+   */
+  fecha: string;
+  /**
+   * Checklist de salida validado
+   * @example true
+   */
+  checkInSalida: boolean;
+  /**
+   * Checklist de llegada validado
+   * @example false
+   */
+  checkInLlegada: boolean;
+}
+
+export interface ViajeCircuitoLightResultDto {
+  /**
+   * ID del circuito de viaje
+   * @example 1
+   */
+  id: number;
+  /** Viaje de ida (ligero) */
+  ida?: ViajeLightResultDto;
+  /** Viaje de vuelta (ligero) */
+  vuelta?: ViajeLightResultDto;
+  /**
+   * Fecha de creación
+   * @format date-time
+   * @example "2025-01-01T10:00:00Z"
+   */
+  creadoEn: string;
+}
+
+export interface PaginatedViajeLightResultDto {
+  /** Lista de circuitos de viajes (formato ligero) */
+  data: ViajeCircuitoLightResultDto[];
   /** Metadatos de la paginación */
   meta: PaginationMetaDto;
 }
@@ -5956,7 +5959,7 @@ export interface ViajeResultDto {
   checkInLlegada: boolean;
 }
 
-export interface ViajeCreateDto {
+export interface ViajeDetalleCreateDto {
   /**
    * ID de la ruta programada
    * @example 1
@@ -6045,6 +6048,13 @@ export interface ViajeCreateDto {
    * @example 1
    */
   vehiculoId?: number;
+}
+
+export interface ViajeCreateDto {
+  /** Viaje de ida */
+  ida?: ViajeDetalleCreateDto;
+  /** Viaje de vuelta */
+  vuelta?: ViajeDetalleCreateDto;
 }
 
 export interface ViajeUpdateDto {
@@ -6375,55 +6385,36 @@ export interface ViajeServicioResultDto {
    */
   orden: number;
   /**
-   * ID de la parada de partida
-   * @example 1
+   * Tipo de servicio (trayecto, descanso)
+   * @example "trayecto"
    */
-  paradaPartidaId?: number;
+  tipo: string;
   /**
-   * Nombre de la parada de partida
-   * @example "Cochera Chorrillos"
+   * Longitud mapeada
+   * @example -77.0282
    */
-  paradaPartidaNombre?: string;
+  longitud?: number;
   /**
-   * ID de la parada de llegada
-   * @example 2
+   * Latitud mapeada
+   * @example -12.0432
    */
-  paradaLlegadaId?: number;
+  latitud?: number;
   /**
-   * Nombre de la parada de llegada
-   * @example "PEIP - Educans"
+   * Nombre descriptivo
+   * @example "Almacen Central"
    */
-  paradaLlegadaNombre?: string;
+  nombreLugar?: string;
   /**
-   * Hora de salida
-   * @example "06:45:00"
+   * Hora referencial
+   * @format date-time
+   * @example "2024-03-24T10:30:00Z"
    */
-  horaSalida: string;
+  horaFinal?: string;
   /**
-   * Hora de término
-   * @example "07:45:00"
-   */
-  horaTermino?: string;
-  /**
-   * Kilometraje inicial
-   * @example 94880
-   */
-  kmInicial: number;
-  /**
-   * Kilometraje final
+   * Kilometraje reportado
    * @example 94891
    */
-  kmFinal?: number;
-  /**
-   * Kilometraje del servicio (kmFinal - kmInicial)
-   * @example 11
-   */
-  kmServicio?: number;
-  /**
-   * Tiempo del servicio en minutos
-   * @example 60
-   */
-  tiempoServicioMinutos?: number;
+  kilometrajeFinal?: number;
   /**
    * Número de pasajeros
    * @example 12
@@ -6431,7 +6422,7 @@ export interface ViajeServicioResultDto {
   numeroPasajeros?: number;
   /**
    * Observaciones
-   * @example "Servicio sin novedad"
+   * @example "Parada extendida"
    */
   observaciones?: string;
   /**
@@ -6446,102 +6437,45 @@ export interface ViajeServicioResultDto {
   actualizadoEn: string;
 }
 
-export interface ViajeServicioNextStepResultDto {
-  /**
-   * Siguiente número de orden
-   * @example 1
-   */
-  orden: number;
-  /**
-   * ID de la parada de partida sugerida
-   * @example 1
-   */
-  paradaPartidaId: number;
-  /**
-   * ID de la parada de llegada sugerida
-   * @example 2
-   */
-  paradaLlegadaId: number;
-  /**
-   * Nombre de la parada de partida sugerida
-   * @example "Cochera"
-   */
-  paradaPartidaNombre: string;
-  /**
-   * Nombre de la parada de llegada sugerida
-   * @example "Almacén"
-   */
-  paradaLlegadaNombre: string;
-  /**
-   * Hora de salida sugerida
-   * @example "08:30"
-   */
-  horaSalida: string;
-  /**
-   * Kilometraje inicial sugerido
-   * @example 10500
-   */
-  kmInicial: number;
-  /**
-   * Número de pasajeros (siempre null por defecto)
-   * @example null
-   */
-  numeroPasajeros: number;
-  /**
-   * Progreso de paradas
-   * @example "1/4"
-   */
-  progreso: string;
-  /**
-   * Indica si es el primer tramo
-   * @example true
-   */
-  isStart: boolean;
-  /**
-   * Indica si es el último tramo
-   * @example false
-   */
-  isFinal: boolean;
-}
-
 export interface ViajeServicioCreateDto {
   /**
-   * ID de la parada de partida
-   * @example 1
+   * Tipo de servicio (trayecto o descanso)
+   * @example "trayecto"
    */
-  paradaPartidaId: number;
+  tipo?: string;
   /**
-   * ID de la parada de llegada
-   * @example 2
+   * Longitud de la ubicación
+   * @example -77.0282
    */
-  paradaLlegadaId: number;
+  longitud?: number;
   /**
-   * Hora de salida (formato HH:mm)
-   * @example "06:45"
+   * Latitud de la ubicación
+   * @example -12.0432
    */
-  horaSalida: string;
+  latitud?: number;
   /**
-   * Hora de término (formato HH:mm)
-   * @example "07:45"
+   * Nombre del lugar o descriptivo
+   * @example "Parada 1"
    */
-  horaTermino?: string;
+  nombreLugar?: string;
   /**
-   * Kilometraje inicial del odómetro
-   * @example 94880
+   * Hora final del trayecto o descanso
+   * @format date-time
+   * @example "2024-03-24T10:30:00Z"
    */
-  kmInicial: number;
+  horaFinal?: string;
   /**
    * Kilometraje final del odómetro
    * @example 94891
    */
-  kmFinal?: number;
+  kilometrajeFinal?: number;
   /**
    * Número de pasajeros transportados
    * @example 12
    */
   numeroPasajeros?: number;
   /**
-   * Observaciones del servicio
+   * Observaciones del servicio o descanso
    * @example "Servicio sin novedad"
    */
   observaciones?: string;
@@ -6549,42 +6483,43 @@ export interface ViajeServicioCreateDto {
 
 export interface ViajeServicioUpdateDto {
   /**
-   * ID de la parada de partida
-   * @example 1
+   * Tipo de servicio (trayecto o descanso)
+   * @example "trayecto"
    */
-  paradaPartidaId?: number;
+  tipo?: string;
   /**
-   * ID de la parada de llegada
-   * @example 2
+   * Longitud de la ubicación
+   * @example -77.0282
    */
-  paradaLlegadaId?: number;
+  longitud?: number;
   /**
-   * Hora de salida (formato HH:mm)
-   * @example "06:45"
+   * Latitud de la ubicación
+   * @example -12.0432
    */
-  horaSalida?: string;
+  latitud?: number;
   /**
-   * Hora de término (formato HH:mm)
-   * @example "07:45"
+   * Nombre del lugar o descriptivo
+   * @example "Parada 1"
    */
-  horaTermino?: string;
+  nombreLugar?: string;
   /**
-   * Kilometraje inicial del odómetro
-   * @example 94880
+   * Hora final del trayecto o descanso
+   * @format date-time
+   * @example "2024-03-24T10:30:00Z"
    */
-  kmInicial?: number;
+  horaFinal?: string;
   /**
    * Kilometraje final del odómetro
    * @example 94891
    */
-  kmFinal?: number;
+  kilometrajeFinal?: number;
   /**
    * Número de pasajeros transportados
    * @example 12
    */
   numeroPasajeros?: number;
   /**
-   * Observaciones del servicio
+   * Observaciones del servicio o descanso
    * @example "Servicio sin novedad"
    */
   observaciones?: string;
@@ -9413,15 +9348,6 @@ export interface RutasFindOneParams {
 
 export type RutasFindOneData = RutaResultDto;
 
-export interface RutasFindParadasParams {
-  /** Buscar por nombre de parada */
-  search?: string;
-  /** ID de la ruta */
-  rutaId: number;
-}
-
-export type RutasFindParadasData = RutaParadaResultDto[];
-
 export interface RutasFindAllCircuitosParams {
   /**
    * Número de página (comienza en 1)
@@ -9521,6 +9447,59 @@ export interface ViajesFindAllParams {
 
 export type ViajesFindAllData = PaginatedViajeResultDto;
 
+export interface ViajesFindAllLightParams {
+  /**
+   * Número de página (comienza en 1)
+   * @default 1
+   * @example 1
+   */
+  page?: number;
+  /**
+   * Cantidad de elementos por página
+   * @default 10
+   * @example 10
+   */
+  limit?: number;
+  /** Búsqueda por ruta ocasional */
+  search?: string;
+  /** Fecha de inicio para filtrar por rango (formato: YYYY-MM-DD) */
+  fechaInicio?: string;
+  /** Fecha de fin para filtrar por rango (formato: YYYY-MM-DD) */
+  fechaFin?: string;
+  /** Filtrar por modalidad de servicio */
+  modalidadServicio?:
+    | "regular"
+    | "expreso"
+    | "ejecutivo"
+    | "especial"
+    | "turismo"
+    | "corporativo";
+  /** Filtrar por tipo de ruta (ocasional, fija) */
+  tipoRuta?: "ocasional" | "fija";
+  /** Filtrar por estado del viaje */
+  estado?: "programado" | "en_progreso" | "completado" | "cancelado";
+  /** Filtrar por IDs de conductores (separados por coma) */
+  conductoresId?: string[];
+  /**
+   * Filtrar por ID de cliente
+   * @example 1
+   */
+  clienteId?: number;
+  /**
+   * Filtrar por ID de ruta
+   * @example 1
+   */
+  rutaId?: number;
+  /** Filtrar por IDs de vehículos (separados por coma) */
+  vehiculosId?: string[];
+  /** Filtrar por sentido del viaje */
+  sentido?: "ida" | "vuelta";
+  /** Filtrar por turno del viaje */
+  turno?: "dia" | "noche";
+}
+
+export type ViajesFindAllLightData = PaginatedViajeLightResultDto;
+
 export interface ViajesFindOneParams {
   /** ID del viaje */
   id: number;
@@ -9528,7 +9507,7 @@ export interface ViajesFindOneParams {
 
 export type ViajesFindOneData = ViajeResultDto;
 
-export type ViajesCreateData = ViajeResultDto;
+export type ViajesCreateData = any;
 
 export interface ViajesUpdateParams {
   /** ID del viaje */
@@ -9653,13 +9632,6 @@ export interface ViajesFindServiciosParams {
 
 export type ViajesFindServiciosData = ViajeServicioResultDto[];
 
-export interface ViajesGetNextStepParams {
-  /** ID del viaje */
-  viajeId: number;
-}
-
-export type ViajesGetNextStepData = ViajeServicioNextStepResultDto;
-
 export interface ViajesCreateServicioParams {
   /** ID del viaje */
   viajeId: number;
@@ -9781,6 +9753,38 @@ export interface NotificacionesMarkAsReadParams {
 }
 
 export type NotificacionesMarkAsReadData = NotificacionResultDto;
+
+export interface NotificacionesCreateForConductorParams {
+  conductorId: number;
+}
+
+export type NotificacionesCreateForConductorData = NotificacionResultDto;
+
+export interface NotificacionesFindAllByConductorParams {
+  /**
+   * Número de página (comienza en 1)
+   * @default 1
+   * @example 1
+   */
+  page?: number;
+  /**
+   * Cantidad de elementos por página
+   * @default 10
+   * @example 10
+   */
+  limit?: number;
+  conductorId: number;
+}
+
+export type NotificacionesFindAllByConductorData =
+  PaginatedNotificacionResultDto;
+
+export interface NotificacionesMarkAsReadByConductorParams {
+  conductorId: number;
+  id: number;
+}
+
+export type NotificacionesMarkAsReadByConductorData = NotificacionResultDto;
 
 export interface NotificacionesPreviewVencimientosParams {
   /**
@@ -12259,7 +12263,7 @@ export namespace Rutas {
    * No description
    * @tags rutas
    * @name RutasFindOne
-   * @summary Obtener una ruta por ID con sus paradas
+   * @summary Obtener una ruta por ID
    * @request GET:/ruta/find-one/{id}
    * @secure
    * @response `200` `RutasFindOneData`
@@ -12273,29 +12277,6 @@ export namespace Rutas {
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = RutasFindOneData;
-  }
-
-  /**
-   * No description
-   * @tags rutas
-   * @name RutasFindParadas
-   * @summary Obtener todas las paradas de una ruta
-   * @request GET:/ruta/{rutaId}/paradas
-   * @secure
-   * @response `200` `RutasFindParadasData`
-   */
-  export namespace RutasFindParadas {
-    export type RequestParams = {
-      /** ID de la ruta */
-      rutaId: number;
-    };
-    export type RequestQuery = {
-      /** Buscar por nombre de parada */
-      search?: string;
-    };
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = RutasFindParadasData;
   }
 
   /**
@@ -12338,7 +12319,7 @@ export namespace Rutas {
    * No description
    * @tags rutas
    * @name RutasFindOneCircuito
-   * @summary Obtener un circuito por ID con sus rutas y paradas
+   * @summary Obtener un circuito por ID con sus rutas
    * @request GET:/ruta/circuito/find-one/{id}
    * @secure
    * @response `200` `RutasFindOneCircuitoData`
@@ -12375,7 +12356,7 @@ export namespace Rutas {
    * No description
    * @tags rutas
    * @name RutasUpdateCircuito
-   * @summary Actualizar un circuito y sus rutas (reemplazo inteligente)
+   * @summary Actualizar un circuito y sus rutas
    * @request PATCH:/ruta/circuito/update/{id}
    * @secure
    * @response `200` `RutasUpdateCircuitoData`
@@ -12482,6 +12463,72 @@ export namespace Viajes {
   /**
    * No description
    * @tags viajes
+   * @name ViajesFindAllLight
+   * @summary Obtener viajes (formato ligero) con paginación, búsqueda y filtros
+   * @request GET:/viaje/find-all-light
+   * @secure
+   * @response `200` `ViajesFindAllLightData`
+   */
+  export namespace ViajesFindAllLight {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /**
+       * Número de página (comienza en 1)
+       * @default 1
+       * @example 1
+       */
+      page?: number;
+      /**
+       * Cantidad de elementos por página
+       * @default 10
+       * @example 10
+       */
+      limit?: number;
+      /** Búsqueda por ruta ocasional */
+      search?: string;
+      /** Fecha de inicio para filtrar por rango (formato: YYYY-MM-DD) */
+      fechaInicio?: string;
+      /** Fecha de fin para filtrar por rango (formato: YYYY-MM-DD) */
+      fechaFin?: string;
+      /** Filtrar por modalidad de servicio */
+      modalidadServicio?:
+        | "regular"
+        | "expreso"
+        | "ejecutivo"
+        | "especial"
+        | "turismo"
+        | "corporativo";
+      /** Filtrar por tipo de ruta (ocasional, fija) */
+      tipoRuta?: "ocasional" | "fija";
+      /** Filtrar por estado del viaje */
+      estado?: "programado" | "en_progreso" | "completado" | "cancelado";
+      /** Filtrar por IDs de conductores (separados por coma) */
+      conductoresId?: string[];
+      /**
+       * Filtrar por ID de cliente
+       * @example 1
+       */
+      clienteId?: number;
+      /**
+       * Filtrar por ID de ruta
+       * @example 1
+       */
+      rutaId?: number;
+      /** Filtrar por IDs de vehículos (separados por coma) */
+      vehiculosId?: string[];
+      /** Filtrar por sentido del viaje */
+      sentido?: "ida" | "vuelta";
+      /** Filtrar por turno del viaje */
+      turno?: "dia" | "noche";
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ViajesFindAllLightData;
+  }
+
+  /**
+   * No description
+   * @tags viajes
    * @name ViajesFindOne
    * @summary Obtener viaje por ID
    * @request GET:/viaje/find-one/{id}
@@ -12503,10 +12550,10 @@ export namespace Viajes {
    * No description
    * @tags viajes
    * @name ViajesCreate
-   * @summary Crear un nuevo viaje
+   * @summary Crear un circuito de viajes (ida y vuelta)
    * @request POST:/viaje/create
    * @secure
-   * @response `200` `ViajesCreateData`
+   * @response `201` `ViajesCreateData` ViajeCircuito creado exitosamente.
    */
   export namespace ViajesCreate {
     export type RequestParams = {};
@@ -12520,7 +12567,7 @@ export namespace Viajes {
    * No description
    * @tags viajes
    * @name ViajesUpdate
-   * @summary Actualizar un viaje
+   * @summary Actualizar un viaje individual
    * @request PATCH:/viaje/update/{id}
    * @secure
    * @response `200` `ViajesUpdateData`
@@ -12540,7 +12587,7 @@ export namespace Viajes {
    * No description
    * @tags viajes
    * @name ViajesRemove
-   * @summary Eliminar un viaje
+   * @summary Eliminar logicamente un viaje individual y desligarlo
    * @request DELETE:/viaje/delete/{id}
    * @secure
    * @response `200` `ViajesRemoveData`
@@ -12882,26 +12929,6 @@ export namespace Viajes {
   /**
    * No description
    * @tags viajes
-   * @name ViajesGetNextStep
-   * @summary Obtener sugerencia para el siguiente tramo del viaje
-   * @request GET:/viaje/{viajeId}/servicio/next-step
-   * @secure
-   * @response `200` `ViajesGetNextStepData`
-   */
-  export namespace ViajesGetNextStep {
-    export type RequestParams = {
-      /** ID del viaje */
-      viajeId: number;
-    };
-    export type RequestQuery = {};
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = ViajesGetNextStepData;
-  }
-
-  /**
-   * No description
-   * @tags viajes
    * @name ViajesCreateServicio
    * @summary Crear un nuevo servicio/tramo para un viaje
    * @request POST:/viaje/{viajeId}/servicio/create
@@ -13235,6 +13262,75 @@ export namespace Notificaciones {
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = NotificacionesMarkAsReadData;
+  }
+
+  /**
+   * No description
+   * @tags notificaciones
+   * @name NotificacionesCreateForConductor
+   * @summary Crear una nueva notificación para un conductor
+   * @request POST:/notificacion/create-conductor/{conductorId}
+   * @response `201` `NotificacionesCreateForConductorData`
+   */
+  export namespace NotificacionesCreateForConductor {
+    export type RequestParams = {
+      conductorId: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = NotificacionCreateDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = NotificacionesCreateForConductorData;
+  }
+
+  /**
+   * No description
+   * @tags notificaciones
+   * @name NotificacionesFindAllByConductor
+   * @summary Obtener notificaciones de un conductor
+   * @request GET:/notificacion/conductor/{conductorId}
+   * @response `200` `NotificacionesFindAllByConductorData`
+   */
+  export namespace NotificacionesFindAllByConductor {
+    export type RequestParams = {
+      conductorId: number;
+    };
+    export type RequestQuery = {
+      /**
+       * Número de página (comienza en 1)
+       * @default 1
+       * @example 1
+       */
+      page?: number;
+      /**
+       * Cantidad de elementos por página
+       * @default 10
+       * @example 10
+       */
+      limit?: number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = NotificacionesFindAllByConductorData;
+  }
+
+  /**
+   * No description
+   * @tags notificaciones
+   * @name NotificacionesMarkAsReadByConductor
+   * @summary Marcar notificación como leída para un conductor
+   * @request POST:/notificacion/leido-conductor/{id}
+   * @response `200` `NotificacionesMarkAsReadByConductorData`
+   */
+  export namespace NotificacionesMarkAsReadByConductor {
+    export type RequestParams = {
+      id: number;
+    };
+    export type RequestQuery = {
+      conductorId: number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = NotificacionesMarkAsReadByConductorData;
   }
 
   /**
@@ -16639,7 +16735,7 @@ export class Api<SecurityDataType extends unknown> {
      *
      * @tags rutas
      * @name RutasFindOne
-     * @summary Obtener una ruta por ID con sus paradas
+     * @summary Obtener una ruta por ID
      * @request GET:/ruta/find-one/{id}
      * @secure
      * @response `200` `RutasFindOneData`
@@ -16651,29 +16747,6 @@ export class Api<SecurityDataType extends unknown> {
       this.http.request<RutasFindOneData, any>({
         path: `/ruta/find-one/${id}`,
         method: "GET",
-        secure: true,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags rutas
-     * @name RutasFindParadas
-     * @summary Obtener todas las paradas de una ruta
-     * @request GET:/ruta/{rutaId}/paradas
-     * @secure
-     * @response `200` `RutasFindParadasData`
-     */
-    findParadas: (
-      { rutaId, ...query }: RutasFindParadasParams,
-      params: RequestParams = {},
-    ) =>
-      this.http.request<RutasFindParadasData, any>({
-        path: `/ruta/${rutaId}/paradas`,
-        method: "GET",
-        query: query,
         secure: true,
         format: "json",
         ...params,
@@ -16707,7 +16780,7 @@ export class Api<SecurityDataType extends unknown> {
      *
      * @tags rutas
      * @name RutasFindOneCircuito
-     * @summary Obtener un circuito por ID con sus rutas y paradas
+     * @summary Obtener un circuito por ID con sus rutas
      * @request GET:/ruta/circuito/find-one/{id}
      * @secure
      * @response `200` `RutasFindOneCircuitoData`
@@ -16753,7 +16826,7 @@ export class Api<SecurityDataType extends unknown> {
      *
      * @tags rutas
      * @name RutasUpdateCircuito
-     * @summary Actualizar un circuito y sus rutas (reemplazo inteligente)
+     * @summary Actualizar un circuito y sus rutas
      * @request PATCH:/ruta/circuito/update/{id}
      * @secure
      * @response `200` `RutasUpdateCircuitoData`
@@ -16819,6 +16892,29 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags viajes
+     * @name ViajesFindAllLight
+     * @summary Obtener viajes (formato ligero) con paginación, búsqueda y filtros
+     * @request GET:/viaje/find-all-light
+     * @secure
+     * @response `200` `ViajesFindAllLightData`
+     */
+    findAllLight: (
+      query: ViajesFindAllLightParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ViajesFindAllLightData, any>({
+        path: `/viaje/find-all-light`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags viajes
      * @name ViajesFindOne
      * @summary Obtener viaje por ID
      * @request GET:/viaje/find-one/{id}
@@ -16842,10 +16938,10 @@ export class Api<SecurityDataType extends unknown> {
      *
      * @tags viajes
      * @name ViajesCreate
-     * @summary Crear un nuevo viaje
+     * @summary Crear un circuito de viajes (ida y vuelta)
      * @request POST:/viaje/create
      * @secure
-     * @response `200` `ViajesCreateData`
+     * @response `201` `ViajesCreateData` ViajeCircuito creado exitosamente.
      */
     create: (data: ViajeCreateDto, params: RequestParams = {}) =>
       this.http.request<ViajesCreateData, any>({
@@ -16854,7 +16950,6 @@ export class Api<SecurityDataType extends unknown> {
         body: data,
         secure: true,
         type: ContentType.Json,
-        format: "json",
         ...params,
       }),
 
@@ -16863,7 +16958,7 @@ export class Api<SecurityDataType extends unknown> {
      *
      * @tags viajes
      * @name ViajesUpdate
-     * @summary Actualizar un viaje
+     * @summary Actualizar un viaje individual
      * @request PATCH:/viaje/update/{id}
      * @secure
      * @response `200` `ViajesUpdateData`
@@ -16888,7 +16983,7 @@ export class Api<SecurityDataType extends unknown> {
      *
      * @tags viajes
      * @name ViajesRemove
-     * @summary Eliminar un viaje
+     * @summary Eliminar logicamente un viaje individual y desligarlo
      * @request DELETE:/viaje/delete/{id}
      * @secure
      * @response `200` `ViajesRemoveData`
@@ -17276,28 +17371,6 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags viajes
-     * @name ViajesGetNextStep
-     * @summary Obtener sugerencia para el siguiente tramo del viaje
-     * @request GET:/viaje/{viajeId}/servicio/next-step
-     * @secure
-     * @response `200` `ViajesGetNextStepData`
-     */
-    getNextStep: (
-      { viajeId, ...query }: ViajesGetNextStepParams,
-      params: RequestParams = {},
-    ) =>
-      this.http.request<ViajesGetNextStepData, any>({
-        path: `/viaje/${viajeId}/servicio/next-step`,
-        method: "GET",
-        secure: true,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags viajes
      * @name ViajesCreateServicio
      * @summary Crear un nuevo servicio/tramo para un viaje
      * @request POST:/viaje/{viajeId}/servicio/create
@@ -17652,6 +17725,71 @@ export class Api<SecurityDataType extends unknown> {
     ) =>
       this.http.request<NotificacionesMarkAsReadData, any>({
         path: `/notificacion/leido/${id}`,
+        method: "POST",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags notificaciones
+     * @name NotificacionesCreateForConductor
+     * @summary Crear una nueva notificación para un conductor
+     * @request POST:/notificacion/create-conductor/{conductorId}
+     * @response `201` `NotificacionesCreateForConductorData`
+     */
+    createForConductor: (
+      { conductorId, ...query }: NotificacionesCreateForConductorParams,
+      data: NotificacionCreateDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<NotificacionesCreateForConductorData, any>({
+        path: `/notificacion/create-conductor/${conductorId}`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags notificaciones
+     * @name NotificacionesFindAllByConductor
+     * @summary Obtener notificaciones de un conductor
+     * @request GET:/notificacion/conductor/{conductorId}
+     * @response `200` `NotificacionesFindAllByConductorData`
+     */
+    findAllByConductor: (
+      { conductorId, ...query }: NotificacionesFindAllByConductorParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<NotificacionesFindAllByConductorData, any>({
+        path: `/notificacion/conductor/${conductorId}`,
+        method: "GET",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags notificaciones
+     * @name NotificacionesMarkAsReadByConductor
+     * @summary Marcar notificación como leída para un conductor
+     * @request POST:/notificacion/leido-conductor/{id}
+     * @response `200` `NotificacionesMarkAsReadByConductorData`
+     */
+    markAsReadByConductor: (
+      { id, ...query }: NotificacionesMarkAsReadByConductorParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<NotificacionesMarkAsReadByConductorData, any>({
+        path: `/notificacion/leido-conductor/${id}`,
         method: "POST",
         query: query,
         format: "json",

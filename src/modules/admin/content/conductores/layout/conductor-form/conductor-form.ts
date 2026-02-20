@@ -40,6 +40,7 @@ export class ConductorForm implements OnInit {
     nombres: ['', [Validators.required, Validators.minLength(2)]],
     apellidos: ['', [Validators.required, Validators.minLength(2)]],
     email: [''],
+    contrasenia: [''],
     celular: [''],
     numeroLicencia: ['', [Validators.required, Validators.minLength(5)]],
     claseLicencia: ['', [Validators.required]],
@@ -114,11 +115,18 @@ export class ConductorForm implements OnInit {
           nombres: conductorData.nombres,
           apellidos: conductorData.apellidos,
           email: conductorData.email,
+          contrasenia: '', // No mostrar contraseña en edit unless updating
           celular: conductorData.celular,
           numeroLicencia: conductorData.numeroLicencia,
           claseLicencia: conductorData.claseLicencia,
           categoriaLicencia: conductorData.categoriaLicencia,
         });
+
+        // Contraseña no es obligatoria al editar (solo si quiere cambiarla)
+        this.conductorForm.get('contrasenia')?.clearValidators();
+        this.conductorForm.get('contrasenia')?.setValidators([Validators.minLength(6)]);
+        this.conductorForm.get('contrasenia')?.updateValueAndValidity();
+
         this.updateCategorias(conductorData.claseLicencia);
         this.imagenes.set(conductorData.fotocheck || []);
         this.localDocuments.set(JSON.parse(JSON.stringify(conductorData.documentos)));
@@ -134,6 +142,13 @@ export class ConductorForm implements OnInit {
           claseLicencia: 'A',
           categoriaLicencia: 'III-c', // Default recomendado para transporte profesional
         });
+
+        // Contraseña es OBLIGATORIA al crear
+        this.conductorForm
+          .get('contrasenia')
+          ?.setValidators([Validators.required, Validators.minLength(6)]);
+        this.conductorForm.get('contrasenia')?.updateValueAndValidity();
+
         this.imagenes.set([]);
         this.localDocuments.set(null);
         this.updateDniValidators('DNI');
@@ -192,6 +207,11 @@ export class ConductorForm implements OnInit {
       ...this.conductorForm.value,
       fotocheck: this.imagenes(),
     };
+
+    // Remove empty password if edit
+    if (this.editMode() && !formData.contrasenia) {
+      delete formData.contrasenia;
+    }
 
     if (this.editMode()) {
       this.onSubmitForm.emit(formData as ApiBody<'conductores', 'update'>);

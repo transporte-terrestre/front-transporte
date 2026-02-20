@@ -9,7 +9,6 @@ import {
   ViajeServicioResultDto,
   ViajeServicioCreateDto,
   ViajeServicioUpdateDto,
-  RutaParadaResultDto,
 } from 'api/backend.api';
 import { AlertService } from '@service/alert.service';
 
@@ -31,7 +30,6 @@ export class ViajeServiciosFormComponent {
 
   // State
   servicios = signal<ViajeServicioResultDto[]>([]);
-  paradasRuta = signal<RutaParadaResultDto[]>([]);
   loading = signal(false);
   submitting = signal(false);
   showForm = signal(false);
@@ -42,12 +40,10 @@ export class ViajeServiciosFormComponent {
 
   constructor() {
     this.servicioForm = this.fb.group({
-      paradaPartidaId: [null, [Validators.required]],
-      paradaLlegadaId: [null, [Validators.required]],
-      horaSalida: ['', [Validators.required]],
-      horaTermino: [''],
-      kmInicial: [null, [Validators.required, Validators.min(0)]],
-      kmFinal: [null, [Validators.min(0)]],
+      tipo: ['trayecto', [Validators.required]],
+      nombreLugar: ['', [Validators.required]],
+      horaFinal: ['', [Validators.required]],
+      kilometrajeFinal: [1, [Validators.required, Validators.min(0)]], // Default > 0
       numeroPasajeros: [0, [Validators.min(0)]],
       observaciones: [''],
     });
@@ -64,24 +60,9 @@ export class ViajeServiciosFormComponent {
     this.loading.set(true);
     try {
       const viajeId = this.viaje().id;
-      const promises: Promise<any>[] = [this.api.viajes.findServicios({ viajeId })];
-
-      if (this.viaje().rutaId) {
-        promises.push(this.api.rutas.findParadas({ rutaId: this.viaje().rutaId! }));
-      }
-
-      const results = await Promise.all(promises);
-      const serviciosRes = results[0];
+      // No more findParadas needed
+      const serviciosRes = await this.api.viajes.findServicios({ viajeId });
       this.servicios.set(serviciosRes.data);
-
-      if (results[1]) {
-        const paradas = (results[1].data as RutaParadaResultDto[]).sort(
-          (a, b) => a.orden - b.orden,
-        );
-        this.paradasRuta.set(paradas);
-      } else {
-        this.paradasRuta.set([]);
-      }
     } catch (error) {
       console.error('Error loading data:', error);
     } finally {
@@ -91,74 +72,47 @@ export class ViajeServiciosFormComponent {
 
   async prepareAddServicio() {
     this.editingServicioId.set(null);
-    this.loading.set(true);
-
-    try {
-      const resp = await this.api.viajes.getNextStep({ viajeId: this.viaje().id });
-      const nextStep = resp.data;
-
-      // Habilitar controles antes de resetear
-      this.servicioForm.enable();
-
-      this.servicioForm.reset({
-        paradaPartidaId: nextStep.paradaPartidaId,
-        paradaLlegadaId: nextStep.paradaLlegadaId,
-        horaSalida: nextStep.horaSalida,
-        kmInicial: nextStep.kmInicial,
-        numeroPasajeros: nextStep.numeroPasajeros || 0,
-        observaciones: '',
-      });
-
-      // Al AGREGAR, bloqueamos lo que viene sugerido para guiar al usuario
-      this.disablePreFilledFields();
-
-      this.showForm.set(true);
-    } catch (error) {
-      console.error('Error getting next step:', error);
-      this.toastService.error('Error al obtener sugerencia para el siguiente tramo');
-    } finally {
-      this.loading.set(false);
-    }
-  }
-
-  prepareEditServicio(servicio: ViajeServicioResultDto) {
-    this.editingServicioId.set(servicio.id);
-
-    // Al EDITAR, permitimos cambiar todo por si hubo errores previos
     this.servicioForm.enable();
 
-    this.servicioForm.patchValue({
-      paradaPartidaId: servicio.paradaPartidaId,
-      paradaLlegadaId: servicio.paradaLlegadaId,
-      horaSalida: servicio.horaSalida,
-      horaTermino: servicio.horaTermino,
-      kmInicial: servicio.kmInicial,
-      kmFinal: servicio.kmFinal,
-      numeroPasajeros: servicio.numeroPasajeros,
-      observaciones: servicio.observaciones,
+    // Default to current time for datetime-local
+    const now = new Date();
+    // Ajustar por la zona horaria para formato yyyy-MM-ddThh:mm
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    const defaultTime = now.toISOString().slice(0, 16);
+
+    this.servicioForm.reset({
+      tipo: 'trayecto',
+      nombreLugar: '',
+      horaFinal: defaultTime,
+      kilometrajeFinal: null, // Debería forzar a llenar el km, pero le ponemos default null para que salte validación si olvida
+      numeroPasajeros: 0,
+      observaciones: '',
     });
 
     this.showForm.set(true);
   }
 
-  private disablePreFilledFields() {
-    Object.keys(this.servicioForm.controls).forEach((key) => {
-      const control = this.servicioForm.get(key);
-      const value = control?.value;
+  prepareEditServicio(servicio: ViajeServicioResultDto) {
+    this.editingServicioId.set(servicio.id);
+    this.servicioForm.enable();
 
-      // Excepciones: pasajeros y observaciones siempre editables si son valores base
-      if (key === 'numeroPasajeros' || key === 'observaciones') {
-        control?.enable();
-        return;
-      }
+    let formattedHora = '';
+    if (servicio.horaFinal) {
+      const d = new Date(servicio.horaFinal);
+      d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+      formattedHora = d.toISOString().slice(0, 16);
+    }
 
-      // Si el dato ya fue obtenido (no es nulo o vacío), se bloquea
-      if (value !== null && value !== undefined && value !== '') {
-        control?.disable();
-      } else {
-        control?.enable();
-      }
+    this.servicioForm.patchValue({
+      tipo: servicio.tipo || 'trayecto',
+      nombreLugar: servicio.nombreLugar || '',
+      horaFinal: formattedHora,
+      kilometrajeFinal: servicio.kilometrajeFinal,
+      numeroPasajeros: servicio.numeroPasajeros,
+      observaciones: servicio.observaciones,
     });
+
+    this.showForm.set(true);
   }
 
   async saveServicio() {
@@ -168,15 +122,14 @@ export class ViajeServiciosFormComponent {
     }
 
     this.submitting.set(true);
-    // Usar getRawValue para incluir los campos deshabilitados en el payload
     const formValues = this.servicioForm.getRawValue();
     const isEditing = !!this.editingServicioId();
     const viajeId = this.viaje().id;
 
     const payload = {
       ...formValues,
-      kmFinal: formValues.kmFinal || null,
-      horaTermino: formValues.horaTermino || null,
+      kilometrajeFinal: formValues.kilometrajeFinal || null,
+      horaFinal: formValues.horaFinal ? new Date(formValues.horaFinal).toISOString() : null,
       observaciones: formValues.observaciones || null,
     };
 

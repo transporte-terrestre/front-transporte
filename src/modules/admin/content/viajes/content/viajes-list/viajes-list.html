@@ -282,6 +282,11 @@
               <th
                 class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
               >
+                Sentido
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              >
                 Cliente
               </th>
               <th
@@ -307,6 +312,11 @@
               <th
                 class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
               >
+                Turno
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              >
                 Salida
               </th>
               <th
@@ -323,104 +333,154 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-text/10">
-            @for (viaje of viajes(); track viaje.id) {
-              <tr class="hover:bg-text/5 transition-colors">
-                <td class="px-4 py-3 whitespace-nowrap">
-                  <span class="text-xs font-inter-semibold text-text">{{ viaje.id }}</span>
-                </td>
-                <td class="px-4 py-3 whitespace-nowrap">
-                  <div class="flex items-center gap-2">
-                    <div
-                      class="w-8 h-8 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary text-xs"
-                    >
-                      <i class="fas fa-user-tie"></i>
-                    </div>
-                    <span class="text-xs font-inter-bold text-text">{{
-                      getClienteDisplay(viaje)
-                    }}</span>
-                  </div>
-                </td>
-                <td class="px-4 py-3 whitespace-nowrap">
-                  <div class="flex items-center gap-2">
-                    <div
-                      class="w-8 h-8 rounded-lg bg-success/10 flex items-center justify-center text-success text-xs"
-                    >
-                      <i class="fas fa-route"></i>
-                    </div>
-                    <span class="text-xs font-inter-bold text-text">{{
-                      getRutaDisplay(viaje)
-                    }}</span>
-                  </div>
-                </td>
-                <td class="px-4 py-3 whitespace-nowrap">
-                  <span class="text-xs font-inter-medium text-text">{{
-                    getVehiculoDisplay(viaje)
-                  }}</span>
-                </td>
-                <td class="px-4 py-3 whitespace-nowrap">
-                  <span class="text-xs font-inter-medium text-text">{{
-                    getConductorDisplay(viaje)
-                  }}</span>
-                </td>
-                <td class="px-4 py-3 whitespace-nowrap">
-                  <div class="flex flex-col gap-1.5 items-start">
-                    <span
-                      class="px-2 py-1 text-xs font-inter-bold rounded-full"
-                      [ngClass]="getEstadoBadgeClass(viaje.estado)"
-                    >
-                      {{ getEstadoLabel(viaje.estado) }}
-                    </span>
-                    <div class="flex items-center gap-1">
-                      <span
-                        class="px-2 py-0.5 text-[10px] font-inter-bold rounded-full flex items-center gap-1.5 w-fit"
-                        [class]="getSentidoBadgeClass(viaje.sentido)"
-                      >
-                        <i class="fas text-[9px]" [class]="getSentidoIcon(viaje.sentido)"></i>
-                        {{ getSentidoLabel(viaje.sentido) }}
+            @for (row of processedRows(); track row.circuito.id + '-' + row.tipo) {
+              <tr class="hover:bg-text/5 transition-colors group">
+                <!-- Celdas agrupadas (Circuito) -->
+                @if (row.isFirst) {
+                  <td
+                    [attr.rowspan]="row.rowSpan"
+                    class="px-4 py-3 align-middle bg-background border-r border-text/5 text-center"
+                  >
+                    <div class="flex flex-col gap-1 items-center justify-center">
+                      <span class="text-xs font-inter-bold text-text">
+                        #{{ row.circuito.id }}
                       </span>
-                      @if (viaje.turno) {
+                    </div>
+                  </td>
+                }
+
+                <!-- Celdas individuales -->
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <div class="flex flex-col gap-1 items-start">
+                    <span
+                      class="px-2 py-0.5 text-[10px] font-inter-bold rounded-full flex items-center gap-1.5 w-fit"
+                      [class]="getSentidoBadgeClass(row.tipo)"
+                    >
+                      <i class="fas text-[9px]" [class]="getSentidoIcon(row.tipo)"></i>
+                      {{ getSentidoLabel(row.tipo) }}
+                    </span>
+                  </div>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  @if (row.viaje) {
+                    <div class="flex items-center gap-2">
+                      <div
+                        class="w-8 h-8 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary text-xs"
+                      >
+                        <i class="fas fa-user-tie"></i>
+                      </div>
+                      <span class="text-xs font-inter-bold text-text">{{
+                        getClienteDisplay(row.viaje)
+                      }}</span>
+                    </div>
+                  } @else {
+                    <span class="text-xs text-text/40">-</span>
+                  }
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  @if (row.viaje) {
+                    <div class="flex items-center gap-2">
+                      <div
+                        class="w-8 h-8 rounded-lg bg-success/10 flex items-center justify-center text-success text-xs"
+                      >
+                        <i class="fas fa-route"></i>
+                      </div>
+                      <span class="text-xs font-inter-bold text-text">{{
+                        getRutaDisplay(row.viaje)
+                      }}</span>
+                    </div>
+                  } @else {
+                    <span class="text-xs text-text/40">-</span>
+                  }
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  @if (row.viaje) {
+                    <span class="text-xs font-inter-medium text-text">{{
+                      getVehiculoDisplay(row.viaje)
+                    }}</span>
+                  } @else {
+                    <span class="text-xs text-text/40">-</span>
+                  }
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  @if (row.viaje) {
+                    <span class="text-xs font-inter-medium text-text">{{
+                      getConductorDisplay(row.viaje)
+                    }}</span>
+                  } @else {
+                    <span class="text-xs text-text/40">-</span>
+                  }
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  @if (row.viaje) {
+                    <span
+                      class="px-3 py-1.5 text-xs font-inter-bold rounded-xl"
+                      [ngClass]="getEstadoBadgeClass(row.viaje.estado)"
+                    >
+                      {{ getEstadoLabel(row.viaje.estado) }}
+                    </span>
+                  } @else {
+                    <span class="text-xs text-text/40">-</span>
+                  }
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  @if (row.viaje) {
+                    <div class="flex items-center gap-1">
+                      @if (row.viaje.turno) {
                         <span
-                          class="px-2 py-0.5 text-[10px] font-inter-bold rounded-full flex items-center gap-1.5 w-fit"
-                          [class]="getTurnoBadgeClass(viaje.turno)"
+                          class="px-2 py-0.5 text-[10px] font-inter-bold rounded-lg flex items-center gap-1.5 w-fit"
+                          [class]="getTurnoBadgeClass(row.viaje.turno)"
                         >
-                          <i class="fas text-[9px]" [class]="getTurnoIcon(viaje.turno)"></i>
-                          {{ getTurnoLabel(viaje.turno) }}
+                          <i class="fas text-[9px]" [class]="getTurnoIcon(row.viaje.turno)"></i>
+                          {{ getTurnoLabel(row.viaje.turno) }}
                         </span>
                       }
                     </div>
-                  </div>
+                  } @else {
+                    <span class="text-xs text-text/40">-</span>
+                  }
                 </td>
                 <td class="px-4 py-3 whitespace-nowrap">
-                  <span class="text-xs font-inter-medium text-text">{{
-                    formatDate(viaje.fechaSalida)
-                  }}</span>
+                  @if (row.viaje) {
+                    <span class="text-xs font-inter-medium text-text">{{
+                      formatDate(row.viaje.fechaSalida)
+                    }}</span>
+                  } @else {
+                    <span class="text-xs text-text/40">-</span>
+                  }
                 </td>
                 <td class="px-4 py-3 whitespace-nowrap">
-                  <span class="text-xs font-inter-medium text-text">
-                    @if (viaje.fechaLlegada) {
-                      {{ formatDate(viaje.fechaLlegada) }}
-                    } @else {
-                      <span class="text-text/40">-</span>
-                    }
-                  </span>
+                  @if (row.viaje) {
+                    <span class="text-xs font-inter-medium text-text">
+                      @if (row.viaje.fechaLlegada) {
+                        {{ formatDate(row.viaje.fechaLlegada) }}
+                      } @else {
+                        <span class="text-text/40">-</span>
+                      }
+                    </span>
+                  } @else {
+                    <span class="text-xs text-text/40">-</span>
+                  }
                 </td>
                 <td class="px-4 py-3 whitespace-nowrap text-right">
-                  <div class="flex items-center justify-end gap-1">
-                    <button
-                      (click)="navigateToEdit(viaje)"
-                      class="p-1.5 text-info hover:bg-info/10 rounded-lg transition-colors"
-                      title="Editar"
-                    >
-                      <i class="fas fa-edit text-xs"></i>
-                    </button>
-                    <button
-                      (click)="deleteViaje(viaje.id)"
-                      class="p-1.5 text-danger hover:bg-danger/10 rounded-lg transition-colors"
-                      title="Eliminar"
-                    >
-                      <i class="fas fa-trash text-xs"></i>
-                    </button>
-                  </div>
+                  @if (row.viaje) {
+                    <div class="flex items-center justify-end gap-1">
+                      <button
+                        (click)="navigateToEdit(row.viaje)"
+                        class="p-1.5 text-info hover:bg-info/10 rounded-lg transition-colors"
+                        title="Editar Trip"
+                      >
+                        <i class="fas fa-edit text-xs"></i>
+                      </button>
+                      <button
+                        (click)="deleteViaje(row.viaje.id)"
+                        class="p-1.5 text-danger hover:bg-danger/10 rounded-lg transition-colors"
+                        title="Eliminar Trip"
+                      >
+                        <i class="fas fa-trash text-xs"></i>
+                      </button>
+                    </div>
+                  }
                 </td>
               </tr>
             }
