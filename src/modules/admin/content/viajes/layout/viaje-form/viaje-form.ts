@@ -418,11 +418,11 @@ export class ViajeForm implements OnInit {
     }
 
     const d = new Date(date);
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    const hours = String(d.getHours()).padStart(2, '0');
-    const minutes = String(d.getMinutes()).padStart(2, '0');
+    const year = d.getUTCFullYear();
+    const month = String(d.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(d.getUTCDate()).padStart(2, '0');
+    const hours = String(d.getUTCHours()).padStart(2, '0');
+    const minutes = String(d.getUTCMinutes()).padStart(2, '0');
     return `${year}-${month}-${day}T${hours}:${minutes}`;
   }
 
@@ -513,19 +513,22 @@ export class ViajeForm implements OnInit {
     return { date: `${outYear}-${outMonth}-${outDay}`, time: `${outHours}:${outMins}` };
   }
 
-  // Helpers para extraer Date y Time de ISO string
+  // Helpers para extraer Date y Time de ISO string en UTC
   private extractDate(dateTime: string): string {
     if (!dateTime) return '';
-    // Asumimos formato ISO o YYYY-MM-DDTHH:mm
-    return dateTime.split('T')[0];
+    const d = new Date(dateTime);
+    const year = d.getUTCFullYear();
+    const month = String(d.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(d.getUTCDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   private extractTime(dateTime: string): string {
     if (!dateTime) return '';
-    const timePart = dateTime.split('T')[1];
-    if (!timePart) return '';
-    // Return HH:mm
-    return timePart.substring(0, 5);
+    const d = new Date(dateTime);
+    const hours = String(d.getUTCHours()).padStart(2, '0');
+    const minutes = String(d.getUTCMinutes()).padStart(2, '0');
+    return `${hours}:${minutes}`;
   }
 
   submitForm() {

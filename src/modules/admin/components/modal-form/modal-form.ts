@@ -14,6 +14,7 @@ export class ModalForm {
   cancelText = input<string>('Cancelar');
   loading = input<boolean>(false);
   maxWidth = input<'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | '6xl' | '7xl'>('md');
+  accentClass = input<string>('bg-secondary hover:bg-secondary/90');
 
   // Outputs
   onSubmit = output<void>();

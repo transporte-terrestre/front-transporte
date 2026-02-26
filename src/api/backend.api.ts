@@ -3292,7 +3292,7 @@ export interface DocumentoItemDto {
   observacion?: string;
   /**
    * Fecha de Vencimiento Inicial/Por defecto
-   * @example "2026-02-20T06:16:43.192Z"
+   * @example "2026-02-26T04:37:32.480Z"
    */
   fechaVencimiento?: string;
 }
@@ -3475,17 +3475,17 @@ export interface BotiquinItemDto {
   habilitado: boolean;
   /**
    * Fecha de Vencimiento actual
-   * @example "2026-02-20T06:16:43.195Z"
+   * @example "2026-02-26T04:37:32.483Z"
    */
   fechaVencimiento?: string;
   /**
    * Fecha de Salida
-   * @example "2026-02-20T06:16:43.195Z"
+   * @example "2026-02-26T04:37:32.483Z"
    */
   fechaSalida?: string;
   /**
    * Fecha de Reposición
-   * @example "2026-02-20T06:16:43.195Z"
+   * @example "2026-02-26T04:37:32.483Z"
    */
   fechaReposicion?: string;
 }
@@ -4808,6 +4808,39 @@ export interface PaginatedRutaCircuitoResultDto {
   meta: PaginationMetaDto;
 }
 
+export interface RutaParadaCreateDto {
+  /**
+   * Nombre de la parada
+   * @example "Parada 1"
+   */
+  nombre: string;
+  /**
+   * Latitud de la parada
+   * @example "-12.0464"
+   */
+  ubicacionLat: string;
+  /**
+   * Longitud de la parada
+   * @example "-77.0428"
+   */
+  ubicacionLng: string;
+  /**
+   * Orden de la parada
+   * @example 1
+   */
+  orden?: number;
+  /**
+   * Distancia desde la parada previa
+   * @example "10.5"
+   */
+  distanciaPreviaParada?: string;
+  /**
+   * Tiempo estimado desde la parada previa en minutos
+   * @example 15
+   */
+  tiempoEstimado?: number;
+}
+
 export interface RutaCircuitoDetalleDto {
   /**
    * Ciudad de origen
@@ -4849,6 +4882,8 @@ export interface RutaCircuitoDetalleDto {
    * @example 210
    */
   tiempoEstimado: number;
+  /** Paradas intermedias de la ruta */
+  paradas?: RutaParadaCreateDto[];
 }
 
 export interface RutaCircuitoCreateDto {
@@ -5959,6 +5994,43 @@ export interface ViajeResultDto {
   checkInLlegada: boolean;
 }
 
+export interface ViajePuntoTrayectoDto {
+  /**
+   * Nombre del punto
+   * @example "Lima"
+   */
+  nombre: string;
+  /**
+   * Latitud
+   * @example -12.04318
+   */
+  latitud: number | null;
+  /**
+   * Longitud
+   * @example -77.02824
+   */
+  longitud: number | null;
+  /** Tipo de punto (origen, punto, parada, destino) */
+  tipo: "origen" | "punto" | "parada" | "destino";
+  /**
+   * Orden cronológico/secuencial
+   * @example 1
+   */
+  orden: number;
+  /**
+   * Indica si el conductor ya pasó por este punto
+   * @example true
+   */
+  completado: boolean;
+  /** ID del punto de la ruta fija, si aplica */
+  rutaParadaId: number | null;
+}
+
+export interface ViajeTrayectoResultDto {
+  /** Puntos del trayecto en orden secuencial */
+  puntos: ViajePuntoTrayectoDto[];
+}
+
 export interface ViajeDetalleCreateDto {
   /**
    * ID de la ruta programada
@@ -6380,15 +6452,15 @@ export interface ViajeServicioResultDto {
    */
   viajeId: number;
   /**
-   * Orden del servicio en el día
+   * Tipo de servicio (punto, parada o descanso)
+   * @example "punto"
+   */
+  tipo?: "origen" | "punto" | "parada" | "descanso" | "destino";
+  /**
+   * ID de la parada de la ruta (si aplica)
    * @example 1
    */
-  orden: number;
-  /**
-   * Tipo de servicio (trayecto, descanso)
-   * @example "trayecto"
-   */
-  tipo: string;
+  rutaParadaId?: number;
   /**
    * Longitud mapeada
    * @example -77.0282
@@ -6421,11 +6493,6 @@ export interface ViajeServicioResultDto {
    */
   numeroPasajeros?: number;
   /**
-   * Observaciones
-   * @example "Parada extendida"
-   */
-  observaciones?: string;
-  /**
    * Fecha de creación
    * @format date-time
    */
@@ -6437,73 +6504,283 @@ export interface ViajeServicioResultDto {
   actualizadoEn: string;
 }
 
-export interface ViajeServicioCreateDto {
+export interface ViajeServicioTramoDto {
   /**
-   * Tipo de servicio (trayecto o descanso)
-   * @example "trayecto"
+   * Hora de salida del tramo
+   * @example "10:00 AM"
    */
-  tipo?: string;
+  horaSalida: string;
   /**
-   * Longitud de la ubicación
-   * @example -77.0282
+   * Kilometraje al inicio del tramo
+   * @example "29,159 KM"
    */
-  longitud?: number;
+  kmInicial: string;
   /**
-   * Latitud de la ubicación
-   * @example -12.0432
+   * Punto de partida
+   * @example "Villa El Salvador"
    */
-  latitud?: number;
+  puntoPartida: string;
   /**
-   * Nombre del lugar o descriptivo
+   * Punto de llegada
    * @example "Parada 1"
    */
-  nombreLugar?: string;
+  puntoLlegada: string;
   /**
-   * Hora final del trayecto o descanso
-   * @format date-time
-   * @example "2024-03-24T10:30:00Z"
-   */
-  horaFinal?: string;
-  /**
-   * Kilometraje final del odómetro
-   * @example 94891
-   */
-  kilometrajeFinal?: number;
-  /**
-   * Número de pasajeros transportados
+   * Número de pasajeros
    * @example 12
    */
   numeroPasajeros?: number;
   /**
-   * Observaciones del servicio o descanso
-   * @example "Servicio sin novedad"
+   * Hora de término del servicio
+   * @example "10:20 AM"
    */
-  observaciones?: string;
+  horaTermino: string;
+  /**
+   * Kilometraje al final del tramo
+   * @example "29,200 KM"
+   */
+  kmFinal: string;
+  /**
+   * Tiempo de servicio en formato legible
+   * @example "20 min"
+   */
+  tiempoServicio: string;
+  /**
+   * Kilometraje recorrido en el tramo
+   * @example "41 KM"
+   */
+  kilometrajeServicio: string;
+  /**
+   * Tipo de servicio del punto de llegada
+   * @example "punto"
+   */
+  tipoDestino?: "origen" | "punto" | "parada" | "descanso" | "destino";
+}
+
+export interface ViajeHojaRutaResultDto {
+  /** Lista de tramos del viaje */
+  tramos: ViajeServicioTramoDto[];
+  /**
+   * Resumen total de tiempo de servicio
+   * @example "1h 30min"
+   */
+  tiempoTotal: string;
+  /**
+   * Resumen total de kilometraje recorrido
+   * @example "120 KM"
+   */
+  kilometrajeTotal: string;
+}
+
+export interface ViajeRegistrarDescansoDto {
+  /**
+   * Longitud de la ubicación actual
+   * @example -77.0282
+   */
+  longitud?: number;
+  /**
+   * Latitud de la ubicación actual
+   * @example -12.0432
+   */
+  latitud?: number;
+  /**
+   * Hora actual del registro
+   * @format date-time
+   * @example "2024-03-24T10:30:00Z"
+   */
+  horaActual: string;
+  /**
+   * Nombre del lugar o parada
+   * @example "Descanso"
+   */
+  nombreLugar?: string;
+  /**
+   * Kilometraje actual del odómetro
+   * @example 94891
+   */
+  kilometrajeActual?: number;
+  /**
+   * Cantidad de pasajeros
+   * @example 0
+   */
+  cantidadPasajeros?: number;
+}
+
+export interface ViajeRegistrarSalidaDto {
+  /**
+   * Longitud de la ubicación actual
+   * @example -77.0282
+   */
+  longitud: number;
+  /**
+   * Latitud de la ubicación actual
+   * @example -12.0432
+   */
+  latitud: number;
+  /**
+   * Cantidad de pasajeros
+   * @example 12
+   */
+  cantidadPasajeros: number;
+  /**
+   * Hora actual del registro
+   * @format date-time
+   * @example "2024-03-24T10:30:00Z"
+   */
+  horaActual: string;
+  /**
+   * Kilometraje actual del odómetro
+   * @example 94891
+   */
+  kilometrajeActual: number;
+  /**
+   * Nombre del lugar o parada (opcional)
+   * @example "Terminal Terrestre"
+   */
+  nombreLugar?: string;
+}
+
+export interface ViajeRegistrarLlegadaDto {
+  /**
+   * Longitud de la ubicación actual
+   * @example -77.0282
+   */
+  longitud: number;
+  /**
+   * Latitud de la ubicación actual
+   * @example -12.0432
+   */
+  latitud: number;
+  /**
+   * Cantidad de pasajeros
+   * @example 12
+   */
+  cantidadPasajeros: number;
+  /**
+   * Hora actual del registro
+   * @format date-time
+   * @example "2024-03-24T10:30:00Z"
+   */
+  horaActual: string;
+  /**
+   * Kilometraje actual del odómetro
+   * @example 94891
+   */
+  kilometrajeActual: number;
+  /**
+   * Nombre del lugar o parada (opcional)
+   * @example "Terminal Terrestre"
+   */
+  nombreLugar?: string;
+}
+
+export interface ViajeRegistrarPuntoDto {
+  /**
+   * Longitud de la ubicación actual
+   * @example -77.0282
+   */
+  longitud: number;
+  /**
+   * Latitud de la ubicación actual
+   * @example -12.0432
+   */
+  latitud: number;
+  /**
+   * Cantidad de pasajeros
+   * @example 12
+   */
+  cantidadPasajeros: number;
+  /**
+   * Hora actual del registro
+   * @format date-time
+   * @example "2024-03-24T10:30:00Z"
+   */
+  horaActual: string;
+  /**
+   * Kilometraje actual del odómetro
+   * @example 94891
+   */
+  kilometrajeActual: number;
+  /**
+   * Nombre del lugar o parada (opcional)
+   * @example "Terminal Terrestre"
+   */
+  nombreLugar?: string;
+  /**
+   * ID de la parada de la ruta programada
+   * @example 1
+   */
+  rutaParadaId: number;
+}
+
+export interface ViajeRegistrarParadaDto {
+  /**
+   * Longitud de la ubicación actual
+   * @example -77.0282
+   */
+  longitud: number;
+  /**
+   * Latitud de la ubicación actual
+   * @example -12.0432
+   */
+  latitud: number;
+  /**
+   * Cantidad de pasajeros
+   * @example 12
+   */
+  cantidadPasajeros: number;
+  /**
+   * Hora actual del registro
+   * @format date-time
+   * @example "2024-03-24T10:30:00Z"
+   */
+  horaActual: string;
+  /**
+   * Kilometraje actual del odómetro
+   * @example 94891
+   */
+  kilometrajeActual: number;
+  /**
+   * Nombre del lugar o parada (opcional)
+   * @example "Terminal Terrestre"
+   */
+  nombreLugar?: string;
+}
+
+export interface ViajeProximoTramoResultDto {
+  /** Tipo sugerido: punto, parada, descanso */
+  tipo: "origen" | "punto" | "parada" | "descanso" | "destino";
+  /** Nombre del lugar sugerido */
+  nombreLugar: string | null;
+  /** Latitud del lugar sugerido */
+  latitud: string | null;
+  /** Longitud del lugar sugerido */
+  longitud: string | null;
+  /** Último kilometraje registrado */
+  ultimoKilometraje: number;
+  /**
+   * Última hora registrada
+   * @format date-time
+   */
+  ultimaHora: string;
+  /** Última cantidad de pasajeros registrada */
+  ultimosPasajeros: number;
+  /** Indica si es un punto fijo de la ruta */
+  esPuntoFijo?: boolean;
+  /** ID de la parada de la ruta sugerida */
+  rutaParadaId?: number | null;
+  /** Indica si aún faltan puntos fijos por registrar */
+  faltanPuntosFijos: boolean;
 }
 
 export interface ViajeServicioUpdateDto {
   /**
-   * Tipo de servicio (trayecto o descanso)
-   * @example "trayecto"
-   */
-  tipo?: string;
-  /**
-   * Longitud de la ubicación
-   * @example -77.0282
-   */
-  longitud?: number;
-  /**
-   * Latitud de la ubicación
-   * @example -12.0432
-   */
-  latitud?: number;
-  /**
-   * Nombre del lugar o descriptivo
-   * @example "Parada 1"
+   * Nombre del lugar o parada
+   * @example "Terminal Terrestre"
    */
   nombreLugar?: string;
   /**
-   * Hora final del trayecto o descanso
+   * Hora final del registro
    * @format date-time
    * @example "2024-03-24T10:30:00Z"
    */
@@ -6518,11 +6795,6 @@ export interface ViajeServicioUpdateDto {
    * @example 12
    */
   numeroPasajeros?: number;
-  /**
-   * Observaciones del servicio o descanso
-   * @example "Servicio sin novedad"
-   */
-  observaciones?: string;
 }
 
 export interface ViajePasajeroDetalleDto {
@@ -9507,6 +9779,13 @@ export interface ViajesFindOneParams {
 
 export type ViajesFindOneData = ViajeResultDto;
 
+export interface ViajesFindTrayectoParams {
+  /** ID del viaje */
+  id: number;
+}
+
+export type ViajesFindTrayectoData = ViajeTrayectoResultDto;
+
 export type ViajesCreateData = any;
 
 export interface ViajesUpdateParams {
@@ -9632,12 +9911,54 @@ export interface ViajesFindServiciosParams {
 
 export type ViajesFindServiciosData = ViajeServicioResultDto[];
 
-export interface ViajesCreateServicioParams {
+export interface ViajesGetHojaRutaParams {
   /** ID del viaje */
   viajeId: number;
 }
 
-export type ViajesCreateServicioData = ViajeServicioResultDto;
+export type ViajesGetHojaRutaData = ViajeHojaRutaResultDto;
+
+export interface ViajesRegistrarDescansoParams {
+  /** ID del viaje */
+  viajeId: number;
+}
+
+export type ViajesRegistrarDescansoData = ViajeServicioResultDto;
+
+export interface ViajesRegistrarSalidaParams {
+  /** ID del viaje */
+  viajeId: number;
+}
+
+export type ViajesRegistrarSalidaData = ViajeServicioResultDto;
+
+export interface ViajesRegistrarLlegadaParams {
+  /** ID del viaje */
+  viajeId: number;
+}
+
+export type ViajesRegistrarLlegadaData = ViajeServicioResultDto;
+
+export interface ViajesRegistrarPuntoParams {
+  /** ID del viaje */
+  viajeId: number;
+}
+
+export type ViajesRegistrarPuntoData = ViajeServicioResultDto;
+
+export interface ViajesRegistrarParadaParams {
+  /** ID del viaje */
+  viajeId: number;
+}
+
+export type ViajesRegistrarParadaData = ViajeServicioResultDto;
+
+export interface ViajesGetProximoTramoParams {
+  /** ID del viaje */
+  viajeId: number;
+}
+
+export type ViajesGetProximoTramoData = ViajeProximoTramoResultDto;
 
 export interface ViajesUpdateServicioParams {
   /** ID del servicio */
@@ -12549,6 +12870,26 @@ export namespace Viajes {
   /**
    * No description
    * @tags viajes
+   * @name ViajesFindTrayecto
+   * @summary Visualizar trayecto de un vehículo (paradas fijas y ocasionales)
+   * @request GET:/viaje/{id}/trayecto
+   * @secure
+   * @response `200` `ViajesFindTrayectoData`
+   */
+  export namespace ViajesFindTrayecto {
+    export type RequestParams = {
+      /** ID del viaje */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ViajesFindTrayectoData;
+  }
+
+  /**
+   * No description
+   * @tags viajes
    * @name ViajesCreate
    * @summary Crear un circuito de viajes (ida y vuelta)
    * @request POST:/viaje/create
@@ -12929,21 +13270,141 @@ export namespace Viajes {
   /**
    * No description
    * @tags viajes
-   * @name ViajesCreateServicio
-   * @summary Crear un nuevo servicio/tramo para un viaje
-   * @request POST:/viaje/{viajeId}/servicio/create
+   * @name ViajesGetHojaRuta
+   * @summary Obtener los servicios formateados como hoja de ruta (trayectos entre puntos)
+   * @request GET:/viaje/{viajeId}/hoja-ruta
    * @secure
-   * @response `201` `ViajesCreateServicioData`
+   * @response `200` `ViajesGetHojaRutaData`
    */
-  export namespace ViajesCreateServicio {
+  export namespace ViajesGetHojaRuta {
     export type RequestParams = {
       /** ID del viaje */
       viajeId: number;
     };
     export type RequestQuery = {};
-    export type RequestBody = ViajeServicioCreateDto;
+    export type RequestBody = never;
     export type RequestHeaders = {};
-    export type ResponseBody = ViajesCreateServicioData;
+    export type ResponseBody = ViajesGetHojaRutaData;
+  }
+
+  /**
+   * No description
+   * @tags viajes
+   * @name ViajesRegistrarDescanso
+   * @summary Registrar un descanso por parte del conductor
+   * @request POST:/viaje/{viajeId}/registrar-descanso
+   * @secure
+   * @response `201` `ViajesRegistrarDescansoData`
+   */
+  export namespace ViajesRegistrarDescanso {
+    export type RequestParams = {
+      /** ID del viaje */
+      viajeId: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = ViajeRegistrarDescansoDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = ViajesRegistrarDescansoData;
+  }
+
+  /**
+   * No description
+   * @tags viajes
+   * @name ViajesRegistrarSalida
+   * @summary Registrar la salida del viaje (origen)
+   * @request POST:/viaje/{viajeId}/registrar-salida
+   * @secure
+   * @response `201` `ViajesRegistrarSalidaData`
+   */
+  export namespace ViajesRegistrarSalida {
+    export type RequestParams = {
+      /** ID del viaje */
+      viajeId: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = ViajeRegistrarSalidaDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = ViajesRegistrarSalidaData;
+  }
+
+  /**
+   * No description
+   * @tags viajes
+   * @name ViajesRegistrarLlegada
+   * @summary Registrar la llegada del viaje (destino)
+   * @request POST:/viaje/{viajeId}/registrar-llegada
+   * @secure
+   * @response `201` `ViajesRegistrarLlegadaData`
+   */
+  export namespace ViajesRegistrarLlegada {
+    export type RequestParams = {
+      /** ID del viaje */
+      viajeId: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = ViajeRegistrarLlegadaDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = ViajesRegistrarLlegadaData;
+  }
+
+  /**
+   * No description
+   * @tags viajes
+   * @name ViajesRegistrarPunto
+   * @summary Registrar el paso por un punto fijo programado
+   * @request POST:/viaje/{viajeId}/registrar-punto
+   * @secure
+   * @response `201` `ViajesRegistrarPuntoData`
+   */
+  export namespace ViajesRegistrarPunto {
+    export type RequestParams = {
+      /** ID del viaje */
+      viajeId: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = ViajeRegistrarPuntoDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = ViajesRegistrarPuntoData;
+  }
+
+  /**
+   * No description
+   * @tags viajes
+   * @name ViajesRegistrarParada
+   * @summary Registrar una parada ocasional no programada
+   * @request POST:/viaje/{viajeId}/registrar-parada
+   * @secure
+   * @response `201` `ViajesRegistrarParadaData`
+   */
+  export namespace ViajesRegistrarParada {
+    export type RequestParams = {
+      /** ID del viaje */
+      viajeId: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = ViajeRegistrarParadaDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = ViajesRegistrarParadaData;
+  }
+
+  /**
+   * No description
+   * @tags viajes
+   * @name ViajesGetProximoTramo
+   * @summary Obtener la sugerencia del próximo tramo basado en la ruta y el progreso actual
+   * @request GET:/viaje/{viajeId}/proximo-tramo
+   * @secure
+   * @response `200` `ViajesGetProximoTramoData`
+   */
+  export namespace ViajesGetProximoTramo {
+    export type RequestParams = {
+      /** ID del viaje */
+      viajeId: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ViajesGetProximoTramoData;
   }
 
   /**
@@ -16937,6 +17398,28 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags viajes
+     * @name ViajesFindTrayecto
+     * @summary Visualizar trayecto de un vehículo (paradas fijas y ocasionales)
+     * @request GET:/viaje/{id}/trayecto
+     * @secure
+     * @response `200` `ViajesFindTrayectoData`
+     */
+    findTrayecto: (
+      { id, ...query }: ViajesFindTrayectoParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ViajesFindTrayectoData, any>({
+        path: `/viaje/${id}/trayecto`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags viajes
      * @name ViajesCreate
      * @summary Crear un circuito de viajes (ida y vuelta)
      * @request POST:/viaje/create
@@ -17371,23 +17854,167 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags viajes
-     * @name ViajesCreateServicio
-     * @summary Crear un nuevo servicio/tramo para un viaje
-     * @request POST:/viaje/{viajeId}/servicio/create
+     * @name ViajesGetHojaRuta
+     * @summary Obtener los servicios formateados como hoja de ruta (trayectos entre puntos)
+     * @request GET:/viaje/{viajeId}/hoja-ruta
      * @secure
-     * @response `201` `ViajesCreateServicioData`
+     * @response `200` `ViajesGetHojaRutaData`
      */
-    createServicio: (
-      { viajeId, ...query }: ViajesCreateServicioParams,
-      data: ViajeServicioCreateDto,
+    getHojaRuta: (
+      { viajeId, ...query }: ViajesGetHojaRutaParams,
       params: RequestParams = {},
     ) =>
-      this.http.request<ViajesCreateServicioData, any>({
-        path: `/viaje/${viajeId}/servicio/create`,
+      this.http.request<ViajesGetHojaRutaData, any>({
+        path: `/viaje/${viajeId}/hoja-ruta`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags viajes
+     * @name ViajesRegistrarDescanso
+     * @summary Registrar un descanso por parte del conductor
+     * @request POST:/viaje/{viajeId}/registrar-descanso
+     * @secure
+     * @response `201` `ViajesRegistrarDescansoData`
+     */
+    registrarDescanso: (
+      { viajeId, ...query }: ViajesRegistrarDescansoParams,
+      data: ViajeRegistrarDescansoDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ViajesRegistrarDescansoData, any>({
+        path: `/viaje/${viajeId}/registrar-descanso`,
         method: "POST",
         body: data,
         secure: true,
         type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags viajes
+     * @name ViajesRegistrarSalida
+     * @summary Registrar la salida del viaje (origen)
+     * @request POST:/viaje/{viajeId}/registrar-salida
+     * @secure
+     * @response `201` `ViajesRegistrarSalidaData`
+     */
+    registrarSalida: (
+      { viajeId, ...query }: ViajesRegistrarSalidaParams,
+      data: ViajeRegistrarSalidaDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ViajesRegistrarSalidaData, any>({
+        path: `/viaje/${viajeId}/registrar-salida`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags viajes
+     * @name ViajesRegistrarLlegada
+     * @summary Registrar la llegada del viaje (destino)
+     * @request POST:/viaje/{viajeId}/registrar-llegada
+     * @secure
+     * @response `201` `ViajesRegistrarLlegadaData`
+     */
+    registrarLlegada: (
+      { viajeId, ...query }: ViajesRegistrarLlegadaParams,
+      data: ViajeRegistrarLlegadaDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ViajesRegistrarLlegadaData, any>({
+        path: `/viaje/${viajeId}/registrar-llegada`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags viajes
+     * @name ViajesRegistrarPunto
+     * @summary Registrar el paso por un punto fijo programado
+     * @request POST:/viaje/{viajeId}/registrar-punto
+     * @secure
+     * @response `201` `ViajesRegistrarPuntoData`
+     */
+    registrarPunto: (
+      { viajeId, ...query }: ViajesRegistrarPuntoParams,
+      data: ViajeRegistrarPuntoDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ViajesRegistrarPuntoData, any>({
+        path: `/viaje/${viajeId}/registrar-punto`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags viajes
+     * @name ViajesRegistrarParada
+     * @summary Registrar una parada ocasional no programada
+     * @request POST:/viaje/{viajeId}/registrar-parada
+     * @secure
+     * @response `201` `ViajesRegistrarParadaData`
+     */
+    registrarParada: (
+      { viajeId, ...query }: ViajesRegistrarParadaParams,
+      data: ViajeRegistrarParadaDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ViajesRegistrarParadaData, any>({
+        path: `/viaje/${viajeId}/registrar-parada`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags viajes
+     * @name ViajesGetProximoTramo
+     * @summary Obtener la sugerencia del próximo tramo basado en la ruta y el progreso actual
+     * @request GET:/viaje/{viajeId}/proximo-tramo
+     * @secure
+     * @response `200` `ViajesGetProximoTramoData`
+     */
+    getProximoTramo: (
+      { viajeId, ...query }: ViajesGetProximoTramoParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ViajesGetProximoTramoData, any>({
+        path: `/viaje/${viajeId}/proximo-tramo`,
+        method: "GET",
+        secure: true,
         format: "json",
         ...params,
       }),

@@ -1,0 +1,45 @@
+<app-modal-form
+  title="Registrar Descanso"
+  submitText="Registrar"
+  [loading]="isSubmitting"
+  maxWidth="sm"
+  (onSubmit)="save()"
+  (onClose)="close()"
+>
+  <form [formGroup]="form" class="p-6 space-y-8">
+    <!-- Tiempo de descanso -->
+    <div class="space-y-3">
+      <label class="text-[10px] font-inter-bold text-text/50 uppercase tracking-widest"
+        >Tiempo de Descanso</label
+      >
+      <div class="relative group">
+        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+          <i
+            class="fas fa-clock text-xs text-text/25 transition-colors group-focus-within:text-secondary"
+          ></i>
+        </div>
+        <input
+          type="number"
+          formControlName="minutosDescanso"
+          class="w-full pl-10 pr-14 py-3 text-sm bg-background border border-text/8 focus:border-secondary/50 rounded-xl outline-none transition-all font-inter-medium"
+          placeholder="0"
+          min="1"
+        />
+        <div class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none">
+          <span class="text-[10px] font-inter-bold text-text/30 uppercase">min</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rango horario informativo -->
+    <div class="flex items-center justify-center gap-2.5 py-4">
+      <span class="text-[11px] font-inter-medium text-text/35 tracking-wide">
+        {{ horaInicio }}
+      </span>
+      <span class="text-[10px] text-text/15">—</span>
+      <span class="text-[11px] font-inter-medium text-text/35 tracking-wide">
+        {{ horaFin }}
+      </span>
+    </div>
+  </form>
+</app-modal-form>

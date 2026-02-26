@@ -104,6 +104,79 @@ export class ViajeService {
   async deleteComentario(id: ApiParam<'viajes', 'deleteComentario', 'id'>) {
     return await this.api.viajes.deleteComentario({ id }).then((response) => response.data);
   }
+  // Servicios / Tramos
+  async findServicios(viajeId: ApiParam<'viajes', 'findServicios', 'viajeId'>) {
+    return await this.api.viajes.findServicios({ viajeId }).then((response) => response.data);
+  }
+
+  async registrarSalida(
+    viajeId: ApiParam<'viajes', 'registrarSalida', 'viajeId'>,
+    data: ApiBody<'viajes', 'registrarSalida'>,
+  ) {
+    return await this.api.viajes
+      .registrarSalida({ viajeId }, data)
+      .then((response) => response.data);
+  }
+
+  async registrarLlegada(
+    viajeId: ApiParam<'viajes', 'registrarLlegada', 'viajeId'>,
+    data: ApiBody<'viajes', 'registrarLlegada'>,
+  ) {
+    return await this.api.viajes
+      .registrarLlegada({ viajeId }, data)
+      .then((response) => response.data);
+  }
+
+  async registrarPunto(
+    viajeId: ApiParam<'viajes', 'registrarPunto', 'viajeId'>,
+    data: ApiBody<'viajes', 'registrarPunto'>,
+  ) {
+    return await this.api.viajes
+      .registrarPunto({ viajeId }, data)
+      .then((response) => response.data);
+  }
+
+  async registrarParada(
+    viajeId: ApiParam<'viajes', 'registrarParada', 'viajeId'>,
+    data: ApiBody<'viajes', 'registrarParada'>,
+  ) {
+    return await this.api.viajes
+      .registrarParada({ viajeId }, data)
+      .then((response) => response.data);
+  }
+
+  async registrarDescanso(
+    viajeId: ApiParam<'viajes', 'registrarDescanso', 'viajeId'>,
+    data: ApiBody<'viajes', 'registrarDescanso'>,
+  ) {
+    return await this.api.viajes
+      .registrarDescanso({ viajeId }, data)
+      .then((response) => response.data);
+  }
+
+  async updateServicio(
+    id: ApiParam<'viajes', 'updateServicio', 'id'>,
+    data: ApiBody<'viajes', 'updateServicio'>,
+  ) {
+    return await this.api.viajes.updateServicio({ id }, data).then((response) => response.data);
+  }
+
+  async deleteServicio(id: ApiParam<'viajes', 'deleteServicio', 'id'>) {
+    return await this.api.viajes.deleteServicio({ id }).then((response) => response.data);
+  }
+
+  async getProximoTramo(viajeId: number) {
+    return await this.api.viajes.getProximoTramo({ viajeId }).then((response) => response.data);
+  }
+
+  async getHojaRuta(viajeId: number) {
+    return await this.api.viajes.getHojaRuta({ viajeId }).then((response) => response.data);
+  }
+
+  async findTrayecto(viajeId: number) {
+    return await this.api.viajes.findTrayecto({ id: viajeId }).then((response) => response.data);
+  }
+
   generateHojaRuta(viaje: ViajeResultDto): void {
     generateHojaRutaPdf(viaje);
   }

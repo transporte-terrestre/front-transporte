@@ -1,362 +1,105 @@
 <form [formGroup]="rutaForm" class="p-4 space-y-4">
-  <!-- Nombre + Trayectos (alineados con mapa | paradas) -->
-  <div class="flex flex-col xl:flex-row gap-4 xl:gap-6">
-    <!-- Nombre (alineado con columna mapa) -->
-    <div class="xl:flex-1 xl:min-w-0 flex flex-col space-y-1.5">
-      <label class="text-xs font-inter-bold text-text uppercase flex items-center gap-2">
-        <i class="fas fa-route text-secondary"></i>
-        Nombre
-      </label>
-      <input
-        type="text"
-        formControlName="nombre"
-        placeholder="Ej: Lima - Ica"
-        class="w-full px-3 py-1.5 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-      />
-    </div>
-
-    <!-- Trayectos (alineado con columna paradas) -->
-    <div class="xl:w-[380px] xl:shrink-0 flex flex-col space-y-1.5">
-      <div class="flex items-center justify-between min-h-4">
-        @if (tipoTrayecto() !== 'ambos') {
-          <label class="text-xs font-inter-bold text-text uppercase flex items-center gap-2">
-            <i class="fas fa-exchange-alt text-secondary"></i>
-            Trayectos
-          </label>
-        } @else {
-          <label class="text-xs font-inter-bold text-text uppercase flex items-center gap-2"
-            >Opciones de Vuelta</label
-          >
-        }
-
-        @if (tipoTrayecto() === 'ambos') {
-          <div class="flex items-center gap-2">
-            <label
-              class="text-[10px] font-inter-semibold text-text cursor-pointer select-none"
-              for="switch-vuelta"
-            >
-              ¿Iguales?
-            </label>
-            <label class="inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                id="switch-vuelta"
-                [checked]="esVueltaIgual()"
-                (change)="toggleVueltaSeparada()"
-                class="sr-only peer"
-              />
-              <div
-                class="relative w-7 h-4 bg-text/10 peer-focus:outline-none rounded-full peer peer-checked:bg-secondary after:content-[''] after:absolute after:top-0.5 after:start-0.5 after:bg-background after:border-text/20 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:after:translate-x-3 peer-checked:after:border-background"
-              ></div>
-            </label>
-          </div>
-        }
-      </div>
-
-      <div class="flex gap-2 flex-1">
-        <button
-          type="button"
-          (click)="tipoTrayecto.set('ida')"
-          class="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-xs font-inter-semibold border transition-all cursor-pointer"
-          [class]="
-            tipoTrayecto() === 'ida'
-              ? 'bg-secondary/15 border-secondary/40 text-secondary'
-              : 'bg-text/5 border-text/15 text-text/40'
-          "
-        >
-          <i class="fas" [class]="tipoTrayecto() === 'ida' ? 'fa-check-circle' : 'fa-circle'"></i>
-          Solo ida
-        </button>
-        <button
-          type="button"
-          (click)="tipoTrayecto.set('vuelta')"
-          class="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-xs font-inter-semibold border transition-all cursor-pointer"
-          [class]="
-            tipoTrayecto() === 'vuelta'
-              ? 'bg-secondary/15 border-secondary/40 text-secondary'
-              : 'bg-text/5 border-text/15 text-text/40'
-          "
-        >
-          <i
-            class="fas"
-            [class]="tipoTrayecto() === 'vuelta' ? 'fa-check-circle' : 'fa-circle'"
-          ></i>
-          Solo vuelta
-        </button>
-        <button
-          type="button"
-          (click)="tipoTrayecto.set('ambos')"
-          class="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-xs font-inter-semibold border transition-all cursor-pointer"
-          [class]="
-            tipoTrayecto() === 'ambos'
-              ? 'bg-secondary/15 border-secondary/40 text-secondary'
-              : 'bg-text/5 border-text/15 text-text/40'
-          "
-        >
-          <i class="fas" [class]="tipoTrayecto() === 'ambos' ? 'fa-check-circle' : 'fa-circle'"></i>
-          Ida y vuelta
-        </button>
-      </div>
+  <div class="flex">
+    <div class="w-full">
+      <app-ruta-form-options
+        [form]="rutaForm"
+        [tipoTrayecto]="tipoTrayecto()"
+        [esVueltaIgual]="esVueltaIgual()"
+        (tipoTrayectoChange)="tipoTrayecto.set($event)"
+        (toggleVuelta)="toggleVueltaSeparada()"
+      ></app-ruta-form-options>
     </div>
   </div>
+
 
   <!-- Layout principal: IDA -->
   <div class="flex flex-col xl:flex-row gap-4 xl:gap-6">
-    <!-- Columna Izquierda: Mapa + Distancia/Costo -->
     <div class="flex flex-col gap-4 xl:flex-1 xl:min-w-0">
-      <div class="space-y-3 flex flex-col">
-        <!-- Origen y Destino Text Inputs -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <div class="space-y-2">
-            <div>
-              <label class="text-xs font-inter-semibold text-text mb-1 flex items-center gap-2">
-                <i class="fas fa-map-marker-alt text-success"></i>
-                Origen
-              </label>
-              <input
-                type="text"
-                formControlName="origen"
-                class="w-full px-3 py-1.5 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all placeholder:text-text/30"
-                placeholder="Ej. Villa El Salvador"
-              />
-            </div>
-            <div class="grid grid-cols-2 gap-2">
-              <div class="flex flex-col">
-                <label class="text-[10px] font-inter-medium text-text/40 uppercase ml-1"
-                  >Latitud</label
-                >
-                <input
-                  type="text"
-                  formControlName="origenLat"
-                  class="px-2 py-1 text-xs bg-text/5 border border-transparent focus:border-secondary/30 rounded-md text-text/70 outline-none transition-all"
-                />
-              </div>
-              <div class="flex flex-col">
-                <label class="text-[10px] font-inter-medium text-text/40 uppercase ml-1"
-                  >Longitud</label
-                >
-                <input
-                  type="text"
-                  formControlName="origenLng"
-                  class="px-2 py-1 text-xs bg-text/5 border border-transparent focus:border-secondary/30 rounded-md text-text/70 outline-none transition-all"
-                />
-              </div>
-            </div>
-          </div>
-          <div class="space-y-2">
-            <div>
-              <label class="text-xs font-inter-semibold text-text mb-1 flex items-center gap-2">
-                <i class="fas fa-map-marker-alt text-danger"></i>
-                Destino
-              </label>
-              <input
-                type="text"
-                formControlName="destino"
-                class="w-full px-3 py-1.5 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all placeholder:text-text/30"
-                placeholder="Ej. Santiago de Surco"
-              />
-            </div>
-            <div class="grid grid-cols-2 gap-2">
-              <div class="flex flex-col">
-                <label class="text-[10px] font-inter-medium text-text/40 uppercase ml-1"
-                  >Latitud</label
-                >
-                <input
-                  type="text"
-                  formControlName="destinoLat"
-                  class="px-2 py-1 text-xs bg-text/5 border border-transparent focus:border-secondary/30 rounded-md text-text/70 outline-none transition-all"
-                />
-              </div>
-              <div class="flex flex-col">
-                <label class="text-[10px] font-inter-medium text-text/40 uppercase ml-1"
-                  >Longitud</label
-                >
-                <input
-                  type="text"
-                  formControlName="destinoLng"
-                  class="px-2 py-1 text-xs bg-text/5 border border-transparent focus:border-secondary/30 rounded-md text-text/70 outline-none transition-all"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="flex justify-between items-center">
-          <label class="text-xs font-inter-bold text-text uppercase flex items-center gap-2">
-            <i class="fas fa-map text-secondary"></i>
-            Mapa ({{ tipoTrayecto() === 'vuelta' ? 'Vuelta' : 'Ida' }})
-          </label>
-          <span class="text-xs text-text/60 font-inter-regular">
-            <i class="fas fa-hand-pointer mr-1"></i> Arrastra los marcadores
-          </span>
-        </div>
-
-        <div
-          class="bg-text/5 rounded-lg border border-text/10 overflow-hidden h-[300px] xl:h-[380px] relative z-0"
-        >
-          <div id="map" class="w-full h-full z-0"></div>
-        </div>
+      <div>
+        <app-ruta-form-map
+          [form]="rutaForm"
+          mapId="map"
+          [title]="
+            'Mapa (' +
+            (tipoTrayecto() === 'vuelta'
+              ? 'Vuelta'
+              : tipoTrayecto() === 'ambos' && esVueltaIgual()
+                ? 'Ida y Vuelta'
+                : 'Ida') +
+            ')'
+          "
+          distanceControlName="distancia"
+          timeControlName="tiempoEstimado"
+        ></app-ruta-form-map>
       </div>
+    </div>
 
-      <!-- Distancia y Costo -->
-      <div class="grid grid-cols-2 gap-3">
-        <div>
-          <label class="text-xs font-inter-semibold text-text mb-1 flex items-center gap-2">
-            <i class="fas fa-road text-info"></i>
-            Distancia (km)
-          </label>
-          <input
-            type="text"
-            formControlName="distancia"
-            readonly
-            class="w-full px-3 py-1.5 text-sm bg-text/5 border-2 border-transparent rounded-lg text-text font-inter-semibold outline-none"
-            placeholder="0.00"
-          />
-        </div>
-
-        <div>
-          <label class="text-xs font-inter-semibold text-text mb-1 flex items-center gap-2">
-            <i class="fas fa-clock text-success"></i>
-            Tiempo Estimado (min)
-          </label>
-          <input
-            type="number"
-            formControlName="tiempoEstimado"
-            class="w-full px-3 py-1.5 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-            placeholder="Minutos (ej. 210)"
-          />
-        </div>
+    <div class="xl:w-[380px] xl:shrink-0 flex flex-col space-y-3">
+      <div>
+        <app-ruta-form-sections
+          [form]="rutaForm"
+          [paradasArray]="paradasIdaFA"
+          type="ida"
+          [title]="
+            'Paradas (' +
+            (tipoTrayecto() === 'vuelta'
+              ? 'Vuelta'
+              : tipoTrayecto() === 'ambos' && esVueltaIgual()
+                ? 'Ida y Vuelta'
+                : 'Ida') +
+            ')'
+          "
+          [legDistances]="legDistances['ida']"
+          [readonly]="false"
+          origenControlName="origen"
+          origenLatControlName="origenLat"
+          origenLngControlName="origenLng"
+          destinoControlName="destino"
+          destinoLatControlName="destinoLat"
+          destinoLngControlName="destinoLng"
+          (onAddParada)="addParada($event.type, $event.index)"
+          (onRemoveParada)="removeParada($event.type, $event.index)"
+        ></app-ruta-form-sections>
       </div>
     </div>
   </div>
 
-  <!-- Layout VUELTA (Condicional) -->
   @if (showVuelta()) {
     <div class="border-t border-text/10 pt-6 mt-2">
       <div class="flex flex-col xl:flex-row gap-4 xl:gap-6">
-        <!-- Columna Izquierda: Mapa Vuelta -->
         <div class="flex flex-col gap-4 xl:flex-1 xl:min-w-0">
-          <div class="space-y-3 flex flex-col">
-            <!-- Origen y Destino Vuelta Inputs -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div class="space-y-2">
-                <div>
-                  <label class="text-xs font-inter-semibold text-text mb-1 flex items-center gap-2">
-                    <i class="fas fa-map-marker-alt text-success"></i>
-                    Origen (Vuelta)
-                  </label>
-                  <input
-                    type="text"
-                    formControlName="origenVuelta"
-                    [readonly]="tipoTrayecto() === 'ambos' && !esVueltaIgual()"
-                    class="w-full px-3 py-1.5 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all placeholder:text-text/30 disabled:opacity-50"
-                    [class.bg-text/10]="tipoTrayecto() === 'ambos' && !esVueltaIgual()"
-                    placeholder="Ej. Santiago de Surco"
-                  />
-                </div>
-                <div class="grid grid-cols-2 gap-2">
-                  <div class="flex flex-col">
-                    <label class="text-[10px] font-inter-medium text-text/40 uppercase ml-1"
-                      >Latitud</label
-                    >
-                    <input
-                      type="text"
-                      formControlName="origenLatVuelta"
-                      [readonly]="tipoTrayecto() === 'ambos' && !esVueltaIgual()"
-                      class="px-2 py-1 text-xs bg-text/5 border border-transparent focus:border-secondary/30 rounded-md text-text/70 outline-none transition-all"
-                    />
-                  </div>
-                  <div class="flex flex-col">
-                    <label class="text-[10px] font-inter-medium text-text/40 uppercase ml-1"
-                      >Longitud</label
-                    >
-                    <input
-                      type="text"
-                      formControlName="origenLngVuelta"
-                      [readonly]="tipoTrayecto() === 'ambos' && !esVueltaIgual()"
-                      class="px-2 py-1 text-xs bg-text/5 border border-transparent focus:border-secondary/30 rounded-md text-text/70 outline-none transition-all"
-                    />
-                  </div>
-                </div>
-              </div>
-              <div class="space-y-2">
-                <div>
-                  <label class="text-xs font-inter-semibold text-text mb-1 flex items-center gap-2">
-                    <i class="fas fa-map-marker-alt text-danger"></i>
-                    Destino (Vuelta)
-                  </label>
-                  <input
-                    type="text"
-                    formControlName="destinoVuelta"
-                    class="w-full px-3 py-1.5 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all placeholder:text-text/30"
-                    placeholder="Ej. Villa El Salvador"
-                  />
-                </div>
-                <div class="grid grid-cols-2 gap-2">
-                  <div class="flex flex-col">
-                    <label class="text-[10px] font-inter-medium text-text/40 uppercase ml-1"
-                      >Latitud</label
-                    >
-                    <input
-                      type="text"
-                      formControlName="destinoLatVuelta"
-                      class="px-2 py-1 text-xs bg-text/5 border border-transparent focus:border-secondary/30 rounded-md text-text/70 outline-none transition-all"
-                    />
-                  </div>
-                  <div class="flex flex-col">
-                    <label class="text-[10px] font-inter-medium text-text/40 uppercase ml-1"
-                      >Longitud</label
-                    >
-                    <input
-                      type="text"
-                      formControlName="destinoLngVuelta"
-                      class="px-2 py-1 text-xs bg-text/5 border border-transparent focus:border-secondary/30 rounded-md text-text/70 outline-none transition-all"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="flex justify-between items-center">
-              <label class="text-xs font-inter-bold text-text uppercase flex items-center gap-2">
-                <i class="fas fa-map text-secondary"></i> Mapa (Vuelta)
-              </label>
-            </div>
-            <div
-              class="bg-text/5 rounded-lg border border-text/10 overflow-hidden h-[300px] xl:h-[380px] relative z-0"
-            >
-              <div id="map-vuelta" class="w-full h-full z-0"></div>
-            </div>
+          <div>
+            <app-ruta-form-map
+              [form]="rutaForm"
+              mapId="map-vuelta"
+              title="Mapa (Vuelta)"
+              distanceControlName="distanciaVuelta"
+              timeControlName="tiempoEstimadoVuelta"
+            ></app-ruta-form-map>
           </div>
 
-          <div class="grid grid-cols-2 gap-3">
-            <div>
-              <label class="text-xs font-inter-semibold text-text mb-1 flex items-center gap-2">
-                <i class="fas fa-road text-info"></i> Distancia (km)
-              </label>
-              <input
-                type="text"
-                formControlName="distanciaVuelta"
-                readonly
-                class="w-full px-3 py-1.5 text-sm bg-text/5 border-2 border-transparent rounded-lg text-text font-inter-semibold outline-none"
-                placeholder="0.00"
-              />
-            </div>
-            <div>
-              <label class="text-xs font-inter-semibold text-text mb-1 flex items-center gap-2">
-                <i class="fas fa-clock text-success"></i> Tiempo Estimado (min)
-              </label>
-              <input
-                type="number"
-                formControlName="tiempoEstimadoVuelta"
-                class="w-full px-3 py-1.5 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-                placeholder="Minutos (ej. 210)"
-              />
-            </div>
-          </div>
         </div>
 
-        <!-- Columna Derecha: Paradas Vuelta - REMOVED -->
+        <div class="xl:w-[380px] xl:shrink-0 flex flex-col space-y-3">
+          <div>
+            <app-ruta-form-sections
+              [form]="rutaForm"
+              [paradasArray]="paradasVueltaFA"
+              type="vuelta"
+              title="Paradas (Vuelta)"
+              [legDistances]="legDistances['vuelta']"
+              [readonly]="tipoTrayecto() === 'ambos' && esVueltaIgual()"
+              origenControlName="origenVuelta"
+              origenLatControlName="origenLatVuelta"
+              origenLngControlName="origenLngVuelta"
+              destinoControlName="destinoVuelta"
+              destinoLatControlName="destinoLatVuelta"
+              destinoLngControlName="destinoLngVuelta"
+              (onAddParada)="addParada($event.type, $event.index)"
+              (onRemoveParada)="removeParada($event.type, $event.index)"
+            ></app-ruta-form-sections>
+          </div>
+        </div>
       </div>
     </div>
   }
