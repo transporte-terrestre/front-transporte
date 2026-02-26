@@ -3292,7 +3292,7 @@ export interface DocumentoItemDto {
   observacion?: string;
   /**
    * Fecha de Vencimiento Inicial/Por defecto
-   * @example "2026-02-26T04:37:32.480Z"
+   * @example "2026-02-26T16:25:49.272Z"
    */
   fechaVencimiento?: string;
 }
@@ -3475,17 +3475,17 @@ export interface BotiquinItemDto {
   habilitado: boolean;
   /**
    * Fecha de Vencimiento actual
-   * @example "2026-02-26T04:37:32.483Z"
+   * @example "2026-02-26T16:25:49.274Z"
    */
   fechaVencimiento?: string;
   /**
    * Fecha de Salida
-   * @example "2026-02-26T04:37:32.483Z"
+   * @example "2026-02-26T16:25:49.274Z"
    */
   fechaSalida?: string;
   /**
    * Fecha de Reposición
-   * @example "2026-02-26T04:37:32.483Z"
+   * @example "2026-02-26T16:25:49.274Z"
    */
   fechaReposicion?: string;
 }
@@ -6638,6 +6638,11 @@ export interface ViajeRegistrarSalidaDto {
    * @example "Terminal Terrestre"
    */
   nombreLugar?: string;
+  /**
+   * ID de la parada de ruta asociada (opcional)
+   * @example 1
+   */
+  rutaParadaId?: number;
 }
 
 export interface ViajeRegistrarLlegadaDto {
@@ -6672,6 +6677,11 @@ export interface ViajeRegistrarLlegadaDto {
    * @example "Terminal Terrestre"
    */
   nombreLugar?: string;
+  /**
+   * ID de la parada de ruta asociada (opcional)
+   * @example 1
+   */
+  rutaParadaId?: number;
 }
 
 export interface ViajeRegistrarPuntoDto {
@@ -6707,10 +6717,10 @@ export interface ViajeRegistrarPuntoDto {
    */
   nombreLugar?: string;
   /**
-   * ID de la parada de la ruta programada
+   * ID de la parada de ruta asociada (opcional)
    * @example 1
    */
-  rutaParadaId: number;
+  rutaParadaId?: number;
 }
 
 export interface ViajeRegistrarParadaDto {
@@ -6745,6 +6755,11 @@ export interface ViajeRegistrarParadaDto {
    * @example "Terminal Terrestre"
    */
   nombreLugar?: string;
+  /**
+   * ID de la parada de ruta asociada (opcional)
+   * @example 1
+   */
+  rutaParadaId?: number;
 }
 
 export interface ViajeProximoTramoResultDto {
@@ -9954,6 +9969,8 @@ export interface ViajesRegistrarParadaParams {
 export type ViajesRegistrarParadaData = ViajeServicioResultDto;
 
 export interface ViajesGetProximoTramoParams {
+  /** Tipo de tramo para el que se solicita sugerencia (origen, punto, parada, descanso, destino) */
+  tipo?: "origen" | "punto" | "parada" | "descanso" | "destino";
   /** ID del viaje */
   viajeId: number;
 }
@@ -13401,7 +13418,10 @@ export namespace Viajes {
       /** ID del viaje */
       viajeId: number;
     };
-    export type RequestQuery = {};
+    export type RequestQuery = {
+      /** Tipo de tramo para el que se solicita sugerencia (origen, punto, parada, descanso, destino) */
+      tipo?: "origen" | "punto" | "parada" | "descanso" | "destino";
+    };
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = ViajesGetProximoTramoData;
@@ -18014,6 +18034,7 @@ export class Api<SecurityDataType extends unknown> {
       this.http.request<ViajesGetProximoTramoData, any>({
         path: `/viaje/${viajeId}/proximo-tramo`,
         method: "GET",
+        query: query,
         secure: true,
         format: "json",
         ...params,

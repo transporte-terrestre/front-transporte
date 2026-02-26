@@ -110,6 +110,7 @@ export class DialogLlegadaComponent implements OnInit, OnDestroy {
         horaActual: isoString,
         kilometrajeActual: Number(val.kilometrajeActual),
         cantidadPasajeros: Number(val.cantidadPasajeros),
+        rutaParadaId: this.sugerencia()?.rutaParadaId || undefined,
       });
       this.toastService.success('Llegada registrada correctamente');
       this.onSaved.emit();

@@ -165,15 +165,15 @@ export class ViajeService {
     return await this.api.viajes.deleteServicio({ id }).then((response) => response.data);
   }
 
-  async getProximoTramo(viajeId: number) {
-    return await this.api.viajes.getProximoTramo({ viajeId }).then((response) => response.data);
+  async getProximoTramo(query: ApiQuery<'viajes', 'getProximoTramo'>) {
+    return await this.api.viajes.getProximoTramo(query).then((response) => response.data);
   }
 
-  async getHojaRuta(viajeId: number) {
+  async getHojaRuta(viajeId: ApiParam<'viajes', 'getHojaRuta', 'viajeId'>) {
     return await this.api.viajes.getHojaRuta({ viajeId }).then((response) => response.data);
   }
 
-  async findTrayecto(viajeId: number) {
+  async findTrayecto(viajeId: ApiParam<'viajes', 'findTrayecto', 'id'>) {
     return await this.api.viajes.findTrayecto({ id: viajeId }).then((response) => response.data);
   }
 

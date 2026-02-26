@@ -313,7 +313,7 @@ export class ViajeServiciosFormComponent implements AfterViewInit, OnDestroy {
 
     this.loadingSugerencia.set(true);
     try {
-      const sugerencia = await this.viajeService.getProximoTramo(this.viaje().id);
+      const sugerencia = await this.viajeService.getProximoTramo({ viajeId: this.viaje().id });
       this.proximoTramoSugerido.set(sugerencia);
       this.showDropdown.set(true);
     } catch (e) {
@@ -324,9 +324,28 @@ export class ViajeServiciosFormComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  openDialog(tipo: string) {
+  async openDialog(tipo: string) {
     this.showDropdown.set(false);
     this.closeAllDialogs();
+
+    // Si el tipo solicitado no coincide con la sugerencia actual, pedir al backend la sugerencia específica
+    const sugActual = this.proximoTramoSugerido();
+    if (
+      sugActual &&
+      sugActual.tipo !== tipo &&
+      (tipo === 'origen' || tipo === 'destino' || tipo === 'punto')
+    ) {
+      try {
+        const sugEspecifica = await this.viajeService.getProximoTramo({
+          viajeId: this.viaje().id,
+          tipo: tipo as 'origen' | 'punto' | 'parada' | 'descanso' | 'destino',
+        });
+        this.proximoTramoSugerido.set(sugEspecifica);
+      } catch (e) {
+        console.error('Error al obtener sugerencia específica:', e);
+      }
+    }
+
     switch (tipo) {
       case 'origen':
         this.showSalida.set(true);
