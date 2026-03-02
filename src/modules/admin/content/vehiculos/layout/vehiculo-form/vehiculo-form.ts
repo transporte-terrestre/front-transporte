@@ -397,8 +397,8 @@ export class VehiculoForm implements OnInit {
       tipo: tipo,
       nombre: event.nombre,
       url: event.url,
-      fechaEmision: event.fechaEmision,
-      fechaExpiracion: event.fechaExpiracion,
+      ...(event.fechaEmision ? { fechaEmision: event.fechaEmision } : {}),
+      ...(event.fechaExpiracion ? { fechaExpiracion: event.fechaExpiracion } : {}),
     };
 
     try {
@@ -412,11 +412,13 @@ export class VehiculoForm implements OnInit {
   }
 
   async handleDocumentUpdate(event: { id: number; fechaEmision: string; fechaExpiracion: string }) {
+    const payload: ApiBody<'vehiculos', 'updateDocumento'> = {
+      ...(event.fechaEmision ? { fechaEmision: event.fechaEmision } : {}),
+      ...(event.fechaExpiracion ? { fechaExpiracion: event.fechaExpiracion } : {}),
+    };
+
     try {
-      const doc = await this.vehiculoService.updateDocumento(event.id, {
-        fechaEmision: event.fechaEmision,
-        fechaExpiracion: event.fechaExpiracion,
-      });
+      const doc = await this.vehiculoService.updateDocumento(event.id, payload);
       this.toastService.success('Documento actualizado exitosamente');
       this.updateDocumentInLocalList(doc);
     } catch (err) {
