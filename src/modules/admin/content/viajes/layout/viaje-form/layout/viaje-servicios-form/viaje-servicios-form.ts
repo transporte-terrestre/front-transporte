@@ -18,7 +18,7 @@ import {
   ViajeProximoTramoResultDto,
   ViajePuntoTrayectoDto,
   ViajeResultDto,
-  ViajeServicioResultDto,
+  ViajeTramoResultDto,
 } from 'api/backend.api';
 import { DialogSalidaComponent } from './layout/dialog-salida/dialog-salida';
 import { DialogLlegadaComponent } from './layout/dialog-llegada/dialog-llegada';
@@ -63,7 +63,7 @@ export class ViajeServiciosFormComponent implements AfterViewInit, OnDestroy {
   viaje = input.required<ViajeResultDto>();
 
   // State
-  servicios = signal<ViajeServicioResultDto[]>([]);
+  servicios = signal<ViajeTramoResultDto[]>([]);
   puntosTrayecto = signal<ViajePuntoTrayectoDto[]>([]);
   loading = signal(false);
   showDropdown = signal(false);
@@ -86,7 +86,7 @@ export class ViajeServiciosFormComponent implements AfterViewInit, OnDestroy {
   hasSalida = computed(() => this.servicios().some((s) => s.tipo === 'origen'));
   hasLlegada = computed(() => this.servicios().some((s) => s.tipo === 'destino'));
 
-  selectedServicio = signal<ViajeServicioResultDto | null>(null);
+  selectedServicio = signal<ViajeTramoResultDto | null>(null);
   proximoTramoSugerido = signal<ViajeProximoTramoResultDto | null>(null);
   loadingSugerencia = signal(false);
 
@@ -267,7 +267,7 @@ export class ViajeServiciosFormComponent implements AfterViewInit, OnDestroy {
 
       // Cargar datos en paralelo
       const [dataServicios, dataTrayecto] = await Promise.all([
-        this.viajeService.findServicios(viajeId),
+        this.viajeService.findTramos(viajeId),
         this.viajeService.findTrayecto(viajeId),
       ]);
 
@@ -365,7 +365,7 @@ export class ViajeServiciosFormComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  prepareEditServicio(servicio: ViajeServicioResultDto) {
+  prepareEditServicio(servicio: ViajeTramoResultDto) {
     this.selectedServicio.set(servicio);
     this.showEdit.set(true);
   }
@@ -391,7 +391,7 @@ export class ViajeServiciosFormComponent implements AfterViewInit, OnDestroy {
       '¿Estás seguro de eliminar este tramo del viaje?',
       async () => {
         try {
-          await this.viajeService.deleteServicio(id);
+          await this.viajeService.deleteTramo(id);
           this.toastService.success('Tramo eliminado');
           this.loadData();
         } catch (error: any) {
@@ -419,7 +419,7 @@ export class ViajeServiciosFormComponent implements AfterViewInit, OnDestroy {
     return `${hours}:${minutes}`;
   }
 
-  getNombreLugar(tramo: ViajeServicioResultDto, index: number): string {
+  getNombreLugar(tramo: ViajeTramoResultDto, index: number): string {
     if (tramo.tipo !== 'descanso') {
       return tramo.nombreLugar || '—';
     }

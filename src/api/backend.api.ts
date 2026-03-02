@@ -3409,7 +3409,7 @@ export interface DocumentoItemDto {
   observacion?: string;
   /**
    * Fecha de Vencimiento Inicial/Por defecto
-   * @example "2026-03-01T22:23:10.854Z"
+   * @example "2026-03-02T16:40:26.773Z"
    */
   fechaVencimiento?: string;
 }
@@ -3592,17 +3592,17 @@ export interface BotiquinItemDto {
   habilitado: boolean;
   /**
    * Fecha de Vencimiento actual
-   * @example "2026-03-01T22:23:10.858Z"
+   * @example "2026-03-02T16:40:26.778Z"
    */
   fechaVencimiento?: string;
   /**
    * Fecha de Salida
-   * @example "2026-03-01T22:23:10.858Z"
+   * @example "2026-03-02T16:40:26.778Z"
    */
   fechaSalida?: string;
   /**
    * Fecha de Reposición
-   * @example "2026-03-01T22:23:10.858Z"
+   * @example "2026-03-02T16:40:26.778Z"
    */
   fechaReposicion?: string;
 }
@@ -6546,71 +6546,25 @@ export interface ViajeComentarioUpdateDto {
   tipo: "observacion" | "incidencia" | "novedad" | "general";
 }
 
-export interface ViajeServicioResultDto {
-  /**
-   * ID del servicio
-   * @example 1
-   */
+export interface ViajeTramoResultDto {
   id: number;
-  /**
-   * ID del viaje al que pertenece
-   * @example 1
-   */
   viajeId: number;
-  /**
-   * Tipo de servicio (punto, parada o descanso)
-   * @example "punto"
-   */
-  tipo?: "origen" | "punto" | "parada" | "descanso" | "destino";
-  /**
-   * ID de la parada de la ruta (si aplica)
-   * @example 1
-   */
-  rutaParadaId?: number;
-  /**
-   * Longitud mapeada
-   * @example -77.0282
-   */
+  tipo: "origen" | "punto" | "parada" | "descanso" | "destino";
   longitud?: number;
-  /**
-   * Latitud mapeada
-   * @example -12.0432
-   */
   latitud?: number;
-  /**
-   * Nombre descriptivo
-   * @example "Almacen Central"
-   */
   nombreLugar?: string;
-  /**
-   * Hora referencial
-   * @format date-time
-   * @example "2024-03-24T10:30:00Z"
-   */
+  /** @format date-time */
   horaFinal?: string;
-  /**
-   * Kilometraje reportado
-   * @example 94891
-   */
   kilometrajeFinal?: number;
-  /**
-   * Número de pasajeros
-   * @example 12
-   */
   numeroPasajeros?: number;
-  /**
-   * Fecha de creación
-   * @format date-time
-   */
+  rutaParadaId?: number;
+  /** @format date-time */
   creadoEn: string;
-  /**
-   * Fecha de última actualización
-   * @format date-time
-   */
+  /** @format date-time */
   actualizadoEn: string;
 }
 
-export interface ViajeServicioTramoDto {
+export interface ViajeItemHojaRutaDto {
   /**
    * Hora de salida del tramo
    * @example "10:00 AM"
@@ -6637,7 +6591,7 @@ export interface ViajeServicioTramoDto {
    */
   numeroPasajeros?: number;
   /**
-   * Hora de término del servicio
+   * Hora de término del tramo
    * @example "10:20 AM"
    */
   horaTermino: string;
@@ -6647,17 +6601,17 @@ export interface ViajeServicioTramoDto {
    */
   kmFinal: string;
   /**
-   * Tiempo de servicio en formato legible
+   * Tiempo de recorrido en formato legible
    * @example "20 min"
    */
-  tiempoServicio: string;
+  tiempoRecorrido: string;
   /**
    * Kilometraje recorrido en el tramo
    * @example "41 KM"
    */
-  kilometrajeServicio: string;
+  kilometrajeRecorrido: string;
   /**
-   * Tipo de servicio del punto de llegada
+   * Tipo de tramo del punto de llegada
    * @example "punto"
    */
   tipoDestino?: "origen" | "punto" | "parada" | "descanso" | "destino";
@@ -6665,9 +6619,9 @@ export interface ViajeServicioTramoDto {
 
 export interface ViajeHojaRutaResultDto {
   /** Lista de tramos del viaje */
-  tramos: ViajeServicioTramoDto[];
+  tramos: ViajeItemHojaRutaDto[];
   /**
-   * Resumen total de tiempo de servicio
+   * Resumen total de tiempo de viaje
    * @example "1h 30min"
    */
   tiempoTotal: string;
@@ -6894,27 +6848,17 @@ export interface ViajeProximoTramoResultDto {
   faltanPuntosFijos: boolean;
 }
 
-export interface ViajeServicioUpdateDto {
-  /**
-   * Nombre del lugar o parada
-   * @example "Terminal Terrestre"
-   */
+export interface ViajeTramoUpdateDto {
+  tipo?: "origen" | "punto" | "parada" | "descanso" | "destino";
+  longitud?: number;
+  latitud?: number;
   nombreLugar?: string;
   /**
-   * Hora final del registro
    * @format date-time
    * @example "2024-03-24T10:30:00Z"
    */
   horaFinal?: string;
-  /**
-   * Kilometraje final del odómetro
-   * @example 94891
-   */
   kilometrajeFinal?: number;
-  /**
-   * Número de pasajeros transportados
-   * @example 12
-   */
   numeroPasajeros?: number;
 }
 
@@ -6943,6 +6887,11 @@ export interface ViajePasajeroDetalleDto {
 
 export interface ViajePasajeroResultDto {
   /**
+   * ID del registro
+   * @example 1
+   */
+  id: number;
+  /**
    * ID del viaje
    * @example 1
    */
@@ -6951,7 +6900,22 @@ export interface ViajePasajeroResultDto {
    * ID del pasajero
    * @example 1
    */
-  pasajeroId: number;
+  pasajeroId?: number;
+  /**
+   * DNI del pasajero ad-hoc
+   * @example "12345678"
+   */
+  dni?: string;
+  /**
+   * Nombres del pasajero ad-hoc
+   * @example "Juan"
+   */
+  nombres?: string;
+  /**
+   * Apellidos del pasajero ad-hoc
+   * @example "Pérez"
+   */
+  apellidos?: string;
   /**
    * Asistencia del pasajero
    * @example false
@@ -6969,7 +6933,7 @@ export interface ViajePasajeroResultDto {
    * @example "2023-01-01T00:00:00.000Z"
    */
   actualizadoEn: string;
-  pasajero: ViajePasajeroDetalleDto;
+  pasajero?: ViajePasajeroDetalleDto;
 }
 
 export type PasajeroItemDto = object;
@@ -6980,6 +6944,74 @@ export interface ViajePasajeroFillDto {
    * @example [{"pasajeroId":1,"asistencia":true},{"pasajeroId":2,"asistencia":false}]
    */
   pasajeros: PasajeroItemDto[];
+}
+
+export interface ViajeEscanearDnisDto {
+  /**
+   * Array de URLs de las imágenes de los DNIs (formato jpg, png)
+   * @example ["https://ejemplo.com/dni1.jpg"]
+   */
+  urls: string[];
+}
+
+export interface ScanDniResultItem {
+  /**
+   * Número de DNI extraído
+   * @example "72750623"
+   */
+  dni: string;
+  /**
+   * Nombres extraídos
+   * @example "ERICK STIP"
+   */
+  nombres: string;
+  /**
+   * Apellidos extraídos
+   * @example "FLORES SANTOS"
+   */
+  apellidos: string;
+  /**
+   * Indica si se pudo procesar la imagen
+   * @example true
+   */
+  matched: boolean;
+  /**
+   * Estado final del procesamiento
+   * @example "CREADO_AD_HOC"
+   */
+  status: string;
+  /**
+   * URL procesada si hubo error
+   * @example "https://ejemplo.com/dni.jpg"
+   */
+  url?: string;
+  /**
+   * Mensaje de error
+   * @example "No se pudo extraer información"
+   */
+  error?: string;
+}
+
+export interface ViajeEscanearDnisResultDto {
+  /** @example true */
+  exito: boolean;
+  /** @example "Procesamiento de DNIs completado" */
+  mensaje: string;
+  resultados: ScanDniResultItem[];
+  pasajerosActualizados: ViajePasajeroResultDto[];
+}
+
+export interface ViajePasajeroAbordajeDto {
+  /**
+   * ID del registro de pasajero en el viaje (viaje_pasajeros)
+   * @example 1
+   */
+  viajePasajeroId: number;
+  /**
+   * Estado de asistencia/abordaje
+   * @example true
+   */
+  asistencia: boolean;
 }
 
 export interface ChecklistItemResultDto {
@@ -8969,6 +9001,20 @@ export interface ProveedorDocumentoUpdateDto {
   fechaEmision?: string;
 }
 
+export interface AlquilerVehiculoDto {
+  id: number;
+  placa: string;
+  marca: string;
+  modelo: string;
+}
+
+export interface AlquilerProveedorDto {
+  id: number;
+  nombreCompleto: string;
+  dni: string;
+  ruc?: string;
+}
+
 export interface AlquilerItemDto {
   id: number;
   vehiculoId: number;
@@ -8983,8 +9029,8 @@ export interface AlquilerItemDto {
   creadoEn: string;
   /** @format date-time */
   actualizadoEn: string;
-  vehiculo?: object;
-  proveedor?: object;
+  vehiculo?: AlquilerVehiculoDto;
+  proveedor?: AlquilerProveedorDto;
 }
 
 export interface AlquilerPaginationMetaDto {
@@ -9015,8 +9061,8 @@ export interface AlquilerResultDto {
   creadoEn: string;
   /** @format date-time */
   actualizadoEn: string;
-  vehiculo?: object;
-  proveedor?: object;
+  vehiculo?: AlquilerVehiculoDto;
+  proveedor?: AlquilerProveedorDto;
 }
 
 export interface AlquilerCreateDto {
@@ -10238,12 +10284,12 @@ export interface ViajesDeleteComentarioParams {
 
 export type ViajesDeleteComentarioData = ViajeComentarioResultDto;
 
-export interface ViajesFindServiciosParams {
+export interface ViajesFindTramosParams {
   /** ID del viaje */
   viajeId: number;
 }
 
-export type ViajesFindServiciosData = ViajeServicioResultDto[];
+export type ViajesFindTramosData = ViajeTramoResultDto[];
 
 export interface ViajesGetHojaRutaParams {
   /** ID del viaje */
@@ -10257,35 +10303,35 @@ export interface ViajesRegistrarDescansoParams {
   viajeId: number;
 }
 
-export type ViajesRegistrarDescansoData = ViajeServicioResultDto;
+export type ViajesRegistrarDescansoData = ViajeTramoResultDto;
 
 export interface ViajesRegistrarSalidaParams {
   /** ID del viaje */
   viajeId: number;
 }
 
-export type ViajesRegistrarSalidaData = ViajeServicioResultDto;
+export type ViajesRegistrarSalidaData = ViajeTramoResultDto;
 
 export interface ViajesRegistrarLlegadaParams {
   /** ID del viaje */
   viajeId: number;
 }
 
-export type ViajesRegistrarLlegadaData = ViajeServicioResultDto;
+export type ViajesRegistrarLlegadaData = ViajeTramoResultDto;
 
 export interface ViajesRegistrarPuntoParams {
   /** ID del viaje */
   viajeId: number;
 }
 
-export type ViajesRegistrarPuntoData = ViajeServicioResultDto;
+export type ViajesRegistrarPuntoData = ViajeTramoResultDto;
 
 export interface ViajesRegistrarParadaParams {
   /** ID del viaje */
   viajeId: number;
 }
 
-export type ViajesRegistrarParadaData = ViajeServicioResultDto;
+export type ViajesRegistrarParadaData = ViajeTramoResultDto;
 
 export interface ViajesGetProximoTramoParams {
   /** Tipo de tramo para el que se solicita sugerencia (origen, punto, parada, descanso, destino) */
@@ -10296,19 +10342,19 @@ export interface ViajesGetProximoTramoParams {
 
 export type ViajesGetProximoTramoData = ViajeProximoTramoResultDto;
 
-export interface ViajesUpdateServicioParams {
-  /** ID del servicio */
+export interface ViajesUpdateTramoParams {
+  /** ID del tramo */
   id: number;
 }
 
-export type ViajesUpdateServicioData = ViajeServicioResultDto;
+export type ViajesUpdateTramoData = ViajeTramoResultDto;
 
-export interface ViajesDeleteServicioParams {
-  /** ID del servicio */
+export interface ViajesDeleteTramoParams {
+  /** ID del tramo */
   id: number;
 }
 
-export type ViajesDeleteServicioData = ViajeServicioResultDto;
+export type ViajesDeleteTramoData = ViajeTramoResultDto;
 
 export interface ViajesFindPasajerosParams {
   /** ID del viaje */
@@ -10323,6 +10369,20 @@ export interface ViajesUpsertPasajerosParams {
 }
 
 export type ViajesUpsertPasajerosData = ViajePasajeroResultDto[];
+
+export interface ViajesEscanearDnisParams {
+  /** ID del viaje */
+  viajeId: number;
+}
+
+export type ViajesEscanearDnisData = ViajeEscanearDnisResultDto;
+
+export interface ViajesRegistrarAbordajeParams {
+  /** ID del viaje */
+  viajeId: number;
+}
+
+export type ViajesRegistrarAbordajeData = any;
 
 export type ViajesFindAllChecklistItemsData = ChecklistItemResultDto[];
 
@@ -13219,7 +13279,7 @@ export namespace Rutas {
 
 export namespace Viajes {
   /**
-   * @description Busca por estado, ruta ocasional y modalidad. Filtra por rango de fechas, modalidad de servicio y tipo de viaje (ocasional o regular). Si el token es de un conductor, solo retorna sus viajes asignados.
+   * @description Busca por estado, ruta ocasional y modalidad. Filtra por rango de fechas, modalidad de servicio y tipo de viaje. Si el token es de un conductor, solo retorna sus viajes asignados.
    * @tags viajes
    * @name ViajesFindAll
    * @summary Obtener viajes con paginación, búsqueda y filtros
@@ -13753,13 +13813,13 @@ export namespace Viajes {
   /**
    * No description
    * @tags viajes
-   * @name ViajesFindServicios
-   * @summary Obtener todos los servicios/tramos de un viaje
-   * @request GET:/viaje/{viajeId}/servicios
+   * @name ViajesFindTramos
+   * @summary Obtener todos los tramos de un viaje
+   * @request GET:/viaje/{viajeId}/tramos
    * @secure
-   * @response `200` `ViajesFindServiciosData`
+   * @response `200` `ViajesFindTramosData`
    */
-  export namespace ViajesFindServicios {
+  export namespace ViajesFindTramos {
     export type RequestParams = {
       /** ID del viaje */
       viajeId: number;
@@ -13767,14 +13827,14 @@ export namespace Viajes {
     export type RequestQuery = {};
     export type RequestBody = never;
     export type RequestHeaders = {};
-    export type ResponseBody = ViajesFindServiciosData;
+    export type ResponseBody = ViajesFindTramosData;
   }
 
   /**
    * No description
    * @tags viajes
    * @name ViajesGetHojaRuta
-   * @summary Obtener los servicios formateados como hoja de ruta (trayectos entre puntos)
+   * @summary Obtener los tramos formateados como hoja de ruta (trayectos entre puntos)
    * @request GET:/viaje/{viajeId}/hoja-ruta
    * @secure
    * @response `200` `ViajesGetHojaRutaData`
@@ -13916,41 +13976,41 @@ export namespace Viajes {
   /**
    * No description
    * @tags viajes
-   * @name ViajesUpdateServicio
-   * @summary Actualizar un servicio/tramo
-   * @request PATCH:/viaje/servicio/update/{id}
+   * @name ViajesUpdateTramo
+   * @summary Actualizar un tramo
+   * @request PATCH:/viaje/tramo/update/{id}
    * @secure
-   * @response `200` `ViajesUpdateServicioData`
+   * @response `200` `ViajesUpdateTramoData`
    */
-  export namespace ViajesUpdateServicio {
+  export namespace ViajesUpdateTramo {
     export type RequestParams = {
-      /** ID del servicio */
+      /** ID del tramo */
       id: number;
     };
     export type RequestQuery = {};
-    export type RequestBody = ViajeServicioUpdateDto;
+    export type RequestBody = ViajeTramoUpdateDto;
     export type RequestHeaders = {};
-    export type ResponseBody = ViajesUpdateServicioData;
+    export type ResponseBody = ViajesUpdateTramoData;
   }
 
   /**
    * No description
    * @tags viajes
-   * @name ViajesDeleteServicio
-   * @summary Eliminar un servicio/tramo
-   * @request DELETE:/viaje/servicio/delete/{id}
+   * @name ViajesDeleteTramo
+   * @summary Eliminar un tramo
+   * @request DELETE:/viaje/tramo/delete/{id}
    * @secure
-   * @response `200` `ViajesDeleteServicioData`
+   * @response `200` `ViajesDeleteTramoData`
    */
-  export namespace ViajesDeleteServicio {
+  export namespace ViajesDeleteTramo {
     export type RequestParams = {
-      /** ID del servicio */
+      /** ID del tramo */
       id: number;
     };
     export type RequestQuery = {};
     export type RequestBody = never;
     export type RequestHeaders = {};
-    export type ResponseBody = ViajesDeleteServicioData;
+    export type ResponseBody = ViajesDeleteTramoData;
   }
 
   /**
@@ -13991,6 +14051,46 @@ export namespace Viajes {
     export type RequestBody = ViajePasajeroFillDto;
     export type RequestHeaders = {};
     export type ResponseBody = ViajesUpsertPasajerosData;
+  }
+
+  /**
+   * No description
+   * @tags viajes
+   * @name ViajesEscanearDnis
+   * @summary Escanear imágenes de DNIs y marcar asistencia/registrar pasajeros automáticamente
+   * @request POST:/viaje/{viajeId}/pasajeros/escanear-dnis
+   * @secure
+   * @response `201` `ViajesEscanearDnisData`
+   */
+  export namespace ViajesEscanearDnis {
+    export type RequestParams = {
+      /** ID del viaje */
+      viajeId: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = ViajeEscanearDnisDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = ViajesEscanearDnisData;
+  }
+
+  /**
+   * No description
+   * @tags viajes
+   * @name ViajesRegistrarAbordaje
+   * @summary Marcar abordaje manual (asistencia) y registrar movimiento en el tramo
+   * @request POST:/viaje/{viajeId}/pasajeros/abordaje-manual
+   * @secure
+   * @response `201` `ViajesRegistrarAbordajeData`
+   */
+  export namespace ViajesRegistrarAbordaje {
+    export type RequestParams = {
+      /** ID del viaje */
+      viajeId: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = ViajePasajeroAbordajeDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = ViajesRegistrarAbordajeData;
   }
 
   /**
@@ -18170,7 +18270,7 @@ export class Api<SecurityDataType extends unknown> {
   };
   viajes = {
     /**
-     * @description Busca por estado, ruta ocasional y modalidad. Filtra por rango de fechas, modalidad de servicio y tipo de viaje (ocasional o regular). Si el token es de un conductor, solo retorna sus viajes asignados.
+     * @description Busca por estado, ruta ocasional y modalidad. Filtra por rango de fechas, modalidad de servicio y tipo de viaje. Si el token es de un conductor, solo retorna sus viajes asignados.
      *
      * @tags viajes
      * @name ViajesFindAll
@@ -18672,18 +18772,18 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags viajes
-     * @name ViajesFindServicios
-     * @summary Obtener todos los servicios/tramos de un viaje
-     * @request GET:/viaje/{viajeId}/servicios
+     * @name ViajesFindTramos
+     * @summary Obtener todos los tramos de un viaje
+     * @request GET:/viaje/{viajeId}/tramos
      * @secure
-     * @response `200` `ViajesFindServiciosData`
+     * @response `200` `ViajesFindTramosData`
      */
-    findServicios: (
-      { viajeId, ...query }: ViajesFindServiciosParams,
+    findTramos: (
+      { viajeId, ...query }: ViajesFindTramosParams,
       params: RequestParams = {},
     ) =>
-      this.http.request<ViajesFindServiciosData, any>({
-        path: `/viaje/${viajeId}/servicios`,
+      this.http.request<ViajesFindTramosData, any>({
+        path: `/viaje/${viajeId}/tramos`,
         method: "GET",
         secure: true,
         format: "json",
@@ -18695,7 +18795,7 @@ export class Api<SecurityDataType extends unknown> {
      *
      * @tags viajes
      * @name ViajesGetHojaRuta
-     * @summary Obtener los servicios formateados como hoja de ruta (trayectos entre puntos)
+     * @summary Obtener los tramos formateados como hoja de ruta (trayectos entre puntos)
      * @request GET:/viaje/{viajeId}/hoja-ruta
      * @secure
      * @response `200` `ViajesGetHojaRutaData`
@@ -18864,19 +18964,19 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags viajes
-     * @name ViajesUpdateServicio
-     * @summary Actualizar un servicio/tramo
-     * @request PATCH:/viaje/servicio/update/{id}
+     * @name ViajesUpdateTramo
+     * @summary Actualizar un tramo
+     * @request PATCH:/viaje/tramo/update/{id}
      * @secure
-     * @response `200` `ViajesUpdateServicioData`
+     * @response `200` `ViajesUpdateTramoData`
      */
-    updateServicio: (
-      { id, ...query }: ViajesUpdateServicioParams,
-      data: ViajeServicioUpdateDto,
+    updateTramo: (
+      { id, ...query }: ViajesUpdateTramoParams,
+      data: ViajeTramoUpdateDto,
       params: RequestParams = {},
     ) =>
-      this.http.request<ViajesUpdateServicioData, any>({
-        path: `/viaje/servicio/update/${id}`,
+      this.http.request<ViajesUpdateTramoData, any>({
+        path: `/viaje/tramo/update/${id}`,
         method: "PATCH",
         body: data,
         secure: true,
@@ -18889,18 +18989,18 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags viajes
-     * @name ViajesDeleteServicio
-     * @summary Eliminar un servicio/tramo
-     * @request DELETE:/viaje/servicio/delete/{id}
+     * @name ViajesDeleteTramo
+     * @summary Eliminar un tramo
+     * @request DELETE:/viaje/tramo/delete/{id}
      * @secure
-     * @response `200` `ViajesDeleteServicioData`
+     * @response `200` `ViajesDeleteTramoData`
      */
-    deleteServicio: (
-      { id, ...query }: ViajesDeleteServicioParams,
+    deleteTramo: (
+      { id, ...query }: ViajesDeleteTramoParams,
       params: RequestParams = {},
     ) =>
-      this.http.request<ViajesDeleteServicioData, any>({
-        path: `/viaje/servicio/delete/${id}`,
+      this.http.request<ViajesDeleteTramoData, any>({
+        path: `/viaje/tramo/delete/${id}`,
         method: "DELETE",
         secure: true,
         format: "json",
@@ -18951,6 +19051,55 @@ export class Api<SecurityDataType extends unknown> {
         secure: true,
         type: ContentType.Json,
         format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags viajes
+     * @name ViajesEscanearDnis
+     * @summary Escanear imágenes de DNIs y marcar asistencia/registrar pasajeros automáticamente
+     * @request POST:/viaje/{viajeId}/pasajeros/escanear-dnis
+     * @secure
+     * @response `201` `ViajesEscanearDnisData`
+     */
+    escanearDnis: (
+      { viajeId, ...query }: ViajesEscanearDnisParams,
+      data: ViajeEscanearDnisDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ViajesEscanearDnisData, any>({
+        path: `/viaje/${viajeId}/pasajeros/escanear-dnis`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags viajes
+     * @name ViajesRegistrarAbordaje
+     * @summary Marcar abordaje manual (asistencia) y registrar movimiento en el tramo
+     * @request POST:/viaje/{viajeId}/pasajeros/abordaje-manual
+     * @secure
+     * @response `201` `ViajesRegistrarAbordajeData`
+     */
+    registrarAbordaje: (
+      { viajeId, ...query }: ViajesRegistrarAbordajeParams,
+      data: ViajePasajeroAbordajeDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ViajesRegistrarAbordajeData, any>({
+        path: `/viaje/${viajeId}/pasajeros/abordaje-manual`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
         ...params,
       }),
 

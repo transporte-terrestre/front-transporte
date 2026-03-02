@@ -4,7 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { ToastService } from '@service/toast.service';
 import { ModalForm } from '@module/admin/components/modal-form/modal-form';
 import { ViajeService } from '@service/admin/viaje.service';
-import { ViajeServicioResultDto } from 'api/backend.api';
+import { ViajeTramoResultDto } from 'api/backend.api';
 
 @Component({
   selector: 'app-dialog-edit-servicio',
@@ -18,7 +18,7 @@ export class DialogEditServicioComponent implements OnInit {
   private viajeService = inject(ViajeService);
 
   // Inputs
-  servicio = input.required<ViajeServicioResultDto>();
+  servicio = input.required<ViajeTramoResultDto>();
 
   // Outputs
   onSaved = output<void>();
@@ -91,7 +91,7 @@ export class DialogEditServicioComponent implements OnInit {
     const isoString = `${val.fecha}T${val.hora}:00.000Z`;
 
     try {
-      await this.viajeService.updateServicio(this.servicio().id, {
+      await this.viajeService.updateTramo(this.servicio().id, {
         nombreLugar: val.nombreLugar,
         horaFinal: isoString,
         kilometrajeFinal: Number(val.kilometrajeFinal),

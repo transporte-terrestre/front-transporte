@@ -104,9 +104,9 @@ export class ViajeService {
   async deleteComentario(id: ApiParam<'viajes', 'deleteComentario', 'id'>) {
     return await this.api.viajes.deleteComentario({ id }).then((response) => response.data);
   }
-  // Servicios / Tramos
-  async findServicios(viajeId: ApiParam<'viajes', 'findServicios', 'viajeId'>) {
-    return await this.api.viajes.findServicios({ viajeId }).then((response) => response.data);
+  // Tramos
+  async findTramos(viajeId: ApiParam<'viajes', 'findTramos', 'viajeId'>) {
+    return await this.api.viajes.findTramos({ viajeId }).then((response) => response.data);
   }
 
   async registrarSalida(
@@ -154,15 +154,15 @@ export class ViajeService {
       .then((response) => response.data);
   }
 
-  async updateServicio(
-    id: ApiParam<'viajes', 'updateServicio', 'id'>,
-    data: ApiBody<'viajes', 'updateServicio'>,
+  async updateTramo(
+    id: ApiParam<'viajes', 'updateTramo', 'id'>,
+    data: ApiBody<'viajes', 'updateTramo'>,
   ) {
-    return await this.api.viajes.updateServicio({ id }, data).then((response) => response.data);
+    return await this.api.viajes.updateTramo({ id }, data).then((response) => response.data);
   }
 
-  async deleteServicio(id: ApiParam<'viajes', 'deleteServicio', 'id'>) {
-    return await this.api.viajes.deleteServicio({ id }).then((response) => response.data);
+  async deleteTramo(id: ApiParam<'viajes', 'deleteTramo', 'id'>) {
+    return await this.api.viajes.deleteTramo({ id }).then((response) => response.data);
   }
 
   async getProximoTramo(query: ApiQuery<'viajes', 'getProximoTramo'>) {
