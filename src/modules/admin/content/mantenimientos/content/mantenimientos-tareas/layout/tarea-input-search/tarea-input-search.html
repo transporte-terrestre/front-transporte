@@ -10,7 +10,21 @@
     <span class="truncate" [class.text-text]="selectedTarea()" [class.text-text/50]="!selectedTarea()">
       {{ getDisplayText() }}
     </span>
-    <i class="fas fa-chevron-down text-text/50 transition-transform duration-200" [class.rotate-180]="isOpen()"></i>
+    <div class="flex items-center gap-2">
+      @if (showClear() && selectedTarea()) {
+        <div (click)="$event.stopPropagation(); clearSelection()" class="w-5 h-5 flex items-center justify-center rounded-full hover:bg-text/10 transition-colors text-text/50 hover:text-danger">
+          <i class="fas fa-times text-xs"></i>
+        </div>
+      }
+      <div class="flex items-center gap-2">
+      @if (showClear() && selectedTarea()) {
+        <div (click)="$event.stopPropagation(); clearSelection()" class="w-5 h-5 flex items-center justify-center rounded-full hover:bg-text/10 transition-colors text-text/50 hover:text-danger">
+          <i class="fas fa-times text-xs"></i>
+        </div>
+      }
+      <i class="fas fa-chevron-down text-text/50 transition-transform duration-200" [class.rotate-180]="isOpen()"></i>
+    </div>
+    </div>
   </div>
 
   <!-- Dropdown -->

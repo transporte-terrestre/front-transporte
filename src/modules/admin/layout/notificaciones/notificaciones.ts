@@ -1,6 +1,8 @@
 import { Component, inject, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NotificacionService } from '@service/admin/notificacion.service';
+import { Router } from '@angular/router';
+import { PATH, buildPath } from '@route/path.route';
 
 @Component({
   selector: 'app-notificaciones',
@@ -10,6 +12,7 @@ import { NotificacionService } from '@service/admin/notificacion.service';
 })
 export class Notificaciones {
   private service = inject(NotificacionService);
+  private router = inject(Router);
 
   isOpen = this.service.isOpen;
   notificaciones = this.service.notificaciones;
@@ -42,6 +45,27 @@ export class Notificaciones {
     await this.service.markAsRead(id);
   }
 
+  async handleNotificationClick(notificacion: any, event: Event) {
+
+    if (!notificacion.leido) {
+      await this.service.markAsRead(notificacion.id);
+    }
+
+    if (notificacion.metadata?.entidad && notificacion.metadata?.id) {
+      let url = '';
+      if (notificacion.metadata.entidad === 'conductor') {
+        url = `/${buildPath(PATH.admin.conductores.edit).replace(':id', notificacion.metadata.id)}`;
+      } else if (notificacion.metadata.entidad === 'vehiculo') {
+        url = `/${buildPath(PATH.admin.vehiculos.edit).replace(':id', notificacion.metadata.id)}`;
+      }
+      
+      if (url) {
+        this.close();
+        this.router.navigate([url]);
+      }
+    }
+  }
+
   markAllRead() {
     this.service.markAllAsRead();
   }
@@ -60,5 +84,13 @@ export class Notificaciones {
 
   isExpanded(id: number): boolean {
     return this.expandedIds().has(id);
+  }
+
+  hasValidUrl(notificacion: any): boolean {
+    const meta = notificacion?.metadata;
+    if (meta?.entidad && meta?.id) {
+      return meta.entidad === 'conductor' || meta.entidad === 'vehiculo';
+    }
+    return false;
   }
 }

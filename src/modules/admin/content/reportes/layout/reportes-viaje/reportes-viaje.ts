@@ -4,9 +4,9 @@ import { FormsModule } from '@angular/forms';
 import { ReportesService } from '@service/admin/reportes.service';
 import { ToastService } from '@service/toast.service';
 import { ApiResponse, ApiQuery } from 'api/backend.api';
-import { VehiculoInputSearch } from '../../../vehiculos/layout/vehiculo-input-search/vehiculo-input-search';
-import { ConductorInputSearch } from '../../../conductores/layout/conductor-input-search/conductor-input-search';
-import { ClienteInputSearch } from '../../../clientes/layout/cliente-input-search/cliente-input-search';
+import { VehiculoInputSearch } from '../../../../components/input-searchs/vehiculo-input-search/vehiculo-input-search';
+import { ConductorInputSearch } from '../../../../components/input-searchs/conductor-input-search/conductor-input-search';
+import { ClienteInputSearch } from '../../../../components/input-searchs/cliente-input-search/cliente-input-search';
 
 export type ViajeReportMode = 'vehiculo' | 'conductor' | 'cliente';
 
@@ -194,7 +194,7 @@ export class ReportesViaje implements OnInit {
         const distancia = viaje.distanciaFinal ? parseFloat(viaje.distanciaFinal) : 0;
         return total + distancia;
       },
-      0
+      0,
     );
   }
 
@@ -204,7 +204,7 @@ export class ReportesViaje implements OnInit {
         const distancia = viaje.distanciaEstimada ? parseFloat(viaje.distanciaEstimada) : 0;
         return total + distancia;
       },
-      0
+      0,
     );
   }
 
@@ -212,7 +212,7 @@ export class ReportesViaje implements OnInit {
     return this.viajes().reduce(
       (total: number, viaje: ApiResponse<'reportes', 'getViajesDetalladosPorVehiculo'>[number]) =>
         total + viaje.diferencia,
-      0
+      0,
     );
   }
 
@@ -220,7 +220,7 @@ export class ReportesViaje implements OnInit {
     return this.viajes().reduce(
       (total: number, viaje: ApiResponse<'reportes', 'getViajesDetalladosPorVehiculo'>[number]) =>
         total + (viaje.horasTotales || 0),
-      0
+      0,
     );
   }
 
@@ -228,7 +228,7 @@ export class ReportesViaje implements OnInit {
     return this.viajes().reduce(
       (total: number, viaje: ApiResponse<'reportes', 'getViajesDetalladosPorVehiculo'>[number]) =>
         total + (viaje.horasExcedidas || 0),
-      0
+      0,
     );
   }
 

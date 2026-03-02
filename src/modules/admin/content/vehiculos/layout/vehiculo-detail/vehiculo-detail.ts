@@ -2,13 +2,14 @@ import { Component, input, inject, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ApiResponse } from 'api/backend.api';
 import { VehiculoService } from '@service/admin/vehiculo.service';
+import { VehiculoComentariosForm } from '../vehiculo-form/layout/vehiculo-comentarios-form/vehiculo-comentarios-form';
 
 type Vehiculo = ApiResponse<'vehiculos', 'findOne'> & { documentos: any[] };
 
 @Component({
   selector: 'app-vehiculo-detail',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, VehiculoComentariosForm],
   templateUrl: './vehiculo-detail.html',
   styleUrl: './vehiculo-detail.css',
 })
@@ -40,6 +41,13 @@ export class VehiculoDetail {
       this.error.set('Error al cargar el vehículo');
     } finally {
       this.loading.set(false);
+    }
+  }
+
+  handleDataChange() {
+    const id = this.vehiculoId();
+    if (id) {
+      this.loadVehiculo(id);
     }
   }
 

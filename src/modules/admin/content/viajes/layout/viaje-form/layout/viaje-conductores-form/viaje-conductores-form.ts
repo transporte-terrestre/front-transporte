@@ -5,7 +5,7 @@ import { ViajeService } from '@service/admin/viaje.service';
 import { ToastService } from '@service/toast.service';
 import { AlertService } from '@service/alert.service';
 import { ApiResponse, ApiBody } from 'api/backend.api';
-import { ConductorInputSearch } from '@module/admin/content/conductores/layout/conductor-input-search/conductor-input-search';
+import { ConductorInputSearch } from '@module/admin/components/input-searchs/conductor-input-search/conductor-input-search';
 
 @Component({
   selector: 'app-viaje-conductores-form',
@@ -78,9 +78,9 @@ export class ViajeConductoresForm {
             this.toastService.success('Conductor eliminado');
             this.onDataChange.emit();
           },
-          () => this.toastService.error('Error al eliminar conductor')
+          () => this.toastService.error('Error al eliminar conductor'),
         );
-      }
+      },
     );
   }
 }

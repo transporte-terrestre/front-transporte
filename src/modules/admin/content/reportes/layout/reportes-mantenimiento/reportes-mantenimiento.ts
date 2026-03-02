@@ -4,8 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { ReportesService } from '@service/admin/reportes.service';
 import { ToastService } from '@service/toast.service';
 import { ApiResponse } from 'api/backend.api';
-import { VehiculoInputSearch } from '../../../vehiculos/layout/vehiculo-input-search/vehiculo-input-search';
-import { TallerInputSearch } from '../../../talleres/layout/taller-input-search/taller-input-search';
+import { VehiculoInputSearch } from '../../../../components/input-searchs/vehiculo-input-search/vehiculo-input-search';
+import { TallerInputSearch } from '../../../../components/input-searchs/taller-input-search/taller-input-search';
 
 export type MantenimientoReportMode = 'mantenimientos-vehiculo' | 'mantenimientos-taller';
 
@@ -42,7 +42,7 @@ export class ReportesMantenimiento implements OnInit {
     ApiResponse<'reportes', 'getMantenimientosDetalladosPorVehiculo'>
   >([]);
   mantenimientosTaller = signal<ApiResponse<'reportes', 'getMantenimientosDetalladosPorTaller'>>(
-    []
+    [],
   );
 
   ngOnInit() {
@@ -165,17 +165,17 @@ export class ReportesMantenimiento implements OnInit {
       return this.mantenimientosVehiculos().reduce(
         (
           total: number,
-          m: ApiResponse<'reportes', 'getMantenimientosDetalladosPorVehiculo'>[number]
+          m: ApiResponse<'reportes', 'getMantenimientosDetalladosPorVehiculo'>[number],
         ) => total + parseFloat(m.costoTotal || '0'),
-        0
+        0,
       );
     } else {
       return this.mantenimientosTaller().reduce(
         (
           total: number,
-          m: ApiResponse<'reportes', 'getMantenimientosDetalladosPorTaller'>[number]
+          m: ApiResponse<'reportes', 'getMantenimientosDetalladosPorTaller'>[number],
         ) => total + parseFloat(m.costoTotal || '0'),
-        0
+        0,
       );
     }
   }

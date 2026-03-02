@@ -88,6 +88,11 @@ export class VehiculoService {
   async deleteModelo(id: ApiParam<'vehiculos', 'deleteModelo', 'id'>) {
     return await this.api.vehiculos.deleteModelo({ id }).then((response) => response.data);
   }
+  // ========== COMENTARIOS ==========
+  async createComentario(comentario: ApiBody<'vehiculos', 'createComentario'>) {
+    return await this.api.vehiculos.createComentario(comentario).then((response) => response.data);
+  }
+
   // ========== CHECKLIST ==========
 
   async findChecklistHistory(query: ApiQuery<'vehiculos', 'findChecklistHistory'>) {
@@ -121,13 +126,8 @@ export class VehiculoService {
       .then((response) => response.data);
   }
 
-  async findChecklistLuces(
-    id: ApiParam<'vehiculos', 'findLuces', 'id'>,
-    documentId?: number,
-  ) {
-    return await this.api.vehiculos
-      .findLuces({ id, documentId })
-      .then((response) => response.data);
+  async findChecklistLuces(id: ApiParam<'vehiculos', 'findLuces', 'id'>, documentId?: number) {
+    return await this.api.vehiculos.findLuces({ id, documentId }).then((response) => response.data);
   }
 
   async findChecklistCinturones(

@@ -1,0 +1,159 @@
+import { Component, inject, signal, ElementRef, HostListener, input } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import {
+  ControlValueAccessor,
+  FormControl,
+  NG_VALUE_ACCESSOR,
+  ReactiveFormsModule,
+} from '@angular/forms';
+import { MantenimientoService } from '@service/admin/mantenimiento.service';
+import { ApiResponse } from 'api/backend.api';
+import { debounceTime, distinctUntilChanged, switchMap, tap, finalize } from 'rxjs/operators';
+import { of, from } from 'rxjs';
+
+@Component({
+  selector: 'app-mantenimiento-input-search',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule],
+  templateUrl: './mantenimiento-input-search.html',
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: MantenimientoInputSearch,
+      multi: true,
+    },
+  ],
+})
+export class MantenimientoInputSearch implements ControlValueAccessor {
+  private mantenimientoService = inject(MantenimientoService);
+  private elementRef = inject(ElementRef);
+
+  // State
+  showClear = input(false);
+  isOpen = signal(false);
+  loading = signal(false);
+  mantenimientos = signal<ApiResponse<'mantenimientos', 'findAll'>['data']>([]);
+  selectedMantenimiento = signal<ApiResponse<'mantenimientos', 'findAll'>['data'][number] | null>(
+    null,
+  );
+  disabled = signal(false);
+
+  // Search Control
+  searchControl = new FormControl('');
+
+  // Value Accessor callbacks
+  onChange: (value: ApiResponse<'mantenimientos', 'findAll'>['data'][number] | null) => void =
+    () => {};
+  onTouched: () => void = () => {};
+
+  constructor() {
+    this.searchControl.valueChanges
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        tap(() => this.loading.set(true)),
+        switchMap((term) => {
+          if (!term && term !== '')
+            return of<ApiResponse<'mantenimientos', 'findAll'>>({
+              data: [],
+              meta: {
+                total: 0,
+                page: 1,
+                limit: 10,
+                totalPages: 1,
+                hasPreviousPage: false,
+                hasNextPage: false,
+              },
+            });
+          return from(this.mantenimientoService.findAll({ search: term || '', limit: 10 })).pipe(
+            finalize(() => this.loading.set(false)),
+          );
+        }),
+      )
+      .subscribe({
+        next: (response) => {
+          this.mantenimientos.set(response.data);
+        },
+        error: (err) => {
+          console.error('Error searching mantenimientos:', err);
+          this.mantenimientos.set([]);
+          this.loading.set(false);
+        },
+      });
+  }
+
+  writeValue(obj: number | ApiResponse<'mantenimientos', 'findAll'>['data'][number] | null): void {
+    if (obj) {
+      if (typeof obj === 'object') {
+        this.selectedMantenimiento.set(obj);
+      } else {
+        this.loadInitialMantenimiento(obj);
+      }
+    } else {
+      this.selectedMantenimiento.set(null);
+    }
+  }
+
+  registerOnChange(
+    fn: (value: ApiResponse<'mantenimientos', 'findAll'>['data'][number] | null) => void,
+  ): void {
+    this.onChange = fn;
+  }
+
+  registerOnTouched(fn: () => void): void {
+    this.onTouched = fn;
+  }
+
+  setDisabledState?(isDisabled: boolean): void {
+    this.disabled.set(isDisabled);
+  }
+
+  // UI Actions
+  toggleDropdown() {
+    if (this.disabled()) return;
+    this.isOpen.update((v) => !v);
+    if (this.isOpen()) {
+      if (this.mantenimientos().length === 0) {
+        this.searchControl.setValue('');
+      }
+    } else {
+      this.onTouched();
+    }
+  }
+
+  selectMantenimiento(mantenimiento: ApiResponse<'mantenimientos', 'findAll'>['data'][number]) {
+    this.selectedMantenimiento.set(mantenimiento);
+    this.onChange(mantenimiento);
+    this.isOpen.set(false);
+  }
+
+  loadInitialMantenimiento(id: number) {
+    this.mantenimientoService
+      .findOne(id)
+      .then((mantenimiento) => {
+        this.selectedMantenimiento.set(mantenimiento);
+      })
+      .catch(() => {
+        console.error('Could not load initial mantenimiento');
+      });
+  }
+  clearSelection() {
+    this.selectedMantenimiento.set(null);
+    this.onChange(null);
+    this.isOpen.set(false);
+  }
+
+  getDisplayText(): string {
+    const m = this.selectedMantenimiento();
+    if (!m) return 'Seleccionar mantenimiento...';
+    return `Mantenimiento #${m.id} - ${m.tipo}`;
+  }
+
+  @HostListener('document:click', ['$event'])
+  onClickOutside(event: MouseEvent) {
+    if (!this.elementRef.nativeElement.contains(event.target)) {
+      this.isOpen.set(false);
+      this.onTouched();
+    }
+  }
+}

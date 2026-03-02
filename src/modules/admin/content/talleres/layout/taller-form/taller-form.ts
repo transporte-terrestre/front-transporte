@@ -2,15 +2,17 @@ import { Component, inject, input, output, OnInit, effect } from '@angular/core'
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ApiResponse, ApiBody } from 'api/backend.api';
-
+import { TallerService } from '@service/admin/taller.service';
+import { SucursalInputSearch } from '@module/admin/components/input-searchs/sucursal-input-search/sucursal-input-search';
 @Component({
   selector: 'app-taller-form',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, SucursalInputSearch],
   templateUrl: './taller-form.html',
   styleUrl: './taller-form.css',
 })
 export class TallerForm implements OnInit {
   private fb = inject(FormBuilder);
+  private tallerService = inject(TallerService);
 
   // Inputs
   taller = input<ApiResponse<'talleres', 'findOne'> | null>(null);
@@ -23,6 +25,7 @@ export class TallerForm implements OnInit {
     ruc: ['', [Validators.pattern(/^[0-9]{11}$/)]],
     razonSocial: ['', [Validators.required, Validators.minLength(2)]],
     nombreComercial: [''],
+    sucursalIds: [[]],
     tipo: ['externo', [Validators.required]],
     telefono: [''],
     email: ['', [Validators.email]],
@@ -34,6 +37,8 @@ export class TallerForm implements OnInit {
     { value: 'externo', label: 'Externo', icon: 'fa-globe' },
   ];
 
+  sucursales: any[] = [];
+
   constructor() {
     effect(() => {
       const tallerData = this.taller();
@@ -44,6 +49,7 @@ export class TallerForm implements OnInit {
           ruc: tallerData.ruc,
           razonSocial: tallerData.razonSocial,
           nombreComercial: tallerData.nombreComercial,
+          sucursalIds: tallerData.sucursalIds || [],
           tipo: tallerData.tipo,
           telefono: tallerData.telefono,
           email: tallerData.email,
@@ -55,7 +61,9 @@ export class TallerForm implements OnInit {
     });
   }
 
-  ngOnInit() {}
+  async ngOnInit() {
+    this.sucursales = await this.tallerService.findAllSucursales();
+  }
 
   submitForm() {
     if (this.tallerForm.invalid) {

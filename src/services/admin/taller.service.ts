@@ -21,4 +21,7 @@ export class TallerService {
   async delete(id: ApiParam<'talleres', 'remove', 'id'>) {
     return await this.api.talleres.remove({ id }).then((response) => response.data);
   }
+  async findAllSucursales() {
+    return await this.api.talleres.findAllSucursales().then((response) => response.data);
+  }
 }

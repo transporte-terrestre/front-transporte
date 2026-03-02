@@ -21,16 +21,16 @@ export const routes: Routes = [
           {
             path: getPath(PATH.admin.conductores.list),
             loadComponent: () =>
-              import(
-                '@module/admin/content/conductores/content/conductores-list/conductores-list'
-              ).then((m) => m.ConductoresList),
+              import('@module/admin/content/conductores/content/conductores-list/conductores-list').then(
+                (m) => m.ConductoresList,
+              ),
           },
           {
             path: getPath(PATH.admin.conductores.edit),
             loadComponent: () =>
-              import(
-                '@module/admin/content/conductores/content/conductores-edit/conductores-edit'
-              ).then((m) => m.ConductoresEdit),
+              import('@module/admin/content/conductores/content/conductores-edit/conductores-edit').then(
+                (m) => m.ConductoresEdit,
+              ),
           },
           { path: '**', redirectTo: getPath(PATH.admin.conductores.list), pathMatch: 'full' },
         ],
@@ -44,22 +44,22 @@ export const routes: Routes = [
             path: getPath(PATH.admin.vehiculos.list),
             loadComponent: () =>
               import('@module/admin/content/vehiculos/content/vehiculos-list/vehiculos-list').then(
-                (m) => m.VehiculosList
+                (m) => m.VehiculosList,
               ),
           },
           {
             path: getPath(PATH.admin.vehiculos.edit),
             loadComponent: () =>
               import('@module/admin/content/vehiculos/content/vehiculos-edit/vehiculos-edit').then(
-                (m) => m.VehiculosEdit
+                (m) => m.VehiculosEdit,
               ),
           },
           {
             path: getPath(PATH.admin.vehiculos.lineas),
             loadComponent: () =>
-              import(
-                '@module/admin/content/vehiculos/content/vehiculos-lineas/vehiculos-lineas'
-              ).then((m) => m.VehiculosLineas),
+              import('@module/admin/content/vehiculos/content/vehiculos-lineas/vehiculos-lineas').then(
+                (m) => m.VehiculosLineas,
+              ),
           },
           { path: '**', redirectTo: getPath(PATH.admin.vehiculos.list), pathMatch: 'full' },
         ],
@@ -68,29 +68,29 @@ export const routes: Routes = [
         path: getPath(PATH.admin.mantenimientos),
         loadComponent: () =>
           import('@module/admin/content/mantenimientos/mantenimientos').then(
-            (m) => m.Mantenimientos
+            (m) => m.Mantenimientos,
           ),
         children: [
           {
             path: getPath(PATH.admin.mantenimientos.list),
             loadComponent: () =>
-              import(
-                '@module/admin/content/mantenimientos/content/mantenimientos-list/mantenimientos-list'
-              ).then((m) => m.MantenimientosList),
+              import('@module/admin/content/mantenimientos/content/mantenimientos-list/mantenimientos-list').then(
+                (m) => m.MantenimientosList,
+              ),
           },
           {
             path: getPath(PATH.admin.mantenimientos.edit),
             loadComponent: () =>
-              import(
-                '@module/admin/content/mantenimientos/content/mantenimientos-edit/mantenimientos-edit'
-              ).then((m) => m.MantenimientosEdit),
+              import('@module/admin/content/mantenimientos/content/mantenimientos-edit/mantenimientos-edit').then(
+                (m) => m.MantenimientosEdit,
+              ),
           },
           {
             path: getPath(PATH.admin.mantenimientos.tareas),
             loadComponent: () =>
-              import(
-                '@module/admin/content/mantenimientos/content/mantenimientos-tareas/mantenimientos-tareas'
-              ).then((m) => m.MantenimientosTareas),
+              import('@module/admin/content/mantenimientos/content/mantenimientos-tareas/mantenimientos-tareas').then(
+                (m) => m.MantenimientosTareas,
+              ),
           },
           { path: '**', redirectTo: getPath(PATH.admin.mantenimientos.list), pathMatch: 'full' },
         ],
@@ -103,14 +103,14 @@ export const routes: Routes = [
             path: getPath(PATH.admin.rutas.list),
             loadComponent: () =>
               import('@module/admin/content/rutas/content/rutas-list/rutas-list').then(
-                (m) => m.RutasList
+                (m) => m.RutasList,
               ),
           },
           {
             path: getPath(PATH.admin.rutas.edit),
             loadComponent: () =>
               import('@module/admin/content/rutas/content/rutas-edit/rutas-edit').then(
-                (m) => m.RutasEdit
+                (m) => m.RutasEdit,
               ),
           },
           { path: '**', redirectTo: getPath(PATH.admin.rutas.list), pathMatch: 'full' },
@@ -124,14 +124,14 @@ export const routes: Routes = [
             path: getPath(PATH.admin.viajes.list),
             loadComponent: () =>
               import('@module/admin/content/viajes/content/viajes-list/viajes-list').then(
-                (m) => m.ViajesList
+                (m) => m.ViajesList,
               ),
           },
           {
             path: getPath(PATH.admin.viajes.edit),
             loadComponent: () =>
               import('@module/admin/content/viajes/content/viajes-edit/viajes-edit').then(
-                (m) => m.ViajesEdit
+                (m) => m.ViajesEdit,
               ),
           },
           { path: '**', redirectTo: getPath(PATH.admin.viajes.list), pathMatch: 'full' },
@@ -146,14 +146,14 @@ export const routes: Routes = [
             path: getPath(PATH.admin.usuarios.list),
             loadComponent: () =>
               import('@module/admin/content/usuarios/content/usuarios-list/usuarios-list').then(
-                (m) => m.UsuariosList
+                (m) => m.UsuariosList,
               ),
           },
           {
             path: getPath(PATH.admin.usuarios.edit),
             loadComponent: () =>
               import('@module/admin/content/usuarios/content/usuarios-edit/usuarios-edit').then(
-                (m) => m.UsuariosEdit
+                (m) => m.UsuariosEdit,
               ),
           },
           { path: '**', redirectTo: getPath(PATH.admin.usuarios.list), pathMatch: 'full' },
@@ -168,14 +168,14 @@ export const routes: Routes = [
             path: getPath(PATH.admin.clientes.list),
             loadComponent: () =>
               import('@module/admin/content/clientes/content/clientes-list/clientes-list').then(
-                (m) => m.ClientesList
+                (m) => m.ClientesList,
               ),
           },
           {
             path: getPath(PATH.admin.clientes.edit),
             loadComponent: () =>
               import('@module/admin/content/clientes/content/clientes-edit/clientes-edit').then(
-                (m) => m.ClientesEdit
+                (m) => m.ClientesEdit,
               ),
           },
           { path: '**', redirectTo: getPath(PATH.admin.clientes.list), pathMatch: 'full' },
@@ -189,16 +189,16 @@ export const routes: Routes = [
           {
             path: getPath(PATH.admin.propietarios.list),
             loadComponent: () =>
-              import(
-                '@module/admin/content/propietarios/content/propietarios-list/propietarios-list'
-              ).then((m) => m.PropietariosList),
+              import('@module/admin/content/propietarios/content/propietarios-list/propietarios-list').then(
+                (m) => m.PropietariosList,
+              ),
           },
           {
             path: getPath(PATH.admin.propietarios.edit),
             loadComponent: () =>
-              import(
-                '@module/admin/content/propietarios/content/propietarios-edit/propietarios-edit'
-              ).then((m) => m.PropietariosEdit),
+              import('@module/admin/content/propietarios/content/propietarios-edit/propietarios-edit').then(
+                (m) => m.PropietariosEdit,
+              ),
           },
           { path: '**', redirectTo: getPath(PATH.admin.propietarios.list), pathMatch: 'full' },
         ],
@@ -211,16 +211,16 @@ export const routes: Routes = [
           {
             path: getPath(PATH.admin.proveedores.list),
             loadComponent: () =>
-              import(
-                '@module/admin/content/proveedores/content/proveedores-list/proveedores-list'
-              ).then((m) => m.ProveedoresList),
+              import('@module/admin/content/proveedores/content/proveedores-list/proveedores-list').then(
+                (m) => m.ProveedoresList,
+              ),
           },
           {
             path: getPath(PATH.admin.proveedores.edit),
             loadComponent: () =>
-              import(
-                '@module/admin/content/proveedores/content/proveedores-edit/proveedores-edit'
-              ).then((m) => m.ProveedoresEdit),
+              import('@module/admin/content/proveedores/content/proveedores-edit/proveedores-edit').then(
+                (m) => m.ProveedoresEdit,
+              ),
           },
           { path: '**', redirectTo: getPath(PATH.admin.proveedores.list), pathMatch: 'full' },
         ],
@@ -234,17 +234,61 @@ export const routes: Routes = [
             path: getPath(PATH.admin.talleres.list),
             loadComponent: () =>
               import('@module/admin/content/talleres/content/talleres-list/talleres-list').then(
-                (m) => m.TalleresList
+                (m) => m.TalleresList,
               ),
           },
           {
             path: getPath(PATH.admin.talleres.edit),
             loadComponent: () =>
               import('@module/admin/content/talleres/content/talleres-edit/talleres-edit').then(
-                (m) => m.TalleresEdit
+                (m) => m.TalleresEdit,
               ),
           },
           { path: '**', redirectTo: getPath(PATH.admin.talleres.list), pathMatch: 'full' },
+        ],
+      },
+      {
+        path: getPath(PATH.admin.sucursales),
+        loadComponent: () =>
+          import('@module/admin/content/sucursales/sucursales').then((m) => m.Sucursales),
+        children: [
+          {
+            path: getPath(PATH.admin.sucursales.list),
+            loadComponent: () =>
+              import('@module/admin/content/sucursales/content/sucursales-list/sucursales-list').then(
+                (m) => m.SucursalesList,
+              ),
+          },
+          {
+            path: getPath(PATH.admin.sucursales.edit),
+            loadComponent: () =>
+              import('@module/admin/content/sucursales/content/sucursales-edit/sucursales-edit').then(
+                (m) => m.SucursalesEdit,
+              ),
+          },
+          { path: '**', redirectTo: getPath(PATH.admin.sucursales.list), pathMatch: 'full' },
+        ],
+      },
+      {
+        path: getPath(PATH.admin.alquileres),
+        loadComponent: () =>
+          import('@module/admin/content/alquileres/alquileres').then((m) => m.Alquileres),
+        children: [
+          {
+            path: getPath(PATH.admin.alquileres.list),
+            loadComponent: () =>
+              import('@module/admin/content/alquileres/content/alquileres-list/alquileres-list').then(
+                (m) => m.AlquileresList,
+              ),
+          },
+          {
+            path: getPath(PATH.admin.alquileres.edit),
+            loadComponent: () =>
+              import('@module/admin/content/alquileres/content/alquileres-edit/alquileres-edit').then(
+                (m) => m.AlquileresEdit,
+              ),
+          },
+          { path: '**', redirectTo: getPath(PATH.admin.alquileres.list), pathMatch: 'full' },
         ],
       },
       {

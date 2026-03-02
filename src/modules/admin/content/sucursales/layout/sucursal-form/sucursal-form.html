@@ -1,0 +1,28 @@
+<form [formGroup]="sucursalForm" class="p-4 space-y-3">
+  <!-- Nombre -->
+  <div>
+    <label class="block text-xs font-inter-semibold text-text mb-1.5">Nombre de Sucursal</label>
+    <input
+      type="text"
+      formControlName="nombre"
+      class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+      placeholder="Sucursal Lima"
+    />
+    @if (sucursalForm.get('nombre')?.touched && sucursalForm.get('nombre')?.errors) {
+      <p class="text-danger text-xs font-inter-medium mt-1">El nombre es requerido</p>
+    }
+  </div>
+
+  <!-- Dirección -->
+  <div class="grid grid-cols-1 gap-3">
+    <div>
+      <label class="block text-xs font-inter-semibold text-text mb-1.5">Dirección (opcional)</label>
+      <input
+        type="text"
+        formControlName="direccion"
+        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+        placeholder="Av. Principal 123"
+      />
+    </div>
+  </div>
+</form>

@@ -2,8 +2,8 @@ import { Component, inject, input, output, OnInit, effect, signal } from '@angul
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ApiResponse, ApiBody, ApiField, MantenimientoDocumentoResultDto } from 'api/backend.api';
-import { VehiculoInputSearch } from '@module/admin/content/vehiculos/layout/vehiculo-input-search/vehiculo-input-search';
-import { TallerInputSearch } from '@module/admin/content/talleres/layout/taller-input-search/taller-input-search';
+import { VehiculoInputSearch } from '@module/admin/components/input-searchs/vehiculo-input-search/vehiculo-input-search';
+import { TallerInputSearch } from '@module/admin/components/input-searchs/taller-input-search/taller-input-search';
 import { MantenimientoTareasForm } from './content/mantenimiento-tareas-form/mantenimiento-tareas-form';
 import {
   DocumentsDateUpload,

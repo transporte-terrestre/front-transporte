@@ -1,0 +1,212 @@
+<div class="space-y-6">
+  <!-- Header -->
+  <div class="flex flex-col gap-4">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div>
+        <h1 class="text-2xl font-anton text-text lowercase">Alquileres</h1>
+        <p class="text-sm text-text/60 font-inter-regular mt-1">
+          Administra los alquileres de vehículos a proveedores
+        </p>
+      </div>
+      <div class="flex items-center gap-2 w-full sm:w-auto">
+        <button
+          (click)="openCreateModal()"
+          class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-secondary text-background rounded-lg text-sm font-inter-semibold hover:bg-secondary/90 transition-all shadow-sm hover:shadow-md"
+        >
+          <i class="fas fa-plus text-xs"></i>
+          <span>Nuevo</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Buscador y Filtros -->
+    <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+      <!-- Búsqueda -->
+      <div class="relative sm:col-span-4 lg:col-span-2">
+        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"></i>
+        <input
+          type="text"
+          [ngModel]="searchTerm()"
+          (ngModelChange)="onSearchChange($event)"
+          placeholder="Buscar por proveedor, placa de vehículo..."
+          class="w-full pl-10 pr-4 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all"
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="flex items-center justify-center py-12">
+      <div class="flex flex-col items-center gap-3">
+        <i class="fas fa-spinner fa-spin text-3xl text-secondary"></i>
+        <p class="text-text/60 font-inter-medium">Cargando alquileres...</p>
+      </div>
+    </div>
+  }
+
+  <!-- Empty State -->
+  @else if (alquileres().length === 0) {
+    <div
+      class="flex flex-col items-center justify-center py-12 text-text/60 bg-background border border-text/10 rounded-xl"
+    >
+      <i class="fas fa-handshake text-5xl mb-4 text-text/20"></i>
+      <p class="font-inter-semibold text-lg">No hay alquileres registrados</p>
+      <p class="font-inter-regular text-sm mt-1">
+        Comienza agregando un nuevo alquiler de vehículo
+      </p>
+    </div>
+  }
+
+  <!-- Table View -->
+  @else {
+    <div class="bg-background border border-text/10 rounded-xl shadow-sm overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-text/5 border-b border-text/10">
+            <tr>
+              <th
+                class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              >
+                Vehículo
+              </th>
+
+              <th
+                class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              >
+                Fechas / Tiempo
+              </th>
+              <th
+                class="px-4 py-3 text-center text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              >
+                Monto
+              </th>
+              <th
+                class="px-4 py-3 text-center text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              >
+                Estado
+              </th>
+              <th
+                class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              >
+                Acciones
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-text/10">
+            @for (alquiler of alquileres(); track alquiler.id) {
+              <tr
+                class="hover:bg-text/5 transition-colors cursor-pointer"
+                (click)="navigateToEdit(alquiler)"
+              >
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <div class="flex items-center gap-2">
+                    <div
+                      class="w-8 h-8 rounded-lg bg-text/5 border border-text/10 flex items-center justify-center"
+                    >
+                      <i class="fas fa-car text-text/40 text-xs"></i>
+                    </div>
+                    <div class="flex flex-col">
+                      <span class="text-xs font-inter-bold text-text uppercase">{{
+                        $any(alquiler.vehiculo)?.placa
+                      }}</span>
+                      <span class="text-[10px] text-text/60 font-inter-medium"
+                        >{{ $any(alquiler.vehiculo)?.marca }}
+                        {{ $any(alquiler.vehiculo)?.modelo }}</span
+                      >
+                    </div>
+                  </div>
+                </td>
+
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <div class="flex flex-col gap-0.5">
+                    <span class="text-xs font-inter-medium text-text">
+                      {{ alquiler.fechaInicio | date: 'dd/MM/yyyy' }}
+                      @if (alquiler.fechaFin) {
+                        - {{ alquiler.fechaFin | date: 'dd/MM/yyyy' }}
+                      }
+                    </span>
+                    @if (alquiler.fechaFin) {
+                      <span class="text-[10px] text-text/60"
+                        ><i class="fas fa-clock mr-1 text-[8px]"></i
+                        >{{ getDiffDias(alquiler.fechaInicio, alquiler.fechaFin) }} días</span
+                      >
+                    }
+                  </div>
+                </td>
+
+                <td class="px-4 py-3 whitespace-nowrap text-center">
+                  @if (alquiler.monto) {
+                    <span
+                      class="text-xs font-inter-bold text-success bg-success/10 px-2 py-0.5 rounded-md"
+                      >S/ {{ alquiler.monto }}</span
+                    >
+                  } @else {
+                    <span class="text-xs text-text/40 italic">-</span>
+                  }
+                </td>
+
+                <td
+                  class="px-4 py-3 whitespace-nowrap text-center"
+                  (click)="$event.stopPropagation()"
+                >
+                  <app-alquiler-estado-update
+                    [alquilerId]="alquiler.id"
+                    [estadoActual]="alquiler.estado"
+                    (onStatusUpdated)="loadAlquileres()"
+                  />
+                </td>
+
+                <td class="px-4 py-3 whitespace-nowrap text-right">
+                  <div class="flex items-center justify-end gap-1">
+                    <button
+                      (click)="navigateToEdit(alquiler); $event.stopPropagation()"
+                      class="p-1.5 text-info hover:bg-info/10 rounded-lg transition-colors text-sm"
+                      title="Editar Alquiler"
+                    >
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button
+                      (click)="deleteAlquiler(alquiler.id, $event)"
+                      class="p-1.5 text-danger hover:bg-danger/10 rounded-lg transition-colors text-sm"
+                      title="Eliminar Alquiler"
+                    >
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Paginación Tabla -->
+      <app-pagination
+        [meta]="$any(meta())"
+        [currentPage]="currentPage()"
+        [pageSize]="pageSize()"
+        (pageChange)="onPageChange($event)"
+        (pageSizeChange)="onPageSizeChange($event)"
+      />
+    </div>
+  }
+</div>
+
+<!-- Modal Create -->
+@if (showModal()) {
+  <app-modal-form
+    title="Nuevo Alquiler"
+    submitText="Registrar"
+    [maxWidth]="'3xl'"
+    [loading]="loading()"
+    (onSubmit)="formComponent.submitForm()"
+    (onClose)="closeModal()"
+  >
+    <app-alquiler-form
+      #formComponent
+      [editMode]="false"
+      (onSubmitForm)="handleFormSubmit($event)"
+    />
+  </app-modal-form>
+}

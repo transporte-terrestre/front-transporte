@@ -32,6 +32,7 @@ export class TareaInputSearch implements ControlValueAccessor {
   // Inputs
   placeholder = input<string>('Seleccionar tarea...');
   initialData = input<ApiResponse<'mantenimientos', 'findAllTareas'>['data'][number] | null>(null);
+  showClear = input(false);
   tareaSelected = output<ApiResponse<'mantenimientos', 'findAllTareas'>['data'][number] | null>();
 
   // State

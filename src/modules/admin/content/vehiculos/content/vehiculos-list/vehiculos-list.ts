@@ -1,6 +1,6 @@
 import { Component, signal, inject, OnInit, OnDestroy, viewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
@@ -16,6 +16,9 @@ import { getErrorMessage } from '@helper/error.helper';
 
 import { ModalInfo } from '../../../../components/modal-info/modal-info';
 import { VehiculoDetail } from '../../layout/vehiculo-detail/vehiculo-detail';
+import { VehiculoComentarioAdd } from './layout/vehiculo-comentario-add/vehiculo-comentario-add';
+import { VehiculoEstadoUpdate } from './layout/vehiculo-estado-update/vehiculo-estado-update';
+import { MarcaInputSearch } from '../../../../components/input-searchs/marca-input-search/marca-input-search';
 
 @Component({
   selector: 'app-vehiculos-list',
@@ -27,6 +30,9 @@ import { VehiculoDetail } from '../../layout/vehiculo-detail/vehiculo-detail';
     PaginationComponent,
     ModalInfo,
     VehiculoDetail,
+    VehiculoComentarioAdd,
+    VehiculoEstadoUpdate,
+    MarcaInputSearch,
   ],
   templateUrl: './vehiculos-list.html',
   styleUrl: './vehiculos-list.css',
@@ -41,7 +47,9 @@ export class VehiculosList implements OnInit, OnDestroy {
   private searchSubject = new Subject<string>();
 
   vehiculos = signal<ApiResponse<'vehiculos', 'findAll'>['data']>([]);
-  vehiculosEstadoDocumentos = signal<ApiResponse<'vehiculos', 'findAllEstadoDocumentos'>['data']>([]);
+  vehiculosEstadoDocumentos = signal<ApiResponse<'vehiculos', 'findAllEstadoDocumentos'>['data']>(
+    [],
+  );
   loading = signal(false);
   showModal = signal(false);
   filtroDocumentos = signal<'completo' | 'incompleto' | null>(null);
@@ -66,10 +74,35 @@ export class VehiculosList implements OnInit, OnDestroy {
     this.selectedVehiculoId.set(null);
   }
 
+  // Comentarios Rápidos
+  showAddComentarioModal = signal(false);
+  vehiculoIdParaComentario = signal<number | null>(null);
+
+  openAddComentario(id: number, event: Event) {
+    event.stopPropagation();
+    this.vehiculoIdParaComentario.set(id);
+    this.showAddComentarioModal.set(true);
+  }
+
+  closeAddComentario() {
+    this.showAddComentarioModal.set(false);
+    this.vehiculoIdParaComentario.set(null);
+  }
+
+  onComentarioAdded() {
+    this.closeAddComentario();
+    this.loadVehiculos();
+  }
+
+  onStatusUpdated() {
+    this.loadVehiculos();
+  }
+
   // Filtros
   searchTerm = signal('');
-  fechaInicio = signal('');
-  fechaFin = signal('');
+  estado = signal('');
+  marcaId = signal<number | string>('');
+  selectedMarcaForSearch = signal<ApiResponse<'vehiculos', 'findOneMarca'> | null>(null);
 
   vehiculoFormComponent = viewChild<VehiculoForm>(VehiculoForm);
   tableContainer = viewChild<ElementRef>('tableContainer');
@@ -155,8 +188,8 @@ export class VehiculosList implements OnInit, OnDestroy {
           page: this.currentPage(),
           limit: this.pageSize(),
           search: this.searchTerm() || undefined,
-          fechaInicio: this.fechaInicio() || undefined,
-          fechaFin: this.fechaFin() || undefined,
+          estado: (this.estado() as any) || undefined,
+          marcaId: this.marcaId() ? Number(this.marcaId()) : undefined,
         });
         this.vehiculos.set(response.data);
         this.vehiculosEstadoDocumentos.set([]);
@@ -181,8 +214,14 @@ export class VehiculosList implements OnInit, OnDestroy {
     this.searchSubject.next(value);
   }
 
-  onDateChange() {
+  onFilterChange() {
     this.onSearch();
+  }
+
+  onMarcaChange(marca: ApiResponse<'vehiculos', 'findOneMarca'> | null) {
+    this.selectedMarcaForSearch.set(marca);
+    this.marcaId.set(marca?.id || '');
+    this.onFilterChange();
   }
 
   onPageChange(page: number) {
@@ -198,8 +237,9 @@ export class VehiculosList implements OnInit, OnDestroy {
 
   clearFilters() {
     this.searchTerm.set('');
-    this.fechaInicio.set('');
-    this.fechaFin.set('');
+    this.estado.set('');
+    this.marcaId.set('');
+    this.selectedMarcaForSearch.set(null);
     this.currentPage.set(1);
     this.loadVehiculos();
   }
@@ -325,6 +365,23 @@ export class VehiculosList implements OnInit, OnDestroy {
         );
       },
     );
+  }
+
+  async updateVehiculoEstado(id: number, event: Event) {
+    event.stopPropagation();
+    const select = event.target as HTMLSelectElement;
+    const estado = select.value as ApiBody<'vehiculos', 'update'>['estado'];
+
+    this.loading.set(true);
+    try {
+      await this.vehiculoService.update(id, { estado });
+      this.toastService.success('Estado actualizado correctamente');
+      this.loadVehiculos();
+    } catch (error) {
+      console.error('Error al actualizar estado del vehículo:', error);
+      this.toastService.error(getErrorMessage(error, 'Error al actualizar el estado del vehículo'));
+      this.loadVehiculos();
+    }
   }
 
   getEstadoBadgeClass(estado: string): string {

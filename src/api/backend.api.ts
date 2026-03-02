@@ -1448,6 +1448,51 @@ export interface PaginatedVehiculoEstadoDocumentosResultDto {
   meta: PaginationMetaDto;
 }
 
+export interface VehiculoComentarioDetalleDto {
+  /**
+   * ID del comentario
+   * @example 1
+   */
+  id: number;
+  /**
+   * ID del vehículo
+   * @example 1
+   */
+  vehiculoId: number;
+  /**
+   * ID del usuario que creó el comentario
+   * @example 1
+   */
+  usuarioId: number;
+  /**
+   * Texto del comentario
+   * @example "El vehículo necesita revisión"
+   */
+  comentario: string;
+  /**
+   * Tipo de comentario
+   * @example "observacion"
+   */
+  tipo: "observacion" | "incidencia" | "novedad" | "general";
+  /**
+   * Fecha de creación
+   * @format date-time
+   * @example "2024-01-15T10:30:00Z"
+   */
+  creadoEn: string;
+  /**
+   * Fecha de última actualización
+   * @format date-time
+   * @example "2024-01-15T10:30:00Z"
+   */
+  actualizadoEn: string;
+  /**
+   * Nombre del usuario
+   * @example "Juan Pérez"
+   */
+  usuarioNombreCompleto: string;
+}
+
 export interface PropietarioVehiculoDto {
   /**
    * Owner ID
@@ -1681,11 +1726,7 @@ export interface VehiculoResultDto {
    * @example "disponible"
    */
   estado: "disponible" | "circulacion" | "taller" | "retirado";
-  /**
-   * Annotations
-   * @example "Some notes"
-   */
-  anotaciones?: string;
+  comentarios?: VehiculoComentarioDetalleDto[];
   /**
    * Headquarters
    * @example "Lima"
@@ -1855,11 +1896,6 @@ export interface VehiculoCreateDto {
    */
   estado?: "disponible" | "circulacion" | "taller" | "retirado";
   /**
-   * Annotations
-   * @example "Some notes"
-   */
-  anotaciones?: string;
-  /**
    * Headquarters
    * @example "Lima"
    */
@@ -2025,11 +2061,6 @@ export interface VehiculoUpdateDto {
    */
   estado?: "disponible" | "circulacion" | "taller" | "retirado";
   /**
-   * Annotations
-   * @example "Some notes"
-   */
-  anotaciones?: string;
-  /**
    * Headquarters
    * @example "Lima"
    */
@@ -2186,6 +2217,92 @@ export interface VehiculoDocumentoUpdateDto {
    * @example "2023-01-15"
    */
   fechaEmision?: string;
+}
+
+export interface VehiculoComentarioResultDto {
+  /**
+   * ID del comentario
+   * @example 1
+   */
+  id: number;
+  /**
+   * ID del vehículo
+   * @example 1
+   */
+  vehiculoId: number;
+  /**
+   * ID del usuario que creó el comentario
+   * @example 1
+   */
+  usuarioId: number;
+  /**
+   * Texto del comentario
+   * @example "El vehículo necesita revisión"
+   */
+  comentario: string;
+  /**
+   * Tipo de comentario
+   * @example "observacion"
+   */
+  tipo: "observacion" | "incidencia" | "novedad" | "general";
+  /**
+   * Fecha de creación
+   * @format date-time
+   * @example "2024-01-15T10:30:00Z"
+   */
+  creadoEn: string;
+  /**
+   * Fecha de última actualización
+   * @format date-time
+   * @example "2024-01-15T10:30:00Z"
+   */
+  actualizadoEn: string;
+}
+
+export interface VehiculoComentarioCreateDto {
+  /**
+   * ID del vehículo
+   * @example 1
+   */
+  vehiculoId: number;
+  /**
+   * ID del usuario que crea el comentario
+   * @example 1
+   */
+  usuarioId: number;
+  /**
+   * Texto del comentario
+   * @example "El vehículo está en buenas condiciones"
+   */
+  comentario: string;
+  /**
+   * Tipo de comentario
+   * @default "observacion"
+   */
+  tipo?: "observacion" | "incidencia" | "novedad" | "general";
+}
+
+export interface VehiculoComentarioUpdateDto {
+  /**
+   * ID del vehículo
+   * @example 1
+   */
+  vehiculoId?: number;
+  /**
+   * ID del usuario que crea el comentario
+   * @example 1
+   */
+  usuarioId?: number;
+  /**
+   * Texto del comentario
+   * @example "El vehículo está en buenas condiciones"
+   */
+  comentario?: string;
+  /**
+   * Tipo de comentario
+   * @default "observacion"
+   */
+  tipo?: "observacion" | "incidencia" | "novedad" | "general";
 }
 
 export interface MarcaListDto {
@@ -3292,7 +3409,7 @@ export interface DocumentoItemDto {
   observacion?: string;
   /**
    * Fecha de Vencimiento Inicial/Por defecto
-   * @example "2026-02-26T16:25:49.272Z"
+   * @example "2026-03-01T22:23:10.854Z"
    */
   fechaVencimiento?: string;
 }
@@ -3475,17 +3592,17 @@ export interface BotiquinItemDto {
   habilitado: boolean;
   /**
    * Fecha de Vencimiento actual
-   * @example "2026-02-26T16:25:49.274Z"
+   * @example "2026-03-01T22:23:10.858Z"
    */
   fechaVencimiento?: string;
   /**
    * Fecha de Salida
-   * @example "2026-02-26T16:25:49.274Z"
+   * @example "2026-03-01T22:23:10.858Z"
    */
   fechaSalida?: string;
   /**
    * Fecha de Reposición
-   * @example "2026-02-26T16:25:49.274Z"
+   * @example "2026-03-01T22:23:10.858Z"
    */
   fechaReposicion?: string;
 }
@@ -3716,11 +3833,7 @@ export interface VehiculoMantenimientoListDto {
    * @example "disponible"
    */
   estado: "disponible" | "circulacion" | "taller" | "retirado";
-  /**
-   * Annotations
-   * @example "Some notes"
-   */
-  anotaciones?: string;
+  comentarios?: VehiculoComentarioDetalleDto[];
   /**
    * Headquarters
    * @example "Lima"
@@ -3832,6 +3945,11 @@ export interface TallerResultDto {
    * @example "2023-01-01T00:00:00.000Z"
    */
   creadoEn: string;
+  /**
+   * IDs de las sucursales
+   * @example [1,2]
+   */
+  sucursalIds: number[];
   /**
    * Fecha de última actualización
    * @format date-time
@@ -4053,11 +4171,7 @@ export interface VehiculoMantenimientoResultDto {
    * @example "disponible"
    */
   estado: "disponible" | "circulacion" | "taller" | "retirado";
-  /**
-   * Annotations
-   * @example "Some notes"
-   */
-  anotaciones?: string;
+  comentarios?: VehiculoComentarioDetalleDto[];
   /**
    * Headquarters
    * @example "Lima"
@@ -5131,11 +5245,7 @@ export interface VehiculoViajeDto {
    * @example "disponible"
    */
   estado: "disponible" | "circulacion" | "taller" | "retirado";
-  /**
-   * Annotations
-   * @example "Some notes"
-   */
-  anotaciones?: string;
+  comentarios?: VehiculoComentarioDetalleDto[];
   /**
    * Headquarters
    * @example "Lima"
@@ -5677,11 +5787,7 @@ export interface ViajeVehiculoDetalleDto {
    * @example "disponible"
    */
   estado: "disponible" | "circulacion" | "taller" | "retirado";
-  /**
-   * Annotations
-   * @example "Some notes"
-   */
-  anotaciones?: string;
+  comentarios?: VehiculoComentarioDetalleDto[];
   /**
    * Headquarters
    * @example "Lima"
@@ -7055,6 +7161,7 @@ export interface NotificacionListDto {
   /** @format date-time */
   creadoEn: string;
   leido: boolean;
+  metadata?: object;
 }
 
 export interface PaginatedNotificacionResultDto {
@@ -7069,6 +7176,7 @@ export interface NotificacionCreateDto {
   mensaje: string;
   /** @default "info" */
   tipo?: "info" | "warning" | "error" | "success";
+  metadata?: object;
 }
 
 export interface NotificacionResultDto {
@@ -7087,6 +7195,7 @@ export interface NotificacionResultDto {
   creadoEn: string;
   /** @example false */
   leido: boolean;
+  metadata?: object;
 }
 
 export interface VencimientoResumenDto {
@@ -7682,6 +7791,11 @@ export interface TallerCreateDto {
    * @example "Av. Industrial 555"
    */
   direccion?: string;
+  /**
+   * IDs de las sucursales del taller
+   * @example [1,2]
+   */
+  sucursalIds?: number[];
 }
 
 export interface TallerListDto {
@@ -7731,6 +7845,11 @@ export interface TallerListDto {
    * @example "2023-01-01T00:00:00.000Z"
    */
   creadoEn: string;
+  /**
+   * IDs de las sucursales
+   * @example [1,2]
+   */
+  sucursalIds: number[];
 }
 
 export interface PaginatedTallerResultDto {
@@ -7773,6 +7892,102 @@ export interface TallerUpdateDto {
   email?: string;
   /**
    * Dirección del taller
+   * @example "Av. Industrial 555"
+   */
+  direccion?: string;
+  /**
+   * IDs de las sucursales del taller
+   * @example [1,2]
+   */
+  sucursalIds?: number[];
+}
+
+export interface SucursalCreateDto {
+  /**
+   * Nombre de la sucursal
+   * @example "Sucursal Principal"
+   */
+  nombre: string;
+  /**
+   * Dirección de la sucursal
+   * @example "Av. Industrial 555"
+   */
+  direccion?: string;
+}
+
+export interface SucursalListDto {
+  /**
+   * ID de la sucursal
+   * @example 1
+   */
+  id: number;
+  /**
+   * Nombre de la sucursal
+   * @example "Sucursal Norte"
+   */
+  nombre: string;
+  /**
+   * Dirección
+   * @example "Av. Norte 123"
+   */
+  direccion: string | null;
+  /**
+   * Fecha de creación
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  creadoEn: string;
+}
+
+export interface PaginatedSucursalResultDto {
+  data: SucursalListDto[];
+  meta: PaginationMetaDto;
+}
+
+export interface SucursalResultDto {
+  /**
+   * ID de la sucursal
+   * @example 1
+   */
+  id: number;
+  /**
+   * Nombre de la sucursal
+   * @example "Sucursal Norte"
+   */
+  nombre: string;
+  /**
+   * Dirección
+   * @example "Av. Norte 123"
+   */
+  direccion: string | null;
+  /**
+   * Fecha de creación
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  creadoEn: string;
+  /**
+   * Fecha de última actualización
+   * @format date-time
+   * @example "2023-01-02T00:00:00.000Z"
+   */
+  actualizadoEn: string;
+  /**
+   * Fecha de eliminación (si aplica)
+   * @format date-time
+   * @example null
+   */
+  eliminadoEn: string | null;
+}
+
+export interface SucursalUpdateDto {
+  /**
+   * Nombre de la sucursal
+   * @example "Sucursal Principal"
+   */
+  nombre?: string;
+  /**
+   * Dirección de la sucursal
    * @example "Av. Industrial 555"
    */
   direccion?: string;
@@ -8754,6 +8969,77 @@ export interface ProveedorDocumentoUpdateDto {
   fechaEmision?: string;
 }
 
+export interface AlquilerItemDto {
+  id: number;
+  vehiculoId: number;
+  /** @format date-time */
+  fechaInicio: string;
+  /** @format date-time */
+  fechaFin?: string;
+  monto?: string;
+  observaciones?: string;
+  estado: string;
+  /** @format date-time */
+  creadoEn: string;
+  /** @format date-time */
+  actualizadoEn: string;
+  vehiculo?: object;
+  proveedor?: object;
+}
+
+export interface AlquilerPaginationMetaDto {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+}
+
+export interface AlquilerListDto {
+  data: AlquilerItemDto[];
+  meta: AlquilerPaginationMetaDto;
+}
+
+export interface AlquilerResultDto {
+  id: number;
+  vehiculoId: number;
+  /** @format date-time */
+  fechaInicio: string;
+  /** @format date-time */
+  fechaFin?: string;
+  monto?: string;
+  observaciones?: string;
+  estado: string;
+  /** @format date-time */
+  creadoEn: string;
+  /** @format date-time */
+  actualizadoEn: string;
+  vehiculo?: object;
+  proveedor?: object;
+}
+
+export interface AlquilerCreateDto {
+  vehiculoId: number;
+  /** @format date-time */
+  fechaInicio: string;
+  /** @format date-time */
+  fechaFin?: string;
+  monto?: string;
+  observaciones?: string;
+}
+
+export interface AlquilerUpdateDto {
+  vehiculoId?: number;
+  /** @format date-time */
+  fechaInicio?: string;
+  /** @format date-time */
+  fechaFin?: string;
+  monto?: string;
+  observaciones?: string;
+  estado?: string;
+}
+
 export interface StorageResultDto {
   /**
    * Public ID del archivo en Cloudinary
@@ -9034,6 +9320,8 @@ export interface VehiculosFindAllParams {
    * @example "disponible"
    */
   estado?: "disponible" | "circulacion" | "taller" | "retirado";
+  /** Filtrar por ID de marca */
+  marcaId?: number;
 }
 
 export type VehiculosFindAllData = PaginatedVehiculoResultDto;
@@ -9113,6 +9401,37 @@ export interface VehiculosDeleteDocumentoParams {
 }
 
 export type VehiculosDeleteDocumentoData = VehiculoDocumentoResultDto;
+
+export interface VehiculosFindComentariosByVehiculoParams {
+  /** ID del vehículo */
+  id: number;
+}
+
+export type VehiculosFindComentariosByVehiculoData =
+  VehiculoComentarioResultDto[];
+
+export interface VehiculosFindOneComentarioParams {
+  /** ID del comentario */
+  id: number;
+}
+
+export type VehiculosFindOneComentarioData = VehiculoComentarioResultDto;
+
+export type VehiculosCreateComentarioData = VehiculoComentarioResultDto;
+
+export interface VehiculosUpdateComentarioParams {
+  /** ID del comentario */
+  id: number;
+}
+
+export type VehiculosUpdateComentarioData = VehiculoComentarioResultDto;
+
+export interface VehiculosDeleteComentarioParams {
+  /** ID del comentario */
+  id: number;
+}
+
+export type VehiculosDeleteComentarioData = VehiculoComentarioResultDto;
 
 export interface VehiculosFindAllMarcasParams {
   /**
@@ -10339,6 +10658,43 @@ export interface TalleresRemoveParams {
 
 export type TalleresRemoveData = any;
 
+export type TalleresCreateSucursalData = any;
+
+export interface TalleresFindAllSucursalesPaginatedParams {
+  /** @default 1 */
+  page?: number;
+  /** @default 10 */
+  limit?: number;
+  /** Buscar por nombre o dirección */
+  search?: string;
+  /** Fecha de inicio (YYYY-MM-DD) */
+  fechaInicio?: string;
+  /** Fecha de fin (YYYY-MM-DD) */
+  fechaFin?: string;
+}
+
+export type TalleresFindAllSucursalesPaginatedData = PaginatedSucursalResultDto;
+
+export type TalleresFindAllSucursalesData = any;
+
+export interface TalleresFindOneSucursalParams {
+  id: number;
+}
+
+export type TalleresFindOneSucursalData = SucursalResultDto;
+
+export interface TalleresUpdateSucursalParams {
+  id: number;
+}
+
+export type TalleresUpdateSucursalData = any;
+
+export interface TalleresRemoveSucursalParams {
+  id: number;
+}
+
+export type TalleresRemoveSucursalData = any;
+
 export interface ReportesGetViajesDetalladosPorVehiculoParams {
   /** Fecha de inicio del reporte (YYYY-MM-DD) */
   fechaInicio?: string;
@@ -10553,6 +10909,37 @@ export interface ProveedoresDeleteDocumentoParams {
 }
 
 export type ProveedoresDeleteDocumentoData = ProveedorDocumentoResultDto;
+
+export interface AlquileresFindAllParams {
+  search?: string;
+  estado?: string;
+  /** @default 1 */
+  page?: number;
+  /** @default 10 */
+  limit?: number;
+}
+
+export type AlquileresFindAllData = AlquilerListDto;
+
+export type AlquileresCreateData = any;
+
+export interface AlquileresFindOneParams {
+  id: number;
+}
+
+export type AlquileresFindOneData = AlquilerResultDto;
+
+export interface AlquileresUpdateParams {
+  id: number;
+}
+
+export type AlquileresUpdateData = any;
+
+export interface AlquileresDeleteParams {
+  id: number;
+}
+
+export type AlquileresDeleteData = any;
 
 export interface StorageUploadPayload {
   /** @format binary */
@@ -11225,6 +11612,8 @@ export namespace Vehiculos {
        * @example "disponible"
        */
       estado?: "disponible" | "circulacion" | "taller" | "retirado";
+      /** Filtrar por ID de marca */
+      marcaId?: number;
     };
     export type RequestBody = never;
     export type RequestHeaders = {};
@@ -11438,6 +11827,103 @@ export namespace Vehiculos {
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = VehiculosDeleteDocumentoData;
+  }
+
+  /**
+   * No description
+   * @tags vehiculos
+   * @name VehiculosFindComentariosByVehiculo
+   * @summary Obtener todos los comentarios de un vehículo
+   * @request GET:/vehiculo/{id}/comentario/find-all
+   * @secure
+   * @response `200` `VehiculosFindComentariosByVehiculoData`
+   */
+  export namespace VehiculosFindComentariosByVehiculo {
+    export type RequestParams = {
+      /** ID del vehículo */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = VehiculosFindComentariosByVehiculoData;
+  }
+
+  /**
+   * No description
+   * @tags vehiculos
+   * @name VehiculosFindOneComentario
+   * @summary Obtener un comentario por ID
+   * @request GET:/vehiculo/comentario/find-one/{id}
+   * @secure
+   * @response `200` `VehiculosFindOneComentarioData`
+   */
+  export namespace VehiculosFindOneComentario {
+    export type RequestParams = {
+      /** ID del comentario */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = VehiculosFindOneComentarioData;
+  }
+
+  /**
+   * No description
+   * @tags vehiculos
+   * @name VehiculosCreateComentario
+   * @summary Crear un nuevo comentario para un vehículo
+   * @request POST:/vehiculo/comentario/create
+   * @secure
+   * @response `201` `VehiculosCreateComentarioData`
+   */
+  export namespace VehiculosCreateComentario {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = VehiculoComentarioCreateDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = VehiculosCreateComentarioData;
+  }
+
+  /**
+   * No description
+   * @tags vehiculos
+   * @name VehiculosUpdateComentario
+   * @summary Actualizar un comentario
+   * @request PATCH:/vehiculo/comentario/update/{id}
+   * @secure
+   * @response `200` `VehiculosUpdateComentarioData`
+   */
+  export namespace VehiculosUpdateComentario {
+    export type RequestParams = {
+      /** ID del comentario */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = VehiculoComentarioUpdateDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = VehiculosUpdateComentarioData;
+  }
+
+  /**
+   * No description
+   * @tags vehiculos
+   * @name VehiculosDeleteComentario
+   * @summary Eliminar un comentario
+   * @request DELETE:/vehiculo/comentario/delete/{id}
+   * @secure
+   * @response `200` `VehiculosDeleteComentarioData`
+   */
+  export namespace VehiculosDeleteComentario {
+    export type RequestParams = {
+      /** ID del comentario */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = VehiculosDeleteComentarioData;
   }
 
   /**
@@ -14347,6 +14833,125 @@ export namespace Talleres {
     export type RequestHeaders = {};
     export type ResponseBody = TalleresRemoveData;
   }
+
+  /**
+   * No description
+   * @tags talleres
+   * @name TalleresCreateSucursal
+   * @summary Crear una nueva sucursal de taller
+   * @request POST:/taller/sucursales/create
+   * @secure
+   * @response `201` `TalleresCreateSucursalData`
+   */
+  export namespace TalleresCreateSucursal {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = SucursalCreateDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = TalleresCreateSucursalData;
+  }
+
+  /**
+   * No description
+   * @tags talleres
+   * @name TalleresFindAllSucursalesPaginated
+   * @summary Listar sucursales de forma paginada
+   * @request GET:/taller/sucursales/find-all-paginated
+   * @secure
+   * @response `200` `TalleresFindAllSucursalesPaginatedData`
+   */
+  export namespace TalleresFindAllSucursalesPaginated {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /** @default 1 */
+      page?: number;
+      /** @default 10 */
+      limit?: number;
+      /** Buscar por nombre o dirección */
+      search?: string;
+      /** Fecha de inicio (YYYY-MM-DD) */
+      fechaInicio?: string;
+      /** Fecha de fin (YYYY-MM-DD) */
+      fechaFin?: string;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = TalleresFindAllSucursalesPaginatedData;
+  }
+
+  /**
+   * No description
+   * @tags talleres
+   * @name TalleresFindAllSucursales
+   * @summary Obtener todas las sucursales de talleres disponibles
+   * @request GET:/taller/sucursales/find-all
+   * @secure
+   * @response `200` `TalleresFindAllSucursalesData`
+   */
+  export namespace TalleresFindAllSucursales {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = TalleresFindAllSucursalesData;
+  }
+
+  /**
+   * No description
+   * @tags talleres
+   * @name TalleresFindOneSucursal
+   * @summary Obtener una sucursal por ID
+   * @request GET:/taller/sucursales/find-one/{id}
+   * @secure
+   * @response `200` `TalleresFindOneSucursalData`
+   */
+  export namespace TalleresFindOneSucursal {
+    export type RequestParams = {
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = TalleresFindOneSucursalData;
+  }
+
+  /**
+   * No description
+   * @tags talleres
+   * @name TalleresUpdateSucursal
+   * @summary Actualizar una sucursal por ID
+   * @request PATCH:/taller/sucursales/update/{id}
+   * @secure
+   * @response `200` `TalleresUpdateSucursalData`
+   */
+  export namespace TalleresUpdateSucursal {
+    export type RequestParams = {
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = SucursalUpdateDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = TalleresUpdateSucursalData;
+  }
+
+  /**
+   * No description
+   * @tags talleres
+   * @name TalleresRemoveSucursal
+   * @summary Eliminar una sucursal por ID
+   * @request DELETE:/taller/sucursales/delete/{id}
+   * @secure
+   * @response `200` `TalleresRemoveSucursalData`
+   */
+  export namespace TalleresRemoveSucursal {
+    export type RequestParams = {
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = TalleresRemoveSucursalData;
+  }
 }
 
 export namespace Reportes {
@@ -14893,6 +15498,106 @@ export namespace Proveedores {
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = ProveedoresDeleteDocumentoData;
+  }
+}
+
+export namespace Alquileres {
+  /**
+   * No description
+   * @tags alquileres
+   * @name AlquileresFindAll
+   * @summary Listar todos los alquileres (paginado)
+   * @request GET:/admin/alquileres
+   * @secure
+   * @response `200` `AlquileresFindAllData`
+   */
+  export namespace AlquileresFindAll {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      search?: string;
+      estado?: string;
+      /** @default 1 */
+      page?: number;
+      /** @default 10 */
+      limit?: number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = AlquileresFindAllData;
+  }
+
+  /**
+   * No description
+   * @tags alquileres
+   * @name AlquileresCreate
+   * @summary Crear un nuevo alquiler
+   * @request POST:/admin/alquileres
+   * @secure
+   * @response `201` `AlquileresCreateData`
+   */
+  export namespace AlquileresCreate {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = AlquilerCreateDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = AlquileresCreateData;
+  }
+
+  /**
+   * No description
+   * @tags alquileres
+   * @name AlquileresFindOne
+   * @summary Obtener un alquiler por ID
+   * @request GET:/admin/alquileres/{id}
+   * @secure
+   * @response `200` `AlquileresFindOneData`
+   */
+  export namespace AlquileresFindOne {
+    export type RequestParams = {
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = AlquileresFindOneData;
+  }
+
+  /**
+   * No description
+   * @tags alquileres
+   * @name AlquileresUpdate
+   * @summary Actualizar un alquiler
+   * @request PUT:/admin/alquileres/{id}
+   * @secure
+   * @response `200` `AlquileresUpdateData`
+   */
+  export namespace AlquileresUpdate {
+    export type RequestParams = {
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = AlquilerUpdateDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = AlquileresUpdateData;
+  }
+
+  /**
+   * No description
+   * @tags alquileres
+   * @name AlquileresDelete
+   * @summary Eliminar un alquiler
+   * @request DELETE:/admin/alquileres/{id}
+   * @secure
+   * @response `200` `AlquileresDeleteData`
+   */
+  export namespace AlquileresDelete {
+    export type RequestParams = {
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = AlquileresDeleteData;
   }
 }
 
@@ -16080,6 +16785,121 @@ export class Api<SecurityDataType extends unknown> {
     ) =>
       this.http.request<VehiculosDeleteDocumentoData, any>({
         path: `/vehiculo/documento/delete/${id}`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags vehiculos
+     * @name VehiculosFindComentariosByVehiculo
+     * @summary Obtener todos los comentarios de un vehículo
+     * @request GET:/vehiculo/{id}/comentario/find-all
+     * @secure
+     * @response `200` `VehiculosFindComentariosByVehiculoData`
+     */
+    findComentariosByVehiculo: (
+      { id, ...query }: VehiculosFindComentariosByVehiculoParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<VehiculosFindComentariosByVehiculoData, any>({
+        path: `/vehiculo/${id}/comentario/find-all`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags vehiculos
+     * @name VehiculosFindOneComentario
+     * @summary Obtener un comentario por ID
+     * @request GET:/vehiculo/comentario/find-one/{id}
+     * @secure
+     * @response `200` `VehiculosFindOneComentarioData`
+     */
+    findOneComentario: (
+      { id, ...query }: VehiculosFindOneComentarioParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<VehiculosFindOneComentarioData, any>({
+        path: `/vehiculo/comentario/find-one/${id}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags vehiculos
+     * @name VehiculosCreateComentario
+     * @summary Crear un nuevo comentario para un vehículo
+     * @request POST:/vehiculo/comentario/create
+     * @secure
+     * @response `201` `VehiculosCreateComentarioData`
+     */
+    createComentario: (
+      data: VehiculoComentarioCreateDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<VehiculosCreateComentarioData, any>({
+        path: `/vehiculo/comentario/create`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags vehiculos
+     * @name VehiculosUpdateComentario
+     * @summary Actualizar un comentario
+     * @request PATCH:/vehiculo/comentario/update/{id}
+     * @secure
+     * @response `200` `VehiculosUpdateComentarioData`
+     */
+    updateComentario: (
+      { id, ...query }: VehiculosUpdateComentarioParams,
+      data: VehiculoComentarioUpdateDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<VehiculosUpdateComentarioData, any>({
+        path: `/vehiculo/comentario/update/${id}`,
+        method: "PATCH",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags vehiculos
+     * @name VehiculosDeleteComentario
+     * @summary Eliminar un comentario
+     * @request DELETE:/vehiculo/comentario/delete/{id}
+     * @secure
+     * @response `200` `VehiculosDeleteComentarioData`
+     */
+    deleteComentario: (
+      { id, ...query }: VehiculosDeleteComentarioParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<VehiculosDeleteComentarioData, any>({
+        path: `/vehiculo/comentario/delete/${id}`,
         method: "DELETE",
         secure: true,
         format: "json",
@@ -18977,6 +19797,137 @@ export class Api<SecurityDataType extends unknown> {
         secure: true,
         ...params,
       }),
+
+    /**
+     * No description
+     *
+     * @tags talleres
+     * @name TalleresCreateSucursal
+     * @summary Crear una nueva sucursal de taller
+     * @request POST:/taller/sucursales/create
+     * @secure
+     * @response `201` `TalleresCreateSucursalData`
+     */
+    createSucursal: (
+      data: SucursalCreateDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<TalleresCreateSucursalData, any>({
+        path: `/taller/sucursales/create`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags talleres
+     * @name TalleresFindAllSucursalesPaginated
+     * @summary Listar sucursales de forma paginada
+     * @request GET:/taller/sucursales/find-all-paginated
+     * @secure
+     * @response `200` `TalleresFindAllSucursalesPaginatedData`
+     */
+    findAllSucursalesPaginated: (
+      query: TalleresFindAllSucursalesPaginatedParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<TalleresFindAllSucursalesPaginatedData, any>({
+        path: `/taller/sucursales/find-all-paginated`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags talleres
+     * @name TalleresFindAllSucursales
+     * @summary Obtener todas las sucursales de talleres disponibles
+     * @request GET:/taller/sucursales/find-all
+     * @secure
+     * @response `200` `TalleresFindAllSucursalesData`
+     */
+    findAllSucursales: (params: RequestParams = {}) =>
+      this.http.request<TalleresFindAllSucursalesData, any>({
+        path: `/taller/sucursales/find-all`,
+        method: "GET",
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags talleres
+     * @name TalleresFindOneSucursal
+     * @summary Obtener una sucursal por ID
+     * @request GET:/taller/sucursales/find-one/{id}
+     * @secure
+     * @response `200` `TalleresFindOneSucursalData`
+     */
+    findOneSucursal: (
+      { id, ...query }: TalleresFindOneSucursalParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<TalleresFindOneSucursalData, any>({
+        path: `/taller/sucursales/find-one/${id}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags talleres
+     * @name TalleresUpdateSucursal
+     * @summary Actualizar una sucursal por ID
+     * @request PATCH:/taller/sucursales/update/{id}
+     * @secure
+     * @response `200` `TalleresUpdateSucursalData`
+     */
+    updateSucursal: (
+      { id, ...query }: TalleresUpdateSucursalParams,
+      data: SucursalUpdateDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<TalleresUpdateSucursalData, any>({
+        path: `/taller/sucursales/update/${id}`,
+        method: "PATCH",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags talleres
+     * @name TalleresRemoveSucursal
+     * @summary Eliminar una sucursal por ID
+     * @request DELETE:/taller/sucursales/delete/{id}
+     * @secure
+     * @response `200` `TalleresRemoveSucursalData`
+     */
+    removeSucursal: (
+      { id, ...query }: TalleresRemoveSucursalParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<TalleresRemoveSucursalData, any>({
+        path: `/taller/sucursales/delete/${id}`,
+        method: "DELETE",
+        secure: true,
+        ...params,
+      }),
   };
   reportes = {
     /**
@@ -19530,6 +20481,117 @@ export class Api<SecurityDataType extends unknown> {
         method: "DELETE",
         secure: true,
         format: "json",
+        ...params,
+      }),
+  };
+  alquileres = {
+    /**
+     * No description
+     *
+     * @tags alquileres
+     * @name AlquileresFindAll
+     * @summary Listar todos los alquileres (paginado)
+     * @request GET:/admin/alquileres
+     * @secure
+     * @response `200` `AlquileresFindAllData`
+     */
+    findAll: (
+      query: AlquileresFindAllParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<AlquileresFindAllData, any>({
+        path: `/admin/alquileres`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags alquileres
+     * @name AlquileresCreate
+     * @summary Crear un nuevo alquiler
+     * @request POST:/admin/alquileres
+     * @secure
+     * @response `201` `AlquileresCreateData`
+     */
+    create: (data: AlquilerCreateDto, params: RequestParams = {}) =>
+      this.http.request<AlquileresCreateData, any>({
+        path: `/admin/alquileres`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags alquileres
+     * @name AlquileresFindOne
+     * @summary Obtener un alquiler por ID
+     * @request GET:/admin/alquileres/{id}
+     * @secure
+     * @response `200` `AlquileresFindOneData`
+     */
+    findOne: (
+      { id, ...query }: AlquileresFindOneParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<AlquileresFindOneData, any>({
+        path: `/admin/alquileres/${id}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags alquileres
+     * @name AlquileresUpdate
+     * @summary Actualizar un alquiler
+     * @request PUT:/admin/alquileres/{id}
+     * @secure
+     * @response `200` `AlquileresUpdateData`
+     */
+    update: (
+      { id, ...query }: AlquileresUpdateParams,
+      data: AlquilerUpdateDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<AlquileresUpdateData, any>({
+        path: `/admin/alquileres/${id}`,
+        method: "PUT",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags alquileres
+     * @name AlquileresDelete
+     * @summary Eliminar un alquiler
+     * @request DELETE:/admin/alquileres/{id}
+     * @secure
+     * @response `200` `AlquileresDeleteData`
+     */
+    delete: (
+      { id, ...query }: AlquileresDeleteParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<AlquileresDeleteData, any>({
+        path: `/admin/alquileres/${id}`,
+        method: "DELETE",
+        secure: true,
         ...params,
       }),
   };
