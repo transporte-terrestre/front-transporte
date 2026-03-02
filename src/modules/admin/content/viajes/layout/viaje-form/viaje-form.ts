@@ -17,7 +17,7 @@ import { ViajeConductoresForm } from './layout/viaje-conductores-form/viaje-cond
 import { ViajeVehiculosForm } from './layout/viaje-vehiculos-form/viaje-vehiculos-form';
 import { ViajeComentariosForm } from './layout/viaje-comentarios-form/viaje-comentarios-form';
 import { RutaInputSearch } from '@module/admin/components/input-searchs/ruta-input-search/ruta-input-search';
-import { ViajeServiciosFormComponent } from './layout/viaje-servicios-form/viaje-servicios-form';
+import { ViajeTramosFormComponent } from './layout/viaje-tramos-form/viaje-tramos-form';
 import { ViajePasajerosForm } from './layout/viaje-pasajeros-form/viaje-pasajeros-form';
 import { FormGroup } from '@angular/forms';
 
@@ -40,7 +40,7 @@ interface CircuitoSelection {
     ViajeVehiculosForm,
     ViajePasajerosForm,
     ViajeComentariosForm,
-    ViajeServiciosFormComponent,
+    ViajeTramosFormComponent,
   ],
   templateUrl: './viaje-form.html',
   styleUrl: './viaje-form.css',

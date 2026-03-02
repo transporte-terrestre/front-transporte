@@ -25,7 +25,8 @@ import { DialogLlegadaComponent } from './layout/dialog-llegada/dialog-llegada';
 import { DialogPuntoComponent } from './layout/dialog-punto/dialog-punto';
 import { DialogParadaComponent } from './layout/dialog-parada/dialog-parada';
 import { DialogDescansoComponent } from './layout/dialog-descanso/dialog-descanso';
-import { DialogEditServicioComponent } from './layout/dialog-edit-servicio/dialog-edit-servicio';
+import { DialogEditTramoComponent } from './layout/dialog-edit-tramo/dialog-edit-tramo';
+import { DialogPasajerosTramoComponent } from './layout/dialog-pasajeros-tramo/dialog-pasajeros-tramo';
 
 const iconDefault = L.icon({
   iconRetinaUrl: 'assets/leaflet/marker-icon-2x.png',
@@ -40,7 +41,7 @@ const iconDefault = L.icon({
 L.Marker.prototype.options.icon = iconDefault;
 
 @Component({
-  selector: 'app-viaje-servicios-form',
+  selector: 'app-viaje-tramos-form',
   standalone: true,
   imports: [
     CommonModule,
@@ -49,12 +50,13 @@ L.Marker.prototype.options.icon = iconDefault;
     DialogPuntoComponent,
     DialogParadaComponent,
     DialogDescansoComponent,
-    DialogEditServicioComponent,
+    DialogEditTramoComponent,
+    DialogPasajerosTramoComponent,
   ],
-  templateUrl: './viaje-servicios-form.html',
-  styleUrl: './viaje-servicios-form.css',
+  templateUrl: './viaje-tramos-form.html',
+  styleUrl: './viaje-tramos-form.css',
 })
-export class ViajeServiciosFormComponent implements AfterViewInit, OnDestroy {
+export class ViajeTramosFormComponent implements AfterViewInit, OnDestroy {
   private toastService = inject(ToastService);
   private alertService = inject(AlertService);
   private viajeService = inject(ViajeService);
@@ -63,7 +65,7 @@ export class ViajeServiciosFormComponent implements AfterViewInit, OnDestroy {
   viaje = input.required<ViajeResultDto>();
 
   // State
-  servicios = signal<ViajeTramoResultDto[]>([]);
+  tramos = signal<ViajeTramoResultDto[]>([]);
   puntosTrayecto = signal<ViajePuntoTrayectoDto[]>([]);
   loading = signal(false);
   showDropdown = signal(false);
@@ -83,10 +85,11 @@ export class ViajeServiciosFormComponent implements AfterViewInit, OnDestroy {
   showParada = signal(false);
   showDescanso = signal(false);
   showEdit = signal(false);
-  hasSalida = computed(() => this.servicios().some((s) => s.tipo === 'origen'));
-  hasLlegada = computed(() => this.servicios().some((s) => s.tipo === 'destino'));
+  showPasajeros = signal(false);
+  hasSalida = computed(() => this.tramos().some((s) => s.tipo === 'origen'));
+  hasLlegada = computed(() => this.tramos().some((s) => s.tipo === 'destino'));
 
-  selectedServicio = signal<ViajeTramoResultDto | null>(null);
+  selectedTramo = signal<ViajeTramoResultDto | null>(null);
   proximoTramoSugerido = signal<ViajeProximoTramoResultDto | null>(null);
   loadingSugerencia = signal(false);
 
@@ -266,12 +269,12 @@ export class ViajeServiciosFormComponent implements AfterViewInit, OnDestroy {
       const viajeId = this.viaje().id;
 
       // Cargar datos en paralelo
-      const [dataServicios, dataTrayecto] = await Promise.all([
+      const [dataTramos, dataTrayecto] = await Promise.all([
         this.viajeService.findTramos(viajeId),
         this.viajeService.findTrayecto(viajeId),
       ]);
 
-      this.servicios.set(dataServicios);
+      this.tramos.set(dataTramos);
       this.puntosTrayecto.set(dataTrayecto.puntos);
       this.hojaRuta.set(null); // Invalidar cache de hoja de ruta
     } catch (error: any) {
@@ -305,7 +308,7 @@ export class ViajeServiciosFormComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  async prepareAddServicio() {
+  async prepareAddTramo() {
     if (this.showDropdown()) {
       this.showDropdown.set(false);
       return;
@@ -365,9 +368,14 @@ export class ViajeServiciosFormComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  prepareEditServicio(servicio: ViajeTramoResultDto) {
-    this.selectedServicio.set(servicio);
+  prepareEditTramo(tramo: ViajeTramoResultDto) {
+    this.selectedTramo.set(tramo);
     this.showEdit.set(true);
+  }
+
+  preparePasajeros(tramo: ViajeTramoResultDto) {
+    this.selectedTramo.set(tramo);
+    this.showPasajeros.set(true);
   }
 
   onDialogSaved() {
@@ -382,10 +390,11 @@ export class ViajeServiciosFormComponent implements AfterViewInit, OnDestroy {
     this.showParada.set(false);
     this.showDescanso.set(false);
     this.showEdit.set(false);
-    this.selectedServicio.set(null);
+    this.showPasajeros.set(false);
+    this.selectedTramo.set(null);
   }
 
-  async deleteServicio(id: number) {
+  async deleteTramo(id: number) {
     this.alertService.delete(
       'Eliminar Tramo',
       '¿Estás seguro de eliminar este tramo del viaje?',
@@ -395,7 +404,7 @@ export class ViajeServiciosFormComponent implements AfterViewInit, OnDestroy {
           this.toastService.success('Tramo eliminado');
           this.loadData();
         } catch (error: any) {
-          console.error('Error deleting servicio:', error);
+          console.error('Error deleting tramo:', error);
           this.toastService.error('Error al eliminar el tramo');
         }
       },
@@ -425,7 +434,7 @@ export class ViajeServiciosFormComponent implements AfterViewInit, OnDestroy {
     }
 
     // Para descanso, calcular minutos dinámicamente
-    const lista = this.servicios();
+    const lista = this.tramos();
     if (index > 0 && tramo.horaFinal && lista[index - 1]?.horaFinal) {
       const actual = new Date(tramo.horaFinal).getTime();
       const anterior = new Date(lista[index - 1].horaFinal!).getTime();

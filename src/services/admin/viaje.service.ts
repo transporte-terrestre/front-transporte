@@ -177,6 +177,26 @@ export class ViajeService {
     return await this.api.viajes.findTrayecto({ id: viajeId }).then((response) => response.data);
   }
 
+  async escanearDnis(
+    viajeId: number,
+    data: ApiBody<'viajes', 'escanearDnis'>,
+    viajeTramoId?: number,
+  ) {
+    return await this.api.viajes
+      .escanearDnis({ viajeId, viajeTramoId } as any, data)
+      .then((response) => response.data);
+  }
+
+  async registrarAbordaje(
+    viajeId: number,
+    dto: ApiBody<'viajes', 'registrarAbordaje'>,
+    viajeTramoId?: number,
+  ) {
+    return await this.api.viajes
+      .registrarAbordaje({ viajeId, viajeTramoId } as any, dto)
+      .then((response) => response.data);
+  }
+
   generateHojaRuta(viaje: ViajeResultDto): void {
     generateHojaRutaPdf(viaje);
   }

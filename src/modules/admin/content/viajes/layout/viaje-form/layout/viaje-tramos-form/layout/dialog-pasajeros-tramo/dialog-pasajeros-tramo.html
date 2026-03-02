@@ -1,0 +1,115 @@
+<app-modal-form
+  [title]="'Pasajeros - ' + tramo().tipo.toUpperCase()"
+  [loading]="loading()"
+  maxWidth="2xl"
+  (onClose)="close()"
+>
+  <div class="p-6 space-y-6">
+    <!-- Entrada Manual / Búsqueda -->
+    <div class="relative group">
+      <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+        <i
+          class="fas fa-id-card text-text/30 group-focus-within:text-secondary transition-colors"
+        ></i>
+      </div>
+      <input
+        type="text"
+        [(ngModel)]="filtroDni"
+        (keyup.enter)="registrarPorDni()"
+        placeholder="Escribir DNI para registrar abordaje..."
+        class="w-full pl-10 pr-24 py-3 bg-text/5 border border-text/10 focus:border-secondary rounded-xl outline-none transition-all font-inter-medium text-sm"
+      />
+      <div class="absolute inset-y-0 right-2 flex items-center gap-1">
+        <button
+          (click)="registrarPorDni()"
+          class="px-3 py-1.5 bg-secondary text-background rounded-lg text-xs font-inter-bold hover:bg-secondary/90 transition-colors"
+        >
+          Registrar
+        </button>
+      </div>
+    </div>
+
+    <!-- Info del Tramo -->
+    <div
+      class="flex items-center justify-center gap-3 p-4 bg-background border border-text/10 rounded-2xl"
+    >
+      <div class="w-10 h-10 rounded-xl bg-text/5 flex items-center justify-center text-text/40">
+        <i class="fas fa-user-check"></i>
+      </div>
+      <div class="text-left">
+        <p class="text-xs font-inter-bold text-text">Total Abordando en este tramo</p>
+        <p class="text-lg font-inter-bold text-secondary leading-none">
+          {{ tramo().numeroPasajeros || 0 }}
+        </p>
+      </div>
+    </div>
+
+    <!-- Listado de Pasajeros -->
+    <div class="space-y-3">
+      <h3 class="text-[10px] font-inter-bold text-text/40 uppercase tracking-widest px-1">
+        Lista de Pasajeros Asignados
+      </h3>
+
+      <div class="max-h-[350px] overflow-y-auto pr-2 custom-scrollbar space-y-2">
+        @if (pasajeros().length > 0) {
+          @for (p of pasajeros(); track p.id) {
+            <div
+              class="flex items-center gap-3 p-3 rounded-2xl border transition-all"
+              [ngClass]="{
+                'bg-background border-text/5 hover:border-text/10 shadow-sm': !p.asistencia,
+                'bg-success/5 border-success/20 ring-1 ring-success/10': p.asistencia,
+              }"
+            >
+              <!-- Avatar -->
+              <div
+                class="w-10 h-10 rounded-xl flex items-center justify-center text-sm font-inter-bold shrink-0 transition-all"
+                [ngClass]="{
+                  'bg-text/5 text-text/40': !p.asistencia,
+                  'bg-success/20 text-success': p.asistencia,
+                }"
+              >
+                {{ getDisplayDni(p).slice(-2) }}
+              </div>
+
+              <!-- Info -->
+              <div class="flex-1 min-w-0">
+                <p
+                  class="text-xs font-inter-bold text-text truncate uppercase"
+                  [class.text-success]="p.asistencia"
+                >
+                  {{ getDisplayName(p) }}
+                </p>
+                <p class="text-[10px] text-text/40 font-inter-medium tracking-wide">
+                  DNI: {{ getDisplayDni(p) }}
+                </p>
+              </div>
+
+              <!-- Check Action -->
+              <button
+                (click)="registrarAbordaje(p.id, !p.asistencia)"
+                class="w-8 h-8 rounded-lg flex items-center justify-center transition-all"
+                [ngClass]="{
+                  'bg-text/5 text-text/30 hover:bg-secondary/10 hover:text-secondary':
+                    !p.asistencia,
+                  'bg-success/20 text-success hover:bg-danger/10 hover:text-danger': p.asistencia,
+                }"
+                [title]="p.asistencia ? 'Quitar abordaje' : 'Registrar abordaje'"
+              >
+                <i
+                  class="fas fa-fw"
+                  [class.fa-check]="!p.asistencia"
+                  [class.fa-times]="p.asistencia"
+                ></i>
+              </button>
+            </div>
+          }
+        } @else {
+          <div class="flex flex-col items-center justify-center py-10 opacity-40">
+            <i class="fas fa-users-slash text-3xl mb-3"></i>
+            <p class="text-xs font-inter-medium">No hay pasajeros asignados al viaje</p>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</app-modal-form>

@@ -7,18 +7,18 @@ import { ViajeService } from '@service/admin/viaje.service';
 import { ViajeTramoResultDto } from 'api/backend.api';
 
 @Component({
-  selector: 'app-dialog-edit-servicio',
+  selector: 'app-dialog-edit-tramo',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, ModalForm],
-  templateUrl: './dialog-edit-servicio.html',
+  templateUrl: './dialog-edit-tramo.html',
 })
-export class DialogEditServicioComponent implements OnInit {
+export class DialogEditTramoComponent implements OnInit {
   private fb = inject(FormBuilder);
   private toastService = inject(ToastService);
   private viajeService = inject(ViajeService);
 
   // Inputs
-  servicio = input.required<ViajeTramoResultDto>();
+  tramo = input.required<ViajeTramoResultDto>();
 
   // Outputs
   onSaved = output<void>();
@@ -43,7 +43,7 @@ export class DialogEditServicioComponent implements OnInit {
   }
 
   ngOnInit() {
-    const s = this.servicio();
+    const s = this.tramo();
     this.esParada = s.tipo === 'parada';
     this.esDescanso = s.tipo === 'descanso';
 
@@ -91,7 +91,7 @@ export class DialogEditServicioComponent implements OnInit {
     const isoString = `${val.fecha}T${val.hora}:00.000Z`;
 
     try {
-      await this.viajeService.updateTramo(this.servicio().id, {
+      await this.viajeService.updateTramo(this.tramo().id, {
         nombreLugar: val.nombreLugar,
         horaFinal: isoString,
         kilometrajeFinal: Number(val.kilometrajeFinal),

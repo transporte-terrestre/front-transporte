@@ -40,7 +40,7 @@ export class ViajePasajerosForm {
 
   showModal = signal(false);
   loading = signal(false);
-  mode = signal<'list' | 'add'>('list');
+  mode = signal<'list' | 'add' | 'choice'>('list');
 
   // Data
   pasajeros = signal<any[]>([]); // Pasajeros asignados al viaje
@@ -100,8 +100,8 @@ export class ViajePasajerosForm {
       if (data.length === 0) {
         // Only if we are already in the modal and it's empty, we might want to suggest adding
         // But to avoid flickering, let's default to list unless explicitly opening for the first time
-        if (this.pasajeros().length === 0 && this.mode() !== 'add') {
-          this.switchToMode('add');
+        if (this.pasajeros().length === 0 && this.mode() !== 'add' && this.mode() !== 'choice') {
+          this.mode.set('choice');
         }
       } else {
         // If we have data, ensure we are in list mode (unless user is already in add mode adding more?)
@@ -120,7 +120,7 @@ export class ViajePasajerosForm {
     }
   }
 
-  async switchToMode(mode: 'list' | 'add') {
+  async switchToMode(mode: 'list' | 'add' | 'choice') {
     this.mode.set(mode);
     if (mode === 'add') {
       this.loadClientePasajeros();
