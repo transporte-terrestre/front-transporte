@@ -1,4 +1,13 @@
-import { Component, inject, input, output, signal, effect } from '@angular/core';
+import {
+  Component,
+  inject,
+  input,
+  output,
+  signal,
+  effect,
+  ElementRef,
+  ViewChild,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { ViajeService } from '@service/admin/viaje.service';
@@ -6,6 +15,7 @@ import { ClienteService } from '@service/admin/cliente.service';
 import { ToastService } from '@service/toast.service';
 import { AlertService } from '@service/alert.service';
 import { ApiResponse } from 'api/backend.api';
+import * as XLSX from 'xlsx';
 
 type ViajeData = ApiResponse<'viajes', 'findOne'>;
 
@@ -24,6 +34,9 @@ export class ViajePasajerosForm {
 
   viaje = input.required<ViajeData>();
   onDataChange = output<void>();
+
+  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
+  viajeId = signal<number | null>(null);
 
   showModal = signal(false);
   loading = signal(false);
@@ -141,6 +154,92 @@ export class ViajePasajerosForm {
     }
   }
 
+  async importFromExcel(event: any) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    this.loading.set(true);
+    const reader = new FileReader();
+
+    reader.onload = async (e: any) => {
+      try {
+        const bstr = e.target.result;
+        const wb = XLSX.read(bstr, { type: 'binary' });
+        const wsname = wb.SheetNames[0];
+        const ws = wb.Sheets[wsname];
+        const rawData: any[] = XLSX.utils.sheet_to_json(ws);
+
+        if (rawData.length === 0) {
+          this.toastService.warning('El archivo Excel está vacío');
+          return;
+        }
+
+        const newPasajeros = rawData
+          .map((row) => {
+            const keys = Object.keys(row);
+            const findVal = (terms: string[]) => {
+              const key = keys.find((k) =>
+                terms.some((term) => k.toUpperCase().trim().includes(term.toUpperCase())),
+              );
+              return key ? row[key]?.toString().trim() : null;
+            };
+
+            return {
+              dni: findVal(['DNI', 'DOCUMENTO', 'ID', 'IDENTIFICACION']),
+              nombres: findVal(['NOMBRES', 'NOMBRE', 'NAME']),
+              apellidos: findVal(['APELLIDOS', 'APELLIDO', 'LAST NAME', 'SURNAME']),
+              asistencia: false,
+            };
+          })
+          .filter((p) => p.dni && p.nombres);
+
+        if (newPasajeros.length === 0) {
+          this.toastService.error('No se encontraron columnas de DNI y Nombres válidas');
+          return;
+        }
+
+        const currentList = [...this.pasajeros()];
+        let addedCount = 0;
+
+        newPasajeros.forEach((newP) => {
+          const exists = currentList.find((p) => (p.dni || p.pasajero?.dni) === newP.dni);
+          if (!exists) {
+            currentList.push({
+              ...newP,
+              id: Math.random() * -1000,
+              pasajeroId: null,
+              pasajero: {
+                dni: newP.dni,
+                nombres: newP.nombres,
+                apellidos: newP.apellidos || '',
+              },
+            });
+            addedCount++;
+          }
+        });
+
+        if (addedCount > 0) {
+          this.pasajeros.set(currentList);
+          this.toastService.success(`${addedCount} pasajeros cargados desde Excel`);
+          this.mode.set('list');
+        } else {
+          this.toastService.info('Todos los pasajeros ya están en la lista');
+        }
+      } catch (error) {
+        console.error('Error procesando Excel', error);
+        this.toastService.error('Error al procesar el archivo Excel');
+      } finally {
+        this.loading.set(false);
+        if (this.fileInput) this.fileInput.nativeElement.value = '';
+      }
+    };
+    reader.readAsBinaryString(file);
+  }
+
+  triggerExcelImport() {
+    this.fileInput.nativeElement.click();
+  }
+
   toggleSelection(id: number) {
     const current = new Set(this.selectedIds());
     if (current.has(id)) {
@@ -169,6 +268,9 @@ export class ViajePasajerosForm {
       // Get current passengers
       const current = this.pasajeros().map((p) => ({
         pasajeroId: p.pasajeroId,
+        dni: p.dni || p.pasajero?.dni,
+        nombres: p.nombres || p.pasajero?.nombres,
+        apellidos: p.apellidos || p.pasajero?.apellidos,
         asistencia: p.asistencia,
       }));
       // Add new ones with default asistencia = false
@@ -204,19 +306,31 @@ export class ViajePasajerosForm {
     if (!pasajeroToDelete) return;
 
     // Local remove
-    this.pasajeros.update((list) =>
-      list.filter((p) => p.pasajeroId !== pasajeroToDelete.pasajeroId),
-    );
+    this.pasajeros.update((list) => list.filter((p) => p.id !== pasajeroToDelete.id));
     this.pendingDelete.set(null);
   }
 
   toggleAsistencia(pasajero: any) {
     // Local toggle
     this.pasajeros.update((list) =>
-      list.map((p) =>
-        p.pasajeroId === pasajero.pasajeroId ? { ...p, asistencia: !p.asistencia } : p,
-      ),
+      list.map((p) => (p.id === pasajero.id ? { ...p, asistencia: !p.asistencia } : p)),
     );
+  }
+
+  getDisplayName(p: any) {
+    const nombres = p.nombres || p.pasajero?.nombres || 'Sin nombre';
+    const apellidos = p.apellidos || p.pasajero?.apellidos || '';
+    return `${nombres} ${apellidos}`.trim();
+  }
+
+  getDisplayDni(p: any) {
+    return p.dni || p.pasajero?.dni || '---';
+  }
+
+  getInitials(p: any) {
+    const n = p.nombres || p.pasajero?.nombres || '?';
+    const a = p.apellidos || p.pasajero?.apellidos || '';
+    return (n[0] + (a[0] || '')).toUpperCase();
   }
 
   async saveAll() {
@@ -224,6 +338,9 @@ export class ViajePasajerosForm {
     try {
       const toUpsert = this.pasajeros().map((p) => ({
         pasajeroId: p.pasajeroId,
+        dni: p.dni || p.pasajero?.dni,
+        nombres: p.nombres || p.pasajero?.nombres,
+        apellidos: p.apellidos || p.pasajero?.apellidos,
         asistencia: p.asistencia,
       }));
 

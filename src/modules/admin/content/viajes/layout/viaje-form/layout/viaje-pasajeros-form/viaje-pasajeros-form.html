@@ -23,6 +23,14 @@
         </button>
       </div>
 
+      <input
+        #fileInput
+        type="file"
+        (change)="importFromExcel($event)"
+        accept=".xlsx, .xls"
+        class="hidden"
+      />
+
       <!-- Body Container -->
       <div class="flex-1 overflow-hidden flex flex-col">
         <!-- LIST MODE -->
@@ -35,78 +43,120 @@
               Total:
               <span class="font-inter-bold text-text">{{ pasajeros().length }}</span> pasajeros
             </p>
-            <button
-              type="button"
-              (click)="switchToMode('add')"
-              class="px-3 py-1.5 bg-text/10 text-text text-xs font-inter-semibold rounded-lg hover:bg-text/15 transition-all shadow-sm"
-            >
-              + Agregar / Llenar
-            </button>
+            <div class="flex items-center gap-2">
+              <button
+                type="button"
+                (click)="triggerExcelImport()"
+                title="Cargar pasajeros desde Excel"
+                class="px-3 py-1.5 bg-success/10 text-success text-xs font-inter-semibold rounded-lg hover:bg-success/20 transition-all shadow-sm border border-success/20"
+              >
+                <i class="fas fa-file-excel mr-1"></i> Excel
+              </button>
+              <button
+                type="button"
+                (click)="switchToMode('add')"
+                class="px-3 py-1.5 bg-text/10 text-text text-xs font-inter-semibold rounded-lg hover:bg-text/15 transition-all shadow-sm"
+              >
+                + Cliente
+              </button>
+            </div>
           </div>
 
           <!-- Scrollable List -->
           <div class="flex-1 overflow-y-auto p-6 space-y-2 custom-scrollbar">
-            @for (p of pasajeros(); track p.pasajeroId) {
+            @for (p of pasajeros(); track p.id) {
               <div
-                class="border rounded-lg transition-all group shadow-sm overflow-hidden"
+                class="border rounded-lg transition-all group shadow-sm overflow-hidden flex flex-col"
                 [class]="
-                  pendingDelete()?.pasajeroId === p.pasajeroId
-                    ? 'bg-danger/5 border-danger/30 flex flex-col'
-                    : 'bg-background border-text/10 hover:border-text/20 hover:shadow-md flex items-center justify-between p-3'
+                  pendingDelete() && pendingDelete()?.id === p.id
+                    ? 'bg-danger/5 border-danger/30'
+                    : 'bg-background border-text/10 hover:border-text/20 hover:shadow-md'
                 "
               >
-                <!-- Top / Main Content -->
-                <div
-                  class="flex items-center gap-3"
-                  [class.p-3]="pendingDelete()?.pasajeroId === p.pasajeroId"
-                >
-                  <div
-                    class="w-8 h-8 rounded-full flex items-center justify-center"
-                    [class]="
-                      pendingDelete()?.pasajeroId === p.pasajeroId
-                        ? 'bg-danger/10 text-danger'
-                        : !p.asistencia
-                          ? 'bg-text/5 text-text/40'
-                          : 'bg-success/10 text-success'
-                    "
-                  >
-                    @if (pendingDelete()?.pasajeroId === p.pasajeroId) {
-                      <i class="fas fa-trash-alt text-xs"></i>
-                    } @else {
-                      <span class="text-xs font-inter-bold"
-                        >{{ p.pasajero.nombres.charAt(0)
-                        }}{{ p.pasajero.apellidos.charAt(0) }}</span
+                <!-- Fila Principal: Datos y Acciones normales -->
+                <div class="flex items-center justify-between p-3">
+                  <div class="flex items-center gap-3">
+                    <div
+                      class="w-8 h-8 rounded-full flex items-center justify-center"
+                      [class]="
+                        pendingDelete()?.id === p.id
+                          ? 'bg-danger/10 text-danger'
+                          : !p.asistencia
+                            ? 'bg-text/5 text-text/40'
+                            : 'bg-success/10 text-success'
+                      "
+                    >
+                      @if (pendingDelete()?.id === p.id) {
+                        <i class="fas fa-trash-alt text-xs"></i>
+                      } @else {
+                        <span class="text-xs font-inter-bold">{{ getInitials(p) }}</span>
+                      }
+                    </div>
+                    <div>
+                      <p
+                        class="text-sm font-inter-semibold"
+                        [class]="pendingDelete()?.id === p.id ? 'text-danger' : 'text-text'"
                       >
-                    }
+                        {{ getDisplayName(p) }}
+                      </p>
+                      <p
+                        class="text-[10px]"
+                        [class]="pendingDelete()?.id === p.id ? 'text-danger/60' : 'text-text/60'"
+                      >
+                        @if (p.pasajeroId) {
+                          <span class="text-secondary/80 font-inter-bold mr-1">REGISTRADO</span>
+                        } @else {
+                          <span class="text-success/80 font-inter-bold mr-1">EXCEL/MANUAL</span>
+                        }
+                        DNI: {{ getDisplayDni(p) }}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p
-                      class="text-sm font-inter-semibold"
-                      [class]="
-                        pendingDelete()?.pasajeroId === p.pasajeroId ? 'text-danger' : 'text-text'
-                      "
-                    >
-                      {{ p.pasajero.nombres }} {{ p.pasajero.apellidos }}
-                    </p>
-                    <p
-                      class="text-[10px]"
-                      [class]="
-                        pendingDelete()?.pasajeroId === p.pasajeroId
-                          ? 'text-danger/60'
-                          : 'text-text/60'
-                      "
-                    >
-                      DNI: {{ p.pasajero.dni }}
-                    </p>
-                  </div>
+
+                  <!-- Acciones del modo normal -->
+                  @if (pendingDelete()?.id !== p.id) {
+                    <div class="flex items-center gap-3">
+                      <button
+                        type="button"
+                        (click)="toggleAsistencia(p)"
+                        [class]="
+                          p.asistencia
+                            ? 'bg-success/10 text-success border-success/20 hover:bg-success/20'
+                            : 'bg-text/5 text-text/40 border-transparent hover:bg-text/10'
+                        "
+                        class="px-3 py-1.5 rounded-full text-xs font-inter-medium border transition-all flex items-center gap-2 group/toggle"
+                      >
+                        <span>{{ p.asistencia ? 'Asistió' : 'Ausente' }}</span>
+                        <i
+                          class="fas text-lg transition-all"
+                          [class]="
+                            p.asistencia
+                              ? 'fa-toggle-on'
+                              : 'fa-toggle-off opacity-50 group-hover/toggle:opacity-100'
+                          "
+                        ></i>
+                      </button>
+
+                      <button
+                        type="button"
+                        (click)="removePasajero(p)"
+                        class="w-8 h-8 flex items-center justify-center rounded-lg text-text/40 hover:text-danger hover:bg-danger/10 transition-all opacity-0 group-hover:opacity-100"
+                        title="Quitar del viaje"
+                      >
+                        <i class="fas fa-trash-alt text-xs"></i>
+                      </button>
+                    </div>
+                  }
                 </div>
 
-                <!-- Actions -->
-                @if (pendingDelete()?.pasajeroId === p.pasajeroId) {
-                  <!-- Confirmation Mode: Bottom Actions -->
+                <!-- Barra de Confirmación: Ocupa todo el ancho inferior -->
+                @if (pendingDelete()?.id === p.id) {
                   <div
-                    class="flex items-center justify-end gap-3 px-3 py-2 border-t bg-danger/10 border-danger/10"
+                    class="flex items-center justify-end gap-3 px-4 py-2 border-t bg-danger/10 border-danger/20"
                   >
+                    <span class="text-xs text-danger font-inter-semibold mr-auto"
+                      >¿Quitar del viaje?</span
+                    >
                     <button
                       type="button"
                       (click)="cancelDelete()"
@@ -120,39 +170,6 @@
                       class="px-4 py-1.5 rounded-lg text-xs font-inter-bold text-white transition-all shadow-sm bg-danger hover:bg-danger/90 shadow-danger/20"
                     >
                       Eliminar
-                    </button>
-                  </div>
-                } @else {
-                  <!-- Normal Mode: Right Actions -->
-                  <div class="flex items-center gap-3">
-                    <button
-                      type="button"
-                      (click)="toggleAsistencia(p)"
-                      [class]="
-                        p.asistencia
-                          ? 'bg-success/10 text-success border-success/20 hover:bg-success/20'
-                          : 'bg-text/5 text-text/40 border-transparent hover:bg-text/10'
-                      "
-                      class="px-3 py-1.5 rounded-full text-xs font-inter-medium border transition-all flex items-center gap-2 group/toggle"
-                    >
-                      <span>{{ p.asistencia ? 'Asistió' : 'Ausente' }}</span>
-                      <i
-                        class="fas text-lg transition-all"
-                        [class]="
-                          p.asistencia
-                            ? 'fa-toggle-on'
-                            : 'fa-toggle-off opacity-50 group-hover/toggle:opacity-100'
-                        "
-                      ></i>
-                    </button>
-
-                    <button
-                      type="button"
-                      (click)="removePasajero(p)"
-                      class="w-8 h-8 flex items-center justify-center rounded-lg text-text/40 hover:text-danger hover:bg-danger/10 transition-all opacity-0 group-hover:opacity-100"
-                      title="Quitar del viaje"
-                    >
-                      <i class="fas fa-trash-alt text-xs"></i>
                     </button>
                   </div>
                 }
@@ -326,9 +343,7 @@
             >
               <i class="fas fa-user text-[10px]"></i>
             </div>
-            <span class="text-text font-inter-medium"
-              >{{ p.pasajero.nombres }} {{ p.pasajero.apellidos }}</span
-            >
+            <span class="text-text font-inter-medium">{{ getDisplayName(p) }}</span>
           </div>
           <span [class]="p.asistencia ? 'text-success' : 'text-text/40'">
             <i class="fas" [class]="p.asistencia ? 'fa-check-circle' : 'fa-circle'"></i>
