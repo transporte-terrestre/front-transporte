@@ -31,13 +31,21 @@ export class ViajeService {
   }
 
   // Pasajeros
-  async findPasajeros(viajeId: number) {
-    return await this.api.viajes.findPasajeros({ viajeId }).then((response) => response.data);
+  async findPasajeros(
+    viajeId: ApiParam<'viajes', 'findPasajeros', 'viajeId'>,
+    viajeTramoId?: ApiParam<'viajes', 'findPasajeros', 'viajeTramoId'>,
+  ) {
+    return await this.api.viajes
+      .findPasajeros({ viajeId, viajeTramoId })
+      .then((response) => response.data);
   }
 
-  async upsertPasajeros(viajeId: number, pasajeros: { pasajeroId: number; asistencia: boolean }[]) {
+  async upsertPasajeros(
+    viajeId: ApiParam<'viajes', 'upsertPasajeros', 'viajeId'>,
+    data: ApiBody<'viajes', 'upsertPasajeros'>,
+  ) {
     return await this.api.viajes
-      .upsertPasajeros({ viajeId }, { pasajeros })
+      .upsertPasajeros({ viajeId }, data)
       .then((response) => response.data);
   }
   // Conductores
@@ -180,20 +188,20 @@ export class ViajeService {
   async escanearDnis(
     viajeId: number,
     data: ApiBody<'viajes', 'escanearDnis'>,
-    viajeTramoId?: number,
+    viajeTramoId: number,
   ) {
     return await this.api.viajes
-      .escanearDnis({ viajeId, viajeTramoId } as any, data)
+      .escanearDnis({ viajeId, viajeTramoId }, data)
       .then((response) => response.data);
   }
 
-  async registrarAbordaje(
+  async abordarPasajeros(
     viajeId: number,
-    dto: ApiBody<'viajes', 'registrarAbordaje'>,
-    viajeTramoId?: number,
+    data: ApiBody<'viajes', 'abordarPasajeros'>,
+    viajeTramoId: number,
   ) {
     return await this.api.viajes
-      .registrarAbordaje({ viajeId, viajeTramoId } as any, dto)
+      .abordarPasajeros({ viajeId, viajeTramoId }, data)
       .then((response) => response.data);
   }
 

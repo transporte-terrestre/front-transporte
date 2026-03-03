@@ -1,4 +1,4 @@
-import { Component, inject, input, output, OnInit, signal, effect } from '@angular/core';
+import { Component, inject, input, output, OnInit, signal, effect, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormBuilder,
@@ -10,7 +10,7 @@ import {
 import { ToastService } from '@service/toast.service';
 import { ModalForm } from '@module/admin/components/modal-form/modal-form';
 import { ViajeService } from '@service/admin/viaje.service';
-import { ApiResponse } from 'api/backend.api';
+import { ViajePasajeroResultDto, ViajeTramoResultDto } from 'api/backend.api';
 
 @Component({
   selector: 'app-dialog-pasajeros-tramo',
@@ -26,17 +26,33 @@ export class DialogPasajerosTramoComponent implements OnInit {
 
   // Inputs
   viajeId = input.required<number>();
-  tramo = input.required<any>();
+  tramo = input.required<ViajeTramoResultDto>();
+  capacidad = input<number>(0);
+
+  // Computed
+  porcentajeOcupacion = computed(() => {
+    const num = this.tramo().numeroPasajeros || 0;
+    const cap = this.capacidad();
+    if (cap === 0) return 0;
+    return Math.min(100, Math.round((num / cap) * 100));
+  });
 
   // Outputs
-  onSaved = output<void>();
+  onSaved = output<boolean>();
   onClose = output<void>();
 
   // State
   loading = signal(false);
   isSubmitting = signal(false);
-  pasajeros = signal<any[]>([]);
-  filtroDni = signal('');
+  pasajeros = signal<ViajePasajeroResultDto[]>([]);
+  idsSeleccionados = signal<Set<number>>(new Set());
+
+  // Computed for selection
+  isAllSelected = computed(() => {
+    const list = this.pasajeros();
+    if (list.length === 0) return false;
+    return list.every((p) => this.idsSeleccionados().has(p.id));
+  });
 
   constructor() {}
 
@@ -47,8 +63,12 @@ export class DialogPasajerosTramoComponent implements OnInit {
   async loadPasajeros() {
     this.loading.set(true);
     try {
-      const data = await this.viajeService.findPasajeros(this.viajeId());
+      const data = await this.viajeService.findPasajeros(this.viajeId(), this.tramo().id);
       this.pasajeros.set(data);
+
+      // Inicializar selección con los que ya tienen asistencia
+      const iniciales = data.filter((p) => p.asistencia).map((p) => p.id);
+      this.idsSeleccionados.set(new Set(iniciales));
     } catch (error) {
       console.error(error);
       this.toastService.error('Error al cargar pasajeros');
@@ -57,45 +77,42 @@ export class DialogPasajerosTramoComponent implements OnInit {
     }
   }
 
-  async registrarAbordaje(pasajeroId: number, asistencia: boolean) {
-    try {
-      await this.viajeService.registrarAbordaje(
-        this.viajeId(),
-        {
-          viajePasajeroId: pasajeroId,
-          asistencia: asistencia,
-        },
-        this.tramo().id,
-      );
-
-      this.toastService.success(asistencia ? 'Abordaje registrado' : 'Abordaje cancelado');
-      await this.loadPasajeros();
-      this.onSaved.emit();
-    } catch (error) {
-      console.error(error);
-      this.toastService.error('Error al registrar abordaje');
-    }
+  toggleSeleccion(id: number) {
+    const set = new Set(this.idsSeleccionados());
+    if (set.has(id)) set.delete(id);
+    else set.add(id);
+    this.idsSeleccionados.set(set);
   }
 
-  async registrarPorDni() {
-    const dni = this.filtroDni().trim();
-    if (!dni) return;
+  toggleSeleccionTodos() {
+    const list = this.pasajeros();
+    const newSet = new Set(this.idsSeleccionados());
 
-    // Buscar pasajero en la lista local primero por DNI
-    const pasajero = this.pasajeros().find((p) => (p.dni || p.pasajero?.dni) === dni);
-
-    if (pasajero) {
-      if (pasajero.asistencia) {
-        this.toastService.info('El pasajero ya registró abordaje');
-        this.filtroDni.set('');
-        return;
-      }
-      await this.registrarAbordaje(pasajero.id, true);
-      this.filtroDni.set('');
+    if (this.isAllSelected()) {
+      list.forEach((p) => newSet.delete(p.id));
     } else {
-      this.toastService.warning(
-        'Pasajero no encontrado en este viaje. Regístrelo primero en la lista general de pasajeros.',
+      list.forEach((p) => newSet.add(p.id));
+    }
+    this.idsSeleccionados.set(newSet);
+  }
+
+  async guardarCambios() {
+    const ids = Array.from(this.idsSeleccionados());
+    this.isSubmitting.set(true);
+    try {
+      await this.viajeService.abordarPasajeros(
+        this.viajeId(),
+        { viajePasajeroIds: ids },
+        this.tramo().id,
       );
+      this.toastService.success('Cambios guardados correctamente');
+      await this.loadPasajeros();
+      this.onSaved.emit(false);
+    } catch (error) {
+      console.error(error);
+      this.toastService.error('Error al guardar cambios');
+    } finally {
+      this.isSubmitting.set(false);
     }
   }
 
@@ -103,13 +120,13 @@ export class DialogPasajerosTramoComponent implements OnInit {
     this.onClose.emit();
   }
 
-  getDisplayName(p: any) {
+  getDisplayName(p: ViajePasajeroResultDto) {
     const nombres = p.nombres || p.pasajero?.nombres || 'Sin nombre';
     const apellidos = p.apellidos || p.pasajero?.apellidos || '';
     return `${nombres} ${apellidos}`.trim();
   }
 
-  getDisplayDni(p: any) {
+  getDisplayDni(p: ViajePasajeroResultDto) {
     return p.dni || p.pasajero?.dni || '---';
   }
 }

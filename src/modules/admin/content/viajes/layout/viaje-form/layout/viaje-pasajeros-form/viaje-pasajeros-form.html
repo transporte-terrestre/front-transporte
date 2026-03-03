@@ -402,7 +402,7 @@
 
   <div class="grid grid-cols-1 gap-2">
     @if (pasajeros().length > 0) {
-      @for (p of pasajeros().slice(0, 3); track p.pasajeroId) {
+      @for (p of pasajeros().slice(0, 3); track p.id) {
         <div
           class="flex items-center justify-between bg-background border border-text/10 px-3 py-2 rounded-lg text-sm"
         >

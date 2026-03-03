@@ -3409,7 +3409,7 @@ export interface DocumentoItemDto {
   observacion?: string;
   /**
    * Fecha de Vencimiento Inicial/Por defecto
-   * @example "2026-03-02T16:40:26.773Z"
+   * @example "2026-03-03T01:37:28.102Z"
    */
   fechaVencimiento?: string;
 }
@@ -3592,17 +3592,17 @@ export interface BotiquinItemDto {
   habilitado: boolean;
   /**
    * Fecha de Vencimiento actual
-   * @example "2026-03-02T16:40:26.778Z"
+   * @example "2026-03-03T01:37:28.105Z"
    */
   fechaVencimiento?: string;
   /**
    * Fecha de Salida
-   * @example "2026-03-02T16:40:26.778Z"
+   * @example "2026-03-03T01:37:28.105Z"
    */
   fechaSalida?: string;
   /**
    * Fecha de Reposición
-   * @example "2026-03-02T16:40:26.778Z"
+   * @example "2026-03-03T01:37:28.105Z"
    */
   fechaReposicion?: string;
 }
@@ -6990,6 +6990,11 @@ export interface ScanDniResultItem {
    * @example "No se pudo extraer información"
    */
   error?: string;
+  /**
+   * ID del tramo en el que abordó el pasajero
+   * @example 123
+   */
+  viajeTramoId: number | null;
 }
 
 export interface ViajeEscanearDnisResultDto {
@@ -7001,17 +7006,12 @@ export interface ViajeEscanearDnisResultDto {
   pasajerosActualizados: ViajePasajeroResultDto[];
 }
 
-export interface ViajePasajeroAbordajeDto {
+export interface ViajePasajeroAbordarPasajerosDto {
   /**
-   * ID del registro de pasajero en el viaje (viaje_pasajeros)
-   * @example 1
+   * IDs de los registros de pasajeros en el viaje (viaje_pasajeros)
+   * @example [1,2,3]
    */
-  viajePasajeroId: number;
-  /**
-   * Estado de asistencia/abordaje
-   * @example true
-   */
-  asistencia: boolean;
+  viajePasajeroIds: number[];
 }
 
 export interface ChecklistItemResultDto {
@@ -10357,6 +10357,11 @@ export interface ViajesDeleteTramoParams {
 export type ViajesDeleteTramoData = ViajeTramoResultDto;
 
 export interface ViajesFindPasajerosParams {
+  /**
+   * ID del tramo en el que suben los pasajeros (viaje_tramos)
+   * @example 123
+   */
+  viajeTramoId?: number;
   /** ID del viaje */
   viajeId: number;
 }
@@ -10371,18 +10376,28 @@ export interface ViajesUpsertPasajerosParams {
 export type ViajesUpsertPasajerosData = ViajePasajeroResultDto[];
 
 export interface ViajesEscanearDnisParams {
+  /**
+   * ID del tramo en el que suben los pasajeros (viaje_tramos)
+   * @example 123
+   */
+  viajeTramoId?: number;
   /** ID del viaje */
   viajeId: number;
 }
 
 export type ViajesEscanearDnisData = ViajeEscanearDnisResultDto;
 
-export interface ViajesRegistrarAbordajeParams {
+export interface ViajesAbordarPasajerosParams {
+  /**
+   * ID del tramo en el que suben los pasajeros (viaje_tramos)
+   * @example 123
+   */
+  viajeTramoId?: number;
   /** ID del viaje */
   viajeId: number;
 }
 
-export type ViajesRegistrarAbordajeData = any;
+export type ViajesAbordarPasajerosData = ViajePasajeroResultDto[];
 
 export type ViajesFindAllChecklistItemsData = ChecklistItemResultDto[];
 
@@ -14027,7 +14042,13 @@ export namespace Viajes {
       /** ID del viaje */
       viajeId: number;
     };
-    export type RequestQuery = {};
+    export type RequestQuery = {
+      /**
+       * ID del tramo en el que suben los pasajeros (viaje_tramos)
+       * @example 123
+       */
+      viajeTramoId?: number;
+    };
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = ViajesFindPasajerosData;
@@ -14067,7 +14088,13 @@ export namespace Viajes {
       /** ID del viaje */
       viajeId: number;
     };
-    export type RequestQuery = {};
+    export type RequestQuery = {
+      /**
+       * ID del tramo en el que suben los pasajeros (viaje_tramos)
+       * @example 123
+       */
+      viajeTramoId?: number;
+    };
     export type RequestBody = ViajeEscanearDnisDto;
     export type RequestHeaders = {};
     export type ResponseBody = ViajesEscanearDnisData;
@@ -14076,21 +14103,27 @@ export namespace Viajes {
   /**
    * No description
    * @tags viajes
-   * @name ViajesRegistrarAbordaje
-   * @summary Marcar abordaje manual (asistencia) y registrar movimiento en el tramo
-   * @request POST:/viaje/{viajeId}/pasajeros/abordaje-manual
+   * @name ViajesAbordarPasajeros
+   * @summary Marcar abordaje de pasajeros (asistencia) y registrar movimientos en el tramo
+   * @request POST:/viaje/{viajeId}/pasajeros/abordar-pasajeros
    * @secure
-   * @response `201` `ViajesRegistrarAbordajeData`
+   * @response `201` `ViajesAbordarPasajerosData`
    */
-  export namespace ViajesRegistrarAbordaje {
+  export namespace ViajesAbordarPasajeros {
     export type RequestParams = {
       /** ID del viaje */
       viajeId: number;
     };
-    export type RequestQuery = {};
-    export type RequestBody = ViajePasajeroAbordajeDto;
+    export type RequestQuery = {
+      /**
+       * ID del tramo en el que suben los pasajeros (viaje_tramos)
+       * @example 123
+       */
+      viajeTramoId?: number;
+    };
+    export type RequestBody = ViajePasajeroAbordarPasajerosDto;
     export type RequestHeaders = {};
-    export type ResponseBody = ViajesRegistrarAbordajeData;
+    export type ResponseBody = ViajesAbordarPasajerosData;
   }
 
   /**
@@ -19024,6 +19057,7 @@ export class Api<SecurityDataType extends unknown> {
       this.http.request<ViajesFindPasajerosData, any>({
         path: `/viaje/${viajeId}/pasajeros`,
         method: "GET",
+        query: query,
         secure: true,
         format: "json",
         ...params,
@@ -19072,6 +19106,7 @@ export class Api<SecurityDataType extends unknown> {
       this.http.request<ViajesEscanearDnisData, any>({
         path: `/viaje/${viajeId}/pasajeros/escanear-dnis`,
         method: "POST",
+        query: query,
         body: data,
         secure: true,
         type: ContentType.Json,
@@ -19083,23 +19118,25 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags viajes
-     * @name ViajesRegistrarAbordaje
-     * @summary Marcar abordaje manual (asistencia) y registrar movimiento en el tramo
-     * @request POST:/viaje/{viajeId}/pasajeros/abordaje-manual
+     * @name ViajesAbordarPasajeros
+     * @summary Marcar abordaje de pasajeros (asistencia) y registrar movimientos en el tramo
+     * @request POST:/viaje/{viajeId}/pasajeros/abordar-pasajeros
      * @secure
-     * @response `201` `ViajesRegistrarAbordajeData`
+     * @response `201` `ViajesAbordarPasajerosData`
      */
-    registrarAbordaje: (
-      { viajeId, ...query }: ViajesRegistrarAbordajeParams,
-      data: ViajePasajeroAbordajeDto,
+    abordarPasajeros: (
+      { viajeId, ...query }: ViajesAbordarPasajerosParams,
+      data: ViajePasajeroAbordarPasajerosDto,
       params: RequestParams = {},
     ) =>
-      this.http.request<ViajesRegistrarAbordajeData, any>({
-        path: `/viaje/${viajeId}/pasajeros/abordaje-manual`,
+      this.http.request<ViajesAbordarPasajerosData, any>({
+        path: `/viaje/${viajeId}/pasajeros/abordar-pasajeros`,
         method: "POST",
+        query: query,
         body: data,
         secure: true,
         type: ContentType.Json,
+        format: "json",
         ...params,
       }),
 

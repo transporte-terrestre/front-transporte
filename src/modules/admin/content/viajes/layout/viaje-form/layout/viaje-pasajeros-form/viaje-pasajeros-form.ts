@@ -5,6 +5,7 @@ import {
   output,
   signal,
   effect,
+  untracked,
   ElementRef,
   ViewChild,
 } from '@angular/core';
@@ -14,10 +15,31 @@ import { ViajeService } from '@service/admin/viaje.service';
 import { ClienteService } from '@service/admin/cliente.service';
 import { ToastService } from '@service/toast.service';
 import { AlertService } from '@service/alert.service';
-import { ApiResponse } from 'api/backend.api';
+import { ApiResponse, ViajePasajeroResultDto, PasajeroResultDto } from 'api/backend.api';
 import * as XLSX from 'xlsx';
 
 type ViajeData = ApiResponse<'viajes', 'findOne'>;
+
+interface ExcelRow {
+  [key: string]: string | number | boolean | undefined;
+}
+
+interface LocalPasajeroItemDto {
+  id?: number;
+  pasajeroId?: number;
+  dni?: string;
+  nombres?: string;
+  apellidos?: string;
+  asistencia: boolean;
+  creadoEn?: string;
+  actualizadoEn?: string;
+  pasajero?: {
+    id: number;
+    dni: string;
+    nombres: string;
+    apellidos: string;
+  };
+}
 
 @Component({
   selector: 'app-viaje-pasajeros-form',
@@ -43,40 +65,23 @@ export class ViajePasajerosForm {
   mode = signal<'list' | 'add' | 'choice'>('list');
 
   // Data
-  pasajeros = signal<any[]>([]); // Pasajeros asignados al viaje
-  clientePasajeros = signal<any[]>([]); // Pasajeros del cliente (para agregar)
+  pasajeros = signal<ViajePasajeroResultDto[]>([]); // Pasajeros asignados al viaje
+  clientePasajeros = signal<PasajeroResultDto[]>([]); // Pasajeros del cliente (para agregar)
   selectedIds = signal<Set<number>>(new Set());
+  pendingDelete = signal<ViajePasajeroResultDto | null>(null);
 
   constructor() {
     effect(() => {
       const v = this.viaje();
-      // Only load if we have a valid ID and we haven't loaded this ID yet (or if forced refresh logic is needed elsewhere)
-      // To strictly prevent loop if 'v' object reference changes but ID is same:
-      // Note: We use a local tracker or just check against current state if we store the ID?
-      // Simplify: Just load. The issue is likely that loading causes a parent refresh.
-      // We will add a check: if we are already loading or if the ID matches what we think we have...
-      // But we don't store "loadedViajeId". Let's add it implicitly or just trust the 'loading' guard?
-      // The user reported infinite loop which means the loading guard + effect combo isn't enough OR
-      // 'loading' is toggling true/false fast enough.
-
-      // Fix: Use untracked for the ID check maybe? No, we want to track 'viaje'.
-      // Better Fix: Do not auto-load in effect if we can help it, or ensure we debounce/check ID.
-
-      // Let's implement a simple ID check.
-      if (v?.id && v.id !== this.lastLoadedViajeId()) {
-        this.loadPasajeros();
-        this.lastLoadedViajeId.set(v.id);
+      if (v?.id) {
+        untracked(() => this.loadPasajeros());
       }
     });
   }
 
-  // New property to track last loaded ID to prevent loops from reference changes
   private lastLoadedViajeId = signal<number | null>(null);
 
-  ngOnInit() {
-    // We can use an effect here too if we want, or just relying on the constructor effect.
-    // Let's rewrite the effect in constructor correctly.
-  }
+  ngOnInit() {}
 
   openModal() {
     this.showModal.set(true);
@@ -86,11 +91,9 @@ export class ViajePasajerosForm {
 
   closeModal() {
     this.showModal.set(false);
-    // this.onDataChange.emit(); // Removed to prevent full view reload
   }
 
   async loadPasajeros() {
-    // Avoid loading if already loading
     if (this.loading()) return;
 
     this.loading.set(true);
@@ -98,23 +101,17 @@ export class ViajePasajerosForm {
       const data = await this.viajeService.findPasajeros(this.viaje().id);
       this.pasajeros.set(data);
       if (data.length === 0) {
-        // Only if we are already in the modal and it's empty, we might want to suggest adding
-        // But to avoid flickering, let's default to list unless explicitly opening for the first time
         if (this.pasajeros().length === 0 && this.mode() !== 'add' && this.mode() !== 'choice') {
           this.mode.set('choice');
         }
       } else {
-        // If we have data, ensure we are in list mode (unless user is already in add mode adding more?)
-        // Better to just stay in list mode if data exists
         if (this.mode() === 'add' && this.pasajeros().length > 0) {
-          // Keep in add mode if user wants to add more
         } else {
           this.mode.set('list');
         }
       }
     } catch (error) {
       console.error('Error cargando pasajeros', error);
-      // Suppress toast on init load to avoid spam if just viewing form
     } finally {
       this.loading.set(false);
     }
@@ -154,8 +151,9 @@ export class ViajePasajerosForm {
     }
   }
 
-  async importFromExcel(event: any) {
-    const file = event.target.files[0];
+  async importFromExcel(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
     if (!file) return;
 
     this.loading.set(true);
@@ -167,7 +165,7 @@ export class ViajePasajerosForm {
         const wb = XLSX.read(bstr, { type: 'binary' });
         const wsname = wb.SheetNames[0];
         const ws = wb.Sheets[wsname];
-        const rawData: any[] = XLSX.utils.sheet_to_json(ws);
+        const rawData = XLSX.utils.sheet_to_json<ExcelRow>(ws);
 
         if (rawData.length === 0) {
           this.toastService.warning('El archivo Excel está vacío');
@@ -185,9 +183,9 @@ export class ViajePasajerosForm {
             };
 
             return {
-              dni: findVal(['DNI', 'DOCUMENTO', 'ID', 'IDENTIFICACION']),
-              nombres: findVal(['NOMBRES', 'NOMBRE', 'NAME']),
-              apellidos: findVal(['APELLIDOS', 'APELLIDO', 'LAST NAME', 'SURNAME']),
+              dni: findVal(['DNI', 'DOCUMENTO', 'ID', 'IDENTIFICACION']) || undefined,
+              nombres: findVal(['NOMBRES', 'NOMBRE', 'NAME']) || undefined,
+              apellidos: findVal(['APELLIDOS', 'APELLIDO', 'LAST NAME', 'SURNAME']) || undefined,
               asistencia: false,
             };
           })
@@ -207,13 +205,18 @@ export class ViajePasajerosForm {
             currentList.push({
               ...newP,
               id: Math.random() * -1000,
-              pasajeroId: null,
+              viajeId: this.viaje().id,
+              asistencia: false,
+              pasajeroId: undefined,
+              creadoEn: new Date().toISOString(),
+              actualizadoEn: new Date().toISOString(),
               pasajero: {
-                dni: newP.dni,
-                nombres: newP.nombres,
+                id: 0,
+                dni: newP.dni || '',
+                nombres: newP.nombres || '',
                 apellidos: newP.apellidos || '',
               },
-            });
+            } as any as ViajePasajeroResultDto);
             addedCount++;
           }
         });
@@ -266,19 +269,27 @@ export class ViajePasajerosForm {
     this.loading.set(true);
     try {
       // Get current passengers
-      const current = this.pasajeros().map((p) => ({
-        pasajeroId: p.pasajeroId,
-        dni: p.dni || p.pasajero?.dni,
-        nombres: p.nombres || p.pasajero?.nombres,
-        apellidos: p.apellidos || p.pasajero?.apellidos,
-        asistencia: p.asistencia,
-      }));
+      const current = this.pasajeros();
       // Add new ones with default asistencia = false
       const newPasajeros = ids.map((id) => ({ pasajeroId: id, asistencia: false }));
 
-      const toUpsert = [...current, ...newPasajeros];
+      const toUpsert = [...current, ...newPasajeros].map((p) => {
+        const item: LocalPasajeroItemDto = {
+          pasajeroId: p.pasajeroId || undefined,
+          asistencia: p.asistencia,
+        };
+        if ('dni' in p) item.dni = p.dni || undefined;
+        if ('nombres' in p) item.nombres = p.nombres || undefined;
+        if ('apellidos' in p) item.apellidos = p.apellidos || undefined;
+        if ('pasajero' in p && p.pasajero) {
+          if (!item.dni) item.dni = p.pasajero.dni || undefined;
+          if (!item.nombres) item.nombres = p.pasajero.nombres || undefined;
+          if (!item.apellidos) item.apellidos = p.pasajero.apellidos || undefined;
+        }
+        return item;
+      });
 
-      await this.viajeService.upsertPasajeros(this.viaje().id, toUpsert);
+      await this.viajeService.upsertPasajeros(this.viaje().id, { pasajeros: toUpsert });
       this.toastService.success('Pasajeros agregados correctamente');
 
       this.closeModal();
@@ -290,10 +301,7 @@ export class ViajePasajerosForm {
     }
   }
 
-  // State for pending delete action only
-  pendingDelete = signal<any | null>(null);
-
-  removePasajero(pasajero: any) {
+  removePasajero(pasajero: ViajePasajeroResultDto) {
     this.pendingDelete.set(pasajero);
   }
 
@@ -310,41 +318,56 @@ export class ViajePasajerosForm {
     this.pendingDelete.set(null);
   }
 
-  toggleAsistencia(pasajero: any) {
+  toggleAsistencia(pasajero: ViajePasajeroResultDto) {
     // Local toggle
     this.pasajeros.update((list) =>
       list.map((p) => (p.id === pasajero.id ? { ...p, asistencia: !p.asistencia } : p)),
     );
   }
 
-  getDisplayName(p: any) {
-    const nombres = p.nombres || p.pasajero?.nombres || 'Sin nombre';
-    const apellidos = p.apellidos || p.pasajero?.apellidos || '';
-    return `${nombres} ${apellidos}`.trim();
+  getDisplayName(p: ViajePasajeroResultDto | PasajeroResultDto) {
+    if ('pasajero' in p) {
+      // Es ViajePasajeroResultDto
+      const nombres = p.nombres || p.pasajero?.nombres || 'Sin nombre';
+      const apellidos = p.apellidos || p.pasajero?.apellidos || '';
+      return `${nombres} ${apellidos}`.trim();
+    }
+    return `${p.nombres} ${p.apellidos}`.trim();
   }
 
-  getDisplayDni(p: any) {
-    return p.dni || p.pasajero?.dni || '---';
+  getDisplayDni(p: ViajePasajeroResultDto | PasajeroResultDto) {
+    if ('pasajero' in p) {
+      return p.dni || p.pasajero?.dni || '---';
+    }
+    return p.dni || '---';
   }
 
-  getInitials(p: any) {
-    const n = p.nombres || p.pasajero?.nombres || '?';
-    const a = p.apellidos || p.pasajero?.apellidos || '';
+  getInitials(p: ViajePasajeroResultDto | PasajeroResultDto) {
+    if ('pasajero' in p) {
+      const n = p.nombres || p.pasajero?.nombres || '?';
+      const a = p.apellidos || p.pasajero?.apellidos || '';
+      return (n[0] + (a[0] || '')).toUpperCase();
+    }
+    const n = p.nombres || '?';
+    const a = p.apellidos || '';
     return (n[0] + (a[0] || '')).toUpperCase();
   }
 
   async saveAll() {
     this.loading.set(true);
     try {
-      const toUpsert = this.pasajeros().map((p) => ({
-        pasajeroId: p.pasajeroId,
-        dni: p.dni || p.pasajero?.dni,
-        nombres: p.nombres || p.pasajero?.nombres,
-        apellidos: p.apellidos || p.pasajero?.apellidos,
-        asistencia: p.asistencia,
-      }));
+      const toUpsert = this.pasajeros().map((p) => {
+        const item: LocalPasajeroItemDto = {
+          pasajeroId: p.pasajeroId || undefined,
+          asistencia: p.asistencia,
+          dni: p.dni || p.pasajero?.dni || undefined,
+          nombres: p.nombres || p.pasajero?.nombres || undefined,
+          apellidos: p.apellidos || p.pasajero?.apellidos || undefined,
+        };
+        return item;
+      });
 
-      await this.viajeService.upsertPasajeros(this.viaje().id, toUpsert);
+      await this.viajeService.upsertPasajeros(this.viaje().id, { pasajeros: toUpsert });
       this.toastService.success('Cambios guardados correctamente');
       this.closeModal();
       this.onDataChange.emit();

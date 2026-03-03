@@ -563,7 +563,8 @@
     *ngIf="showPasajeros() && selectedTramo()"
     [viajeId]="viaje().id"
     [tramo]="selectedTramo()!"
-    (onSaved)="onDialogSaved()"
+    [capacidad]="capacidadTotal()"
+    (onSaved)="onDialogSaved($event)"
     (onClose)="showPasajeros.set(false)"
   ></app-dialog-pasajeros-tramo>
 </div>

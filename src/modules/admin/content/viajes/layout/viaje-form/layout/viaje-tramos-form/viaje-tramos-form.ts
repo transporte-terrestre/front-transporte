@@ -4,7 +4,9 @@ import {
   effect,
   inject,
   input,
+  output,
   signal,
+  untracked,
   AfterViewInit,
   OnDestroy,
 } from '@angular/core';
@@ -93,11 +95,25 @@ export class ViajeTramosFormComponent implements AfterViewInit, OnDestroy {
   proximoTramoSugerido = signal<ViajeProximoTramoResultDto | null>(null);
   loadingSugerencia = signal(false);
 
+  onSaved = output<boolean>();
+  onClose = output<void>();
+  onDataChange = output<void>();
+
+  // Tracking last loaded ID to prevent redundant trayecto calls on reference-only changes
+  private lastId: number | null = null;
+
+  capacidadTotal = computed(() => {
+    const v = this.viaje();
+    if (!v.vehiculos || v.vehiculos.length === 0) return 0;
+    return v.vehiculos.reduce((acc, veh) => acc + (veh.pasajeros || 0), 0);
+  });
+
   constructor() {
     effect(() => {
       const v = this.viaje();
-      if (v?.id) {
-        this.loadData();
+      if (v?.id && v.id !== this.lastId) {
+        this.lastId = v.id;
+        untracked(() => this.loadData());
       }
     });
 
@@ -263,19 +279,23 @@ export class ViajeTramosFormComponent implements AfterViewInit, OnDestroy {
     return L.marker([p.latitud, p.longitud], { icon });
   }
 
-  async loadData() {
+  async loadData(options: { onlyTramos?: boolean } = {}) {
     this.loading.set(true);
     try {
       const viajeId = this.viaje().id;
 
-      // Cargar datos en paralelo
-      const [dataTramos, dataTrayecto] = await Promise.all([
-        this.viajeService.findTramos(viajeId),
-        this.viajeService.findTrayecto(viajeId),
-      ]);
-
-      this.tramos.set(dataTramos);
-      this.puntosTrayecto.set(dataTrayecto.puntos);
+      if (options.onlyTramos) {
+        const dataTramos = await this.viajeService.findTramos(viajeId);
+        this.tramos.set(dataTramos);
+      } else {
+        // Cargar datos en paralelo
+        const [dataTramos, dataTrayecto] = await Promise.all([
+          this.viajeService.findTramos(viajeId),
+          this.viajeService.findTrayecto(viajeId),
+        ]);
+        this.tramos.set(dataTramos);
+        this.puntosTrayecto.set(dataTrayecto.puntos);
+      }
       this.hojaRuta.set(null); // Invalidar cache de hoja de ruta
     } catch (error: any) {
       console.error('Error loading data:', error);
@@ -316,7 +336,9 @@ export class ViajeTramosFormComponent implements AfterViewInit, OnDestroy {
 
     this.loadingSugerencia.set(true);
     try {
-      const sugerencia = await this.viajeService.getProximoTramo({ viajeId: this.viaje().id });
+      const sugerencia = await this.viajeService.getProximoTramo({
+        viajeId: this.viaje().id,
+      } as any);
       this.proximoTramoSugerido.set(sugerencia);
       this.showDropdown.set(true);
     } catch (e) {
@@ -378,9 +400,24 @@ export class ViajeTramosFormComponent implements AfterViewInit, OnDestroy {
     this.showPasajeros.set(true);
   }
 
-  onDialogSaved() {
-    this.closeAllDialogs();
-    this.loadData();
+  onDialogSaved(keepOpen: boolean = false) {
+    if (!keepOpen) {
+      this.closeAllDialogs();
+    }
+    // Si viene de pasajeros tramo (el modal de tramos), queremos actualizar tramos pero NO trayecto
+    // Y emitir para que el padre actualice la lista general de pasajeros
+    const isPasajerosDialog = this.showPasajeros();
+    const isSalidaDialog = this.showSalida();
+    const isLlegadaDialog = this.showLlegada();
+
+    if (isPasajerosDialog) {
+      this.loadData({ onlyTramos: true });
+    } else {
+      this.loadData();
+    }
+
+    // Siempre avisar al padre por si acaso
+    this.onDataChange.emit();
   }
 
   closeAllDialogs() {

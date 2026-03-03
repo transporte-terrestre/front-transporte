@@ -1,106 +1,128 @@
 <app-modal-form
   [title]="'Pasajeros - ' + tramo().tipo.toUpperCase()"
-  [loading]="loading()"
+  [loading]="isSubmitting()"
   maxWidth="2xl"
+  submitText="Guardar"
+  (onSubmit)="guardarCambios()"
   (onClose)="close()"
 >
   <div class="p-6 space-y-6">
     <!-- Entrada Manual / Búsqueda -->
-    <div class="relative group">
-      <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-        <i
-          class="fas fa-id-card text-text/30 group-focus-within:text-secondary transition-colors"
-        ></i>
-      </div>
-      <input
-        type="text"
-        [(ngModel)]="filtroDni"
-        (keyup.enter)="registrarPorDni()"
-        placeholder="Escribir DNI para registrar abordaje..."
-        class="w-full pl-10 pr-24 py-3 bg-text/5 border border-text/10 focus:border-secondary rounded-xl outline-none transition-all font-inter-medium text-sm"
-      />
-      <div class="absolute inset-y-0 right-2 flex items-center gap-1">
-        <button
-          (click)="registrarPorDni()"
-          class="px-3 py-1.5 bg-secondary text-background rounded-lg text-xs font-inter-bold hover:bg-secondary/90 transition-colors"
-        >
-          Registrar
-        </button>
-      </div>
-    </div>
 
-    <!-- Info del Tramo -->
+    <!-- Ocupación del Tramo -->
     <div
-      class="flex items-center justify-center gap-3 p-4 bg-background border border-text/10 rounded-2xl"
+      class="relative overflow-hidden bg-background border border-text/10 rounded-xl p-5 shadow-sm"
     >
-      <div class="w-10 h-10 rounded-xl bg-text/5 flex items-center justify-center text-text/40">
-        <i class="fas fa-user-check"></i>
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-3">
+          <div
+            class="w-10 h-10 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary"
+          >
+            <i class="fas fa-users"></i>
+          </div>
+          <div>
+            <h4 class="text-xs font-inter-bold text-text uppercase tracking-wider">
+              Ocupación del Tramo
+            </h4>
+            <p class="text-[10px] text-text/50 font-inter-medium">
+              Pasajeros abordando actualmente
+            </p>
+          </div>
+        </div>
+        <div class="text-right">
+          <span class="text-2xl font-inter-bold text-secondary">{{ idsSeleccionados().size }}</span>
+          @if (capacidad() > 0) {
+            <span class="text-sm font-inter-bold text-text/30 ml-1">/ {{ capacidad() }}</span>
+          }
+        </div>
       </div>
-      <div class="text-left">
-        <p class="text-xs font-inter-bold text-text">Total Abordando en este tramo</p>
-        <p class="text-lg font-inter-bold text-secondary leading-none">
-          {{ tramo().numeroPasajeros || 0 }}
-        </p>
-      </div>
+
+      @if (capacidad() > 0) {
+        <div class="space-y-2">
+          <div
+            class="flex items-center justify-between text-[10px] font-inter-bold uppercase tracking-tight"
+          >
+            <span [class]="porcentajeOcupacion() > 90 ? 'text-danger' : 'text-text/40'">
+              {{ porcentajeOcupacion() }}% de capacidad
+            </span>
+            <span class="text-text/20"
+              >{{ capacidad() - idsSeleccionados().size }} asientos libres</span
+            >
+          </div>
+          <div class="h-1.5 w-full bg-text/5 rounded-full overflow-hidden">
+            <div
+              class="h-full transition-all duration-500 rounded-full"
+              [ngClass]="{
+                'bg-secondary': porcentajeOcupacion() <= 70,
+                'bg-warning': porcentajeOcupacion() > 70 && porcentajeOcupacion() <= 90,
+                'bg-danger': porcentajeOcupacion() > 90,
+              }"
+              [style.width.%]="porcentajeOcupacion()"
+            ></div>
+          </div>
+        </div>
+      }
     </div>
 
     <!-- Listado de Pasajeros -->
     <div class="space-y-3">
-      <h3 class="text-[10px] font-inter-bold text-text/40 uppercase tracking-widest px-1">
-        Lista de Pasajeros Asignados
-      </h3>
+      <div class="flex items-center justify-between px-1">
+        <h3 class="text-[10px] font-inter-bold text-text/40 uppercase tracking-widest">
+          Lista de Pasajeros Asignados
+        </h3>
+
+        @if (pasajeros().length > 0) {
+          <button
+            (click)="toggleSeleccionTodos()"
+            class="text-[10px] font-inter-bold text-secondary uppercase hover:underline"
+          >
+            {{ isAllSelected() ? 'Deseleccionar todos' : 'Seleccionar todos' }}
+          </button>
+        }
+      </div>
 
       <div class="max-h-[350px] overflow-y-auto pr-2 custom-scrollbar space-y-2">
         @if (pasajeros().length > 0) {
           @for (p of pasajeros(); track p.id) {
             <div
-              class="flex items-center gap-3 p-3 rounded-2xl border transition-all"
+              (click)="toggleSeleccion(p.id)"
+              class="flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all duration-300"
               [ngClass]="{
-                'bg-background border-text/5 hover:border-text/10 shadow-sm': !p.asistencia,
-                'bg-success/5 border-success/20 ring-1 ring-success/10': p.asistencia,
+                'bg-background border-text/5 hover:border-text/10 shadow-sm':
+                  !idsSeleccionados().has(p.id),
+                'bg-success/5 border-success/20 ring-1 ring-success/10 shadow-lg shadow-success/5':
+                  idsSeleccionados().has(p.id),
               }"
             >
-              <!-- Avatar -->
-              <div
-                class="w-10 h-10 rounded-xl flex items-center justify-center text-sm font-inter-bold shrink-0 transition-all"
-                [ngClass]="{
-                  'bg-text/5 text-text/40': !p.asistencia,
-                  'bg-success/20 text-success': p.asistencia,
-                }"
-              >
-                {{ getDisplayDni(p).slice(-2) }}
-              </div>
-
               <!-- Info -->
-              <div class="flex-1 min-w-0">
+              <div class="flex-1 min-w-0 pl-2">
                 <p
-                  class="text-xs font-inter-bold text-text truncate uppercase"
-                  [class.text-success]="p.asistencia"
+                  class="text-xs font-inter-bold text-text truncate uppercase tracking-tight"
+                  [class.text-success]="idsSeleccionados().has(p.id)"
                 >
                   {{ getDisplayName(p) }}
                 </p>
-                <p class="text-[10px] text-text/40 font-inter-medium tracking-wide">
-                  DNI: {{ getDisplayDni(p) }}
-                </p>
+                <div class="flex items-center gap-2 mt-0.5">
+                  <p class="text-[10px] text-text/40 font-inter-medium tracking-wide">
+                    DNI: {{ getDisplayDni(p) }}
+                  </p>
+                </div>
               </div>
 
-              <!-- Check Action -->
-              <button
-                (click)="registrarAbordaje(p.id, !p.asistencia)"
-                class="w-8 h-8 rounded-lg flex items-center justify-center transition-all"
+              <!-- Action Indicator -->
+              <div
+                class="w-9 h-9 rounded-lg flex items-center justify-center transition-all"
                 [ngClass]="{
-                  'bg-text/5 text-text/30 hover:bg-secondary/10 hover:text-secondary':
-                    !p.asistencia,
-                  'bg-success/20 text-success hover:bg-danger/10 hover:text-danger': p.asistencia,
+                  'bg-text/5 text-text/30': !idsSeleccionados().has(p.id),
+                  'bg-success text-white shadow-lg shadow-success/20': idsSeleccionados().has(p.id),
                 }"
-                [title]="p.asistencia ? 'Quitar abordaje' : 'Registrar abordaje'"
               >
                 <i
-                  class="fas fa-fw"
-                  [class.fa-check]="!p.asistencia"
-                  [class.fa-times]="p.asistencia"
+                  class="fas fa-fw text-xs"
+                  [class.fa-plus]="!idsSeleccionados().has(p.id)"
+                  [class.fa-check]="idsSeleccionados().has(p.id)"
                 ></i>
-              </button>
+              </div>
             </div>
           }
         } @else {

@@ -866,7 +866,10 @@
       <div>
         <!-- Servicios / Tramos only for fixed routes -->
         @if (viaje()!.tipoRuta === 'fija') {
-          <app-viaje-tramos-form [viaje]="viaje()!"></app-viaje-tramos-form>
+          <app-viaje-tramos-form
+            [viaje]="viaje()!"
+            (onDataChange)="onDataChange.emit()"
+          ></app-viaje-tramos-form>
         }
       </div>
       <div>
