@@ -66,8 +66,8 @@ export class DialogPasajerosTramoComponent implements OnInit {
       const data = await this.viajeService.findPasajeros(this.viajeId(), this.tramo().id);
       this.pasajeros.set(data);
 
-      // Inicializar selección con los que ya tienen asistencia
-      const iniciales = data.filter((p) => p.asistencia).map((p) => p.id);
+      // Inicializar selección solo con los que tienen asistencia en este tramo (los verdes)
+      const iniciales = data.filter((p) => p.asistencia && p.esTramoActual).map((p) => p.id);
       this.idsSeleccionados.set(new Set(iniciales));
     } catch (error) {
       console.error(error);
@@ -101,7 +101,12 @@ export class DialogPasajerosTramoComponent implements OnInit {
   }
 
   async guardarCambios() {
-    const ids = Array.from(this.idsSeleccionados());
+    // Filtrar para enviar solo los IDs de los pasajeros del tramo actual (los editables)
+    const ids = Array.from(this.idsSeleccionados()).filter((id) => {
+      const p = this.pasajeros().find((pas) => pas.id === id);
+      return p ? !this.tieneAsistenciaOtroTramo(p) : false;
+    });
+
     this.isSubmitting.set(true);
     try {
       await this.viajeService.abordarPasajeros(
