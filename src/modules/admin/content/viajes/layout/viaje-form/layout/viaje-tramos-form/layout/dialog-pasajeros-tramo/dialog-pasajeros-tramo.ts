@@ -64,7 +64,24 @@ export class DialogPasajerosTramoComponent implements OnInit {
     this.loading.set(true);
     try {
       const data = await this.viajeService.findPasajeros(this.viajeId(), this.tramo().id);
-      this.pasajeros.set(data);
+
+      // Ordenar: Verde (Este tramo) > Azul (Otro tramo) > Gris (Pendiente)
+      const sortedData = [...data].sort((a, b) => {
+        const getWeight = (p: ViajePasajeroResultDto) => {
+          if (p.esTramoActual && p.asistencia) return 3; // Verde
+          if (this.tieneAsistenciaOtroTramo(p)) return 2; // Azul
+          return 1; // Gris
+        };
+
+        const weightA = getWeight(a);
+        const weightB = getWeight(b);
+
+        if (weightA !== weightB) return weightB - weightA; // Descendente por peso
+
+        return this.getDisplayName(a).localeCompare(this.getDisplayName(b));
+      });
+
+      this.pasajeros.set(sortedData);
 
       // Inicializar selección solo con los que tienen asistencia en este tramo (los verdes)
       const iniciales = data.filter((p) => p.asistencia && p.esTramoActual).map((p) => p.id);
