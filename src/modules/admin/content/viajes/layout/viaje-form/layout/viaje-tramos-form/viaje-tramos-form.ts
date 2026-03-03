@@ -29,6 +29,7 @@ import { DialogParadaComponent } from './layout/dialog-parada/dialog-parada';
 import { DialogDescansoComponent } from './layout/dialog-descanso/dialog-descanso';
 import { DialogEditTramoComponent } from './layout/dialog-edit-tramo/dialog-edit-tramo';
 import { DialogPasajerosTramoComponent } from './layout/dialog-pasajeros-tramo/dialog-pasajeros-tramo';
+import { generateReporteDiarioPdf } from '@template/reporte-diario.template';
 
 const iconDefault = L.icon({
   iconRetinaUrl: 'assets/leaflet/marker-icon-2x.png',
@@ -446,6 +447,13 @@ export class ViajeTramosFormComponent implements AfterViewInit, OnDestroy {
         }
       },
     );
+  }
+
+  descargarReporteDiario() {
+    const data = this.viaje();
+    const hr = this.hojaRuta();
+    if (!data) return;
+    generateReporteDiarioPdf(data as any, hr);
   }
 
   formatSoloFechaUTC(dateStr: string | null | undefined): string {

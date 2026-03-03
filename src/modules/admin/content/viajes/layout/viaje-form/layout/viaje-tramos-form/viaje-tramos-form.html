@@ -42,11 +42,12 @@
         } @else {
           <!-- Botón para vista de Hoja de Ruta -->
           <button
-            class="text-xs bg-danger/10 text-danger px-3 py-1.5 rounded-lg font-inter-semibold hover:bg-danger/20 transition-all flex items-center justify-center gap-2 w-[160px]"
-            title="Descargar Hoja de Ruta en PDF"
+            (click)="descargarReporteDiario()"
+            class="text-xs bg-danger/10 text-danger px-3 py-1.5 rounded-lg font-inter-semibold hover:bg-danger/20 transition-all flex items-center justify-center gap-2 w-[170px]"
+            title="Descargar Reporte Diario"
           >
             <i class="fas fa-file-pdf fa-fw"></i>
-            <span>Descargar Hoja</span>
+            <span>Descargar Reporte</span>
           </button>
         }
 
