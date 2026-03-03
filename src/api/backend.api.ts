@@ -3409,7 +3409,7 @@ export interface DocumentoItemDto {
   observacion?: string;
   /**
    * Fecha de Vencimiento Inicial/Por defecto
-   * @example "2026-03-03T01:37:28.102Z"
+   * @example "2026-03-03T13:34:20.501Z"
    */
   fechaVencimiento?: string;
 }
@@ -3592,17 +3592,17 @@ export interface BotiquinItemDto {
   habilitado: boolean;
   /**
    * Fecha de Vencimiento actual
-   * @example "2026-03-03T01:37:28.105Z"
+   * @example "2026-03-03T13:34:20.503Z"
    */
   fechaVencimiento?: string;
   /**
    * Fecha de Salida
-   * @example "2026-03-03T01:37:28.105Z"
+   * @example "2026-03-03T13:34:20.503Z"
    */
   fechaSalida?: string;
   /**
    * Fecha de Reposición
-   * @example "2026-03-03T01:37:28.105Z"
+   * @example "2026-03-03T13:34:20.503Z"
    */
   fechaReposicion?: string;
 }
@@ -6862,29 +6862,6 @@ export interface ViajeTramoUpdateDto {
   numeroPasajeros?: number;
 }
 
-export interface ViajePasajeroDetalleDto {
-  /**
-   * ID del pasajero
-   * @example 1
-   */
-  id: number;
-  /**
-   * DNI del pasajero
-   * @example "12345678"
-   */
-  dni: string;
-  /**
-   * Nombres del pasajero
-   * @example "Juan"
-   */
-  nombres: string;
-  /**
-   * Apellidos del pasajero
-   * @example "Pérez"
-   */
-  apellidos: string;
-}
-
 export interface ViajePasajeroResultDto {
   /**
    * ID del registro
@@ -6902,25 +6879,40 @@ export interface ViajePasajeroResultDto {
    */
   pasajeroId?: number;
   /**
-   * DNI del pasajero ad-hoc
+   * DNI del pasajero
    * @example "12345678"
    */
   dni?: string;
   /**
-   * Nombres del pasajero ad-hoc
+   * Nombres del pasajero
    * @example "Juan"
    */
   nombres?: string;
   /**
-   * Apellidos del pasajero ad-hoc
+   * Apellidos del pasajero
    * @example "Pérez"
    */
   apellidos?: string;
   /**
-   * Asistencia del pasajero
+   * Asistencia del pasajero en la parada consultada
    * @example false
    */
   asistencia: boolean;
+  /**
+   * ID de la parada donde el pasajero ya tiene asistencia (si abordó en otra parada)
+   * @example 5
+   */
+  paradaAsistenciaId?: number | null;
+  /**
+   * Nombre de la parada donde el pasajero ya tiene asistencia
+   * @example "Parada Central"
+   */
+  paradaAsistenciaNombre?: string | null;
+  /**
+   * Indica si la asistencia del pasajero coincide con el tramo consultado
+   * @example true
+   */
+  esTramoActual?: boolean | null;
   /**
    * Fecha de creación
    * @format date-time
@@ -6933,7 +6925,6 @@ export interface ViajePasajeroResultDto {
    * @example "2023-01-01T00:00:00.000Z"
    */
   actualizadoEn: string;
-  pasajero?: ViajePasajeroDetalleDto;
 }
 
 export type PasajeroItemDto = object;

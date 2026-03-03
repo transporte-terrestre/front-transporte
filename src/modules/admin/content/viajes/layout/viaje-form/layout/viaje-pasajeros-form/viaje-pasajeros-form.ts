@@ -33,12 +33,6 @@ interface LocalPasajeroItemDto {
   asistencia: boolean;
   creadoEn?: string;
   actualizadoEn?: string;
-  pasajero?: {
-    id: number;
-    dni: string;
-    nombres: string;
-    apellidos: string;
-  };
 }
 
 @Component({
@@ -200,7 +194,7 @@ export class ViajePasajerosForm {
         let addedCount = 0;
 
         newPasajeros.forEach((newP) => {
-          const exists = currentList.find((p) => (p.dni || p.pasajero?.dni) === newP.dni);
+          const exists = currentList.find((p) => p.dni === newP.dni);
           if (!exists) {
             currentList.push({
               ...newP,
@@ -210,12 +204,6 @@ export class ViajePasajerosForm {
               pasajeroId: undefined,
               creadoEn: new Date().toISOString(),
               actualizadoEn: new Date().toISOString(),
-              pasajero: {
-                id: 0,
-                dni: newP.dni || '',
-                nombres: newP.nombres || '',
-                apellidos: newP.apellidos || '',
-              },
             } as any as ViajePasajeroResultDto);
             addedCount++;
           }
@@ -281,11 +269,6 @@ export class ViajePasajerosForm {
         if ('dni' in p) item.dni = p.dni || undefined;
         if ('nombres' in p) item.nombres = p.nombres || undefined;
         if ('apellidos' in p) item.apellidos = p.apellidos || undefined;
-        if ('pasajero' in p && p.pasajero) {
-          if (!item.dni) item.dni = p.pasajero.dni || undefined;
-          if (!item.nombres) item.nombres = p.pasajero.nombres || undefined;
-          if (!item.apellidos) item.apellidos = p.pasajero.apellidos || undefined;
-        }
         return item;
       });
 
@@ -326,28 +309,16 @@ export class ViajePasajerosForm {
   }
 
   getDisplayName(p: ViajePasajeroResultDto | PasajeroResultDto) {
-    if ('pasajero' in p) {
-      // Es ViajePasajeroResultDto
-      const nombres = p.nombres || p.pasajero?.nombres || 'Sin nombre';
-      const apellidos = p.apellidos || p.pasajero?.apellidos || '';
-      return `${nombres} ${apellidos}`.trim();
-    }
-    return `${p.nombres} ${p.apellidos}`.trim();
+    const nombres = p.nombres || 'Sin nombre';
+    const apellidos = p.apellidos || '';
+    return `${nombres} ${apellidos}`.trim();
   }
 
   getDisplayDni(p: ViajePasajeroResultDto | PasajeroResultDto) {
-    if ('pasajero' in p) {
-      return p.dni || p.pasajero?.dni || '---';
-    }
     return p.dni || '---';
   }
 
   getInitials(p: ViajePasajeroResultDto | PasajeroResultDto) {
-    if ('pasajero' in p) {
-      const n = p.nombres || p.pasajero?.nombres || '?';
-      const a = p.apellidos || p.pasajero?.apellidos || '';
-      return (n[0] + (a[0] || '')).toUpperCase();
-    }
     const n = p.nombres || '?';
     const a = p.apellidos || '';
     return (n[0] + (a[0] || '')).toUpperCase();
@@ -360,9 +331,9 @@ export class ViajePasajerosForm {
         const item: LocalPasajeroItemDto = {
           pasajeroId: p.pasajeroId || undefined,
           asistencia: p.asistencia,
-          dni: p.dni || p.pasajero?.dni || undefined,
-          nombres: p.nombres || p.pasajero?.nombres || undefined,
-          apellidos: p.apellidos || p.pasajero?.apellidos || undefined,
+          dni: p.dni || undefined,
+          nombres: p.nombres || undefined,
+          apellidos: p.apellidos || undefined,
         };
         return item;
       });

@@ -49,9 +49,9 @@ export class DialogPasajerosTramoComponent implements OnInit {
 
   // Computed for selection
   isAllSelected = computed(() => {
-    const list = this.pasajeros();
-    if (list.length === 0) return false;
-    return list.every((p) => this.idsSeleccionados().has(p.id));
+    const editables = this.pasajeros().filter((p) => !this.tieneAsistenciaOtroTramo(p));
+    if (editables.length === 0) return false;
+    return editables.every((p) => this.idsSeleccionados().has(p.id));
   });
 
   constructor() {}
@@ -78,6 +78,9 @@ export class DialogPasajerosTramoComponent implements OnInit {
   }
 
   toggleSeleccion(id: number) {
+    const p = this.pasajeros().find((p) => p.id === id);
+    if (p && this.tieneAsistenciaOtroTramo(p)) return;
+
     const set = new Set(this.idsSeleccionados());
     if (set.has(id)) set.delete(id);
     else set.add(id);
@@ -85,13 +88,14 @@ export class DialogPasajerosTramoComponent implements OnInit {
   }
 
   toggleSeleccionTodos() {
-    const list = this.pasajeros();
+    // Solo afectar pasajeros editables (sin asistencia en otro tramo)
+    const editables = this.pasajeros().filter((p) => !this.tieneAsistenciaOtroTramo(p));
     const newSet = new Set(this.idsSeleccionados());
 
     if (this.isAllSelected()) {
-      list.forEach((p) => newSet.delete(p.id));
+      editables.forEach((p) => newSet.delete(p.id));
     } else {
-      list.forEach((p) => newSet.add(p.id));
+      editables.forEach((p) => newSet.add(p.id));
     }
     this.idsSeleccionados.set(newSet);
   }
@@ -121,12 +125,17 @@ export class DialogPasajerosTramoComponent implements OnInit {
   }
 
   getDisplayName(p: ViajePasajeroResultDto) {
-    const nombres = p.nombres || p.pasajero?.nombres || 'Sin nombre';
-    const apellidos = p.apellidos || p.pasajero?.apellidos || '';
+    const nombres = p.nombres || 'Sin nombre';
+    const apellidos = p.apellidos || '';
     return `${nombres} ${apellidos}`.trim();
   }
 
   getDisplayDni(p: ViajePasajeroResultDto) {
-    return p.dni || p.pasajero?.dni || '---';
+    return p.dni || '---';
+  }
+
+  /** Retorna true si el pasajero tiene asistencia registrada en otro tramo */
+  tieneAsistenciaOtroTramo(p: ViajePasajeroResultDto) {
+    return p.paradaAsistenciaId != null && !p.esTramoActual;
   }
 }

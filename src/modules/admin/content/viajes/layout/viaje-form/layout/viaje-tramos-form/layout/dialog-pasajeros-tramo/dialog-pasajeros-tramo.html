@@ -84,46 +84,77 @@
       <div class="max-h-[350px] overflow-y-auto pr-2 custom-scrollbar space-y-2">
         @if (pasajeros().length > 0) {
           @for (p of pasajeros(); track p.id) {
-            <div
-              (click)="toggleSeleccion(p.id)"
-              class="flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all duration-300"
-              [ngClass]="{
-                'bg-background border-text/5 hover:border-text/10 shadow-sm':
-                  !idsSeleccionados().has(p.id),
-                'bg-success/5 border-success/20 ring-1 ring-success/10 shadow-lg shadow-success/5':
-                  idsSeleccionados().has(p.id),
-              }"
-            >
-              <!-- Info -->
-              <div class="flex-1 min-w-0 pl-2">
-                <p
-                  class="text-xs font-inter-bold text-text truncate uppercase tracking-tight"
-                  [class.text-success]="idsSeleccionados().has(p.id)"
-                >
-                  {{ getDisplayName(p) }}
-                </p>
-                <div class="flex items-center gap-2 mt-0.5">
-                  <p class="text-[10px] text-text/40 font-inter-medium tracking-wide">
-                    DNI: {{ getDisplayDni(p) }}
+            @if (tieneAsistenciaOtroTramo(p)) {
+              <!-- Pasajero con asistencia en otro tramo: solo lectura, azul intenso -->
+              <div
+                class="flex items-center gap-3 p-3 rounded-xl border transition-all duration-300 bg-info/10 border-info/30 ring-1 ring-info/20 shadow-md shadow-info/5"
+              >
+                <div class="flex-1 min-w-0 pl-2">
+                  <p class="text-xs font-inter-bold text-info truncate uppercase tracking-tight">
+                    {{ getDisplayName(p) }}
                   </p>
+                  <div class="flex flex-col gap-0.5 mt-0.5">
+                    <p class="text-[10px] text-info/70 font-inter-medium tracking-wide">
+                      DNI: {{ getDisplayDni(p) }}
+                    </p>
+                    <div class="flex items-center mt-1">
+                      <span
+                        class="inline-flex items-center px-1.5 py-0.5 rounded bg-info/10 text-info text-[7px] font-inter-bold uppercase tracking-widest border border-info/20"
+                      >
+                        <i class="fas fa-map-marker-alt mr-1 text-[6.5px]"></i>
+                        Subió en: {{ p.paradaAsistenciaNombre || 'otra parada' }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="w-9 h-9 rounded-lg flex items-center justify-center bg-info text-white shadow-lg shadow-info/30"
+                >
+                  <i class="fas fa-check-double fa-fw text-xs"></i>
                 </div>
               </div>
-
-              <!-- Action Indicator -->
+            } @else {
+              <!-- Pasajero normal: interactivo -->
               <div
-                class="w-9 h-9 rounded-lg flex items-center justify-center transition-all"
+                (click)="toggleSeleccion(p.id)"
+                class="flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all duration-300"
                 [ngClass]="{
-                  'bg-text/5 text-text/30': !idsSeleccionados().has(p.id),
-                  'bg-success text-white shadow-lg shadow-success/20': idsSeleccionados().has(p.id),
+                  'bg-background border-text/5 hover:border-text/10 shadow-sm':
+                    !idsSeleccionados().has(p.id),
+                  'bg-success/5 border-success/20 ring-1 ring-success/10 shadow-lg shadow-success/5':
+                    idsSeleccionados().has(p.id),
                 }"
               >
-                <i
-                  class="fas fa-fw text-xs"
-                  [class.fa-plus]="!idsSeleccionados().has(p.id)"
-                  [class.fa-check]="idsSeleccionados().has(p.id)"
-                ></i>
+                <div class="flex-1 min-w-0 pl-2">
+                  <p
+                    class="text-xs font-inter-bold text-text truncate uppercase tracking-tight"
+                    [class.text-success]="idsSeleccionados().has(p.id)"
+                  >
+                    {{ getDisplayName(p) }}
+                  </p>
+                  <div class="flex items-center gap-2 mt-0.5">
+                    <p class="text-[10px] text-text/40 font-inter-medium tracking-wide">
+                      DNI: {{ getDisplayDni(p) }}
+                    </p>
+                  </div>
+                </div>
+                <div
+                  class="w-9 h-9 rounded-lg flex items-center justify-center transition-all"
+                  [ngClass]="{
+                    'bg-text/5 text-text/30': !idsSeleccionados().has(p.id),
+                    'bg-success text-white shadow-lg shadow-success/20': idsSeleccionados().has(
+                      p.id
+                    ),
+                  }"
+                >
+                  <i
+                    class="fas fa-fw text-xs"
+                    [class.fa-plus]="!idsSeleccionados().has(p.id)"
+                    [class.fa-check]="idsSeleccionados().has(p.id)"
+                  ></i>
+                </div>
               </div>
-            </div>
+            }
           }
         } @else {
           <div class="flex flex-col items-center justify-center py-10 opacity-40">
