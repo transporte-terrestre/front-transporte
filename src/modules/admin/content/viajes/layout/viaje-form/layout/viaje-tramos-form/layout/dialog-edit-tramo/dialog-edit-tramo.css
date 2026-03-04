@@ -1,0 +1,4 @@
+.hide-native-icon::-webkit-calendar-picker-indicator {
+  display: none !important;
+  -webkit-appearance: none;
+}

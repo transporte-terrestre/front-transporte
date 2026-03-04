@@ -1,0 +1,120 @@
+<app-modal-form
+  title="Registrar Salida"
+  submitText="Iniciar"
+  [loading]="isSubmitting"
+  accentClass="bg-success hover:bg-success/90"
+  maxWidth="xl"
+  (onSubmit)="save()"
+  (onClose)="close()"
+>
+  <form [formGroup]="form" class="p-5 space-y-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Lugar -->
+      <div class="md:col-span-2 space-y-2">
+        <label class="text-xs font-inter-bold text-text/60 uppercase tracking-wider">Lugar *</label>
+        <div class="relative group">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <i
+              class="fas fa-map-marker-alt text-success/50 transition-colors group-focus-within:text-success"
+            ></i>
+          </div>
+          <input
+            type="text"
+            formControlName="nombreLugar"
+            readonly
+            class="w-full pl-10 pr-3 py-2.5 text-sm bg-text/5 border border-transparent rounded-xl outline-none cursor-not-allowed font-inter-medium"
+            placeholder="Ej. Punto de Inicio"
+          />
+        </div>
+      </div>
+
+      <!-- Ubicación -->
+      <div class="md:col-span-2 space-y-2">
+        <label class="text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+          >Ubicación (Mapa) *</label
+        >
+        <div
+          class="h-[200px] rounded-2xl overflow-hidden border border-text/10 relative shadow-inner"
+        >
+          <div id="map-salida" class="h-full w-full"></div>
+          <div
+            class="absolute bottom-2 left-2 z-1000 bg-background/90 backdrop-blur-md px-3 py-1.5 rounded-lg text-[10px] font-inter-bold text-text/70 border border-text/10 shadow-sm"
+          >
+            <i class="fas fa-crosshairs mr-1 text-success"></i>
+            {{ form.get('latitud')?.value }}, {{ form.get('longitud')?.value }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Fecha y Hora Formateados as requested -->
+      <div class="md:col-span-2 space-y-2">
+        <div class="flex items-center justify-between px-1">
+          <label class="text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+            >Salida *</label
+          >
+          @if (horaEstimada) {
+            <span class="text-[10px] font-inter-medium text-text/40 italic">
+              Estimado: {{ horaEstimada }}
+            </span>
+          }
+        </div>
+        <div class="bg-text/2 border border-text/5 rounded-2xl p-4 grid grid-cols-2 gap-4">
+          <div class="flex items-center gap-3">
+            <label class="text-xs font-inter-bold text-text/40">Fecha</label>
+            <input
+              type="date"
+              formControlName="fecha"
+              class="w-full px-2 py-1 text-xs bg-background border border-text/10 group-focus-within:border-success rounded-lg outline-none transition-all hide-native-icon"
+            />
+          </div>
+          <div class="flex items-center gap-3">
+            <label class="text-xs font-inter-bold text-text/40">Hora</label>
+            <input
+              type="time"
+              formControlName="hora"
+              class="w-full px-2 py-1 text-xs bg-background border border-text/10 group-focus-within:border-success rounded-lg outline-none transition-all hide-native-icon"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Kilometraje y Pasajeros -->
+      <div class="space-y-2">
+        <label class="text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+          >Kilometraje Actual *</label
+        >
+        <div class="relative group">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <i
+              class="fas fa-tachometer-alt text-text/30 transition-colors group-focus-within:text-success"
+            ></i>
+          </div>
+          <input
+            type="number"
+            formControlName="kilometrajeActual"
+            class="w-full pl-10 pr-3 py-2.5 text-sm bg-background border border-text/10 focus:border-success rounded-xl outline-none transition-all"
+            placeholder="0"
+          />
+        </div>
+      </div>
+      <div class="space-y-2">
+        <label class="text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+          >N° Pasajeros *</label
+        >
+        <div class="relative group">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <i
+              class="fas fa-users text-text/30 transition-colors group-focus-within:text-success"
+            ></i>
+          </div>
+          <input
+            type="number"
+            formControlName="cantidadPasajeros"
+            class="w-full pl-10 pr-3 py-2.5 text-sm bg-background border border-text/10 focus:border-success rounded-xl outline-none transition-all"
+            placeholder="0"
+          />
+        </div>
+      </div>
+    </div>
+  </form>
+</app-modal-form>

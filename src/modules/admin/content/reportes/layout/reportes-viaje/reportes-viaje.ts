@@ -1,12 +1,12 @@
-import { Component, inject, signal, input, OnInit } from '@angular/core';
+import { Component, inject, signal, input, OnInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ReportesService } from '@service/admin/reportes.service';
 import { ToastService } from '@service/toast.service';
 import { ApiResponse, ApiQuery } from 'api/backend.api';
-import { VehiculoInputSearch } from '../../../vehiculos/layout/vehiculo-input-search/vehiculo-input-search';
-import { ConductorInputSearch } from '../../../conductores/layout/conductor-input-search/conductor-input-search';
-import { ClienteInputSearch } from '../../../clientes/layout/cliente-input-search/cliente-input-search';
+import { VehiculoInputSearch } from '../../../../components/input-searchs/vehiculo-input-search/vehiculo-input-search';
+import { ConductorInputSearch } from '../../../../components/input-searchs/conductor-input-search/conductor-input-search';
+import { ClienteInputSearch } from '../../../../components/input-searchs/cliente-input-search/cliente-input-search';
 
 export type ViajeReportMode = 'vehiculo' | 'conductor' | 'cliente';
 
@@ -161,6 +161,40 @@ export class ReportesViaje implements OnInit {
     }
   }
 
+  processedRows = computed(() => {
+    const viajesList = this.viajes();
+    // Agrupar por circuitoId, manteniendo orden de inserción
+    const groups = new Map<number, typeof viajesList>();
+
+    viajesList.forEach((viaje) => {
+      const cid = viaje.circuitoId || viaje.id; // si por alguna razón no tiene
+      if (!groups.has(cid)) {
+        groups.set(cid, []);
+      }
+      groups.get(cid)!.push(viaje);
+    });
+
+    const rows: {
+      circuitoId: number;
+      viaje: (typeof viajesList)[0];
+      isFirst: boolean;
+      rowSpan: number;
+    }[] = [];
+
+    groups.forEach((groupViajes, cid) => {
+      groupViajes.forEach((viaje, index) => {
+        rows.push({
+          circuitoId: cid,
+          viaje,
+          isFirst: index === 0,
+          rowSpan: groupViajes.length,
+        });
+      });
+    });
+
+    return rows;
+  });
+
   getEstadoClass(estado: string): string {
     const classes: { [key: string]: string } = {
       programado: 'bg-warning/10 text-warning',
@@ -181,6 +215,20 @@ export class ReportesViaje implements OnInit {
     return labels[estado] || estado;
   }
 
+  getSentidoBadgeClass(sentido: string | undefined): string {
+    return sentido === 'vuelta'
+      ? 'bg-info/10 text-info uppercase'
+      : 'bg-success/10 text-success uppercase';
+  }
+
+  getSentidoLabel(sentido: string | undefined): string {
+    return sentido === 'vuelta' ? 'Vuelta' : 'Ida';
+  }
+
+  getSentidoIcon(sentido: string | undefined): string {
+    return sentido === 'vuelta' ? 'fa-arrow-left' : 'fa-arrow-right';
+  }
+
   getRutaDisplay(viaje: ApiResponse<'reportes', 'getViajesDetalladosPorVehiculo'>[number]): string {
     if (viaje.tipoRuta === 'fija' && viaje.rutaOrigen && viaje.rutaDestino) {
       return `${viaje.rutaOrigen} → ${viaje.rutaDestino}`;
@@ -191,28 +239,30 @@ export class ReportesViaje implements OnInit {
   getTotalKilometrosFinales(): number {
     return this.viajes().reduce(
       (total: number, viaje: ApiResponse<'reportes', 'getViajesDetalladosPorVehiculo'>[number]) => {
-        const distancia = viaje.distanciaFinal ? parseFloat(viaje.distanciaFinal) : 0;
+        const distancia = viaje.distanciaFinal ? Math.round(parseFloat(viaje.distanciaFinal)) : 0;
         return total + distancia;
       },
-      0
+      0,
     );
   }
 
   getTotalKilometrosEstimados(): number {
     return this.viajes().reduce(
       (total: number, viaje: ApiResponse<'reportes', 'getViajesDetalladosPorVehiculo'>[number]) => {
-        const distancia = viaje.distanciaEstimada ? parseFloat(viaje.distanciaEstimada) : 0;
+        const distancia = viaje.distanciaEstimada
+          ? Math.round(parseFloat(viaje.distanciaEstimada))
+          : 0;
         return total + distancia;
       },
-      0
+      0,
     );
   }
 
   getTotalDiferencia(): number {
     return this.viajes().reduce(
       (total: number, viaje: ApiResponse<'reportes', 'getViajesDetalladosPorVehiculo'>[number]) =>
-        total + viaje.diferencia,
-      0
+        total + Math.round(viaje.diferencia || 0),
+      0,
     );
   }
 
@@ -220,7 +270,7 @@ export class ReportesViaje implements OnInit {
     return this.viajes().reduce(
       (total: number, viaje: ApiResponse<'reportes', 'getViajesDetalladosPorVehiculo'>[number]) =>
         total + (viaje.horasTotales || 0),
-      0
+      0,
     );
   }
 
@@ -228,7 +278,7 @@ export class ReportesViaje implements OnInit {
     return this.viajes().reduce(
       (total: number, viaje: ApiResponse<'reportes', 'getViajesDetalladosPorVehiculo'>[number]) =>
         total + (viaje.horasExcedidas || 0),
-      0
+      0,
     );
   }
 
@@ -250,5 +300,16 @@ export class ReportesViaje implements OnInit {
     });
 
     this.toastService.success('PDF generado exitosamente');
+  }
+
+  formatDecimalHours(hours: number | string | null | undefined): string {
+    if (hours === null || hours === undefined) return '—';
+    const numericHours = typeof hours === 'string' ? parseFloat(hours) : hours;
+    if (isNaN(numericHours) || numericHours === 0) return '0h 00m';
+
+    const h = Math.floor(numericHours);
+    const m = Math.round((numericHours - h) * 60);
+
+    return `${h}h ${m.toString().padStart(2, '0')}m`;
   }
 }

@@ -1,0 +1,96 @@
+<div [formGroup]="form" class="flex flex-col xl:flex-row gap-4 xl:gap-6">
+  <!-- Nombre -->
+  <div class="xl:flex-1 xl:min-w-0 flex flex-col space-y-1.5">
+    <label class="text-xs font-inter-bold text-text uppercase flex items-center gap-2">
+      <i class="fas fa-route text-secondary"></i>
+      Nombre
+    </label>
+    <input
+      type="text"
+      formControlName="nombre"
+      placeholder="Ej: Lima - Ica"
+      class="w-full px-3 py-1.5 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+    />
+  </div>
+
+  <!-- Trayectos -->
+  <div class="xl:w-[380px] xl:shrink-0 flex flex-col space-y-1.5">
+    <div class="flex items-center justify-between min-h-4">
+      @if (tipoTrayecto !== 'ambos') {
+        <label class="text-xs font-inter-bold text-text uppercase flex items-center gap-2">
+          <i class="fas fa-exchange-alt text-secondary"></i>
+          Trayectos
+        </label>
+      } @else {
+        <label class="text-xs font-inter-bold text-text uppercase flex items-center gap-2"
+          >Opciones de Vuelta</label
+        >
+      }
+
+      @if (tipoTrayecto === 'ambos') {
+        <div class="flex items-center gap-2">
+          <label
+            class="text-[10px] font-inter-semibold text-text cursor-pointer select-none"
+            for="switch-vuelta"
+          >
+            ¿Iguales?
+          </label>
+          <label class="inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              id="switch-vuelta"
+              [checked]="esVueltaIgual"
+              (change)="toggleVuelta.emit()"
+              class="sr-only peer"
+            />
+            <div
+              class="relative w-7 h-4 bg-text/10 peer-focus:outline-none rounded-full peer peer-checked:bg-secondary after:content-[''] after:absolute after:top-0.5 after:start-0.5 after:bg-background after:border-text/20 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:after:translate-x-3 peer-checked:after:border-background"
+            ></div>
+          </label>
+        </div>
+      }
+    </div>
+
+    <div class="flex gap-2 flex-1">
+      <button
+        type="button"
+        (click)="tipoTrayectoChange.emit('ida')"
+        class="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-xs font-inter-semibold border transition-all cursor-pointer"
+        [class]="
+          tipoTrayecto === 'ida'
+            ? 'bg-secondary/15 border-secondary/40 text-secondary'
+            : 'bg-text/5 border-text/15 text-text/40'
+        "
+      >
+        <i class="fas" [class]="tipoTrayecto === 'ida' ? 'fa-check-circle' : 'fa-circle'"></i>
+        Solo ida
+      </button>
+      <button
+        type="button"
+        (click)="tipoTrayectoChange.emit('vuelta')"
+        class="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-xs font-inter-semibold border transition-all cursor-pointer"
+        [class]="
+          tipoTrayecto === 'vuelta'
+            ? 'bg-secondary/15 border-secondary/40 text-secondary'
+            : 'bg-text/5 border-text/15 text-text/40'
+        "
+      >
+        <i class="fas" [class]="tipoTrayecto === 'vuelta' ? 'fa-check-circle' : 'fa-circle'"></i>
+        Solo vuelta
+      </button>
+      <button
+        type="button"
+        (click)="tipoTrayectoChange.emit('ambos')"
+        class="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-xs font-inter-semibold border transition-all cursor-pointer"
+        [class]="
+          tipoTrayecto === 'ambos'
+            ? 'bg-secondary/15 border-secondary/40 text-secondary'
+            : 'bg-text/5 border-text/15 text-text/40'
+        "
+      >
+        <i class="fas" [class]="tipoTrayecto === 'ambos' ? 'fa-check-circle' : 'fa-circle'"></i>
+        Ida y vuelta
+      </button>
+    </div>
+  </div>
+</div>

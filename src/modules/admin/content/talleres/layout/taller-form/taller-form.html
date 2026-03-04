@@ -4,31 +4,64 @@
     <label class="block text-xs font-inter-semibold text-text mb-1.5">Tipo de Taller</label>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
       @for (tipo of tipos; track tipo.value) {
-      <label
-        class="flex items-center gap-3 px-3 py-2 rounded-lg border-2 cursor-pointer transition-all"
-        [class.bg-secondary/10]="tallerForm.get('tipo')?.value === tipo.value"
-        [class.border-secondary]="tallerForm.get('tipo')?.value === tipo.value"
-        [class.border-text/10]="tallerForm.get('tipo')?.value !== tipo.value"
-      >
-        <input
-          type="radio"
-          formControlName="tipo"
-          [value]="tipo.value"
-          class="w-4 h-4 border-2 border-text/30 checked:bg-secondary checked:border-secondary focus:ring-2 focus:ring-secondary/20 cursor-pointer accent-secondary"
-        />
-        <div class="flex items-center gap-2 flex-1">
-          <i
-            [class]="'fas ' + tipo.icon + ' text-sm'"
-            [class.text-secondary]="tallerForm.get('tipo')?.value === tipo.value"
-            [class.text-text/70]="tallerForm.get('tipo')?.value !== tipo.value"
-          ></i>
-          <span class="text-sm font-inter-medium text-text">{{ tipo.label }}</span>
-        </div>
-      </label>
+        <label
+          class="flex items-center gap-3 px-3 py-2 rounded-lg border-2 cursor-pointer transition-all"
+          [class.bg-secondary/10]="tallerForm.get('tipo')?.value === tipo.value"
+          [class.border-secondary]="tallerForm.get('tipo')?.value === tipo.value"
+          [class.border-text/10]="tallerForm.get('tipo')?.value !== tipo.value"
+        >
+          <input
+            type="radio"
+            formControlName="tipo"
+            [value]="tipo.value"
+            class="w-4 h-4 border-2 border-text/30 checked:bg-secondary checked:border-secondary focus:ring-2 focus:ring-secondary/20 cursor-pointer accent-secondary"
+          />
+          <div class="flex items-center gap-2 flex-1">
+            <i
+              [class]="'fas ' + tipo.icon + ' text-sm'"
+              [class.text-secondary]="tallerForm.get('tipo')?.value === tipo.value"
+              [class.text-text/70]="tallerForm.get('tipo')?.value !== tipo.value"
+            ></i>
+            <span class="text-sm font-inter-medium text-text">{{ tipo.label }}</span>
+          </div>
+        </label>
       }
     </div>
     @if (tallerForm.get('tipo')?.touched && tallerForm.get('tipo')?.errors) {
-    <p class="text-danger text-xs font-inter-medium mt-1">El tipo es requerido</p>
+      <p class="text-danger text-xs font-inter-medium mt-1">El tipo es requerido</p>
+    }
+  </div>
+
+  <!-- Sucursales -->
+  <div>
+    <label class="block text-xs font-inter-semibold text-text mb-1.5">Sucursales (opcional)</label>
+    <app-sucursal-input-search
+      formControlName="sucursalIds"
+      [initialData]="sucursales"
+      (onSelectionChange)="onSucursalesSelectionChange($event)"
+    ></app-sucursal-input-search>
+
+    <!-- Lista de direcciones por sucursal -->
+    @if (selectedSucursalesDetalle.length > 0) {
+      <div class="mt-3 space-y-2 border border-text/10 bg-text/5 p-3 rounded-lg">
+        <label class="block text-xs font-inter-semibold text-text">Direcciones de Sucursales</label>
+        @for (item of selectedSucursalesDetalle; track item.sucursalId) {
+          <div
+            class="flex flex-col gap-1 w-full bg-background p-2 rounded-lg border border-text/10"
+          >
+            <span class="text-xs font-inter-semibold text-text/80"
+              >{{ item.departamento }} - {{ item.provincia }} ({{ item.distrito }})</span
+            >
+            <input
+              type="text"
+              [value]="item.direccion"
+              (input)="updateDireccion(item.sucursalId, $event)"
+              class="w-full px-2 py-1.5 text-xs bg-text/5 border-2 border-transparent focus:border-secondary rounded-md text-text font-inter-regular outline-none transition-all"
+              placeholder="Av. Exacta de la sucursal..."
+            />
+          </div>
+        }
+      </div>
     }
   </div>
 
@@ -43,7 +76,7 @@
       maxlength="11"
     />
     @if (tallerForm.get('ruc')?.touched && tallerForm.get('ruc')?.errors) {
-    <p class="text-danger text-xs font-inter-medium mt-1">RUC válido de 11 dígitos requerido</p>
+      <p class="text-danger text-xs font-inter-medium mt-1">RUC válido de 11 dígitos requerido</p>
     }
   </div>
 
@@ -58,12 +91,14 @@
         placeholder="Razón Social S.A.C."
       />
       @if (tallerForm.get('razonSocial')?.touched && tallerForm.get('razonSocial')?.errors) {
-      <p class="text-danger text-xs font-inter-medium mt-1">La razón social es requerida</p>
+        <p class="text-danger text-xs font-inter-medium mt-1">La razón social es requerida</p>
       }
     </div>
 
     <div>
-      <label class="block text-xs font-inter-semibold text-text mb-1.5">Nombre Comercial (opcional)</label>
+      <label class="block text-xs font-inter-semibold text-text mb-1.5"
+        >Nombre Comercial (opcional)</label
+      >
       <input
         type="text"
         formControlName="nombreComercial"
@@ -83,30 +118,18 @@
       placeholder="contacto@taller.com"
     />
     @if (tallerForm.get('email')?.touched && tallerForm.get('email')?.errors) {
-    <p class="text-danger text-xs font-inter-medium mt-1">Email inválido</p>
+      <p class="text-danger text-xs font-inter-medium mt-1">Email inválido</p>
     }
   </div>
 
-  <!-- Teléfono y Dirección -->
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-    <div>
-      <label class="block text-xs font-inter-semibold text-text mb-1.5">Teléfono (opcional)</label>
-      <input
-        type="text"
-        formControlName="telefono"
-        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-        placeholder="999888777"
-      />
-    </div>
-
-    <div>
-      <label class="block text-xs font-inter-semibold text-text mb-1.5">Dirección (opcional)</label>
-      <input
-        type="text"
-        formControlName="direccion"
-        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-        placeholder="Av. Principal 123"
-      />
-    </div>
+  <!-- Teléfono -->
+  <div>
+    <label class="block text-xs font-inter-semibold text-text mb-1.5">Teléfono (opcional)</label>
+    <input
+      type="text"
+      formControlName="telefono"
+      class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+      placeholder="999888777"
+    />
   </div>
 </form>

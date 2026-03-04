@@ -2,11 +2,10 @@ import { Component, inject, signal, OnInit, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RutaService } from '@service/admin/ruta.service';
-import { ApiResponse, ApiBody } from 'api/backend.api';
+import { ApiResponse } from 'api/backend.api';
 import { ToastService } from '@service/toast.service';
 import { RutaForm } from '../../layout/ruta-form/ruta-form';
 import { PATH, buildPath } from '@route/path.route';
-import { getErrorMessage } from '@helper/error.helper';
 
 @Component({
   selector: 'app-rutas-edit',
@@ -51,23 +50,8 @@ export class RutasEdit implements OnInit {
       });
   }
 
-  handleFormSubmit(data: ApiBody<'rutas', 'createCircuito'> | ApiBody<'rutas', 'updateCircuito'>) {
-    if (!this.ruta()) return;
-
-    this.loading.set(true);
-    this.rutaService
-      .update(this.ruta()!.id, data as ApiBody<'rutas', 'updateCircuito'>)
-      .then(() => {
-        this.toastService.success('Ruta actualizada exitosamente');
-        this.router.navigate([buildPath(PATH.admin.rutas.list)]);
-      })
-      .catch((error) => {
-        console.error('Error al actualizar ruta:', error);
-        this.toastService.error(getErrorMessage(error, 'Error al actualizar ruta'));
-      })
-      .finally(() => {
-        this.loading.set(false);
-      });
+  handleFormSubmit() {
+    this.router.navigate([buildPath(PATH.admin.rutas.list)]);
   }
 
   onCancel() {

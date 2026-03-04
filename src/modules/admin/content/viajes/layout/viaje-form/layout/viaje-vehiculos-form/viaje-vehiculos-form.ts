@@ -5,7 +5,7 @@ import { ViajeService } from '@service/admin/viaje.service';
 import { ToastService } from '@service/toast.service';
 import { AlertService } from '@service/alert.service';
 import { ApiResponse, ApiBody } from 'api/backend.api';
-import { VehiculoInputSearch } from '@module/admin/content/vehiculos/layout/vehiculo-input-search/vehiculo-input-search';
+import { VehiculoInputSearch } from '@module/admin/components/input-searchs/vehiculo-input-search/vehiculo-input-search';
 
 @Component({
   selector: 'app-viaje-vehiculos-form',
@@ -78,9 +78,9 @@ export class ViajeVehiculosForm {
             this.toastService.success('Vehículo eliminado');
             this.onDataChange.emit();
           },
-          () => this.toastService.error('Error al eliminar vehículo')
+          () => this.toastService.error('Error al eliminar vehículo'),
         );
-      }
+      },
     );
   }
 }

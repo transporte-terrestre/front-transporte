@@ -9,21 +9,22 @@ import {
 } from '@angular/forms';
 import { ApiResponse, ApiBody } from 'api/backend.api';
 import { ToastService } from '@service/toast.service';
-import { ClienteInputSearch } from '@module/admin/content/clientes/layout/cliente-input-search/cliente-input-search';
-import { RutaCircuitoInputSearch } from '@module/admin/content/rutas/layout/ruta-circuito-input-search/ruta-circuito-input-search';
-import { VehiculoInputSearch } from '@module/admin/content/vehiculos/layout/vehiculo-input-search/vehiculo-input-search';
-import { ConductorInputSearch } from '@module/admin/content/conductores/layout/conductor-input-search/conductor-input-search';
+import { ClienteInputSearch } from '@module/admin/components/input-searchs/cliente-input-search/cliente-input-search';
+import { RutaCircuitoInputSearch } from '@module/admin/components/input-searchs/ruta-circuito-input-search/ruta-circuito-input-search';
+import { VehiculoInputSearch } from '@module/admin/components/input-searchs/vehiculo-input-search/vehiculo-input-search';
+import { ConductorInputSearch } from '@module/admin/components/input-searchs/conductor-input-search/conductor-input-search';
 import { ViajeConductoresForm } from './layout/viaje-conductores-form/viaje-conductores-form';
 import { ViajeVehiculosForm } from './layout/viaje-vehiculos-form/viaje-vehiculos-form';
 import { ViajeComentariosForm } from './layout/viaje-comentarios-form/viaje-comentarios-form';
-import { RutaInputSearch } from '@module/admin/content/rutas/layout/ruta-input-search/ruta-input-search';
-import { ViajeServiciosFormComponent } from './layout/viaje-servicios-form/viaje-servicios-form';
+import { RutaInputSearch } from '@module/admin/components/input-searchs/ruta-input-search/ruta-input-search';
+import { ViajeTramosFormComponent } from './layout/viaje-tramos-form/viaje-tramos-form';
 import { ViajePasajerosForm } from './layout/viaje-pasajeros-form/viaje-pasajeros-form';
 import { FormGroup } from '@angular/forms';
+import { ViajeService } from '@service/admin/viaje.service';
 
 interface CircuitoSelection {
-  rutaIda?: { id: number; distancia: string };
-  rutaVuelta?: { id: number; distancia: string };
+  rutaIda?: { id: number; distancia: string; tiempoEstimado: number };
+  rutaVuelta?: { id: number; distancia: string; tiempoEstimado: number };
 }
 
 @Component({
@@ -40,7 +41,7 @@ interface CircuitoSelection {
     ViajeVehiculosForm,
     ViajePasajerosForm,
     ViajeComentariosForm,
-    ViajeServiciosFormComponent,
+    ViajeTramosFormComponent,
   ],
   templateUrl: './viaje-form.html',
   styleUrl: './viaje-form.css',
@@ -48,21 +49,28 @@ interface CircuitoSelection {
 export class ViajeForm implements OnInit {
   private fb = inject(FormBuilder);
   private toastService = inject(ToastService);
+  private viajeService = inject(ViajeService);
 
   // Inputs
   viaje = input<ApiResponse<'viajes', 'findOne'> | null>(null);
   editMode = input<boolean>(false);
 
   // Outputs
-  onSubmitForm = output<ApiBody<'viajes', 'create'> | ApiBody<'viajes', 'create'>[]>();
+  onSubmitForm = output<ApiBody<'viajes', 'create'>>();
   onUpdate = output<ApiBody<'viajes', 'update'>>();
   onDataChange = output<void>();
+
+  private checkAvailabilityTimeout: any;
 
   // Signals
   tipoViaje = signal<'ida' | 'vuelta' | 'ambos'>('ida');
   hasRutaIda = signal<boolean>(false);
   hasRutaVuelta = signal<boolean>(false);
   hasRutaSelected = signal<boolean>(false);
+
+  // Validation
+  vehiculoValidacionMsg = signal<{ status: boolean; message: string } | null>(null);
+  conductorValidacionMsg = signal<{ status: boolean; message: string } | null>(null);
 
   // Catálogos
   loadingCatalogos = signal(false);
@@ -164,10 +172,18 @@ export class ViajeForm implements OnInit {
           vehiculo: viajeData.vehiculos?.[0].id,
           conductor: viajeData.conductores?.[0].id,
           horasContrato: viajeData.horasContrato,
-          fechaSalidaDate: viajeData.fechaSalida ? this.extractDate(viajeData.fechaSalida) : '',
-          fechaSalidaTime: viajeData.fechaSalida ? this.extractTime(viajeData.fechaSalida) : '',
-          fechaLlegadaDate: viajeData.fechaLlegada ? this.extractDate(viajeData.fechaLlegada) : '',
-          fechaLlegadaTime: viajeData.fechaLlegada ? this.extractTime(viajeData.fechaLlegada) : '',
+          fechaSalidaDate: viajeData.fechaSalidaProgramada
+            ? this.extractDate(viajeData.fechaSalidaProgramada)
+            : '',
+          fechaSalidaTime: viajeData.fechaSalidaProgramada
+            ? this.extractTime(viajeData.fechaSalidaProgramada)
+            : '',
+          fechaLlegadaDate: viajeData.fechaLlegadaProgramada
+            ? this.extractDate(viajeData.fechaLlegadaProgramada)
+            : '',
+          fechaLlegadaTime: viajeData.fechaLlegadaProgramada
+            ? this.extractTime(viajeData.fechaLlegadaProgramada)
+            : '',
           estado: viajeData.estado,
           turno: viajeData.turno,
           sentido: viajeData.sentido,
@@ -249,6 +265,9 @@ export class ViajeForm implements OnInit {
             this.viajeForm.patchValue({ distanciaEstimadaVuelta: c.rutaVuelta.distancia });
           }
         }
+
+        // Ejecutar reconteo de horas
+        this.calculateEstimatedTimes();
       }
 
       // 2. Validadores y lógica específica de "Ambos"
@@ -281,6 +300,9 @@ export class ViajeForm implements OnInit {
       fLlegadaVDate?.updateValueAndValidity();
       fLlegadaVTime?.updateValueAndValidity();
       distV?.updateValueAndValidity();
+
+      // Chequeo de disponibilidad cuando conmutamos IDA/VUELTA/AMBOS y los tiempos recalculan
+      setTimeout(() => this.checkAvailability(), 100);
     });
 
     // Auto-set horasContrato based on Cliente
@@ -366,6 +388,9 @@ export class ViajeForm implements OnInit {
         if (tipo === 'ambos' && c.rutaVuelta) {
           this.viajeForm.patchValue({ distanciaEstimadaVuelta: c.rutaVuelta.distancia });
         }
+
+        // 3. Recalcular horas
+        this.calculateEstimatedTimes();
       } else {
         // Circuito deseleccionado
         this.hasRutaIda.set(false);
@@ -374,13 +399,46 @@ export class ViajeForm implements OnInit {
       }
     });
 
+    // Suscripciones a los campos de salida para recalcular en caso de cambios manuales
+    this.viajeForm.get('fechaSalidaDate')?.valueChanges.subscribe(() => {
+      if (this.hasRutaSelected()) this.calculateEstimatedTimes();
+    });
+    this.viajeForm.get('fechaSalidaTime')?.valueChanges.subscribe(() => {
+      if (this.hasRutaSelected()) this.calculateEstimatedTimes();
+    });
+
     // Control de distanciaFinal basado en estado
     this.viajeForm.get('estado')?.valueChanges.subscribe((estado) => {
       this.updateDistanciaFinalState(estado);
     });
 
+    // Suscripciones para endpoints de validación
+    const validateKeys = [
+      'fechaSalidaDate',
+      'fechaSalidaTime',
+      'fechaLlegadaDate',
+      'fechaLlegadaTime',
+      'fechaSalidaVueltaDate',
+      'fechaSalidaVueltaTime',
+      'fechaLlegadaVueltaDate',
+      'fechaLlegadaVueltaTime',
+      'vehiculo',
+      'conductor',
+      'ruta',
+    ];
+    validateKeys.forEach((k) => {
+      this.viajeForm.get(k)?.valueChanges.subscribe(() => {
+        // Necesitamos un pequeño timeout porque ruta calcula los tiempos y parchValue tarda un tick
+        setTimeout(() => this.checkAvailability());
+      });
+    });
+
     // Aplicar estado inicial
     this.updateDistanciaFinalState(this.viajeForm.get('estado')?.value);
+    // Ejecutar inicial de disponibilidad si estamos en edit
+    if (this.editMode()) {
+      setTimeout(() => this.checkAvailability(), 500);
+    }
   }
 
   updateDistanciaFinalState(estado: string | null | undefined) {
@@ -397,6 +455,87 @@ export class ViajeForm implements OnInit {
     distanciaFinalControl?.updateValueAndValidity();
   }
 
+  checkAvailability() {
+    clearTimeout(this.checkAvailabilityTimeout);
+    this.checkAvailabilityTimeout = setTimeout(() => {
+      // Si no hemos escogido circuito (fija) y estamos creando, el html ni siquiera permite al usuario ver las fechas de viaje
+      if (
+        !this.hasRutaSelected() &&
+        this.viajeForm.get('tipoRuta')?.value === 'fija' &&
+        !this.editMode()
+      ) {
+        this.vehiculoValidacionMsg.set(null);
+        this.conductorValidacionMsg.set(null);
+        return;
+      }
+
+      const fv = this.viajeForm.value;
+      const isEdit = this.editMode();
+      const viajeId = this.viaje()?.id;
+
+      // Obtener la fecha absoluta mínima (salida) y máxima (llegada)
+      let fechaSalidaStr = `${fv.fechaSalidaDate}T${fv.fechaSalidaTime}`;
+      let fechaLlegadaStr = `${fv.fechaLlegadaDate}T${fv.fechaLlegadaTime}`;
+
+      if (this.tipoViaje() === 'ambos') {
+        fechaLlegadaStr = `${fv.fechaLlegadaVueltaDate}T${fv.fechaLlegadaVueltaTime}`;
+      }
+
+      if (
+        !fv.fechaSalidaDate ||
+        !fv.fechaSalidaTime ||
+        !fv.fechaLlegadaDate ||
+        !fv.fechaLlegadaTime
+      ) {
+        this.vehiculoValidacionMsg.set(null);
+        this.conductorValidacionMsg.set(null);
+        return;
+      }
+
+      if (new Date(fechaSalidaStr) >= new Date(fechaLlegadaStr)) {
+        this.vehiculoValidacionMsg.set(null);
+        this.conductorValidacionMsg.set(null);
+        return;
+      }
+
+      // Vehicle
+      if (fv.vehiculo) {
+        const vId = typeof fv.vehiculo === 'object' ? fv.vehiculo.id : fv.vehiculo;
+        if (vId) {
+          this.viajeService
+            .validarVehiculo({
+              vehiculoId: vId,
+              fechaSalida: fechaSalidaStr,
+              fechaLlegada: fechaLlegadaStr,
+              viajeId,
+            })
+            .then((res) => this.vehiculoValidacionMsg.set(res))
+            .catch(() => this.vehiculoValidacionMsg.set(null));
+        }
+      } else {
+        this.vehiculoValidacionMsg.set(null);
+      }
+
+      // Conductor
+      if (fv.conductor) {
+        const cId = typeof fv.conductor === 'object' ? fv.conductor.id : fv.conductor;
+        if (cId) {
+          this.viajeService
+            .validarConductor({
+              conductorId: cId,
+              fechaSalida: fechaSalidaStr,
+              fechaLlegada: fechaLlegadaStr,
+              viajeId,
+            })
+            .then((res) => this.conductorValidacionMsg.set(res))
+            .catch(() => this.conductorValidacionMsg.set(null));
+        }
+      } else {
+        this.conductorValidacionMsg.set(null);
+      }
+    }, 400); // 400ms debounce
+  }
+
   formatDateTimeForInput(date: Date | string): string {
     // Si es string y parece formato ISO, cortar para preservar la hora "tal cual" del JSON/Backend
     if (typeof date === 'string' && date.indexOf('T') > -1) {
@@ -404,11 +543,11 @@ export class ViajeForm implements OnInit {
     }
 
     const d = new Date(date);
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    const hours = String(d.getHours()).padStart(2, '0');
-    const minutes = String(d.getMinutes()).padStart(2, '0');
+    const year = d.getUTCFullYear();
+    const month = String(d.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(d.getUTCDate()).padStart(2, '0');
+    const hours = String(d.getUTCHours()).padStart(2, '0');
+    const minutes = String(d.getUTCMinutes()).padStart(2, '0');
     return `${year}-${month}-${day}T${hours}:${minutes}`;
   }
 
@@ -430,19 +569,91 @@ export class ViajeForm implements OnInit {
     return `${year}-${month}-${day}T${hh}:${mm}`;
   }
 
-  // Helpers para extraer Date y Time de ISO string
+  calculateEstimatedTimes() {
+    if (this.editMode()) return;
+
+    const circuito = this.viajeForm.get('ruta')?.value;
+    if (!circuito || typeof circuito !== 'object') return;
+
+    const c = circuito as CircuitoSelection;
+    const tipo = this.tipoViaje();
+
+    let timeEstIda = 0;
+    let timeEstVuelta = 0;
+
+    if (tipo === 'ida' && c.rutaIda) {
+      timeEstIda = c.rutaIda.tiempoEstimado || 0;
+    } else if (tipo === 'vuelta' && c.rutaVuelta) {
+      timeEstIda = c.rutaVuelta.tiempoEstimado || 0;
+    } else if (tipo === 'ambos' && c.rutaIda) {
+      timeEstIda = c.rutaIda.tiempoEstimado || 0;
+      if (c.rutaVuelta) timeEstVuelta = c.rutaVuelta.tiempoEstimado || 0;
+    }
+
+    const formDate = this.viajeForm.get('fechaSalidaDate')?.value;
+    const formTime = this.viajeForm.get('fechaSalidaTime')?.value;
+
+    if (formDate && formTime && timeEstIda > 0) {
+      const llegadaIda = this.addMinutesToTimeLocal(formDate, formTime, timeEstIda);
+
+      const patchData: any = {
+        fechaLlegadaDate: llegadaIda.date,
+        fechaLlegadaTime: llegadaIda.time,
+      };
+
+      if (tipo === 'ambos' && timeEstVuelta > 0) {
+        const salidaVuelta = this.addMinutesToTimeLocal(llegadaIda.date, llegadaIda.time, 20);
+        const llegadaVuelta = this.addMinutesToTimeLocal(
+          salidaVuelta.date,
+          salidaVuelta.time,
+          timeEstVuelta,
+        );
+        patchData.fechaSalidaVueltaDate = salidaVuelta.date;
+        patchData.fechaSalidaVueltaTime = salidaVuelta.time;
+        patchData.fechaLlegadaVueltaDate = llegadaVuelta.date;
+        patchData.fechaLlegadaVueltaTime = llegadaVuelta.time;
+      }
+
+      this.viajeForm.patchValue(patchData, { emitEvent: false });
+    }
+  }
+
+  private addMinutesToTimeLocal(
+    dateStr: string,
+    timeStr: string,
+    minutesToAdd: number,
+  ): { date: string; time: string } {
+    if (!dateStr || !timeStr) return { date: dateStr, time: timeStr };
+    const [year, month, day] = dateStr.split('-').map(Number);
+    const [hours, minutes] = timeStr.split(':').map(Number);
+    const d = new Date(year, month - 1, day, hours, minutes);
+    d.setMinutes(d.getMinutes() + Number(minutesToAdd));
+
+    const outYear = d.getFullYear();
+    const outMonth = String(d.getMonth() + 1).padStart(2, '0');
+    const outDay = String(d.getDate()).padStart(2, '0');
+    const outHours = String(d.getHours()).padStart(2, '0');
+    const outMins = String(d.getMinutes()).padStart(2, '0');
+
+    return { date: `${outYear}-${outMonth}-${outDay}`, time: `${outHours}:${outMins}` };
+  }
+
+  // Helpers para extraer Date y Time de ISO string en UTC
   private extractDate(dateTime: string): string {
     if (!dateTime) return '';
-    // Asumimos formato ISO o YYYY-MM-DDTHH:mm
-    return dateTime.split('T')[0];
+    const d = new Date(dateTime);
+    const year = d.getUTCFullYear();
+    const month = String(d.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(d.getUTCDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   private extractTime(dateTime: string): string {
     if (!dateTime) return '';
-    const timePart = dateTime.split('T')[1];
-    if (!timePart) return '';
-    // Return HH:mm
-    return timePart.substring(0, 5);
+    const d = new Date(dateTime);
+    const hours = String(d.getUTCHours()).padStart(2, '0');
+    const minutes = String(d.getUTCMinutes()).padStart(2, '0');
+    return `${hours}:${minutes}`;
   }
 
   submitForm() {
@@ -507,39 +718,78 @@ export class ViajeForm implements OnInit {
       ...cleanFormValue
     } = formValue;
 
-    const basePayload = {
-      ...cleanFormValue,
-      rutaOcasional: formValue.rutaOcasional || undefined,
-      distanciaEstimada: formValue.distanciaEstimada || undefined,
-      distanciaFinal: formValue.distanciaFinal || undefined,
-      horasContrato: formValue.horasContrato || undefined,
-      tipoRuta: formValue.tipoRuta || 'fija',
-      modalidadServicio: formValue.modalidadServicio || 'regular',
-      estado: formValue.estado || 'programado',
-      turno: formValue.turno || 'dia',
-      // Sentido se sobreescribirá si es fijo
-      sentido: formValue.sentido || 'ida',
+    const clienteIdNum = formValue.cliente?.id
+      ? Number(formValue.cliente.id)
+      : Number(formValue.cliente);
+    const tipoRutaVal: 'fija' | 'ocasional' = formValue.tipoRuta || 'fija';
 
-      vehiculoId: formValue.vehiculo?.id
-        ? Number(formValue.vehiculo.id)
-        : Number(formValue.vehiculo),
-      conductorId: formValue.conductor?.id
-        ? Number(formValue.conductor.id)
-        : Number(formValue.conductor),
-      clienteId: formValue.cliente?.id ? Number(formValue.cliente.id) : Number(formValue.cliente),
+    const buildDetalle = (
+      sentido: 'ida' | 'vuelta',
+      rutaId?: number,
+      fechaSalidaDateVal?: string,
+      fechaSalidaTimeVal?: string,
+      fechaLlegadaDateVal?: string,
+      fechaLlegadaTimeVal?: string,
+      distanciaEstimadaVal?: string,
+      modalidadServicioVal?: string,
+      turnoVal?: string,
+      estadoVal?: string,
+    ): NonNullable<ApiBody<'viajes', 'create'>['ida']> => {
+      const detalle: NonNullable<ApiBody<'viajes', 'create'>['ida']> = {
+        clienteId: clienteIdNum,
+        tipoRuta: tipoRutaVal,
+        modalidadServicio: (modalidadServicioVal ||
+          formValue.modalidadServicio ||
+          'regular') as any, // Only casting enum strings if TS gets weird, but we can avoid it if we know values
+        estado: (estadoVal || formValue.estado || 'programado') as any,
+        turno: (turnoVal || formValue.turno || 'dia') as any,
+        sentido: sentido,
+        fechaSalidaProgramada:
+          fechaSalidaDateVal && fechaSalidaTimeVal
+            ? `${fechaSalidaDateVal}T${fechaSalidaTimeVal}:00.000Z`
+            : '',
+      };
 
-      // Fecha normal (se usará para ida o único)
-      fechaSalida:
-        fechaSalidaDate && fechaSalidaTime ? `${fechaSalidaDate}T${fechaSalidaTime}:00.000Z` : '',
-      fechaLlegada:
-        fechaLlegadaDate && fechaLlegadaTime
-          ? `${fechaLlegadaDate}T${fechaLlegadaTime}:00.000Z`
-          : undefined,
+      // Type-safe assertions since string literal types come from exact matching
+      detalle.modalidadServicio = (modalidadServicioVal ||
+        formValue.modalidadServicio ||
+        'regular') as NonNullable<ApiBody<'viajes', 'create'>['ida']>['modalidadServicio'];
+      detalle.estado = (estadoVal || formValue.estado || 'programado') as NonNullable<
+        ApiBody<'viajes', 'create'>['ida']
+      >['estado'];
+      detalle.turno = (turnoVal || formValue.turno || 'dia') as NonNullable<
+        ApiBody<'viajes', 'create'>['ida']
+      >['turno'];
+
+      if (fechaLlegadaDateVal && fechaLlegadaTimeVal) {
+        detalle.fechaLlegadaProgramada = `${fechaLlegadaDateVal}T${fechaLlegadaTimeVal}:00.000Z`;
+      }
+      if (rutaId) detalle.rutaId = rutaId;
+      if (formValue.rutaOcasional) detalle.rutaOcasional = formValue.rutaOcasional;
+      if (distanciaEstimadaVal || formValue.distanciaEstimada) {
+        detalle.distanciaEstimada = (
+          distanciaEstimadaVal || formValue.distanciaEstimada
+        ).toString();
+      }
+      if (formValue.distanciaFinal) detalle.distanciaFinal = formValue.distanciaFinal.toString();
+      if (formValue.horasContrato) detalle.horasContrato = formValue.horasContrato.toString();
+      if (formValue.vehiculo) {
+        detalle.vehiculoId = formValue.vehiculo.id
+          ? Number(formValue.vehiculo.id)
+          : Number(formValue.vehiculo);
+      }
+      if (formValue.conductor) {
+        detalle.conductorId = formValue.conductor.id
+          ? Number(formValue.conductor.id)
+          : Number(formValue.conductor);
+      }
+
+      return detalle;
     };
 
     if (
       !this.editMode() &&
-      formValue.tipoRuta === 'fija' &&
+      tipoRutaVal === 'fija' &&
       formValue.ruta &&
       typeof formValue.ruta === 'object'
     ) {
@@ -550,87 +800,100 @@ export class ViajeForm implements OnInit {
       const tipo = this.tipoViaje();
 
       if (tipo === 'ambos') {
-        const payloads = [];
+        const createPayload: ApiBody<'viajes', 'create'> = {};
         // Ida
         if (circuito.rutaIda) {
-          payloads.push({
-            ...basePayload,
-            rutaId: circuito.rutaIda.id,
-            sentido: 'ida',
-            // Usa fechaSalida/Llegada y distanciaEstimada normales
-            distanciaEstimada: formValue.distanciaEstimada || circuito.rutaIda.distancia,
-          });
+          createPayload.ida = buildDetalle(
+            'ida',
+            circuito.rutaIda.id,
+            formValue.fechaSalidaDate,
+            formValue.fechaSalidaTime,
+            formValue.fechaLlegadaDate,
+            formValue.fechaLlegadaTime,
+            circuito.rutaIda.distancia,
+          );
         }
         // Vuelta
         if (circuito.rutaVuelta) {
-          payloads.push({
-            ...basePayload,
-            rutaId: circuito.rutaVuelta.id,
-            sentido: 'vuelta',
-            // Usar fechas y distancia de vuelta
-            fechaSalida:
-              formValue.fechaSalidaVueltaDate && formValue.fechaSalidaVueltaTime
-                ? `${formValue.fechaSalidaVueltaDate}T${formValue.fechaSalidaVueltaTime}:00.000Z`
-                : '',
-            fechaLlegada:
-              formValue.fechaLlegadaVueltaDate && formValue.fechaLlegadaVueltaTime
-                ? `${formValue.fechaLlegadaVueltaDate}T${formValue.fechaLlegadaVueltaTime}:00.000Z`
-                : undefined,
-            distanciaEstimada: formValue.distanciaEstimadaVuelta || circuito.rutaVuelta.distancia,
-            // Override Modalidad / Turno / Estado for Vuelta
-            modalidadServicio: formValue.modalidadServicioVuelta || 'regular',
-            turno: formValue.turnoVuelta || 'dia',
-            estado: formValue.estadoVuelta || 'programado',
-          });
+          createPayload.vuelta = buildDetalle(
+            'vuelta',
+            circuito.rutaVuelta.id,
+            formValue.fechaSalidaVueltaDate,
+            formValue.fechaSalidaVueltaTime,
+            formValue.fechaLlegadaVueltaDate,
+            formValue.fechaLlegadaVueltaTime,
+            formValue.distanciaEstimadaVuelta || circuito.rutaVuelta.distancia,
+            formValue.modalidadServicioVuelta,
+            formValue.turnoVuelta,
+            formValue.estadoVuelta,
+          );
         }
         if (this.editMode()) {
-          // Edición de viaje existente (solo un objeto permitida)
           console.error('No se puede editar a tipo "ambos" (múltiples viajes)');
           return;
         }
-        this.onSubmitForm.emit(payloads);
+        this.onSubmitForm.emit(createPayload);
       } else {
         // Solo ida o solo vuelta
-        let rutaId = null;
-        let sentido = 'ida';
+        let rutaId: number | undefined;
+        let sentido: 'ida' | 'vuelta' = 'ida';
+        let distancia: string | undefined;
+
         if (tipo === 'ida' && circuito.rutaIda) {
           rutaId = circuito.rutaIda.id;
           sentido = 'ida';
+          distancia = circuito.rutaIda.distancia;
         } else if (tipo === 'vuelta' && circuito.rutaVuelta) {
           rutaId = circuito.rutaVuelta.id;
           sentido = 'vuelta';
+          distancia = circuito.rutaVuelta.distancia;
         }
 
         if (rutaId) {
-          const payload = {
-            ...basePayload,
-            rutaId,
+          const payload = buildDetalle(
             sentido,
-          };
+            rutaId,
+            formValue.fechaSalidaDate,
+            formValue.fechaSalidaTime,
+            formValue.fechaLlegadaDate,
+            formValue.fechaLlegadaTime,
+            distancia,
+          );
 
           if (this.editMode()) {
-            this.onUpdate.emit(payload as unknown as ApiBody<'viajes', 'update'>);
+            this.onUpdate.emit(payload);
           } else {
-            this.onSubmitForm.emit(payload);
+            const createPayload: ApiBody<'viajes', 'create'> = {};
+            if (sentido === 'ida') createPayload.ida = payload;
+            else createPayload.vuelta = payload;
+            this.onSubmitForm.emit(createPayload);
           }
         } else {
-          // Fallback o error si seleccionó un sentido que el circuito no tiene
           console.error('El circuito seleccionado no tiene la ruta para el sentido escogido');
         }
       }
     } else {
       // Caso Ocasional o Edición (donde ruta podría ser ID)
-      const payload = {
-        ...basePayload,
-        rutaId: formValue.ruta?.id
-          ? Number(formValue.ruta.id)
-          : Number(formValue.ruta) || undefined,
-      };
+      const rutaIdObj = formValue.ruta?.id
+        ? Number(formValue.ruta.id)
+        : Number(formValue.ruta) || undefined;
+
+      const payload = buildDetalle(
+        formValue.sentido || 'ida',
+        rutaIdObj,
+        formValue.fechaSalidaDate,
+        formValue.fechaSalidaTime,
+        formValue.fechaLlegadaDate,
+        formValue.fechaLlegadaTime,
+      );
 
       if (this.editMode()) {
-        this.onUpdate.emit(payload as unknown as ApiBody<'viajes', 'update'>);
+        this.onUpdate.emit(payload);
       } else {
-        this.onSubmitForm.emit(payload);
+        const createPayload: ApiBody<'viajes', 'create'> = {
+          ida: payload,
+        };
+        this.onSubmitForm.emit(createPayload);
       }
     }
   }

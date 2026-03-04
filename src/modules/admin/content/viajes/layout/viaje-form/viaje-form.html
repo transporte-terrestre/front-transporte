@@ -206,6 +206,44 @@
         </div>
       }
 
+      <!-- Validation Msgs -->
+      @if (vehiculoValidacionMsg() || conductorValidacionMsg()) {
+        <div class="space-y-2 mt-2">
+          @if (vehiculoValidacionMsg(); as vMsg) {
+            <div
+              class="flex items-start gap-2 p-2.5 rounded-lg border text-xs font-inter-medium transition-colors"
+              [ngClass]="
+                vMsg.status
+                  ? 'bg-success/10 border-success/20 text-success'
+                  : 'bg-danger/10 border-danger/20 text-danger'
+              "
+            >
+              <i
+                class="fas mt-0.5"
+                [ngClass]="vMsg.status ? 'fa-check-circle' : 'fa-exclamation-circle'"
+              ></i>
+              <span>{{ vMsg.message }}</span>
+            </div>
+          }
+          @if (conductorValidacionMsg(); as cMsg) {
+            <div
+              class="flex items-start gap-2 p-2.5 rounded-lg border text-xs font-inter-medium transition-colors"
+              [ngClass]="
+                cMsg.status
+                  ? 'bg-success/10 border-success/20 text-success'
+                  : 'bg-danger/10 border-danger/20 text-danger'
+              "
+            >
+              <i
+                class="fas mt-0.5"
+                [ngClass]="cMsg.status ? 'fa-check-circle' : 'fa-exclamation-circle'"
+              ></i>
+              <span>{{ cMsg.message }}</span>
+            </div>
+          }
+        </div>
+      }
+
       <!-- Spacer for Dropdowns -->
       @if (!editMode()) {
         <div class="hidden lg:block h-32 w-full relative -z-10"></div>
@@ -381,6 +419,29 @@
                     </span>
                   </div>
                 </div>
+                <!-- Distancia Final (solo si completado) -->
+                @if (viajeForm.get('estado')?.value === 'completado') {
+                  <div class="pt-2 border-t border-text/5">
+                    <label class="text-xs font-inter-semibold text-text mb-1 block"
+                      >Distancia Final (KM) <span class="text-danger">*</span></label
+                    >
+                    <input
+                      type="number"
+                      step="0.01"
+                      formControlName="distanciaFinal"
+                      class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      placeholder="Ej: 14.50"
+                    />
+                    @if (
+                      viajeForm.get('distanciaFinal')?.touched &&
+                      viajeForm.get('distanciaFinal')?.errors
+                    ) {
+                      <p class="text-danger text-xs font-inter-medium mt-1">
+                        La distancia final es requerida
+                      </p>
+                    }
+                  </div>
+                }
               </div>
             </div>
 
@@ -538,6 +599,29 @@
                     </span>
                   </div>
                 </div>
+                <!-- Distancia Final Vuelta (solo si completado) -->
+                @if (viajeForm.get('estadoVuelta')?.value === 'completado') {
+                  <div class="pt-2 border-t border-text/5">
+                    <label class="text-xs font-inter-semibold text-text mb-1 block"
+                      >Distancia Final (KM) <span class="text-danger">*</span></label
+                    >
+                    <input
+                      type="number"
+                      step="0.01"
+                      formControlName="distanciaFinal"
+                      class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-info rounded-lg text-text font-inter-regular outline-none transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      placeholder="Ej: 14.50"
+                    />
+                    @if (
+                      viajeForm.get('distanciaFinal')?.touched &&
+                      viajeForm.get('distanciaFinal')?.errors
+                    ) {
+                      <p class="text-danger text-xs font-inter-medium mt-1">
+                        La distancia final es requerida
+                      </p>
+                    }
+                  </div>
+                }
               </div>
             </div>
           </div>
@@ -716,7 +800,12 @@
                     @for (turno of turnos; track turno.value) {
                       <label
                         class="flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg border-2 cursor-pointer transition-all hover:bg-text/5"
-                        [class.border-secondary]="viajeForm.get('turno')?.value === turno.value"
+                        [class.border-secondary]="
+                          viajeForm.get('turno')?.value === turno.value && tipoViaje() !== 'vuelta'
+                        "
+                        [class.border-info]="
+                          viajeForm.get('turno')?.value === turno.value && tipoViaje() === 'vuelta'
+                        "
                         [class.border-text/10]="viajeForm.get('turno')?.value !== turno.value"
                         [class.bg-text/5]="viajeForm.get('turno')?.value === turno.value"
                       >
@@ -728,7 +817,14 @@
                         />
                         <i
                           class="fas {{ turno.icon }} text-xs"
-                          [class.text-secondary]="viajeForm.get('turno')?.value === turno.value"
+                          [class.text-secondary]="
+                            viajeForm.get('turno')?.value === turno.value &&
+                            tipoViaje() !== 'vuelta'
+                          "
+                          [class.text-info]="
+                            viajeForm.get('turno')?.value === turno.value &&
+                            tipoViaje() === 'vuelta'
+                          "
                         ></i>
                         <span class="text-xs font-inter-medium">{{ turno.label }}</span>
                       </label>
@@ -756,6 +852,29 @@
                   </span>
                 </div>
               </div>
+              <!-- Distancia Final (solo si completado) -->
+              @if (viajeForm.get('estado')?.value === 'completado') {
+                <div class="pt-2 border-t border-text/5">
+                  <label class="text-xs font-inter-semibold text-text mb-1 block"
+                    >Distancia Final (KM) <span class="text-danger">*</span></label
+                  >
+                  <input
+                    type="number"
+                    step="0.01"
+                    formControlName="distanciaFinal"
+                    class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    placeholder="Ej: 14.50"
+                  />
+                  @if (
+                    viajeForm.get('distanciaFinal')?.touched &&
+                    viajeForm.get('distanciaFinal')?.errors
+                  ) {
+                    <p class="text-danger text-xs font-inter-medium mt-1">
+                      La distancia final es requerida
+                    </p>
+                  }
+                </div>
+              }
             </div>
           </div>
         }
@@ -785,7 +904,10 @@
       <div>
         <!-- Servicios / Tramos only for fixed routes -->
         @if (viaje()!.tipoRuta === 'fija') {
-          <app-viaje-servicios-form [viaje]="viaje()!"></app-viaje-servicios-form>
+          <app-viaje-tramos-form
+            [viaje]="viaje()!"
+            (onDataChange)="onDataChange.emit()"
+          ></app-viaje-tramos-form>
         }
       </div>
       <div>

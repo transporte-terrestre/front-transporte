@@ -16,12 +16,13 @@ import {
 } from '../../../../components/documents-date-upload/documents-date-upload';
 import { VehiculoService } from '@service/admin/vehiculo.service';
 import { ToastService } from '@service/toast.service';
-import { MarcaInputSearch } from '../../content/vehiculos-lineas/layout/marca-input-search/marca-input-search';
+import { MarcaInputSearch } from '../../../../components/input-searchs/marca-input-search/marca-input-search';
 import { getErrorMessage } from '@helper/error.helper';
-import { ModeloInputSearch } from '../../content/vehiculos-lineas/layout/modelo-input-search/modelo-input-search';
-import { PropietarioInputSearch } from '../../../propietarios/layout/propietario-input-search/propietario-input-search';
-import { ProveedorInputSearch } from '../../../proveedores/layout/proveedor-input-search/proveedor-input-search';
+import { ModeloInputSearch } from '../../../../components/input-searchs/modelo-input-search/modelo-input-search';
+import { PropietarioInputSearch } from '../../../../components/input-searchs/propietario-input-search/propietario-input-search';
+import { ProveedorInputSearch } from '../../../../components/input-searchs/proveedor-input-search/proveedor-input-search';
 import { VehiculoChecklistDocumentComponent } from './layout/vehiculo-checklist-document/vehiculo-checklist-document';
+import { VehiculoComentariosForm } from './layout/vehiculo-comentarios-form/vehiculo-comentarios-form';
 
 @Component({
   selector: 'app-vehiculo-form',
@@ -36,6 +37,7 @@ import { VehiculoChecklistDocumentComponent } from './layout/vehiculo-checklist-
     PropietarioInputSearch,
     ProveedorInputSearch,
     VehiculoChecklistDocumentComponent,
+    VehiculoComentariosForm,
   ],
   templateUrl: './vehiculo-form.html',
   styleUrl: './vehiculo-form.css',
@@ -51,6 +53,7 @@ export class VehiculoForm implements OnInit {
 
   // Outputs
   onSubmitForm = output<ApiBody<'vehiculos', 'create'> | ApiBody<'vehiculos', 'update'>>();
+  onDataRefresh = output<void>();
 
   // State
   imagenes = signal<string[]>([]);
@@ -92,7 +95,6 @@ export class VehiculoForm implements OnInit {
     longitud: ['', []],
     altura: ['', []],
     ancho: ['', []],
-    anotaciones: ['', []],
   });
 
   // Temporary control for the search input
@@ -305,7 +307,6 @@ export class VehiculoForm implements OnInit {
           longitud: vehiculoData.longitud,
           altura: vehiculoData.altura,
           ancho: vehiculoData.ancho,
-          anotaciones: vehiculoData.anotaciones,
         });
         this.imagenes.set(vehiculoData.imagenes || []);
         this.localDocuments.set(JSON.parse(JSON.stringify(vehiculoData.documentos)));
@@ -380,7 +381,6 @@ export class VehiculoForm implements OnInit {
       longitud: formValue.longitud ? String(formValue.longitud) : undefined,
       altura: formValue.altura ? String(formValue.altura) : undefined,
       ancho: formValue.ancho ? String(formValue.ancho) : undefined,
-      anotaciones: formValue.anotaciones || undefined,
     };
     this.onSubmitForm.emit(formData);
   }

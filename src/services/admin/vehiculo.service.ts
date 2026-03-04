@@ -88,6 +88,11 @@ export class VehiculoService {
   async deleteModelo(id: ApiParam<'vehiculos', 'deleteModelo', 'id'>) {
     return await this.api.vehiculos.deleteModelo({ id }).then((response) => response.data);
   }
+  // ========== COMENTARIOS ==========
+  async createComentario(comentario: ApiBody<'vehiculos', 'createComentario'>) {
+    return await this.api.vehiculos.createComentario(comentario).then((response) => response.data);
+  }
+
   // ========== CHECKLIST ==========
 
   async findChecklistHistory(query: ApiQuery<'vehiculos', 'findChecklistHistory'>) {
@@ -121,13 +126,8 @@ export class VehiculoService {
       .then((response) => response.data);
   }
 
-  async findChecklistLuces(
-    id: ApiParam<'vehiculos', 'findLuces', 'id'>,
-    documentId?: number,
-  ) {
-    return await this.api.vehiculos
-      .findLuces({ id, documentId })
-      .then((response) => response.data);
+  async findChecklistLuces(id: ApiParam<'vehiculos', 'findLuces', 'id'>, documentId?: number) {
+    return await this.api.vehiculos.findLuces({ id, documentId }).then((response) => response.data);
   }
 
   async findChecklistCinturones(
@@ -180,33 +180,26 @@ export class VehiculoService {
   }
   async downloadDocumentos(id: number) {
     try {
-      const baseUrl = (this.api as any).baseUrl || 'http://localhost:3000';
-      const url = `${baseUrl}/vehiculo/download/${id}`;
+      const response = await this.api.vehiculos.download({ id }, { format: 'blob' });
 
-      // Get token from localStorage (assuming standard storage key 'accessToken' or similar)
-      const token = localStorage.getItem('accessToken');
-
-      const response = await fetch(url, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) throw new Error('Download failed');
-
-      const blob = await response.blob();
+      // The response is already a Response generic due to axios/API generator setup, we can access data as the blob/arraybuffer
+      const blob = new Blob([response.data as any], { type: 'application/zip' });
       const downloadUrl = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = downloadUrl;
-      const disposition = response.headers.get('Content-Disposition');
-      let filename = 'documentos_vehiculo.zip';
-      if (disposition && disposition.indexOf('attachment') !== -1) {
+
+      // Intentar extraer el nombre del archivo de los headers si es posible (no siempre está expuesto en axios)
+      let filename = `vehiculo_${id}_documentos.zip`;
+      const headersMap = response.headers as any;
+      if (headersMap && headersMap['content-disposition']) {
+        const disposition = headersMap['content-disposition'];
         const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
         const matches = filenameRegex.exec(disposition);
         if (matches != null && matches[1]) {
           filename = matches[1].replace(/['"]/g, '');
         }
       }
+
       a.download = filename;
       document.body.appendChild(a);
       a.click();

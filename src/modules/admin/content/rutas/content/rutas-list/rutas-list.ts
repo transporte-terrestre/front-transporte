@@ -6,7 +6,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { RutaService } from '@service/admin/ruta.service';
-import { ApiResponse, ApiBody } from 'api/backend.api';
+import { ApiResponse } from 'api/backend.api';
 import { ToastService } from '@service/toast.service';
 import { AlertService } from '@service/alert.service';
 import { ModalForm } from '../../../../components/modal-form/modal-form';
@@ -94,7 +94,10 @@ export class RutasList implements OnInit, OnDestroy {
     }[] = [];
 
     this.rutas().forEach((circuito) => {
-      const subRows: { tipo: 'ida' | 'vuelta'; ruta: any }[] = [];
+      const subRows: {
+        tipo: 'ida' | 'vuelta';
+        ruta: ApiResponse<'rutas', 'findAll'>['data'][0] | null;
+      }[] = [];
       if (circuito.rutaIda) subRows.push({ tipo: 'ida', ruta: circuito.rutaIda });
       if (circuito.rutaVuelta) subRows.push({ tipo: 'vuelta', ruta: circuito.rutaVuelta });
 
@@ -165,7 +168,7 @@ export class RutasList implements OnInit, OnDestroy {
     this.showModal.set(true);
   }
 
-  navigateToEdit(circuito: any) {
+  navigateToEdit(circuito: ApiResponse<'rutas', 'findAllCircuitos'>['data'][0]) {
     const path = buildPath(PATH.admin.rutas.edit).replace(':id', circuito.id.toString());
     this.router.navigate([path]);
   }
@@ -174,30 +177,13 @@ export class RutasList implements OnInit, OnDestroy {
     this.showModal.set(false);
   }
 
-  handleFormSubmit(data: ApiBody<'rutas', 'createCircuito'> | any) {
-    this.createRuta(data as ApiBody<'rutas', 'createCircuito'>);
+  handleFormSubmit() {
+    this.closeModal();
+    this.loadRutas();
   }
 
   handleModalSubmit() {
     this.rutaFormComponent()?.submitForm();
-  }
-
-  createRuta(data: ApiBody<'rutas', 'createCircuito'>) {
-    this.loading.set(true);
-    this.rutaService
-      .create(data)
-      .then(() => {
-        this.toastService.success('Ruta creada exitosamente');
-        this.loadRutas();
-        this.closeModal();
-      })
-      .catch((error) => {
-        console.error('Error al crear ruta:', error);
-        this.toastService.error(getErrorMessage(error, 'Error al crear ruta'));
-      })
-      .finally(() => {
-        this.loading.set(false);
-      });
   }
 
   deleteRuta(id: number) {

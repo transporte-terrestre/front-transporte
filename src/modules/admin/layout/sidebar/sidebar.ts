@@ -36,18 +36,18 @@ export class Sidebar {
       path: buildPath(PATH.admin.dashboard),
       icon: 'fas fa-home',
     },
-    // {
-    //   label: 'Viajes',
-    //   path: buildPath(PATH.admin.viajes),
-    //   icon: 'fas fa-shipping-fast',
-    //   children: [
-    //     {
-    //       label: 'Rutas',
-    //       path: buildPath(PATH.admin.rutas),
-    //       icon: 'fas fa-route',
-    //     },
-    //   ],
-    // },
+    {
+      label: 'Viajes',
+      path: buildPath(PATH.admin.viajes),
+      icon: 'fas fa-shipping-fast',
+      children: [
+        {
+          label: 'Rutas',
+          path: buildPath(PATH.admin.rutas),
+          icon: 'fas fa-route',
+        },
+      ],
+    },
     {
       label: 'Mantenimientos',
       path: buildPath(PATH.admin.mantenimientos),
@@ -57,6 +57,11 @@ export class Sidebar {
           label: 'Talleres',
           path: buildPath(PATH.admin.talleres),
           icon: 'fas fa-building',
+        },
+        {
+          label: 'Sucursales',
+          path: buildPath(PATH.admin.sucursales),
+          icon: 'fas fa-code-branch',
         },
       ],
     },
@@ -76,6 +81,11 @@ export class Sidebar {
           icon: 'fas fa-truck',
         },
       ],
+    },
+    {
+      label: 'Alquileres',
+      path: buildPath(PATH.admin.alquileres),
+      icon: 'fas fa-key',
     },
     {
       label: 'Conductores',

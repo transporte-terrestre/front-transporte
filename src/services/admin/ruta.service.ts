@@ -8,11 +8,11 @@ export class RutaService {
   private api = inject(Api);
 
   // Métodos que apuntan a Circuitos (Nuevo estándar)
-  async create(payload: ApiBody<'rutas', 'createCircuito'>) {
+  async createCircuito(payload: ApiBody<'rutas', 'createCircuito'>) {
     return await this.api.rutas.createCircuito(payload).then((response) => response.data);
   }
 
-  async update(
+  async updateCircuito(
     id: ApiParam<'rutas', 'updateCircuito', 'id'>,
     payload: ApiBody<'rutas', 'updateCircuito'>,
   ) {
@@ -38,10 +38,5 @@ export class RutaService {
 
   async findOne(id: ApiParam<'rutas', 'findOne', 'id'>) {
     return await this.api.rutas.findOne({ id }).then((response) => response.data);
-  }
-
-  // Paradas
-  async findParadas(rutaId: ApiParam<'rutas', 'findParadas', 'rutaId'>) {
-    return await this.api.rutas.findParadas({ rutaId }).then((response) => response.data);
   }
 }

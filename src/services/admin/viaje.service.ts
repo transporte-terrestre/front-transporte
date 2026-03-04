@@ -31,13 +31,21 @@ export class ViajeService {
   }
 
   // Pasajeros
-  async findPasajeros(viajeId: number) {
-    return await this.api.viajes.findPasajeros({ viajeId }).then((response) => response.data);
+  async findPasajeros(
+    viajeId: ApiParam<'viajes', 'findPasajeros', 'viajeId'>,
+    viajeTramoId?: ApiParam<'viajes', 'findPasajeros', 'viajeTramoId'>,
+  ) {
+    return await this.api.viajes
+      .findPasajeros({ viajeId, viajeTramoId })
+      .then((response) => response.data);
   }
 
-  async upsertPasajeros(viajeId: number, pasajeros: { pasajeroId: number; asistencia: boolean }[]) {
+  async upsertPasajeros(
+    viajeId: ApiParam<'viajes', 'upsertPasajeros', 'viajeId'>,
+    data: ApiBody<'viajes', 'upsertPasajeros'>,
+  ) {
     return await this.api.viajes
-      .upsertPasajeros({ viajeId }, { pasajeros })
+      .upsertPasajeros({ viajeId }, data)
       .then((response) => response.data);
   }
   // Conductores
@@ -104,7 +112,108 @@ export class ViajeService {
   async deleteComentario(id: ApiParam<'viajes', 'deleteComentario', 'id'>) {
     return await this.api.viajes.deleteComentario({ id }).then((response) => response.data);
   }
+  // Tramos
+  async findTramos(viajeId: ApiParam<'viajes', 'findTramos', 'viajeId'>) {
+    return await this.api.viajes.findTramos({ viajeId }).then((response) => response.data);
+  }
+
+  async registrarSalida(
+    viajeId: ApiParam<'viajes', 'registrarSalida', 'viajeId'>,
+    data: ApiBody<'viajes', 'registrarSalida'>,
+  ) {
+    return await this.api.viajes
+      .registrarSalida({ viajeId }, data)
+      .then((response) => response.data);
+  }
+
+  async registrarLlegada(
+    viajeId: ApiParam<'viajes', 'registrarLlegada', 'viajeId'>,
+    data: ApiBody<'viajes', 'registrarLlegada'>,
+  ) {
+    return await this.api.viajes
+      .registrarLlegada({ viajeId }, data)
+      .then((response) => response.data);
+  }
+
+  async registrarPunto(
+    viajeId: ApiParam<'viajes', 'registrarPunto', 'viajeId'>,
+    data: ApiBody<'viajes', 'registrarPunto'>,
+  ) {
+    return await this.api.viajes
+      .registrarPunto({ viajeId }, data)
+      .then((response) => response.data);
+  }
+
+  async registrarParada(
+    viajeId: ApiParam<'viajes', 'registrarParada', 'viajeId'>,
+    data: ApiBody<'viajes', 'registrarParada'>,
+  ) {
+    return await this.api.viajes
+      .registrarParada({ viajeId }, data)
+      .then((response) => response.data);
+  }
+
+  async registrarDescanso(
+    viajeId: ApiParam<'viajes', 'registrarDescanso', 'viajeId'>,
+    data: ApiBody<'viajes', 'registrarDescanso'>,
+  ) {
+    return await this.api.viajes
+      .registrarDescanso({ viajeId }, data)
+      .then((response) => response.data);
+  }
+
+  async updateTramo(
+    id: ApiParam<'viajes', 'updateTramo', 'id'>,
+    data: ApiBody<'viajes', 'updateTramo'>,
+  ) {
+    return await this.api.viajes.updateTramo({ id }, data).then((response) => response.data);
+  }
+
+  async deleteTramo(id: ApiParam<'viajes', 'deleteTramo', 'id'>) {
+    return await this.api.viajes.deleteTramo({ id }).then((response) => response.data);
+  }
+
+  async getProximoTramo(query: ApiQuery<'viajes', 'getProximoTramo'>) {
+    return await this.api.viajes.getProximoTramo(query).then((response) => response.data);
+  }
+
+  async getHojaRuta(viajeId: ApiParam<'viajes', 'getHojaRuta', 'viajeId'>) {
+    return await this.api.viajes.getHojaRuta({ viajeId }).then((response) => response.data);
+  }
+
+  async findTrayecto(viajeId: ApiParam<'viajes', 'findTrayecto', 'id'>) {
+    return await this.api.viajes.findTrayecto({ id: viajeId }).then((response) => response.data);
+  }
+
+  async escanearDnis(
+    viajeId: number,
+    data: ApiBody<'viajes', 'escanearDnis'>,
+    viajeTramoId: number,
+  ) {
+    return await this.api.viajes
+      .escanearDnis({ viajeId, viajeTramoId }, data)
+      .then((response) => response.data);
+  }
+
+  async abordarPasajeros(
+    viajeId: number,
+    data: ApiBody<'viajes', 'abordarPasajeros'>,
+    viajeTramoId: number,
+  ) {
+    return await this.api.viajes
+      .abordarPasajeros({ viajeId, viajeTramoId }, data)
+      .then((response) => response.data);
+  }
+
   generateHojaRuta(viaje: ViajeResultDto): void {
     generateHojaRutaPdf(viaje);
+  }
+
+  async validarVehiculo(query: ApiQuery<'viajes', 'validarVehiculo'>) {
+    return await this.api.viajes.validarVehiculo(query).then((res) => res.data);
+  }
+
+  async validarConductor(query: ApiQuery<'viajes', 'validarConductor'>) {
+    return await this.api.viajes.validarConductor(query).then((res) => res.data);
   }
 }

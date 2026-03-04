@@ -8,26 +8,29 @@
           class="text-xs font-inter-bold text-text/60 uppercase tracking-wider mb-2 flex items-center gap-1"
         >
           @if (activeMode() === 'vehiculo') {
-          <i class="fas fa-truck text-info"></i> Seleccionar Vehículo } @else if (activeMode() ===
-          'conductor') { <i class="fas fa-user-tie text-accent"></i> Seleccionar Conductor } @else if (activeMode() === 'cliente') { <i class="fas fa-building text-success"></i> Seleccionar
-          Cliente }
+            <i class="fas fa-truck text-info"></i> Seleccionar Vehículo
+          } @else if (activeMode() === 'conductor') {
+            <i class="fas fa-user-tie text-accent"></i> Seleccionar Conductor
+          } @else if (activeMode() === 'cliente') {
+            <i class="fas fa-building text-success"></i> Seleccionar Cliente
+          }
         </label>
 
         @if (activeMode() === 'vehiculo') {
-        <app-vehiculo-input-search
-          [ngModel]="selectedVehiculo()"
-          (ngModelChange)="onVehiculoSelected($event)"
-        ></app-vehiculo-input-search>
+          <app-vehiculo-input-search
+            [ngModel]="selectedVehiculo()"
+            (ngModelChange)="onVehiculoSelected($event)"
+          ></app-vehiculo-input-search>
         } @else if (activeMode() === 'conductor') {
-        <app-conductor-input-search
-          [ngModel]="selectedConductor()"
-          (ngModelChange)="onConductorSelected($event)"
-        ></app-conductor-input-search>
+          <app-conductor-input-search
+            [ngModel]="selectedConductor()"
+            (ngModelChange)="onConductorSelected($event)"
+          ></app-conductor-input-search>
         } @else if (activeMode() === 'cliente') {
-        <app-cliente-input-search
-          [ngModel]="selectedCliente()"
-          (ngModelChange)="onClienteSelected($event)"
-        ></app-cliente-input-search>
+          <app-cliente-input-search
+            [ngModel]="selectedCliente()"
+            (ngModelChange)="onClienteSelected($event)"
+          ></app-cliente-input-search>
         }
       </div>
 
@@ -74,9 +77,9 @@
           class="w-full py-2.5 bg-secondary text-background rounded-xl text-sm font-inter-bold shadow-lg shadow-secondary/20 hover:shadow-secondary/40 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           @if (loading()) {
-          <i class="fas fa-spinner fa-spin"></i>
+            <i class="fas fa-spinner fa-spin"></i>
           } @else {
-          <i class="fas fa-search"></i>
+            <i class="fas fa-search"></i>
           }
           <span>Buscar</span>
         </button>
@@ -89,248 +92,276 @@
     class="bg-background border border-text/5 rounded-2xl shadow-sm overflow-hidden min-h-[300px]"
   >
     @if (loading()) {
-    <div class="flex flex-col items-center justify-center py-16 gap-4">
-      <div
-        class="w-12 h-12 rounded-full border-4 border-secondary/20 border-t-secondary animate-spin"
-      ></div>
-      <p class="text-text/40 font-inter-medium">Generando reporte...</p>
-    </div>
+      <div class="flex flex-col items-center justify-center py-16 gap-4">
+        <div
+          class="w-12 h-12 rounded-full border-4 border-secondary/20 border-t-secondary animate-spin"
+        ></div>
+        <p class="text-text/40 font-inter-medium">Generando reporte...</p>
+      </div>
     } @else if (viajes().length === 0) {
-    <div class="flex flex-col items-center justify-center py-16 gap-4">
-      <div class="w-20 h-20 rounded-full bg-text/5 flex items-center justify-center">
-        <i class="fas fa-file-alt text-text/20 text-3xl"></i>
+      <div class="flex flex-col items-center justify-center py-16 gap-4">
+        <div class="w-20 h-20 rounded-full bg-text/5 flex items-center justify-center">
+          <i class="fas fa-file-alt text-text/20 text-3xl"></i>
+        </div>
+        <div class="text-center">
+          <p class="text-text/60 font-inter-semibold">Sin resultados</p>
+          <p class="text-text/40 text-sm font-inter-regular">
+            Selecciona una entidad y haz clic en "Buscar" para generar el reporte
+          </p>
+        </div>
       </div>
-      <div class="text-center">
-        <p class="text-text/60 font-inter-semibold">Sin resultados</p>
-        <p class="text-text/40 text-sm font-inter-regular">
-          Selecciona una entidad y haz clic en "Buscar" para generar el reporte
-        </p>
-      </div>
-    </div>
     } @else {
-    <!-- Results Header -->
-    <div class="px-6 py-4 border-b border-text/5 bg-text/2 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <span class="text-sm font-inter-bold text-text"
-          >{{ viajes().length }} viajes encontrados</span
-        >
+      <!-- Results Header -->
+      <div class="px-6 py-4 border-b border-text/5 bg-text/2 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <span class="text-sm font-inter-bold text-text"
+            >{{ viajes().length }} viajes encontrados</span
+          >
+        </div>
       </div>
-    </div>
 
-    <!-- Table -->
-    <div class="overflow-x-auto">
-      <table class="w-full">
-        <thead class="bg-text/5 border-b border-text/10">
-          <tr>
-            <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider min-w-[60px]"
-            >
-              ID
-            </th>
-            <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider min-w-[180px]"
-            >
-              Ruta
-            </th>
-            <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider min-w-[100px]"
-            >
-              Modalidad
-            </th>
-            <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider min-w-[100px]"
-            >
-              Estado
-            </th>
-            <th
-              class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase tracking-wider min-w-[100px]"
-            >
-              Km Est.
-            </th>
-            <th
-              class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase tracking-wider min-w-[100px]"
-            >
-              Km Final
-            </th>
-            <th
-              class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase tracking-wider min-w-[90px]"
-            >
-              Dif.
-            </th>
-            <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider min-w-[140px]"
-            >
-              Fecha Salida
-            </th>
-            <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider min-w-[140px]"
-            >
-              Fecha Llegada
-            </th>
-            <th
-              class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase tracking-wider min-w-[100px]"
-            >
-              Hrs Ctr.
-            </th>
-            <th
-              class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase tracking-wider min-w-[100px]"
-            >
-              Hrs Tot.
-            </th>
-            <th
-              class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase tracking-wider min-w-[100px]"
-            >
-              Hrs Exc.
-            </th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-text/5">
-          @for (viaje of viajes(); track viaje.id) {
-          <tr class="group hover:bg-text/5 transition-colors">
-            <td class="px-4 py-3 whitespace-nowrap">
-              <span class="text-xs font-inter-bold text-text">#{{ viaje.id }}</span>
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap">
-              <div class="flex items-center gap-2">
-                <i class="fas fa-route text-text/30 text-xs"></i>
-                <span class="text-xs font-inter-medium text-text">{{ getRutaDisplay(viaje) }}</span>
-              </div>
-            </td>
-            <td
-              class="px-4 py-3 whitespace-nowrap text-xs font-inter-regular text-text/70 capitalize"
-            >
-              {{ viaje.modalidadServicio }}
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap">
-              <span
-                class="px-2 py-0.5 rounded-full text-xs font-inter-semibold"
-                [class]="getEstadoClass(viaje.estado)"
+      <!-- Table -->
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-text/5 border-b border-text/10">
+            <tr>
+              <th
+                class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider min-w-[60px]"
               >
-                {{ getEstadoLabel(viaje.estado) }}
-              </span>
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap text-right">
-              @if (viaje.distanciaEstimada) {
-              <span class="text-xs font-inter-semibold text-text">{{
-                viaje.distanciaEstimada | number : '1.0-0'
-              }}</span>
-              <span class="text-[10px] text-text/40"> km</span>
-              } @else {
-              <span class="text-xs text-text/30">—</span>
-              }
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap text-right">
-              @if (viaje.distanciaFinal) {
-              <span class="text-xs font-inter-semibold text-text">{{
-                viaje.distanciaFinal | number : '1.0-0'
-              }}</span>
-              <span class="text-[10px] text-text/40"> km</span>
-              } @else {
-              <span class="text-xs text-text/30">—</span>
-              }
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap text-right">
-              @if (viaje.diferencia !== 0) {
-              <span
-                class="text-xs font-inter-bold"
-                [class.text-success]="viaje.diferencia < 0"
-                [class.text-danger]="viaje.diferencia > 0"
+                ID
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider min-w-[100px]"
               >
-                @if (viaje.diferencia > 0) {
-                <i class="fas fa-arrow-up text-[10px]"></i>
-                } @else {
-                <i class="fas fa-arrow-down text-[10px]"></i>
+                Sentido
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider min-w-[180px]"
+              >
+                Ruta
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider min-w-[100px]"
+              >
+                Modalidad
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider min-w-[100px]"
+              >
+                Estado
+              </th>
+              <th
+                class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase tracking-wider min-w-[100px]"
+              >
+                Km Est.
+              </th>
+              <th
+                class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase tracking-wider min-w-[100px]"
+              >
+                Km Final
+              </th>
+              <th
+                class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase tracking-wider min-w-[90px]"
+              >
+                Dif.
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider min-w-[140px]"
+              >
+                Fecha Salida
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider min-w-[140px]"
+              >
+                Fecha Llegada
+              </th>
+              <th
+                class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase tracking-wider min-w-[100px]"
+              >
+                Hrs Ctr.
+              </th>
+              <th
+                class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase tracking-wider min-w-[100px]"
+              >
+                Hrs Tot.
+              </th>
+              <th
+                class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase tracking-wider min-w-[100px]"
+              >
+                Hrs Exc.
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-text/5">
+            @for (row of processedRows(); track row.viaje.id) {
+              <tr class="group hover:bg-text/5 transition-colors">
+                @if (row.isFirst) {
+                  <td
+                    [attr.rowspan]="row.rowSpan"
+                    class="px-4 py-3 align-middle bg-background border-r border-b border-text/5 text-center"
+                  >
+                    <div class="flex flex-col gap-1 items-center justify-center">
+                      <span class="text-xs font-inter-bold text-text">#{{ row.circuitoId }}</span>
+                    </div>
+                  </td>
                 }
-                {{
-                  viaje.diferencia > 0 ? viaje.diferencia : (-viaje.diferencia | number : '1.0-0')
-                }}
-              </span>
-              <span
-                class="text-[10px]"
-                [class.text-success]="viaje.diferencia < 0"
-                [class.text-danger]="viaje.diferencia > 0"
-              >
-                km</span
-              >
-              } @else {
-              <span class="text-xs text-text/30">0</span>
-              <span class="text-[10px] text-text/30"> km</span>
-              }
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap text-xs font-inter-regular text-text/60">
-              {{ viaje.fechaSalida | date : 'dd/MM/yyyy HH:mm' }}
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap text-xs font-inter-regular text-text/60">
-              {{ viaje.fechaLlegada ? (viaje.fechaLlegada | date : 'dd/MM/yyyy HH:mm') : '—' }}
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap text-right">
-              @if (viaje.horasContrato) {
-              <span class="text-xs font-inter-semibold text-secondary">{{
-                viaje.horasContrato | number : '1.2-2'
-              }}</span>
-              <span class="text-[10px] text-secondary/40"> h</span>
-              } @else {
-              <span class="text-xs text-secondary/30">—</span>
-              }
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap text-right">
-              @if (viaje.horasTotales) {
-              <span class="text-xs font-inter-semibold text-text">{{
-                viaje.horasTotales | number : '1.1-2'
-              }}</span>
-              <span class="text-[10px] text-text/40"> h</span>
-              } @else {
-              <span class="text-xs text-text/30">—</span>
-              }
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap text-right">
-              @if (viaje.horasExcedidas && viaje.horasExcedidas > 0) {
-              <span class="text-xs font-inter-bold text-danger">
-                +{{ viaje.horasExcedidas | number : '1.1-2' }}
-              </span>
-              <span class="text-[10px] text-danger/70"> h</span>
-              } @else {
-              <span class="text-xs text-text/30">—</span>
-              }
-            </td>
-          </tr>
-          }
-        </tbody>
-      </table>
-    </div>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <span
+                    class="px-2 py-0.5 text-[10px] font-inter-bold rounded-full flex items-center gap-1.5 w-fit"
+                    [class]="getSentidoBadgeClass(row.viaje.sentido)"
+                  >
+                    <i class="fas text-[9px]" [class]="getSentidoIcon(row.viaje.sentido)"></i>
+                    {{ getSentidoLabel(row.viaje.sentido) }}
+                  </span>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <div class="flex items-center gap-2">
+                    <i class="fas fa-route text-text/30 text-xs"></i>
+                    <span class="text-xs font-inter-medium text-text">{{
+                      getRutaDisplay(row.viaje)
+                    }}</span>
+                  </div>
+                </td>
+                <td
+                  class="px-4 py-3 whitespace-nowrap text-xs font-inter-regular text-text/70 capitalize"
+                >
+                  {{ row.viaje.modalidadServicio }}
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <span
+                    class="px-2 py-0.5 rounded-full text-xs font-inter-semibold"
+                    [class]="getEstadoClass(row.viaje.estado)"
+                  >
+                    {{ getEstadoLabel(row.viaje.estado) }}
+                  </span>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-right">
+                  @if (row.viaje.distanciaEstimada) {
+                    <span class="text-xs font-inter-semibold text-text">{{
+                      row.viaje.distanciaEstimada | number: '1.0-0'
+                    }}</span>
+                    <span class="text-[10px] text-text/40"> km</span>
+                  } @else {
+                    <span class="text-xs text-text/30">—</span>
+                  }
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-right">
+                  @if (row.viaje.distanciaFinal) {
+                    <span class="text-xs font-inter-semibold text-text">{{
+                      row.viaje.distanciaFinal | number: '1.0-0'
+                    }}</span>
+                    <span class="text-[10px] text-text/40"> km</span>
+                  } @else {
+                    <span class="text-xs text-text/30">—</span>
+                  }
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-right">
+                  @if (row.viaje.diferencia !== 0) {
+                    <span
+                      class="text-xs font-inter-bold"
+                      [class.text-success]="row.viaje.diferencia < 0"
+                      [class.text-danger]="row.viaje.diferencia > 0"
+                    >
+                      @if (row.viaje.diferencia > 0) {
+                        <i class="fas fa-arrow-up text-[10px]"></i>
+                      } @else {
+                        <i class="fas fa-arrow-down text-[10px]"></i>
+                      }
+                      {{
+                        row.viaje.diferencia > 0
+                          ? row.viaje.diferencia
+                          : (-row.viaje.diferencia | number: '1.0-0')
+                      }}
+                    </span>
+                    <span
+                      class="text-[10px]"
+                      [class.text-success]="row.viaje.diferencia < 0"
+                      [class.text-danger]="row.viaje.diferencia > 0"
+                    >
+                      km</span
+                    >
+                  } @else {
+                    <span class="text-xs text-text/30">0</span>
+                    <span class="text-[10px] text-text/30"> km</span>
+                  }
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-xs font-inter-regular text-text/60">
+                  {{ row.viaje.fechaSalida | date: 'dd/MM/yyyy HH:mm' }}
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-xs font-inter-regular text-text/60">
+                  {{
+                    row.viaje.fechaLlegada
+                      ? (row.viaje.fechaLlegada | date: 'dd/MM/yyyy HH:mm')
+                      : '—'
+                  }}
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-right">
+                  @if (row.viaje.horasContrato) {
+                    <span class="text-xs font-inter-semibold text-secondary">{{
+                      formatDecimalHours(row.viaje.horasContrato)
+                    }}</span>
+                  } @else {
+                    <span class="text-xs text-secondary/30">—</span>
+                  }
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-right">
+                  @if (row.viaje.horasTotales) {
+                    <span class="text-xs font-inter-semibold text-text">{{
+                      formatDecimalHours(row.viaje.horasTotales)
+                    }}</span>
+                  } @else {
+                    <span class="text-xs text-text/30">—</span>
+                  }
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-right">
+                  @if (row.viaje.horasExcedidas && row.viaje.horasExcedidas > 0) {
+                    <span class="text-xs font-inter-bold text-danger">
+                      +{{ formatDecimalHours(row.viaje.horasExcedidas) }}
+                    </span>
+                  } @else {
+                    <span class="text-xs text-text/30">—</span>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
 
-    <!-- Summary Footer -->
-    <div class="px-4 py-3 border-t border-text/10 bg-secondary/5 flex items-center justify-between">
-      <div class="flex items-center gap-2">
-        <i class="fas fa-road text-secondary text-xs"></i>
-        <span class="text-xs font-inter-medium text-text">Total Recorrido:</span>
-        <span class="text-sm font-inter-bold text-secondary">
-          {{ getTotalKilometrosFinales() | number : '1.0-0' }} km
-        </span>
-      </div>
-      <div class="flex items-center gap-2">
-        <i class="fas fa-clock text-info text-xs"></i>
-        <span class="text-xs font-inter-medium text-text">Total Horas:</span>
-        <span class="text-sm font-inter-bold text-info">
-          {{ getTotalHorasTotales() | number : '1.1-1' }} h
-        </span>
-      </div>
-      <div class="flex items-center gap-2">
-        <i class="fas fa-exclamation-circle text-danger text-xs"></i>
-        <span class="text-xs font-inter-medium text-text">Horas Excedidas:</span>
-        <span class="text-sm font-inter-bold text-danger">
-          {{ getTotalHorasExcedidas() | number : '1.1-1' }} h
-        </span>
-      </div>
-      <button
-        (click)="descargarPdf()"
-        class="flex items-center gap-1.5 px-3 py-1.5 bg-danger/10 text-danger rounded-lg text-xs font-inter-bold hover:bg-danger/20 transition-all border border-danger/20"
-        title="Descargar PDF"
+      <!-- Summary Footer -->
+      <div
+        class="px-4 py-3 border-t border-text/10 bg-secondary/5 flex items-center justify-between"
       >
-        <i class="fas fa-file-pdf text-xs"></i>
-        <span>Descargar PDF</span>
-      </button>
-    </div>
+        <div class="flex items-center gap-2">
+          <i class="fas fa-road text-secondary text-xs"></i>
+          <span class="text-xs font-inter-medium text-text">Total Recorrido:</span>
+          <span class="text-sm font-inter-bold text-secondary">
+            {{ getTotalKilometrosFinales() | number: '1.0-0' }} km
+          </span>
+        </div>
+        <div class="flex items-center gap-2">
+          <i class="fas fa-clock text-info text-xs"></i>
+          <span class="text-xs font-inter-medium text-text">Total Horas:</span>
+          <span class="text-sm font-inter-bold text-info">
+            {{ formatDecimalHours(getTotalHorasTotales()) }}
+          </span>
+        </div>
+        <div class="flex items-center gap-2">
+          <i class="fas fa-exclamation-circle text-danger text-xs"></i>
+          <span class="text-xs font-inter-medium text-text">Horas Excedidas:</span>
+          <span class="text-sm font-inter-bold text-danger">
+            {{ formatDecimalHours(getTotalHorasExcedidas()) }}
+          </span>
+        </div>
+        <button
+          (click)="descargarPdf()"
+          class="flex items-center gap-1.5 px-3 py-1.5 bg-danger/10 text-danger rounded-lg text-xs font-inter-bold hover:bg-danger/20 transition-all border border-danger/20"
+          title="Descargar PDF"
+        >
+          <i class="fas fa-file-pdf text-xs"></i>
+          <span>Descargar PDF</span>
+        </button>
+      </div>
     }
   </div>
 </div>

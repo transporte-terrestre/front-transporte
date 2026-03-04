@@ -107,6 +107,16 @@ export const PATH = {
       list: { _path: 'list' },
       edit: { _path: 'edit/:id' },
     },
+    sucursales: {
+      _path: 'sucursales',
+      list: { _path: 'list' },
+      edit: { _path: 'edit/:id' },
+    },
+    alquileres: {
+      _path: 'alquileres',
+      list: { _path: 'list' },
+      edit: { _path: 'edit/:id' },
+    },
     reportes: {
       _path: 'reportes',
     },
@@ -143,6 +153,10 @@ export const ROUTE_CONFIG = {
     [buildPath(PATH.admin.proveedores)]: ['admin', 'empleado'],
     [buildPath(PATH.admin.talleres)]: ['admin', 'empleado'],
     [buildPath(PATH.admin.talleres.edit)]: ['admin', 'empleado'],
+    [buildPath(PATH.admin.sucursales)]: ['admin', 'empleado'],
+    [buildPath(PATH.admin.sucursales.edit)]: ['admin', 'empleado'],
+    [buildPath(PATH.admin.alquileres)]: ['admin', 'empleado'],
+    [buildPath(PATH.admin.alquileres.edit)]: ['admin', 'empleado'],
     [buildPath(PATH.admin.reportes)]: ['admin', 'empleado'],
   } as Record<string, Rol[]>,
 };

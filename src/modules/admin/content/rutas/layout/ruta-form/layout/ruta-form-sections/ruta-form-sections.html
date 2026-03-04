@@ -1,0 +1,280 @@
+<div class="flex justify-between items-center h-4">
+  <label
+    class="text-xs font-inter-bold text-text uppercase flex items-center gap-2 m-0 leading-none"
+  >
+    <i class="fas fa-map-signs text-secondary"></i>
+    {{ title }}
+  </label>
+</div>
+
+<div
+  class="flex-1 pr-1 pl-14 pt-6 relative"
+  [class.opacity-50]="readonly"
+  [class.pointer-events-none]="readonly"
+>
+  <div [formGroup]="form">
+    <!-- Origen Card -->
+    <div class="relative mb-0 pb-1">
+      <div
+        class="absolute -left-[46px] top-4 w-6 h-6 rounded-full border border-success bg-background text-success flex items-center justify-center z-10"
+      >
+        <i class="fas fa-play text-[8px] ml-0.5"></i>
+      </div>
+      <div class="p-2 bg-text/5 rounded-lg border-l-4 border-success flex flex-col gap-1 shadow-sm">
+        <div class="flex justify-between items-center">
+          <label
+            class="text-xs font-inter-semibold text-text flex items-center gap-2 leading-none w-full border-none"
+          >
+            <input
+              type="text"
+              [formControlName]="origenControlName"
+              class="bg-transparent border-none outline-none font-inter-semibold text-sm w-full placeholder:text-text/30"
+              placeholder="Origen"
+              [readonly]="readonly"
+              [class.text-text-50]="readonly"
+            />
+          </label>
+          <span class="text-[10px] font-inter-medium text-success uppercase">(Origen)</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="flex items-center gap-1 text-text/50">
+            <i class="fas fa-crosshairs text-[10px]"></i>
+            <input
+              type="text"
+              [formControlName]="origenLatControlName"
+              class="w-20 bg-transparent text-[10px] outline-none border-b border-transparent focus:border-text/20 placeholder:text-text/20"
+              placeholder="Lat"
+              [readonly]="readonly"
+              [class.text-text-50]="readonly"
+            />
+            <span class="text-[10px]">,</span>
+            <input
+              type="text"
+              [formControlName]="origenLngControlName"
+              class="w-20 bg-transparent text-[10px] outline-none border-b border-transparent focus:border-text/20 placeholder:text-text/20"
+              placeholder="Lng"
+              [readonly]="readonly"
+              [class.text-text-50]="readonly"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Parada 0 (Connection 0) -->
+    <div
+      class="group relative flex items-center justify-center cursor-pointer transition-all duration-200 h-10 w-full"
+      (click)="!readonly && onAddParada.emit({ type: type, index: 0 })"
+    >
+      <!-- dashed line -->
+      <div
+        class="absolute w-0.5 transition-colors z-0"
+        style="
+          left: -35px;
+          top: -20px;
+          bottom: -12px;
+          background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.2) 60%, transparent 40%);
+          background-size: 2px 6px;
+          background-repeat: repeat-y;
+        "
+      ></div>
+
+      <div
+        class="absolute bg-background py-0.5 z-10 flex flex-col items-center justify-center transition-opacity gap-1.5"
+        style="left: -60px; width: 60px"
+        (click)="$event.stopPropagation()"
+      >
+        <span
+          class="text-[11px] font-inter-bold text-text/60 tracking-wider whitespace-nowrap leading-none"
+        >
+          {{ legDistances[0] !== undefined ? legDistances[0] + ' km' : '' }}
+        </span>
+        @if (legDistances[0] !== undefined) {
+          <label class="flex items-center text-text/60 cursor-text">
+            <i class="fas fa-clock text-[10px] mr-1 cursor-pointer" title="Minutos"></i>
+            <input
+              type="number"
+              [formControl]="getLegTimeControl(0)"
+              class="w-5 bg-transparent text-[11px] text-center font-inter-bold outline-none transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none cursor-text"
+              title="Minutos desde el punto anterior"
+              [readonly]="readonly"
+            />
+            <span class="text-[10px] font-inter-medium lowercase ml-0.5 cursor-pointer">min</span>
+          </label>
+        }
+      </div>
+
+      <!-- Hover state -->
+      <div
+        class="absolute right-6 h-px bg-linear-to-r from-transparent to-info z-0 opacity-0 group-hover:opacity-100 transition-opacity"
+        style="left: -35px"
+      ></div>
+      <div
+        class="absolute right-2 z-10 bg-info/10 text-info rounded-full w-5 h-5 flex items-center justify-center text-[10px] opacity-0 group-hover:opacity-100 shadow-sm transition-opacity hover:bg-info/20"
+      >
+        <i class="fas fa-plus"></i>
+      </div>
+    </div>
+  </div>
+
+  <ng-container [formGroup]="form">
+    <div [formArrayName]="type === 'ida' ? 'paradas' : 'paradasVuelta'" class="flex flex-col">
+      @for (parada of paradasArray.controls; track parada) {
+        <!-- Stop Card -->
+        <div [formGroupName]="$index" class="relative mb-0 pb-1">
+          <div
+            class="absolute -left-[46px] top-4 w-6 h-6 rounded-full border border-info bg-background text-info flex items-center justify-center z-10 text-[10px] font-inter-bold"
+          >
+            {{ $index + 1 }}
+          </div>
+          <div
+            class="p-2 bg-text/5 rounded-lg border-l-4 border-info flex flex-col gap-1 shadow-sm"
+          >
+            <div class="flex justify-between items-start gap-2">
+              <label
+                class="text-xs font-inter-semibold text-text flex items-center gap-2 w-full leading-none border-none"
+              >
+                <input
+                  type="text"
+                  formControlName="nombre"
+                  class="bg-transparent border-none outline-none font-inter-semibold text-sm w-full placeholder:text-text/30"
+                  placeholder="Nombre de la parada"
+                  [readonly]="readonly"
+                />
+              </label>
+              <button
+                type="button"
+                (click)="!readonly && onRemoveParada.emit({ type: type, index: $index })"
+                class="text-danger flex items-center justify-center h-6 w-6 rounded-md hover:bg-danger/10 transition-colors shrink-0"
+                title="Eliminar parada"
+                [disabled]="readonly"
+              >
+                <i class="fas fa-trash-alt text-[10px]"></i>
+              </button>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="flex items-center gap-1 text-text/50">
+                <i class="fas fa-crosshairs text-[10px]"></i>
+                <input
+                  type="text"
+                  formControlName="ubicacionLat"
+                  class="w-20 bg-transparent text-[10px] outline-none border-b border-transparent focus:border-text/20 placeholder:text-text/20"
+                  placeholder="Lat"
+                  [readonly]="readonly"
+                />
+                <span class="text-[10px]">,</span>
+                <input
+                  type="text"
+                  formControlName="ubicacionLng"
+                  class="w-20 bg-transparent text-[10px] outline-none border-b border-transparent focus:border-text/20 placeholder:text-text/20"
+                  placeholder="Lng"
+                  [readonly]="readonly"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Add Parada N -->
+        <div
+          class="group relative flex items-center justify-center cursor-pointer transition-all duration-200 h-10 w-full"
+          (click)="!readonly && onAddParada.emit({ type: type, index: $index + 1 })"
+        >
+          <div
+            class="absolute w-0.5 transition-colors z-0"
+            style="
+              left: -35px;
+              top: -20px;
+              bottom: -12px;
+              background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.2) 60%, transparent 40%);
+              background-size: 2px 6px;
+              background-repeat: repeat-y;
+            "
+          ></div>
+
+          <div
+            class="absolute bg-background py-0.5 z-10 flex flex-col items-center justify-center transition-opacity gap-1.5"
+            style="left: -60px; width: 60px"
+            (click)="$event.stopPropagation()"
+          >
+            <span
+              class="text-[11px] font-inter-bold text-text/60 tracking-wider whitespace-nowrap leading-none"
+            >
+              {{ legDistances[$index + 1] !== undefined ? legDistances[$index + 1] + ' km' : '' }}
+            </span>
+            @if (legDistances[$index + 1] !== undefined) {
+              <label class="flex items-center text-text/60 cursor-text">
+                <i class="fas fa-clock text-[10px] mr-1 cursor-pointer" title="Minutos"></i>
+                <input
+                  type="number"
+                  [formControl]="getLegTimeControl($index + 1)"
+                  class="w-5 bg-transparent text-[11px] text-center font-inter-bold outline-none transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none cursor-text"
+                  title="Minutos desde el punto anterior"
+                  [readonly]="readonly"
+                />
+                <span class="text-[10px] font-inter-medium lowercase ml-0.5 cursor-pointer"
+                  >min</span
+                >
+              </label>
+            }
+          </div>
+
+          <div
+            class="absolute right-6 h-px bg-linear-to-r from-transparent to-info z-0 opacity-0 group-hover:opacity-100 transition-opacity"
+            style="left: -35px"
+          ></div>
+          <div
+            class="absolute right-2 z-10 bg-info/10 text-info rounded-full w-5 h-5 flex items-center justify-center text-[10px] opacity-0 group-hover:opacity-100 shadow-sm transition-opacity hover:bg-info/20"
+          >
+            <i class="fas fa-plus"></i>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Destino Card -->
+    <div class="relative pb-2">
+      <div
+        class="absolute -left-[46px] top-4 w-6 h-6 rounded-full border border-danger bg-background text-danger flex items-center justify-center z-10"
+      >
+        <i class="fas fa-flag-checkered text-[8px]"></i>
+      </div>
+      <div class="p-2 bg-text/5 rounded-lg border-l-4 border-danger flex flex-col gap-1 shadow-sm">
+        <div class="flex justify-between items-center">
+          <label
+            class="text-xs font-inter-semibold text-text flex items-center gap-2 leading-none w-full border-none"
+          >
+            <input
+              type="text"
+              [formControlName]="destinoControlName"
+              class="bg-transparent border-none outline-none font-inter-semibold text-sm w-full placeholder:text-text/30"
+              placeholder="Destino"
+              [readonly]="readonly"
+            />
+          </label>
+          <span class="text-[10px] font-inter-medium text-danger uppercase">(Destino)</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="flex items-center gap-1 text-text/50">
+            <i class="fas fa-crosshairs text-[10px]"></i>
+            <input
+              type="text"
+              [formControlName]="destinoLatControlName"
+              class="w-20 bg-transparent text-[10px] outline-none border-b border-transparent focus:border-text/20 placeholder:text-text/20"
+              placeholder="Lat"
+              [readonly]="readonly"
+            />
+            <span class="text-[10px]">,</span>
+            <input
+              type="text"
+              [formControlName]="destinoLngControlName"
+              class="w-20 bg-transparent text-[10px] outline-none border-b border-transparent focus:border-text/20 placeholder:text-text/20"
+              placeholder="Lng"
+              [readonly]="readonly"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</div>

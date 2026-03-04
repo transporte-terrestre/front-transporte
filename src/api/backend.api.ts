@@ -910,7 +910,7 @@ export interface ConductorCreateDto {
    * Contraseña del conductor (mínimo 6 caracteres)
    * @example "password123"
    */
-  contrasenia?: string;
+  contrasenia: string;
   /**
    * Celular del conductor
    * @example "999888777"
@@ -1448,6 +1448,51 @@ export interface PaginatedVehiculoEstadoDocumentosResultDto {
   meta: PaginationMetaDto;
 }
 
+export interface VehiculoComentarioDetalleDto {
+  /**
+   * ID del comentario
+   * @example 1
+   */
+  id: number;
+  /**
+   * ID del vehículo
+   * @example 1
+   */
+  vehiculoId: number;
+  /**
+   * ID del usuario que creó el comentario
+   * @example 1
+   */
+  usuarioId: number;
+  /**
+   * Texto del comentario
+   * @example "El vehículo necesita revisión"
+   */
+  comentario: string;
+  /**
+   * Tipo de comentario
+   * @example "observacion"
+   */
+  tipo: "observacion" | "incidencia" | "novedad" | "general";
+  /**
+   * Fecha de creación
+   * @format date-time
+   * @example "2024-01-15T10:30:00Z"
+   */
+  creadoEn: string;
+  /**
+   * Fecha de última actualización
+   * @format date-time
+   * @example "2024-01-15T10:30:00Z"
+   */
+  actualizadoEn: string;
+  /**
+   * Nombre del usuario
+   * @example "Juan Pérez"
+   */
+  usuarioNombreCompleto: string;
+}
+
 export interface PropietarioVehiculoDto {
   /**
    * Owner ID
@@ -1681,11 +1726,7 @@ export interface VehiculoResultDto {
    * @example "disponible"
    */
   estado: "disponible" | "circulacion" | "taller" | "retirado";
-  /**
-   * Annotations
-   * @example "Some notes"
-   */
-  anotaciones?: string;
+  comentarios?: VehiculoComentarioDetalleDto[];
   /**
    * Headquarters
    * @example "Lima"
@@ -1855,11 +1896,6 @@ export interface VehiculoCreateDto {
    */
   estado?: "disponible" | "circulacion" | "taller" | "retirado";
   /**
-   * Annotations
-   * @example "Some notes"
-   */
-  anotaciones?: string;
-  /**
    * Headquarters
    * @example "Lima"
    */
@@ -2025,11 +2061,6 @@ export interface VehiculoUpdateDto {
    */
   estado?: "disponible" | "circulacion" | "taller" | "retirado";
   /**
-   * Annotations
-   * @example "Some notes"
-   */
-  anotaciones?: string;
-  /**
    * Headquarters
    * @example "Lima"
    */
@@ -2186,6 +2217,92 @@ export interface VehiculoDocumentoUpdateDto {
    * @example "2023-01-15"
    */
   fechaEmision?: string;
+}
+
+export interface VehiculoComentarioResultDto {
+  /**
+   * ID del comentario
+   * @example 1
+   */
+  id: number;
+  /**
+   * ID del vehículo
+   * @example 1
+   */
+  vehiculoId: number;
+  /**
+   * ID del usuario que creó el comentario
+   * @example 1
+   */
+  usuarioId: number;
+  /**
+   * Texto del comentario
+   * @example "El vehículo necesita revisión"
+   */
+  comentario: string;
+  /**
+   * Tipo de comentario
+   * @example "observacion"
+   */
+  tipo: "observacion" | "incidencia" | "novedad" | "general";
+  /**
+   * Fecha de creación
+   * @format date-time
+   * @example "2024-01-15T10:30:00Z"
+   */
+  creadoEn: string;
+  /**
+   * Fecha de última actualización
+   * @format date-time
+   * @example "2024-01-15T10:30:00Z"
+   */
+  actualizadoEn: string;
+}
+
+export interface VehiculoComentarioCreateDto {
+  /**
+   * ID del vehículo
+   * @example 1
+   */
+  vehiculoId: number;
+  /**
+   * ID del usuario que crea el comentario
+   * @example 1
+   */
+  usuarioId: number;
+  /**
+   * Texto del comentario
+   * @example "El vehículo está en buenas condiciones"
+   */
+  comentario: string;
+  /**
+   * Tipo de comentario
+   * @default "observacion"
+   */
+  tipo?: "observacion" | "incidencia" | "novedad" | "general";
+}
+
+export interface VehiculoComentarioUpdateDto {
+  /**
+   * ID del vehículo
+   * @example 1
+   */
+  vehiculoId?: number;
+  /**
+   * ID del usuario que crea el comentario
+   * @example 1
+   */
+  usuarioId?: number;
+  /**
+   * Texto del comentario
+   * @example "El vehículo está en buenas condiciones"
+   */
+  comentario?: string;
+  /**
+   * Tipo de comentario
+   * @default "observacion"
+   */
+  tipo?: "observacion" | "incidencia" | "novedad" | "general";
 }
 
 export interface MarcaListDto {
@@ -3292,7 +3409,7 @@ export interface DocumentoItemDto {
   observacion?: string;
   /**
    * Fecha de Vencimiento Inicial/Por defecto
-   * @example "2026-02-16T13:41:29.541Z"
+   * @example "2026-03-04T11:37:24.194Z"
    */
   fechaVencimiento?: string;
 }
@@ -3475,17 +3592,17 @@ export interface BotiquinItemDto {
   habilitado: boolean;
   /**
    * Fecha de Vencimiento actual
-   * @example "2026-02-16T13:41:29.548Z"
+   * @example "2026-03-04T11:37:24.204Z"
    */
   fechaVencimiento?: string;
   /**
    * Fecha de Salida
-   * @example "2026-02-16T13:41:29.548Z"
+   * @example "2026-03-04T11:37:24.204Z"
    */
   fechaSalida?: string;
   /**
    * Fecha de Reposición
-   * @example "2026-02-16T13:41:29.548Z"
+   * @example "2026-03-04T11:37:24.204Z"
    */
   fechaReposicion?: string;
 }
@@ -3716,11 +3833,7 @@ export interface VehiculoMantenimientoListDto {
    * @example "disponible"
    */
   estado: "disponible" | "circulacion" | "taller" | "retirado";
-  /**
-   * Annotations
-   * @example "Some notes"
-   */
-  anotaciones?: string;
+  comentarios?: VehiculoComentarioDetalleDto[];
   /**
    * Headquarters
    * @example "Lima"
@@ -3785,6 +3898,21 @@ export interface VehiculoMantenimientoListDto {
   actualizadoEn: string;
 }
 
+export interface SucursalDetalleResDto {
+  /** @example 1 */
+  sucursalId: number;
+  /** @example 1 */
+  id: number;
+  /** @example "Lima" */
+  departamento: string;
+  /** @example "Lima" */
+  provincia: string;
+  /** @example "Miraflores" */
+  distrito: string;
+  /** @example "Av. Direccion Exacta 123" */
+  direccion: string;
+}
+
 export interface TallerResultDto {
   /**
    * ID del taller
@@ -3822,16 +3950,18 @@ export interface TallerResultDto {
    */
   email: string | null;
   /**
-   * Dirección
-   * @example "Av. Principal 123"
-   */
-  direccion: string | null;
-  /**
    * Fecha de creación
    * @format date-time
    * @example "2023-01-01T00:00:00.000Z"
    */
   creadoEn: string;
+  /**
+   * IDs de las sucursales
+   * @example [1,2]
+   */
+  sucursalIds: number[];
+  /** Detalle de las sucursales con dirección (solo disponible en findOne) */
+  sucursales: SucursalDetalleResDto[];
   /**
    * Fecha de última actualización
    * @format date-time
@@ -4053,11 +4183,7 @@ export interface VehiculoMantenimientoResultDto {
    * @example "disponible"
    */
   estado: "disponible" | "circulacion" | "taller" | "retirado";
-  /**
-   * Annotations
-   * @example "Some notes"
-   */
-  anotaciones?: string;
+  comentarios?: VehiculoComentarioDetalleDto[];
   /**
    * Headquarters
    * @example "Lima"
@@ -4742,10 +4868,10 @@ export interface RutaResultDto {
    */
   distancia: string;
   /**
-   * Base cost
-   * @example "50.0"
+   * Tiempo estimado de viaje en minutos
+   * @example 210
    */
-  costoBase: string;
+  tiempoEstimado: number;
   /**
    * Creation date
    * @format date-time
@@ -4765,54 +4891,6 @@ export interface PaginatedRutaResultDto {
   data: RutaResultDto[];
   /** Metadatos de la paginación */
   meta: PaginationMetaDto;
-}
-
-export interface RutaParadaResultDto {
-  /**
-   * ID de la parada
-   * @example 1
-   */
-  id: number;
-  /**
-   * ID de la ruta a la que pertenece
-   * @example 1
-   */
-  rutaId: number;
-  /**
-   * Orden de la parada en la ruta
-   * @example 1
-   */
-  orden: number;
-  /**
-   * Nombre de la parada
-   * @example "PEIP - Educans"
-   */
-  nombre: string;
-  /**
-   * Latitud de la ubicación
-   * @example "-12.0464"
-   */
-  ubicacionLat?: string;
-  /**
-   * Longitud de la ubicación
-   * @example "-77.0428"
-   */
-  ubicacionLng?: string;
-  /**
-   * Distancia desde la parada anterior
-   * @example "10.5"
-   */
-  distanciaPreviaParada?: string;
-  /**
-   * Fecha de creación
-   * @format date-time
-   */
-  creadoEn: string;
-  /**
-   * Fecha de última actualización
-   * @format date-time
-   */
-  actualizadoEn: string;
 }
 
 export interface RutaCircuitoResultDto {
@@ -4858,36 +4936,35 @@ export interface PaginatedRutaCircuitoResultDto {
 
 export interface RutaParadaCreateDto {
   /**
-   * ID de la parada (opcional para updates)
-   * @example 1
-   */
-  id?: number;
-  /**
    * Nombre de la parada
-   * @example "PEIP - Educans"
+   * @example "Parada 1"
    */
   nombre: string;
   /**
-   * Latitud de la ubicación
+   * Latitud de la parada
    * @example "-12.0464"
    */
-  ubicacionLat?: string;
+  ubicacionLat: string;
   /**
-   * Longitud de la ubicación
+   * Longitud de la parada
    * @example "-77.0428"
    */
-  ubicacionLng?: string;
+  ubicacionLng: string;
   /**
    * Orden de la parada
-   * @default 0
    * @example 1
    */
   orden?: number;
   /**
-   * Distancia desde la parada anterior
+   * Distancia desde la parada previa
    * @example "10.5"
    */
   distanciaPreviaParada?: string;
+  /**
+   * Tiempo estimado desde la parada previa en minutos
+   * @example 15
+   */
+  tiempoEstimado?: number;
 }
 
 export interface RutaCircuitoDetalleDto {
@@ -4927,12 +5004,12 @@ export interface RutaCircuitoDetalleDto {
    */
   distancia: string;
   /**
-   * Costo base
-   * @example "50.00"
+   * Tiempo estimado de viaje en minutos
+   * @example 210
    */
-  costoBase: string;
-  /** Lista de paradas */
-  paradas: RutaParadaCreateDto[];
+  tiempoEstimado: number;
+  /** Paradas intermedias de la ruta */
+  paradas?: RutaParadaCreateDto[];
 }
 
 export interface RutaCircuitoCreateDto {
@@ -4941,6 +5018,11 @@ export interface RutaCircuitoCreateDto {
    * @example "Lima - Ica"
    */
   nombre: string;
+  /**
+   * Indica si la ruta de vuelta es espejo de la ida
+   * @example false
+   */
+  esIgual: boolean;
   /** Detalle de la ruta de ida */
   ida?: RutaCircuitoDetalleDto;
   /** Detalle de la ruta de vuelta (opcional) */
@@ -4953,6 +5035,11 @@ export interface RutaCircuitoUpdateDto {
    * @example "Lima - Ica"
    */
   nombre?: string;
+  /**
+   * Indica si la ruta de vuelta es espejo de la ida
+   * @example false
+   */
+  esIgual?: boolean;
   /** Detalle de la ruta de ida */
   ida?: RutaCircuitoDetalleDto;
   /** Detalle de la ruta de vuelta (opcional) */
@@ -5170,11 +5257,7 @@ export interface VehiculoViajeDto {
    * @example "disponible"
    */
   estado: "disponible" | "circulacion" | "taller" | "retirado";
-  /**
-   * Annotations
-   * @example "Some notes"
-   */
-  anotaciones?: string;
+  comentarios?: VehiculoComentarioDetalleDto[];
   /**
    * Headquarters
    * @example "Lima"
@@ -5382,13 +5465,25 @@ export interface ViajeListDto {
    */
   sentido: "ida" | "vuelta";
   /**
-   * Departure date
+   * Scheduled departure date
    * @format date-time
    * @example "2025-01-01T10:00:00Z"
    */
-  fechaSalida: string;
+  fechaSalidaProgramada: string;
   /**
-   * Arrival date
+   * Scheduled arrival date
+   * @format date-time
+   * @example "2025-01-01T18:00:00Z"
+   */
+  fechaLlegadaProgramada?: string;
+  /**
+   * Real Departure date
+   * @format date-time
+   * @example "2025-01-01T10:00:00Z"
+   */
+  fechaSalida?: string;
+  /**
+   * Real Arrival date
    * @format date-time
    * @example "2025-01-01T18:00:00Z"
    */
@@ -5411,11 +5506,101 @@ export interface ViajeListDto {
   ruta?: RutaResultDto;
 }
 
+export interface ViajeCircuitoResultDto {
+  /**
+   * ID del circuito de viaje
+   * @example 1
+   */
+  id: number;
+  /** Viaje de ida */
+  ida?: ViajeListDto;
+  /** Viaje de vuelta */
+  vuelta?: ViajeListDto;
+  /**
+   * Fecha de creación
+   * @format date-time
+   * @example "2025-01-01T10:00:00Z"
+   */
+  creadoEn: string;
+}
+
 export interface PaginatedViajeResultDto {
-  /** Lista de viajes en la página actual */
-  data: ViajeListDto[];
+  /** Lista de circuitos de viajes en la página actual */
+  data: ViajeCircuitoResultDto[];
   /** Metadatos de la paginación */
   meta: PaginationMetaDto;
+}
+
+export interface ViajeLightResultDto {
+  /**
+   * ID del viaje
+   * @example 1
+   */
+  id: number;
+  /**
+   * Nombre de la ruta
+   * @example "Lima - Ica"
+   */
+  rutaNombre: string;
+  /**
+   * Estado del viaje
+   * @example "programado"
+   */
+  estado: "programado" | "en_progreso" | "completado" | "cancelado";
+  /**
+   * Fecha de salida
+   * @format date-time
+   * @example "2025-01-01T10:00:00Z"
+   */
+  fecha: string;
+  /**
+   * Checklist de salida validado
+   * @example true
+   */
+  checkInSalida: boolean;
+  /**
+   * Checklist de llegada validado
+   * @example false
+   */
+  checkInLlegada: boolean;
+}
+
+export interface ViajeCircuitoLightResultDto {
+  /**
+   * ID del circuito de viaje
+   * @example 1
+   */
+  id: number;
+  /** Viaje de ida (ligero) */
+  ida?: ViajeLightResultDto;
+  /** Viaje de vuelta (ligero) */
+  vuelta?: ViajeLightResultDto;
+  /**
+   * Fecha de creación
+   * @format date-time
+   * @example "2025-01-01T10:00:00Z"
+   */
+  creadoEn: string;
+}
+
+export interface PaginatedViajeLightResultDto {
+  /** Lista de circuitos de viajes (formato ligero) */
+  data: ViajeCircuitoLightResultDto[];
+  /** Metadatos de la paginación */
+  meta: PaginationMetaDto;
+}
+
+export interface ValidacionResultDto {
+  /**
+   * Indica si la entidad (vehículo o conductor) está habilitada y disponible
+   * @example true
+   */
+  status: boolean;
+  /**
+   * Mensaje detallando el resultado de la validación
+   * @example "El vehículo está disponible para este viaje."
+   */
+  message: string;
 }
 
 export interface ViajeConductorDetalleDto {
@@ -5639,11 +5824,7 @@ export interface ViajeVehiculoDetalleDto {
    * @example "disponible"
    */
   estado: "disponible" | "circulacion" | "taller" | "retirado";
-  /**
-   * Annotations
-   * @example "Some notes"
-   */
-  anotaciones?: string;
+  comentarios?: VehiculoComentarioDetalleDto[];
   /**
    * Headquarters
    * @example "Lima"
@@ -5916,13 +6097,25 @@ export interface ViajeResultDto {
    */
   numeroVale?: string;
   /**
-   * Departure date
+   * Scheduled departure date
    * @format date-time
    * @example "2025-01-01T10:00:00Z"
    */
-  fechaSalida: string;
+  fechaSalidaProgramada: string;
   /**
-   * Arrival date
+   * Scheduled arrival date
+   * @format date-time
+   * @example "2025-01-01T18:00:00Z"
+   */
+  fechaLlegadaProgramada?: string;
+  /**
+   * Real Departure date
+   * @format date-time
+   * @example "2025-01-01T10:00:00Z"
+   */
+  fechaSalida?: string;
+  /**
+   * Real Arrival date
    * @format date-time
    * @example "2025-01-01T18:00:00Z"
    */
@@ -5956,7 +6149,44 @@ export interface ViajeResultDto {
   checkInLlegada: boolean;
 }
 
-export interface ViajeCreateDto {
+export interface ViajePuntoTrayectoDto {
+  /**
+   * Nombre del punto
+   * @example "Lima"
+   */
+  nombre: string;
+  /**
+   * Latitud
+   * @example -12.04318
+   */
+  latitud: number | null;
+  /**
+   * Longitud
+   * @example -77.02824
+   */
+  longitud: number | null;
+  /** Tipo de punto (origen, punto, parada, destino) */
+  tipo: "origen" | "punto" | "parada" | "destino";
+  /**
+   * Orden cronológico/secuencial
+   * @example 1
+   */
+  orden: number;
+  /**
+   * Indica si el conductor ya pasó por este punto
+   * @example true
+   */
+  completado: boolean;
+  /** ID del punto de la ruta fija, si aplica */
+  rutaParadaId: number | null;
+}
+
+export interface ViajeTrayectoResultDto {
+  /** Puntos del trayecto en orden secuencial */
+  puntos: ViajePuntoTrayectoDto[];
+}
+
+export interface ViajeDetalleCreateDto {
   /**
    * ID de la ruta programada
    * @example 1
@@ -6004,17 +6234,17 @@ export interface ViajeCreateDto {
    */
   horasContrato?: string;
   /**
-   * Departure date
+   * Scheduled departure date
    * @format date-time
    * @example "2025-01-01T10:00:00Z"
    */
-  fechaSalida: string;
+  fechaSalidaProgramada: string;
   /**
-   * Arrival date
+   * Scheduled arrival date
    * @format date-time
    * @example "2025-01-01T18:00:00Z"
    */
-  fechaLlegada?: string;
+  fechaLlegadaProgramada?: string;
   /**
    * Estado del viaje
    * @default "programado"
@@ -6045,6 +6275,13 @@ export interface ViajeCreateDto {
    * @example 1
    */
   vehiculoId?: number;
+}
+
+export interface ViajeCreateDto {
+  /** Viaje de ida */
+  ida?: ViajeDetalleCreateDto;
+  /** Viaje de vuelta */
+  vuelta?: ViajeDetalleCreateDto;
 }
 
 export interface ViajeUpdateDto {
@@ -6095,17 +6332,17 @@ export interface ViajeUpdateDto {
    */
   horasContrato?: string;
   /**
-   * Departure date
+   * Scheduled departure date
    * @format date-time
    * @example "2025-01-01T10:00:00Z"
    */
-  fechaSalida?: string;
+  fechaSalidaProgramada?: string;
   /**
-   * Arrival date
+   * Scheduled arrival date
    * @format date-time
    * @example "2025-01-01T18:00:00Z"
    */
-  fechaLlegada?: string;
+  fechaLlegadaProgramada?: string;
   /**
    * Estado del viaje
    * @default "programado"
@@ -6358,262 +6595,328 @@ export interface ViajeComentarioUpdateDto {
   tipo: "observacion" | "incidencia" | "novedad" | "general";
 }
 
-export interface ViajeServicioResultDto {
-  /**
-   * ID del servicio
-   * @example 1
-   */
+export interface ViajeTramoResultDto {
   id: number;
-  /**
-   * ID del viaje al que pertenece
-   * @example 1
-   */
   viajeId: number;
+  tipo: "origen" | "punto" | "parada" | "descanso" | "destino";
+  longitud?: number;
+  latitud?: number;
+  nombreLugar?: string;
+  /** @format date-time */
+  horaFinal?: string;
+  kilometrajeFinal?: number;
+  numeroPasajeros?: number;
+  rutaParadaId?: number;
+  /** @format date-time */
+  creadoEn: string;
+  /** @format date-time */
+  actualizadoEn: string;
+}
+
+export interface ViajeItemHojaRutaDto {
   /**
-   * Orden del servicio en el día
-   * @example 1
-   */
-  orden: number;
-  /**
-   * ID de la parada de partida
-   * @example 1
-   */
-  paradaPartidaId?: number;
-  /**
-   * Nombre de la parada de partida
-   * @example "Cochera Chorrillos"
-   */
-  paradaPartidaNombre?: string;
-  /**
-   * ID de la parada de llegada
-   * @example 2
-   */
-  paradaLlegadaId?: number;
-  /**
-   * Nombre de la parada de llegada
-   * @example "PEIP - Educans"
-   */
-  paradaLlegadaNombre?: string;
-  /**
-   * Hora de salida
-   * @example "06:45:00"
+   * Hora de salida del tramo
+   * @example "10:00 AM"
    */
   horaSalida: string;
   /**
-   * Hora de término
-   * @example "07:45:00"
+   * Kilometraje al inicio del tramo
+   * @example "29,159 KM"
    */
-  horaTermino?: string;
+  kmInicial: string;
   /**
-   * Kilometraje inicial
-   * @example 94880
+   * Punto de partida
+   * @example "Villa El Salvador"
    */
-  kmInicial: number;
+  puntoPartida: string;
   /**
-   * Kilometraje final
-   * @example 94891
+   * Punto de llegada
+   * @example "Parada 1"
    */
-  kmFinal?: number;
-  /**
-   * Kilometraje del servicio (kmFinal - kmInicial)
-   * @example 11
-   */
-  kmServicio?: number;
-  /**
-   * Tiempo del servicio en minutos
-   * @example 60
-   */
-  tiempoServicioMinutos?: number;
+  puntoLlegada: string;
   /**
    * Número de pasajeros
    * @example 12
    */
   numeroPasajeros?: number;
   /**
-   * Observaciones
-   * @example "Servicio sin novedad"
+   * Hora de término del tramo
+   * @example "10:20 AM"
    */
-  observaciones?: string;
+  horaTermino: string;
   /**
-   * Fecha de creación
-   * @format date-time
+   * Kilometraje al final del tramo
+   * @example "29,200 KM"
    */
-  creadoEn: string;
+  kmFinal: string;
   /**
-   * Fecha de última actualización
-   * @format date-time
+   * Tiempo de recorrido en formato legible
+   * @example "20 min"
    */
-  actualizadoEn: string;
+  tiempoRecorrido: string;
+  /**
+   * Kilometraje recorrido en el tramo
+   * @example "41 KM"
+   */
+  kilometrajeRecorrido: string;
+  /**
+   * Tipo de tramo del punto de llegada
+   * @example "punto"
+   */
+  tipoDestino?: "origen" | "punto" | "parada" | "descanso" | "destino";
 }
 
-export interface ViajeServicioNextStepResultDto {
+export interface ViajeHojaRutaResultDto {
+  /** Lista de tramos del viaje */
+  tramos: ViajeItemHojaRutaDto[];
   /**
-   * Siguiente número de orden
-   * @example 1
+   * Resumen total de tiempo de viaje
+   * @example "1h 30min"
    */
-  orden: number;
+  tiempoTotal: string;
   /**
-   * ID de la parada de partida sugerida
-   * @example 1
+   * Resumen total de kilometraje recorrido
+   * @example "120 KM"
    */
-  paradaPartidaId: number;
-  /**
-   * ID de la parada de llegada sugerida
-   * @example 2
-   */
-  paradaLlegadaId: number;
-  /**
-   * Nombre de la parada de partida sugerida
-   * @example "Cochera"
-   */
-  paradaPartidaNombre: string;
-  /**
-   * Nombre de la parada de llegada sugerida
-   * @example "Almacén"
-   */
-  paradaLlegadaNombre: string;
-  /**
-   * Hora de salida sugerida
-   * @example "08:30"
-   */
-  horaSalida: string;
-  /**
-   * Kilometraje inicial sugerido
-   * @example 10500
-   */
-  kmInicial: number;
-  /**
-   * Número de pasajeros (siempre null por defecto)
-   * @example null
-   */
-  numeroPasajeros: number;
-  /**
-   * Progreso de paradas
-   * @example "1/4"
-   */
-  progreso: string;
-  /**
-   * Indica si es el primer tramo
-   * @example true
-   */
-  isStart: boolean;
-  /**
-   * Indica si es el último tramo
-   * @example false
-   */
-  isFinal: boolean;
+  kilometrajeTotal: string;
 }
 
-export interface ViajeServicioCreateDto {
+export interface ViajeRegistrarDescansoDto {
   /**
-   * ID de la parada de partida
-   * @example 1
+   * Longitud de la ubicación actual
+   * @example -77.0282
    */
-  paradaPartidaId: number;
+  longitud?: number;
   /**
-   * ID de la parada de llegada
-   * @example 2
+   * Latitud de la ubicación actual
+   * @example -12.0432
    */
-  paradaLlegadaId: number;
+  latitud?: number;
   /**
-   * Hora de salida (formato HH:mm)
-   * @example "06:45"
+   * Hora actual del registro
+   * @format date-time
+   * @example "2024-03-24T10:30:00Z"
    */
-  horaSalida: string;
+  horaActual: string;
   /**
-   * Hora de término (formato HH:mm)
-   * @example "07:45"
+   * Nombre del lugar o parada
+   * @example "Descanso"
    */
-  horaTermino?: string;
+  nombreLugar?: string;
   /**
-   * Kilometraje inicial del odómetro
-   * @example 94880
-   */
-  kmInicial: number;
-  /**
-   * Kilometraje final del odómetro
+   * Kilometraje actual del odómetro
    * @example 94891
    */
-  kmFinal?: number;
+  kilometrajeActual?: number;
   /**
-   * Número de pasajeros transportados
-   * @example 12
+   * Cantidad de pasajeros
+   * @example 0
    */
-  numeroPasajeros?: number;
-  /**
-   * Observaciones del servicio
-   * @example "Servicio sin novedad"
-   */
-  observaciones?: string;
+  cantidadPasajeros?: number;
 }
 
-export interface ViajeServicioUpdateDto {
+export interface ViajeRegistrarSalidaDto {
   /**
-   * ID de la parada de partida
-   * @example 1
+   * Longitud de la ubicación actual
+   * @example -77.0282
    */
-  paradaPartidaId?: number;
+  longitud: number;
   /**
-   * ID de la parada de llegada
-   * @example 2
+   * Latitud de la ubicación actual
+   * @example -12.0432
    */
-  paradaLlegadaId?: number;
+  latitud: number;
   /**
-   * Hora de salida (formato HH:mm)
-   * @example "06:45"
+   * Cantidad de pasajeros
+   * @example 12
    */
-  horaSalida?: string;
+  cantidadPasajeros: number;
   /**
-   * Hora de término (formato HH:mm)
-   * @example "07:45"
+   * Hora actual del registro
+   * @format date-time
+   * @example "2024-03-24T10:30:00Z"
    */
-  horaTermino?: string;
+  horaActual: string;
   /**
-   * Kilometraje inicial del odómetro
-   * @example 94880
-   */
-  kmInicial?: number;
-  /**
-   * Kilometraje final del odómetro
+   * Kilometraje actual del odómetro
    * @example 94891
    */
-  kmFinal?: number;
+  kilometrajeActual: number;
   /**
-   * Número de pasajeros transportados
-   * @example 12
+   * Nombre del lugar o parada (opcional)
+   * @example "Terminal Terrestre"
    */
-  numeroPasajeros?: number;
+  nombreLugar?: string;
   /**
-   * Observaciones del servicio
-   * @example "Servicio sin novedad"
-   */
-  observaciones?: string;
-}
-
-export interface ViajePasajeroDetalleDto {
-  /**
-   * ID del pasajero
+   * ID de la parada de ruta asociada (opcional)
    * @example 1
    */
-  id: number;
+  rutaParadaId?: number;
+}
+
+export interface ViajeRegistrarLlegadaDto {
   /**
-   * DNI del pasajero
-   * @example "12345678"
+   * Longitud de la ubicación actual
+   * @example -77.0282
    */
-  dni: string;
+  longitud: number;
   /**
-   * Nombres del pasajero
-   * @example "Juan"
+   * Latitud de la ubicación actual
+   * @example -12.0432
    */
-  nombres: string;
+  latitud: number;
   /**
-   * Apellidos del pasajero
-   * @example "Pérez"
+   * Cantidad de pasajeros
+   * @example 12
    */
-  apellidos: string;
+  cantidadPasajeros: number;
+  /**
+   * Hora actual del registro
+   * @format date-time
+   * @example "2024-03-24T10:30:00Z"
+   */
+  horaActual: string;
+  /**
+   * Kilometraje actual del odómetro
+   * @example 94891
+   */
+  kilometrajeActual: number;
+  /**
+   * Nombre del lugar o parada (opcional)
+   * @example "Terminal Terrestre"
+   */
+  nombreLugar?: string;
+  /**
+   * ID de la parada de ruta asociada (opcional)
+   * @example 1
+   */
+  rutaParadaId?: number;
+}
+
+export interface ViajeRegistrarPuntoDto {
+  /**
+   * Longitud de la ubicación actual
+   * @example -77.0282
+   */
+  longitud: number;
+  /**
+   * Latitud de la ubicación actual
+   * @example -12.0432
+   */
+  latitud: number;
+  /**
+   * Cantidad de pasajeros
+   * @example 12
+   */
+  cantidadPasajeros: number;
+  /**
+   * Hora actual del registro
+   * @format date-time
+   * @example "2024-03-24T10:30:00Z"
+   */
+  horaActual: string;
+  /**
+   * Kilometraje actual del odómetro
+   * @example 94891
+   */
+  kilometrajeActual: number;
+  /**
+   * Nombre del lugar o parada (opcional)
+   * @example "Terminal Terrestre"
+   */
+  nombreLugar?: string;
+  /**
+   * ID de la parada de ruta asociada (opcional)
+   * @example 1
+   */
+  rutaParadaId?: number;
+}
+
+export interface ViajeRegistrarParadaDto {
+  /**
+   * Longitud de la ubicación actual
+   * @example -77.0282
+   */
+  longitud: number;
+  /**
+   * Latitud de la ubicación actual
+   * @example -12.0432
+   */
+  latitud: number;
+  /**
+   * Cantidad de pasajeros
+   * @example 12
+   */
+  cantidadPasajeros: number;
+  /**
+   * Hora actual del registro
+   * @format date-time
+   * @example "2024-03-24T10:30:00Z"
+   */
+  horaActual: string;
+  /**
+   * Kilometraje actual del odómetro
+   * @example 94891
+   */
+  kilometrajeActual: number;
+  /**
+   * Nombre del lugar o parada (opcional)
+   * @example "Terminal Terrestre"
+   */
+  nombreLugar?: string;
+  /**
+   * ID de la parada de ruta asociada (opcional)
+   * @example 1
+   */
+  rutaParadaId?: number;
+}
+
+export interface ViajeProximoTramoResultDto {
+  /** Tipo sugerido: punto, parada, descanso */
+  tipo: "origen" | "punto" | "parada" | "descanso" | "destino";
+  /** Nombre del lugar sugerido */
+  nombreLugar: string | null;
+  /** Latitud del lugar sugerido */
+  latitud: string | null;
+  /** Longitud del lugar sugerido */
+  longitud: string | null;
+  /** Último kilometraje registrado */
+  ultimoKilometraje: number;
+  /**
+   * Última hora registrada
+   * @format date-time
+   */
+  ultimaHora: string;
+  /** Última cantidad de pasajeros registrada */
+  ultimosPasajeros: number;
+  /** Indica si es un punto fijo de la ruta */
+  esPuntoFijo?: boolean;
+  /** ID de la parada de la ruta sugerida */
+  rutaParadaId?: number | null;
+  /** Indica si aún faltan puntos fijos por registrar */
+  faltanPuntosFijos: boolean;
+}
+
+export interface ViajeTramoUpdateDto {
+  tipo?: "origen" | "punto" | "parada" | "descanso" | "destino";
+  longitud?: number;
+  latitud?: number;
+  nombreLugar?: string;
+  /**
+   * @format date-time
+   * @example "2024-03-24T10:30:00Z"
+   */
+  horaFinal?: string;
+  kilometrajeFinal?: number;
+  numeroPasajeros?: number;
 }
 
 export interface ViajePasajeroResultDto {
+  /**
+   * ID del registro
+   * @example 1
+   */
+  id: number;
   /**
    * ID del viaje
    * @example 1
@@ -6623,12 +6926,42 @@ export interface ViajePasajeroResultDto {
    * ID del pasajero
    * @example 1
    */
-  pasajeroId: number;
+  pasajeroId?: number;
   /**
-   * Asistencia del pasajero
+   * DNI del pasajero
+   * @example "12345678"
+   */
+  dni?: string;
+  /**
+   * Nombres del pasajero
+   * @example "Juan"
+   */
+  nombres?: string;
+  /**
+   * Apellidos del pasajero
+   * @example "Pérez"
+   */
+  apellidos?: string;
+  /**
+   * Asistencia del pasajero en la parada consultada
    * @example false
    */
   asistencia: boolean;
+  /**
+   * ID de la parada donde el pasajero ya tiene asistencia (si abordó en otra parada)
+   * @example 5
+   */
+  paradaAsistenciaId?: number | null;
+  /**
+   * Nombre de la parada donde el pasajero ya tiene asistencia
+   * @example "Parada Central"
+   */
+  paradaAsistenciaNombre?: string | null;
+  /**
+   * Indica si la asistencia del pasajero coincide con el tramo consultado
+   * @example true
+   */
+  esTramoActual?: boolean | null;
   /**
    * Fecha de creación
    * @format date-time
@@ -6641,7 +6974,6 @@ export interface ViajePasajeroResultDto {
    * @example "2023-01-01T00:00:00.000Z"
    */
   actualizadoEn: string;
-  pasajero: ViajePasajeroDetalleDto;
 }
 
 export type PasajeroItemDto = object;
@@ -6652,6 +6984,74 @@ export interface ViajePasajeroFillDto {
    * @example [{"pasajeroId":1,"asistencia":true},{"pasajeroId":2,"asistencia":false}]
    */
   pasajeros: PasajeroItemDto[];
+}
+
+export interface ViajeEscanearDnisDto {
+  /**
+   * Array de URLs de las imágenes de los DNIs (formato jpg, png)
+   * @example ["https://ejemplo.com/dni1.jpg"]
+   */
+  urls: string[];
+}
+
+export interface ScanDniResultItem {
+  /**
+   * Número de DNI extraído
+   * @example "72750623"
+   */
+  dni: string;
+  /**
+   * Nombres extraídos
+   * @example "ERICK STIP"
+   */
+  nombres: string;
+  /**
+   * Apellidos extraídos
+   * @example "FLORES SANTOS"
+   */
+  apellidos: string;
+  /**
+   * Indica si se pudo procesar la imagen
+   * @example true
+   */
+  matched: boolean;
+  /**
+   * Estado final del procesamiento
+   * @example "CREADO_AD_HOC"
+   */
+  status: string;
+  /**
+   * URL procesada si hubo error
+   * @example "https://ejemplo.com/dni.jpg"
+   */
+  url?: string;
+  /**
+   * Mensaje de error
+   * @example "No se pudo extraer información"
+   */
+  error?: string;
+  /**
+   * ID del tramo en el que abordó el pasajero
+   * @example 123
+   */
+  viajeTramoId: number | null;
+}
+
+export interface ViajeEscanearDnisResultDto {
+  /** @example true */
+  exito: boolean;
+  /** @example "Procesamiento de DNIs completado" */
+  mensaje: string;
+  resultados: ScanDniResultItem[];
+  pasajerosActualizados: ViajePasajeroResultDto[];
+}
+
+export interface ViajePasajeroAbordarPasajerosDto {
+  /**
+   * IDs de los registros de pasajeros en el viaje (viaje_pasajeros)
+   * @example [1,2,3]
+   */
+  viajePasajeroIds: number[];
 }
 
 export interface ChecklistItemResultDto {
@@ -6833,6 +7233,7 @@ export interface NotificacionListDto {
   /** @format date-time */
   creadoEn: string;
   leido: boolean;
+  metadata?: object;
 }
 
 export interface PaginatedNotificacionResultDto {
@@ -6847,6 +7248,7 @@ export interface NotificacionCreateDto {
   mensaje: string;
   /** @default "info" */
   tipo?: "info" | "warning" | "error" | "success";
+  metadata?: object;
 }
 
 export interface NotificacionResultDto {
@@ -6865,6 +7267,7 @@ export interface NotificacionResultDto {
   creadoEn: string;
   /** @example false */
   leido: boolean;
+  metadata?: object;
 }
 
 export interface VencimientoResumenDto {
@@ -7424,6 +7827,19 @@ export interface PasajeroUpdateDto {
   apellidos?: string;
 }
 
+export interface SucursalTallerDto {
+  /**
+   * ID de la sucursal
+   * @example 1
+   */
+  sucursalId: number;
+  /**
+   * Direccion exacta del taller en esta sucursal
+   * @example "Av. Direccion Exacta 123"
+   */
+  direccion: string;
+}
+
 export interface TallerCreateDto {
   /**
    * RUC del taller
@@ -7455,11 +7871,8 @@ export interface TallerCreateDto {
    * @example "contacto@taller.com"
    */
   email?: string;
-  /**
-   * Dirección del taller
-   * @example "Av. Industrial 555"
-   */
-  direccion?: string;
+  /** Lista de sucursales a vincular con su dirección */
+  sucursales?: SucursalTallerDto[];
 }
 
 export interface TallerListDto {
@@ -7499,16 +7912,18 @@ export interface TallerListDto {
    */
   email: string | null;
   /**
-   * Dirección
-   * @example "Av. Principal 123"
-   */
-  direccion: string | null;
-  /**
    * Fecha de creación
    * @format date-time
    * @example "2023-01-01T00:00:00.000Z"
    */
   creadoEn: string;
+  /**
+   * IDs de las sucursales
+   * @example [1,2]
+   */
+  sucursalIds: number[];
+  /** Detalle de las sucursales con dirección (solo disponible en findOne) */
+  sucursales: SucursalDetalleResDto[];
 }
 
 export interface PaginatedTallerResultDto {
@@ -7549,11 +7964,119 @@ export interface TallerUpdateDto {
    * @example "contacto@taller.com"
    */
   email?: string;
+  /** Lista de sucursales a vincular con su dirección */
+  sucursales?: SucursalTallerDto[];
+}
+
+export interface SucursalCreateDto {
   /**
-   * Dirección del taller
-   * @example "Av. Industrial 555"
+   * Departamento de la sucursal
+   * @example "Lima"
    */
-  direccion?: string;
+  departamento: string;
+  /**
+   * Provincia de la sucursal
+   * @example "Lima"
+   */
+  provincia: string;
+  /**
+   * Distrito de la sucursal
+   * @example "San Isidro"
+   */
+  distrito: string;
+}
+
+export interface SucursalListDto {
+  /**
+   * ID de la sucursal
+   * @example 1
+   */
+  id: number;
+  /**
+   * Departamento de la sucursal
+   * @example "Lima"
+   */
+  departamento: string;
+  /**
+   * Provincia
+   * @example "Lima"
+   */
+  provincia: string;
+  /**
+   * Distrito
+   * @example "Miraflores"
+   */
+  distrito: string;
+  /**
+   * Fecha de creación
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  creadoEn: string;
+}
+
+export interface PaginatedSucursalResultDto {
+  data: SucursalListDto[];
+  meta: PaginationMetaDto;
+}
+
+export interface SucursalResultDto {
+  /**
+   * ID de la sucursal
+   * @example 1
+   */
+  id: number;
+  /**
+   * Departamento de la sucursal
+   * @example "Lima"
+   */
+  departamento: string;
+  /**
+   * Provincia
+   * @example "Lima"
+   */
+  provincia: string;
+  /**
+   * Distrito
+   * @example "Miraflores"
+   */
+  distrito: string;
+  /**
+   * Fecha de creación
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  creadoEn: string;
+  /**
+   * Fecha de última actualización
+   * @format date-time
+   * @example "2023-01-02T00:00:00.000Z"
+   */
+  actualizadoEn: string;
+  /**
+   * Fecha de eliminación (si aplica)
+   * @format date-time
+   * @example null
+   */
+  eliminadoEn: string | null;
+}
+
+export interface SucursalUpdateDto {
+  /**
+   * Departamento de la sucursal
+   * @example "Lima"
+   */
+  departamento?: string;
+  /**
+   * Provincia de la sucursal
+   * @example "Lima"
+   */
+  provincia?: string;
+  /**
+   * Distrito de la sucursal
+   * @example "San Isidro"
+   */
+  distrito?: string;
 }
 
 export interface ViajeDetalladoDto {
@@ -7577,9 +8100,17 @@ export interface ViajeDetalladoDto {
   estado: string;
   modalidadServicio: string;
   /** @format date-time */
-  fechaSalida: string;
+  fechaSalidaProgramada: string;
+  /** @format date-time */
+  fechaLlegadaProgramada: string | null;
+  /** @format date-time */
+  fechaSalida: string | null;
   /** @format date-time */
   fechaLlegada: string | null;
+  /** ID del circuito al que pertenece este viaje */
+  circuitoId: number | null;
+  /** Sentido del viaje */
+  sentido: string;
 }
 
 export interface MantenimientoDetalladoVehiculoDto {
@@ -8532,6 +9063,91 @@ export interface ProveedorDocumentoUpdateDto {
   fechaEmision?: string;
 }
 
+export interface AlquilerVehiculoDto {
+  id: number;
+  placa: string;
+  marca: string;
+  modelo: string;
+}
+
+export interface AlquilerProveedorDto {
+  id: number;
+  nombreCompleto: string;
+  dni: string;
+  ruc?: string;
+}
+
+export interface AlquilerItemDto {
+  id: number;
+  vehiculoId: number;
+  /** @format date-time */
+  fechaInicio: string;
+  /** @format date-time */
+  fechaFin?: string;
+  monto?: string;
+  observaciones?: string;
+  estado: string;
+  /** @format date-time */
+  creadoEn: string;
+  /** @format date-time */
+  actualizadoEn: string;
+  vehiculo?: AlquilerVehiculoDto;
+  proveedor?: AlquilerProveedorDto;
+}
+
+export interface AlquilerPaginationMetaDto {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+}
+
+export interface AlquilerListDto {
+  data: AlquilerItemDto[];
+  meta: AlquilerPaginationMetaDto;
+}
+
+export interface AlquilerResultDto {
+  id: number;
+  vehiculoId: number;
+  /** @format date-time */
+  fechaInicio: string;
+  /** @format date-time */
+  fechaFin?: string;
+  monto?: string;
+  observaciones?: string;
+  estado: string;
+  /** @format date-time */
+  creadoEn: string;
+  /** @format date-time */
+  actualizadoEn: string;
+  vehiculo?: AlquilerVehiculoDto;
+  proveedor?: AlquilerProveedorDto;
+}
+
+export interface AlquilerCreateDto {
+  vehiculoId: number;
+  /** @format date-time */
+  fechaInicio: string;
+  /** @format date-time */
+  fechaFin?: string;
+  monto?: string;
+  observaciones?: string;
+}
+
+export interface AlquilerUpdateDto {
+  vehiculoId?: number;
+  /** @format date-time */
+  fechaInicio?: string;
+  /** @format date-time */
+  fechaFin?: string;
+  monto?: string;
+  observaciones?: string;
+  estado?: string;
+}
+
 export interface StorageResultDto {
   /**
    * Public ID del archivo en Cloudinary
@@ -8812,6 +9428,8 @@ export interface VehiculosFindAllParams {
    * @example "disponible"
    */
   estado?: "disponible" | "circulacion" | "taller" | "retirado";
+  /** Filtrar por ID de marca */
+  marcaId?: number;
 }
 
 export type VehiculosFindAllData = PaginatedVehiculoResultDto;
@@ -8891,6 +9509,37 @@ export interface VehiculosDeleteDocumentoParams {
 }
 
 export type VehiculosDeleteDocumentoData = VehiculoDocumentoResultDto;
+
+export interface VehiculosFindComentariosByVehiculoParams {
+  /** ID del vehículo */
+  id: number;
+}
+
+export type VehiculosFindComentariosByVehiculoData =
+  VehiculoComentarioResultDto[];
+
+export interface VehiculosFindOneComentarioParams {
+  /** ID del comentario */
+  id: number;
+}
+
+export type VehiculosFindOneComentarioData = VehiculoComentarioResultDto;
+
+export type VehiculosCreateComentarioData = VehiculoComentarioResultDto;
+
+export interface VehiculosUpdateComentarioParams {
+  /** ID del comentario */
+  id: number;
+}
+
+export type VehiculosUpdateComentarioData = VehiculoComentarioResultDto;
+
+export interface VehiculosDeleteComentarioParams {
+  /** ID del comentario */
+  id: number;
+}
+
+export type VehiculosDeleteComentarioData = VehiculoComentarioResultDto;
 
 export interface VehiculosFindAllMarcasParams {
   /**
@@ -9413,15 +10062,6 @@ export interface RutasFindOneParams {
 
 export type RutasFindOneData = RutaResultDto;
 
-export interface RutasFindParadasParams {
-  /** Buscar por nombre de parada */
-  search?: string;
-  /** ID de la ruta */
-  rutaId: number;
-}
-
-export type RutasFindParadasData = RutaParadaResultDto[];
-
 export interface RutasFindAllCircuitosParams {
   /**
    * Número de página (comienza en 1)
@@ -9521,6 +10161,97 @@ export interface ViajesFindAllParams {
 
 export type ViajesFindAllData = PaginatedViajeResultDto;
 
+export interface ViajesFindAllLightParams {
+  /**
+   * Número de página (comienza en 1)
+   * @default 1
+   * @example 1
+   */
+  page?: number;
+  /**
+   * Cantidad de elementos por página
+   * @default 10
+   * @example 10
+   */
+  limit?: number;
+  /** Búsqueda por ruta ocasional */
+  search?: string;
+  /** Fecha de inicio para filtrar por rango (formato: YYYY-MM-DD) */
+  fechaInicio?: string;
+  /** Fecha de fin para filtrar por rango (formato: YYYY-MM-DD) */
+  fechaFin?: string;
+  /** Filtrar por modalidad de servicio */
+  modalidadServicio?:
+    | "regular"
+    | "expreso"
+    | "ejecutivo"
+    | "especial"
+    | "turismo"
+    | "corporativo";
+  /** Filtrar por tipo de ruta (ocasional, fija) */
+  tipoRuta?: "ocasional" | "fija";
+  /** Filtrar por estado del viaje */
+  estado?: "programado" | "en_progreso" | "completado" | "cancelado";
+  /** Filtrar por IDs de conductores (separados por coma) */
+  conductoresId?: string[];
+  /**
+   * Filtrar por ID de cliente
+   * @example 1
+   */
+  clienteId?: number;
+  /**
+   * Filtrar por ID de ruta
+   * @example 1
+   */
+  rutaId?: number;
+  /** Filtrar por IDs de vehículos (separados por coma) */
+  vehiculosId?: string[];
+  /** Filtrar por sentido del viaje */
+  sentido?: "ida" | "vuelta";
+  /** Filtrar por turno del viaje */
+  turno?: "dia" | "noche";
+}
+
+export type ViajesFindAllLightData = PaginatedViajeLightResultDto;
+
+export interface ViajesValidarVehiculoParams {
+  /** ID del vehículo a validar */
+  vehiculoId: number;
+  /**
+   * Fecha de salida programada
+   * @format date-time
+   */
+  fechaSalida: string;
+  /**
+   * Fecha de llegada programada
+   * @format date-time
+   */
+  fechaLlegada: string;
+  /** ID del viaje actual (para excluirlo de la validación de cruces) */
+  viajeId?: number;
+}
+
+export type ViajesValidarVehiculoData = ValidacionResultDto;
+
+export interface ViajesValidarConductorParams {
+  /** ID del conductor a validar */
+  conductorId: number;
+  /**
+   * Fecha de salida programada
+   * @format date-time
+   */
+  fechaSalida: string;
+  /**
+   * Fecha de llegada programada
+   * @format date-time
+   */
+  fechaLlegada: string;
+  /** ID del viaje actual (para excluirlo de la validación de cruces) */
+  viajeId?: number;
+}
+
+export type ViajesValidarConductorData = ValidacionResultDto;
+
 export interface ViajesFindOneParams {
   /** ID del viaje */
   id: number;
@@ -9528,7 +10259,14 @@ export interface ViajesFindOneParams {
 
 export type ViajesFindOneData = ViajeResultDto;
 
-export type ViajesCreateData = ViajeResultDto;
+export interface ViajesFindTrayectoParams {
+  /** ID del viaje */
+  id: number;
+}
+
+export type ViajesFindTrayectoData = ViajeTrayectoResultDto;
+
+export type ViajesCreateData = any;
 
 export interface ViajesUpdateParams {
   /** ID del viaje */
@@ -9646,42 +10384,84 @@ export interface ViajesDeleteComentarioParams {
 
 export type ViajesDeleteComentarioData = ViajeComentarioResultDto;
 
-export interface ViajesFindServiciosParams {
+export interface ViajesFindTramosParams {
   /** ID del viaje */
   viajeId: number;
 }
 
-export type ViajesFindServiciosData = ViajeServicioResultDto[];
+export type ViajesFindTramosData = ViajeTramoResultDto[];
 
-export interface ViajesGetNextStepParams {
+export interface ViajesGetHojaRutaParams {
   /** ID del viaje */
   viajeId: number;
 }
 
-export type ViajesGetNextStepData = ViajeServicioNextStepResultDto;
+export type ViajesGetHojaRutaData = ViajeHojaRutaResultDto;
 
-export interface ViajesCreateServicioParams {
+export interface ViajesRegistrarDescansoParams {
   /** ID del viaje */
   viajeId: number;
 }
 
-export type ViajesCreateServicioData = ViajeServicioResultDto;
+export type ViajesRegistrarDescansoData = ViajeTramoResultDto;
 
-export interface ViajesUpdateServicioParams {
-  /** ID del servicio */
+export interface ViajesRegistrarSalidaParams {
+  /** ID del viaje */
+  viajeId: number;
+}
+
+export type ViajesRegistrarSalidaData = ViajeTramoResultDto;
+
+export interface ViajesRegistrarLlegadaParams {
+  /** ID del viaje */
+  viajeId: number;
+}
+
+export type ViajesRegistrarLlegadaData = ViajeTramoResultDto;
+
+export interface ViajesRegistrarPuntoParams {
+  /** ID del viaje */
+  viajeId: number;
+}
+
+export type ViajesRegistrarPuntoData = ViajeTramoResultDto;
+
+export interface ViajesRegistrarParadaParams {
+  /** ID del viaje */
+  viajeId: number;
+}
+
+export type ViajesRegistrarParadaData = ViajeTramoResultDto;
+
+export interface ViajesGetProximoTramoParams {
+  /** Tipo de tramo para el que se solicita sugerencia (origen, punto, parada, descanso, destino) */
+  tipo?: "origen" | "punto" | "parada" | "descanso" | "destino";
+  /** ID del viaje */
+  viajeId: number;
+}
+
+export type ViajesGetProximoTramoData = ViajeProximoTramoResultDto;
+
+export interface ViajesUpdateTramoParams {
+  /** ID del tramo */
   id: number;
 }
 
-export type ViajesUpdateServicioData = ViajeServicioResultDto;
+export type ViajesUpdateTramoData = ViajeTramoResultDto;
 
-export interface ViajesDeleteServicioParams {
-  /** ID del servicio */
+export interface ViajesDeleteTramoParams {
+  /** ID del tramo */
   id: number;
 }
 
-export type ViajesDeleteServicioData = ViajeServicioResultDto;
+export type ViajesDeleteTramoData = ViajeTramoResultDto;
 
 export interface ViajesFindPasajerosParams {
+  /**
+   * ID del tramo en el que suben los pasajeros (viaje_tramos)
+   * @example 123
+   */
+  viajeTramoId?: number;
   /** ID del viaje */
   viajeId: number;
 }
@@ -9694,6 +10474,30 @@ export interface ViajesUpsertPasajerosParams {
 }
 
 export type ViajesUpsertPasajerosData = ViajePasajeroResultDto[];
+
+export interface ViajesEscanearDnisParams {
+  /**
+   * ID del tramo en el que suben los pasajeros (viaje_tramos)
+   * @example 123
+   */
+  viajeTramoId?: number;
+  /** ID del viaje */
+  viajeId: number;
+}
+
+export type ViajesEscanearDnisData = ViajeEscanearDnisResultDto;
+
+export interface ViajesAbordarPasajerosParams {
+  /**
+   * ID del tramo en el que suben los pasajeros (viaje_tramos)
+   * @example 123
+   */
+  viajeTramoId?: number;
+  /** ID del viaje */
+  viajeId: number;
+}
+
+export type ViajesAbordarPasajerosData = ViajePasajeroResultDto[];
 
 export type ViajesFindAllChecklistItemsData = ChecklistItemResultDto[];
 
@@ -9781,6 +10585,38 @@ export interface NotificacionesMarkAsReadParams {
 }
 
 export type NotificacionesMarkAsReadData = NotificacionResultDto;
+
+export interface NotificacionesCreateForConductorParams {
+  conductorId: number;
+}
+
+export type NotificacionesCreateForConductorData = NotificacionResultDto;
+
+export interface NotificacionesFindAllByConductorParams {
+  /**
+   * Número de página (comienza en 1)
+   * @default 1
+   * @example 1
+   */
+  page?: number;
+  /**
+   * Cantidad de elementos por página
+   * @default 10
+   * @example 10
+   */
+  limit?: number;
+  conductorId: number;
+}
+
+export type NotificacionesFindAllByConductorData =
+  PaginatedNotificacionResultDto;
+
+export interface NotificacionesMarkAsReadByConductorParams {
+  conductorId: number;
+  id: number;
+}
+
+export type NotificacionesMarkAsReadByConductorData = NotificacionResultDto;
 
 export interface NotificacionesPreviewVencimientosParams {
   /**
@@ -9997,6 +10833,43 @@ export interface TalleresRemoveParams {
 
 export type TalleresRemoveData = any;
 
+export type TalleresCreateSucursalData = any;
+
+export interface TalleresFindAllSucursalesPaginatedParams {
+  /** @default 1 */
+  page?: number;
+  /** @default 10 */
+  limit?: number;
+  /** Buscar por nombre o dirección */
+  search?: string;
+  /** Fecha de inicio (YYYY-MM-DD) */
+  fechaInicio?: string;
+  /** Fecha de fin (YYYY-MM-DD) */
+  fechaFin?: string;
+}
+
+export type TalleresFindAllSucursalesPaginatedData = PaginatedSucursalResultDto;
+
+export type TalleresFindAllSucursalesData = any;
+
+export interface TalleresFindOneSucursalParams {
+  id: number;
+}
+
+export type TalleresFindOneSucursalData = SucursalResultDto;
+
+export interface TalleresUpdateSucursalParams {
+  id: number;
+}
+
+export type TalleresUpdateSucursalData = any;
+
+export interface TalleresRemoveSucursalParams {
+  id: number;
+}
+
+export type TalleresRemoveSucursalData = any;
+
 export interface ReportesGetViajesDetalladosPorVehiculoParams {
   /** Fecha de inicio del reporte (YYYY-MM-DD) */
   fechaInicio?: string;
@@ -10211,6 +11084,37 @@ export interface ProveedoresDeleteDocumentoParams {
 }
 
 export type ProveedoresDeleteDocumentoData = ProveedorDocumentoResultDto;
+
+export interface AlquileresFindAllParams {
+  search?: string;
+  estado?: string;
+  /** @default 1 */
+  page?: number;
+  /** @default 10 */
+  limit?: number;
+}
+
+export type AlquileresFindAllData = AlquilerListDto;
+
+export type AlquileresCreateData = any;
+
+export interface AlquileresFindOneParams {
+  id: number;
+}
+
+export type AlquileresFindOneData = AlquilerResultDto;
+
+export interface AlquileresUpdateParams {
+  id: number;
+}
+
+export type AlquileresUpdateData = any;
+
+export interface AlquileresDeleteParams {
+  id: number;
+}
+
+export type AlquileresDeleteData = any;
 
 export interface StorageUploadPayload {
   /** @format binary */
@@ -10883,6 +11787,8 @@ export namespace Vehiculos {
        * @example "disponible"
        */
       estado?: "disponible" | "circulacion" | "taller" | "retirado";
+      /** Filtrar por ID de marca */
+      marcaId?: number;
     };
     export type RequestBody = never;
     export type RequestHeaders = {};
@@ -11096,6 +12002,103 @@ export namespace Vehiculos {
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = VehiculosDeleteDocumentoData;
+  }
+
+  /**
+   * No description
+   * @tags vehiculos
+   * @name VehiculosFindComentariosByVehiculo
+   * @summary Obtener todos los comentarios de un vehículo
+   * @request GET:/vehiculo/{id}/comentario/find-all
+   * @secure
+   * @response `200` `VehiculosFindComentariosByVehiculoData`
+   */
+  export namespace VehiculosFindComentariosByVehiculo {
+    export type RequestParams = {
+      /** ID del vehículo */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = VehiculosFindComentariosByVehiculoData;
+  }
+
+  /**
+   * No description
+   * @tags vehiculos
+   * @name VehiculosFindOneComentario
+   * @summary Obtener un comentario por ID
+   * @request GET:/vehiculo/comentario/find-one/{id}
+   * @secure
+   * @response `200` `VehiculosFindOneComentarioData`
+   */
+  export namespace VehiculosFindOneComentario {
+    export type RequestParams = {
+      /** ID del comentario */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = VehiculosFindOneComentarioData;
+  }
+
+  /**
+   * No description
+   * @tags vehiculos
+   * @name VehiculosCreateComentario
+   * @summary Crear un nuevo comentario para un vehículo
+   * @request POST:/vehiculo/comentario/create
+   * @secure
+   * @response `201` `VehiculosCreateComentarioData`
+   */
+  export namespace VehiculosCreateComentario {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = VehiculoComentarioCreateDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = VehiculosCreateComentarioData;
+  }
+
+  /**
+   * No description
+   * @tags vehiculos
+   * @name VehiculosUpdateComentario
+   * @summary Actualizar un comentario
+   * @request PATCH:/vehiculo/comentario/update/{id}
+   * @secure
+   * @response `200` `VehiculosUpdateComentarioData`
+   */
+  export namespace VehiculosUpdateComentario {
+    export type RequestParams = {
+      /** ID del comentario */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = VehiculoComentarioUpdateDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = VehiculosUpdateComentarioData;
+  }
+
+  /**
+   * No description
+   * @tags vehiculos
+   * @name VehiculosDeleteComentario
+   * @summary Eliminar un comentario
+   * @request DELETE:/vehiculo/comentario/delete/{id}
+   * @secure
+   * @response `200` `VehiculosDeleteComentarioData`
+   */
+  export namespace VehiculosDeleteComentario {
+    export type RequestParams = {
+      /** ID del comentario */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = VehiculosDeleteComentarioData;
   }
 
   /**
@@ -12259,7 +13262,7 @@ export namespace Rutas {
    * No description
    * @tags rutas
    * @name RutasFindOne
-   * @summary Obtener una ruta por ID con sus paradas
+   * @summary Obtener una ruta por ID
    * @request GET:/ruta/find-one/{id}
    * @secure
    * @response `200` `RutasFindOneData`
@@ -12273,29 +13276,6 @@ export namespace Rutas {
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = RutasFindOneData;
-  }
-
-  /**
-   * No description
-   * @tags rutas
-   * @name RutasFindParadas
-   * @summary Obtener todas las paradas de una ruta
-   * @request GET:/ruta/{rutaId}/paradas
-   * @secure
-   * @response `200` `RutasFindParadasData`
-   */
-  export namespace RutasFindParadas {
-    export type RequestParams = {
-      /** ID de la ruta */
-      rutaId: number;
-    };
-    export type RequestQuery = {
-      /** Buscar por nombre de parada */
-      search?: string;
-    };
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = RutasFindParadasData;
   }
 
   /**
@@ -12338,7 +13318,7 @@ export namespace Rutas {
    * No description
    * @tags rutas
    * @name RutasFindOneCircuito
-   * @summary Obtener un circuito por ID con sus rutas y paradas
+   * @summary Obtener un circuito por ID con sus rutas
    * @request GET:/ruta/circuito/find-one/{id}
    * @secure
    * @response `200` `RutasFindOneCircuitoData`
@@ -12375,7 +13355,7 @@ export namespace Rutas {
    * No description
    * @tags rutas
    * @name RutasUpdateCircuito
-   * @summary Actualizar un circuito y sus rutas (reemplazo inteligente)
+   * @summary Actualizar un circuito y sus rutas
    * @request PATCH:/ruta/circuito/update/{id}
    * @secure
    * @response `200` `RutasUpdateCircuitoData`
@@ -12414,7 +13394,7 @@ export namespace Rutas {
 
 export namespace Viajes {
   /**
-   * @description Busca por estado, ruta ocasional y modalidad. Filtra por rango de fechas, modalidad de servicio y tipo de viaje (ocasional o regular). Si el token es de un conductor, solo retorna sus viajes asignados.
+   * @description Busca por estado, ruta ocasional y modalidad. Filtra por rango de fechas, modalidad de servicio y tipo de viaje. Si el token es de un conductor, solo retorna sus viajes asignados.
    * @tags viajes
    * @name ViajesFindAll
    * @summary Obtener viajes con paginación, búsqueda y filtros
@@ -12482,6 +13462,136 @@ export namespace Viajes {
   /**
    * No description
    * @tags viajes
+   * @name ViajesFindAllLight
+   * @summary Obtener viajes (formato ligero) con paginación, búsqueda y filtros
+   * @request GET:/viaje/find-all-light
+   * @secure
+   * @response `200` `ViajesFindAllLightData`
+   */
+  export namespace ViajesFindAllLight {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /**
+       * Número de página (comienza en 1)
+       * @default 1
+       * @example 1
+       */
+      page?: number;
+      /**
+       * Cantidad de elementos por página
+       * @default 10
+       * @example 10
+       */
+      limit?: number;
+      /** Búsqueda por ruta ocasional */
+      search?: string;
+      /** Fecha de inicio para filtrar por rango (formato: YYYY-MM-DD) */
+      fechaInicio?: string;
+      /** Fecha de fin para filtrar por rango (formato: YYYY-MM-DD) */
+      fechaFin?: string;
+      /** Filtrar por modalidad de servicio */
+      modalidadServicio?:
+        | "regular"
+        | "expreso"
+        | "ejecutivo"
+        | "especial"
+        | "turismo"
+        | "corporativo";
+      /** Filtrar por tipo de ruta (ocasional, fija) */
+      tipoRuta?: "ocasional" | "fija";
+      /** Filtrar por estado del viaje */
+      estado?: "programado" | "en_progreso" | "completado" | "cancelado";
+      /** Filtrar por IDs de conductores (separados por coma) */
+      conductoresId?: string[];
+      /**
+       * Filtrar por ID de cliente
+       * @example 1
+       */
+      clienteId?: number;
+      /**
+       * Filtrar por ID de ruta
+       * @example 1
+       */
+      rutaId?: number;
+      /** Filtrar por IDs de vehículos (separados por coma) */
+      vehiculosId?: string[];
+      /** Filtrar por sentido del viaje */
+      sentido?: "ida" | "vuelta";
+      /** Filtrar por turno del viaje */
+      turno?: "dia" | "noche";
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ViajesFindAllLightData;
+  }
+
+  /**
+   * No description
+   * @tags viajes
+   * @name ViajesValidarVehiculo
+   * @summary Validar disponibilidad y requisitos de un vehículo para un horario programado
+   * @request GET:/viaje/validar-vehiculo
+   * @secure
+   * @response `200` `ViajesValidarVehiculoData`
+   */
+  export namespace ViajesValidarVehiculo {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /** ID del vehículo a validar */
+      vehiculoId: number;
+      /**
+       * Fecha de salida programada
+       * @format date-time
+       */
+      fechaSalida: string;
+      /**
+       * Fecha de llegada programada
+       * @format date-time
+       */
+      fechaLlegada: string;
+      /** ID del viaje actual (para excluirlo de la validación de cruces) */
+      viajeId?: number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ViajesValidarVehiculoData;
+  }
+
+  /**
+   * No description
+   * @tags viajes
+   * @name ViajesValidarConductor
+   * @summary Validar disponibilidad y requisitos de un conductor para un horario programado
+   * @request GET:/viaje/validar-conductor
+   * @secure
+   * @response `200` `ViajesValidarConductorData`
+   */
+  export namespace ViajesValidarConductor {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /** ID del conductor a validar */
+      conductorId: number;
+      /**
+       * Fecha de salida programada
+       * @format date-time
+       */
+      fechaSalida: string;
+      /**
+       * Fecha de llegada programada
+       * @format date-time
+       */
+      fechaLlegada: string;
+      /** ID del viaje actual (para excluirlo de la validación de cruces) */
+      viajeId?: number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ViajesValidarConductorData;
+  }
+
+  /**
+   * No description
+   * @tags viajes
    * @name ViajesFindOne
    * @summary Obtener viaje por ID
    * @request GET:/viaje/find-one/{id}
@@ -12502,11 +13612,31 @@ export namespace Viajes {
   /**
    * No description
    * @tags viajes
+   * @name ViajesFindTrayecto
+   * @summary Visualizar trayecto de un vehículo (paradas fijas y ocasionales)
+   * @request GET:/viaje/{id}/trayecto
+   * @secure
+   * @response `200` `ViajesFindTrayectoData`
+   */
+  export namespace ViajesFindTrayecto {
+    export type RequestParams = {
+      /** ID del viaje */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ViajesFindTrayectoData;
+  }
+
+  /**
+   * No description
+   * @tags viajes
    * @name ViajesCreate
-   * @summary Crear un nuevo viaje
+   * @summary Crear un circuito de viajes (ida y vuelta)
    * @request POST:/viaje/create
    * @secure
-   * @response `200` `ViajesCreateData`
+   * @response `201` `ViajesCreateData` ViajeCircuito creado exitosamente.
    */
   export namespace ViajesCreate {
     export type RequestParams = {};
@@ -12520,7 +13650,7 @@ export namespace Viajes {
    * No description
    * @tags viajes
    * @name ViajesUpdate
-   * @summary Actualizar un viaje
+   * @summary Actualizar un viaje individual
    * @request PATCH:/viaje/update/{id}
    * @secure
    * @response `200` `ViajesUpdateData`
@@ -12540,7 +13670,7 @@ export namespace Viajes {
    * No description
    * @tags viajes
    * @name ViajesRemove
-   * @summary Eliminar un viaje
+   * @summary Eliminar logicamente un viaje individual y desligarlo
    * @request DELETE:/viaje/delete/{id}
    * @secure
    * @response `200` `ViajesRemoveData`
@@ -12862,13 +13992,13 @@ export namespace Viajes {
   /**
    * No description
    * @tags viajes
-   * @name ViajesFindServicios
-   * @summary Obtener todos los servicios/tramos de un viaje
-   * @request GET:/viaje/{viajeId}/servicios
+   * @name ViajesFindTramos
+   * @summary Obtener todos los tramos de un viaje
+   * @request GET:/viaje/{viajeId}/tramos
    * @secure
-   * @response `200` `ViajesFindServiciosData`
+   * @response `200` `ViajesFindTramosData`
    */
-  export namespace ViajesFindServicios {
+  export namespace ViajesFindTramos {
     export type RequestParams = {
       /** ID del viaje */
       viajeId: number;
@@ -12876,19 +14006,19 @@ export namespace Viajes {
     export type RequestQuery = {};
     export type RequestBody = never;
     export type RequestHeaders = {};
-    export type ResponseBody = ViajesFindServiciosData;
+    export type ResponseBody = ViajesFindTramosData;
   }
 
   /**
    * No description
    * @tags viajes
-   * @name ViajesGetNextStep
-   * @summary Obtener sugerencia para el siguiente tramo del viaje
-   * @request GET:/viaje/{viajeId}/servicio/next-step
+   * @name ViajesGetHojaRuta
+   * @summary Obtener los tramos formateados como hoja de ruta (trayectos entre puntos)
+   * @request GET:/viaje/{viajeId}/hoja-ruta
    * @secure
-   * @response `200` `ViajesGetNextStepData`
+   * @response `200` `ViajesGetHojaRutaData`
    */
-  export namespace ViajesGetNextStep {
+  export namespace ViajesGetHojaRuta {
     export type RequestParams = {
       /** ID del viaje */
       viajeId: number;
@@ -12896,67 +14026,170 @@ export namespace Viajes {
     export type RequestQuery = {};
     export type RequestBody = never;
     export type RequestHeaders = {};
-    export type ResponseBody = ViajesGetNextStepData;
+    export type ResponseBody = ViajesGetHojaRutaData;
   }
 
   /**
    * No description
    * @tags viajes
-   * @name ViajesCreateServicio
-   * @summary Crear un nuevo servicio/tramo para un viaje
-   * @request POST:/viaje/{viajeId}/servicio/create
+   * @name ViajesRegistrarDescanso
+   * @summary Registrar un descanso por parte del conductor
+   * @request POST:/viaje/{viajeId}/registrar-descanso
    * @secure
-   * @response `201` `ViajesCreateServicioData`
+   * @response `201` `ViajesRegistrarDescansoData`
    */
-  export namespace ViajesCreateServicio {
+  export namespace ViajesRegistrarDescanso {
     export type RequestParams = {
       /** ID del viaje */
       viajeId: number;
     };
     export type RequestQuery = {};
-    export type RequestBody = ViajeServicioCreateDto;
+    export type RequestBody = ViajeRegistrarDescansoDto;
     export type RequestHeaders = {};
-    export type ResponseBody = ViajesCreateServicioData;
+    export type ResponseBody = ViajesRegistrarDescansoData;
   }
 
   /**
    * No description
    * @tags viajes
-   * @name ViajesUpdateServicio
-   * @summary Actualizar un servicio/tramo
-   * @request PATCH:/viaje/servicio/update/{id}
+   * @name ViajesRegistrarSalida
+   * @summary Registrar la salida del viaje (origen)
+   * @request POST:/viaje/{viajeId}/registrar-salida
    * @secure
-   * @response `200` `ViajesUpdateServicioData`
+   * @response `201` `ViajesRegistrarSalidaData`
    */
-  export namespace ViajesUpdateServicio {
+  export namespace ViajesRegistrarSalida {
     export type RequestParams = {
-      /** ID del servicio */
+      /** ID del viaje */
+      viajeId: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = ViajeRegistrarSalidaDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = ViajesRegistrarSalidaData;
+  }
+
+  /**
+   * No description
+   * @tags viajes
+   * @name ViajesRegistrarLlegada
+   * @summary Registrar la llegada del viaje (destino)
+   * @request POST:/viaje/{viajeId}/registrar-llegada
+   * @secure
+   * @response `201` `ViajesRegistrarLlegadaData`
+   */
+  export namespace ViajesRegistrarLlegada {
+    export type RequestParams = {
+      /** ID del viaje */
+      viajeId: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = ViajeRegistrarLlegadaDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = ViajesRegistrarLlegadaData;
+  }
+
+  /**
+   * No description
+   * @tags viajes
+   * @name ViajesRegistrarPunto
+   * @summary Registrar el paso por un punto fijo programado
+   * @request POST:/viaje/{viajeId}/registrar-punto
+   * @secure
+   * @response `201` `ViajesRegistrarPuntoData`
+   */
+  export namespace ViajesRegistrarPunto {
+    export type RequestParams = {
+      /** ID del viaje */
+      viajeId: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = ViajeRegistrarPuntoDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = ViajesRegistrarPuntoData;
+  }
+
+  /**
+   * No description
+   * @tags viajes
+   * @name ViajesRegistrarParada
+   * @summary Registrar una parada ocasional no programada
+   * @request POST:/viaje/{viajeId}/registrar-parada
+   * @secure
+   * @response `201` `ViajesRegistrarParadaData`
+   */
+  export namespace ViajesRegistrarParada {
+    export type RequestParams = {
+      /** ID del viaje */
+      viajeId: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = ViajeRegistrarParadaDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = ViajesRegistrarParadaData;
+  }
+
+  /**
+   * No description
+   * @tags viajes
+   * @name ViajesGetProximoTramo
+   * @summary Obtener la sugerencia del próximo tramo basado en la ruta y el progreso actual
+   * @request GET:/viaje/{viajeId}/proximo-tramo
+   * @secure
+   * @response `200` `ViajesGetProximoTramoData`
+   */
+  export namespace ViajesGetProximoTramo {
+    export type RequestParams = {
+      /** ID del viaje */
+      viajeId: number;
+    };
+    export type RequestQuery = {
+      /** Tipo de tramo para el que se solicita sugerencia (origen, punto, parada, descanso, destino) */
+      tipo?: "origen" | "punto" | "parada" | "descanso" | "destino";
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ViajesGetProximoTramoData;
+  }
+
+  /**
+   * No description
+   * @tags viajes
+   * @name ViajesUpdateTramo
+   * @summary Actualizar un tramo
+   * @request PATCH:/viaje/tramo/update/{id}
+   * @secure
+   * @response `200` `ViajesUpdateTramoData`
+   */
+  export namespace ViajesUpdateTramo {
+    export type RequestParams = {
+      /** ID del tramo */
       id: number;
     };
     export type RequestQuery = {};
-    export type RequestBody = ViajeServicioUpdateDto;
+    export type RequestBody = ViajeTramoUpdateDto;
     export type RequestHeaders = {};
-    export type ResponseBody = ViajesUpdateServicioData;
+    export type ResponseBody = ViajesUpdateTramoData;
   }
 
   /**
    * No description
    * @tags viajes
-   * @name ViajesDeleteServicio
-   * @summary Eliminar un servicio/tramo
-   * @request DELETE:/viaje/servicio/delete/{id}
+   * @name ViajesDeleteTramo
+   * @summary Eliminar un tramo
+   * @request DELETE:/viaje/tramo/delete/{id}
    * @secure
-   * @response `200` `ViajesDeleteServicioData`
+   * @response `200` `ViajesDeleteTramoData`
    */
-  export namespace ViajesDeleteServicio {
+  export namespace ViajesDeleteTramo {
     export type RequestParams = {
-      /** ID del servicio */
+      /** ID del tramo */
       id: number;
     };
     export type RequestQuery = {};
     export type RequestBody = never;
     export type RequestHeaders = {};
-    export type ResponseBody = ViajesDeleteServicioData;
+    export type ResponseBody = ViajesDeleteTramoData;
   }
 
   /**
@@ -12973,7 +14206,13 @@ export namespace Viajes {
       /** ID del viaje */
       viajeId: number;
     };
-    export type RequestQuery = {};
+    export type RequestQuery = {
+      /**
+       * ID del tramo en el que suben los pasajeros (viaje_tramos)
+       * @example 123
+       */
+      viajeTramoId?: number;
+    };
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = ViajesFindPasajerosData;
@@ -12997,6 +14236,58 @@ export namespace Viajes {
     export type RequestBody = ViajePasajeroFillDto;
     export type RequestHeaders = {};
     export type ResponseBody = ViajesUpsertPasajerosData;
+  }
+
+  /**
+   * No description
+   * @tags viajes
+   * @name ViajesEscanearDnis
+   * @summary Escanear imágenes de DNIs y marcar asistencia/registrar pasajeros automáticamente
+   * @request POST:/viaje/{viajeId}/pasajeros/escanear-dnis
+   * @secure
+   * @response `201` `ViajesEscanearDnisData`
+   */
+  export namespace ViajesEscanearDnis {
+    export type RequestParams = {
+      /** ID del viaje */
+      viajeId: number;
+    };
+    export type RequestQuery = {
+      /**
+       * ID del tramo en el que suben los pasajeros (viaje_tramos)
+       * @example 123
+       */
+      viajeTramoId?: number;
+    };
+    export type RequestBody = ViajeEscanearDnisDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = ViajesEscanearDnisData;
+  }
+
+  /**
+   * No description
+   * @tags viajes
+   * @name ViajesAbordarPasajeros
+   * @summary Marcar abordaje de pasajeros (asistencia) y registrar movimientos en el tramo
+   * @request POST:/viaje/{viajeId}/pasajeros/abordar-pasajeros
+   * @secure
+   * @response `201` `ViajesAbordarPasajerosData`
+   */
+  export namespace ViajesAbordarPasajeros {
+    export type RequestParams = {
+      /** ID del viaje */
+      viajeId: number;
+    };
+    export type RequestQuery = {
+      /**
+       * ID del tramo en el que suben los pasajeros (viaje_tramos)
+       * @example 123
+       */
+      viajeTramoId?: number;
+    };
+    export type RequestBody = ViajePasajeroAbordarPasajerosDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = ViajesAbordarPasajerosData;
   }
 
   /**
@@ -13235,6 +14526,75 @@ export namespace Notificaciones {
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = NotificacionesMarkAsReadData;
+  }
+
+  /**
+   * No description
+   * @tags notificaciones
+   * @name NotificacionesCreateForConductor
+   * @summary Crear una nueva notificación para un conductor
+   * @request POST:/notificacion/create-conductor/{conductorId}
+   * @response `201` `NotificacionesCreateForConductorData`
+   */
+  export namespace NotificacionesCreateForConductor {
+    export type RequestParams = {
+      conductorId: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = NotificacionCreateDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = NotificacionesCreateForConductorData;
+  }
+
+  /**
+   * No description
+   * @tags notificaciones
+   * @name NotificacionesFindAllByConductor
+   * @summary Obtener notificaciones de un conductor
+   * @request GET:/notificacion/conductor/{conductorId}
+   * @response `200` `NotificacionesFindAllByConductorData`
+   */
+  export namespace NotificacionesFindAllByConductor {
+    export type RequestParams = {
+      conductorId: number;
+    };
+    export type RequestQuery = {
+      /**
+       * Número de página (comienza en 1)
+       * @default 1
+       * @example 1
+       */
+      page?: number;
+      /**
+       * Cantidad de elementos por página
+       * @default 10
+       * @example 10
+       */
+      limit?: number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = NotificacionesFindAllByConductorData;
+  }
+
+  /**
+   * No description
+   * @tags notificaciones
+   * @name NotificacionesMarkAsReadByConductor
+   * @summary Marcar notificación como leída para un conductor
+   * @request POST:/notificacion/leido-conductor/{id}
+   * @response `200` `NotificacionesMarkAsReadByConductorData`
+   */
+  export namespace NotificacionesMarkAsReadByConductor {
+    export type RequestParams = {
+      id: number;
+    };
+    export type RequestQuery = {
+      conductorId: number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = NotificacionesMarkAsReadByConductorData;
   }
 
   /**
@@ -13769,6 +15129,125 @@ export namespace Talleres {
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = TalleresRemoveData;
+  }
+
+  /**
+   * No description
+   * @tags talleres
+   * @name TalleresCreateSucursal
+   * @summary Crear una nueva sucursal de taller
+   * @request POST:/taller/sucursales/create
+   * @secure
+   * @response `201` `TalleresCreateSucursalData`
+   */
+  export namespace TalleresCreateSucursal {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = SucursalCreateDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = TalleresCreateSucursalData;
+  }
+
+  /**
+   * No description
+   * @tags talleres
+   * @name TalleresFindAllSucursalesPaginated
+   * @summary Listar sucursales de forma paginada
+   * @request GET:/taller/sucursales/find-all-paginated
+   * @secure
+   * @response `200` `TalleresFindAllSucursalesPaginatedData`
+   */
+  export namespace TalleresFindAllSucursalesPaginated {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /** @default 1 */
+      page?: number;
+      /** @default 10 */
+      limit?: number;
+      /** Buscar por nombre o dirección */
+      search?: string;
+      /** Fecha de inicio (YYYY-MM-DD) */
+      fechaInicio?: string;
+      /** Fecha de fin (YYYY-MM-DD) */
+      fechaFin?: string;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = TalleresFindAllSucursalesPaginatedData;
+  }
+
+  /**
+   * No description
+   * @tags talleres
+   * @name TalleresFindAllSucursales
+   * @summary Obtener todas las sucursales de talleres disponibles
+   * @request GET:/taller/sucursales/find-all
+   * @secure
+   * @response `200` `TalleresFindAllSucursalesData`
+   */
+  export namespace TalleresFindAllSucursales {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = TalleresFindAllSucursalesData;
+  }
+
+  /**
+   * No description
+   * @tags talleres
+   * @name TalleresFindOneSucursal
+   * @summary Obtener una sucursal por ID
+   * @request GET:/taller/sucursales/find-one/{id}
+   * @secure
+   * @response `200` `TalleresFindOneSucursalData`
+   */
+  export namespace TalleresFindOneSucursal {
+    export type RequestParams = {
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = TalleresFindOneSucursalData;
+  }
+
+  /**
+   * No description
+   * @tags talleres
+   * @name TalleresUpdateSucursal
+   * @summary Actualizar una sucursal por ID
+   * @request PATCH:/taller/sucursales/update/{id}
+   * @secure
+   * @response `200` `TalleresUpdateSucursalData`
+   */
+  export namespace TalleresUpdateSucursal {
+    export type RequestParams = {
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = SucursalUpdateDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = TalleresUpdateSucursalData;
+  }
+
+  /**
+   * No description
+   * @tags talleres
+   * @name TalleresRemoveSucursal
+   * @summary Eliminar una sucursal por ID
+   * @request DELETE:/taller/sucursales/delete/{id}
+   * @secure
+   * @response `200` `TalleresRemoveSucursalData`
+   */
+  export namespace TalleresRemoveSucursal {
+    export type RequestParams = {
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = TalleresRemoveSucursalData;
   }
 }
 
@@ -14316,6 +15795,106 @@ export namespace Proveedores {
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = ProveedoresDeleteDocumentoData;
+  }
+}
+
+export namespace Alquileres {
+  /**
+   * No description
+   * @tags alquileres
+   * @name AlquileresFindAll
+   * @summary Listar todos los alquileres (paginado)
+   * @request GET:/admin/alquileres
+   * @secure
+   * @response `200` `AlquileresFindAllData`
+   */
+  export namespace AlquileresFindAll {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      search?: string;
+      estado?: string;
+      /** @default 1 */
+      page?: number;
+      /** @default 10 */
+      limit?: number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = AlquileresFindAllData;
+  }
+
+  /**
+   * No description
+   * @tags alquileres
+   * @name AlquileresCreate
+   * @summary Crear un nuevo alquiler
+   * @request POST:/admin/alquileres
+   * @secure
+   * @response `201` `AlquileresCreateData`
+   */
+  export namespace AlquileresCreate {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = AlquilerCreateDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = AlquileresCreateData;
+  }
+
+  /**
+   * No description
+   * @tags alquileres
+   * @name AlquileresFindOne
+   * @summary Obtener un alquiler por ID
+   * @request GET:/admin/alquileres/{id}
+   * @secure
+   * @response `200` `AlquileresFindOneData`
+   */
+  export namespace AlquileresFindOne {
+    export type RequestParams = {
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = AlquileresFindOneData;
+  }
+
+  /**
+   * No description
+   * @tags alquileres
+   * @name AlquileresUpdate
+   * @summary Actualizar un alquiler
+   * @request PUT:/admin/alquileres/{id}
+   * @secure
+   * @response `200` `AlquileresUpdateData`
+   */
+  export namespace AlquileresUpdate {
+    export type RequestParams = {
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = AlquilerUpdateDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = AlquileresUpdateData;
+  }
+
+  /**
+   * No description
+   * @tags alquileres
+   * @name AlquileresDelete
+   * @summary Eliminar un alquiler
+   * @request DELETE:/admin/alquileres/{id}
+   * @secure
+   * @response `200` `AlquileresDeleteData`
+   */
+  export namespace AlquileresDelete {
+    export type RequestParams = {
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = AlquileresDeleteData;
   }
 }
 
@@ -15513,6 +17092,121 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags vehiculos
+     * @name VehiculosFindComentariosByVehiculo
+     * @summary Obtener todos los comentarios de un vehículo
+     * @request GET:/vehiculo/{id}/comentario/find-all
+     * @secure
+     * @response `200` `VehiculosFindComentariosByVehiculoData`
+     */
+    findComentariosByVehiculo: (
+      { id, ...query }: VehiculosFindComentariosByVehiculoParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<VehiculosFindComentariosByVehiculoData, any>({
+        path: `/vehiculo/${id}/comentario/find-all`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags vehiculos
+     * @name VehiculosFindOneComentario
+     * @summary Obtener un comentario por ID
+     * @request GET:/vehiculo/comentario/find-one/{id}
+     * @secure
+     * @response `200` `VehiculosFindOneComentarioData`
+     */
+    findOneComentario: (
+      { id, ...query }: VehiculosFindOneComentarioParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<VehiculosFindOneComentarioData, any>({
+        path: `/vehiculo/comentario/find-one/${id}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags vehiculos
+     * @name VehiculosCreateComentario
+     * @summary Crear un nuevo comentario para un vehículo
+     * @request POST:/vehiculo/comentario/create
+     * @secure
+     * @response `201` `VehiculosCreateComentarioData`
+     */
+    createComentario: (
+      data: VehiculoComentarioCreateDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<VehiculosCreateComentarioData, any>({
+        path: `/vehiculo/comentario/create`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags vehiculos
+     * @name VehiculosUpdateComentario
+     * @summary Actualizar un comentario
+     * @request PATCH:/vehiculo/comentario/update/{id}
+     * @secure
+     * @response `200` `VehiculosUpdateComentarioData`
+     */
+    updateComentario: (
+      { id, ...query }: VehiculosUpdateComentarioParams,
+      data: VehiculoComentarioUpdateDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<VehiculosUpdateComentarioData, any>({
+        path: `/vehiculo/comentario/update/${id}`,
+        method: "PATCH",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags vehiculos
+     * @name VehiculosDeleteComentario
+     * @summary Eliminar un comentario
+     * @request DELETE:/vehiculo/comentario/delete/{id}
+     * @secure
+     * @response `200` `VehiculosDeleteComentarioData`
+     */
+    deleteComentario: (
+      { id, ...query }: VehiculosDeleteComentarioParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<VehiculosDeleteComentarioData, any>({
+        path: `/vehiculo/comentario/delete/${id}`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags vehiculos
      * @name VehiculosFindAllMarcas
      * @summary Obtener marcas con paginación, búsqueda y filtros
      * @request GET:/vehiculo/marca/find-all
@@ -16639,7 +18333,7 @@ export class Api<SecurityDataType extends unknown> {
      *
      * @tags rutas
      * @name RutasFindOne
-     * @summary Obtener una ruta por ID con sus paradas
+     * @summary Obtener una ruta por ID
      * @request GET:/ruta/find-one/{id}
      * @secure
      * @response `200` `RutasFindOneData`
@@ -16651,29 +18345,6 @@ export class Api<SecurityDataType extends unknown> {
       this.http.request<RutasFindOneData, any>({
         path: `/ruta/find-one/${id}`,
         method: "GET",
-        secure: true,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags rutas
-     * @name RutasFindParadas
-     * @summary Obtener todas las paradas de una ruta
-     * @request GET:/ruta/{rutaId}/paradas
-     * @secure
-     * @response `200` `RutasFindParadasData`
-     */
-    findParadas: (
-      { rutaId, ...query }: RutasFindParadasParams,
-      params: RequestParams = {},
-    ) =>
-      this.http.request<RutasFindParadasData, any>({
-        path: `/ruta/${rutaId}/paradas`,
-        method: "GET",
-        query: query,
         secure: true,
         format: "json",
         ...params,
@@ -16707,7 +18378,7 @@ export class Api<SecurityDataType extends unknown> {
      *
      * @tags rutas
      * @name RutasFindOneCircuito
-     * @summary Obtener un circuito por ID con sus rutas y paradas
+     * @summary Obtener un circuito por ID con sus rutas
      * @request GET:/ruta/circuito/find-one/{id}
      * @secure
      * @response `200` `RutasFindOneCircuitoData`
@@ -16753,7 +18424,7 @@ export class Api<SecurityDataType extends unknown> {
      *
      * @tags rutas
      * @name RutasUpdateCircuito
-     * @summary Actualizar un circuito y sus rutas (reemplazo inteligente)
+     * @summary Actualizar un circuito y sus rutas
      * @request PATCH:/ruta/circuito/update/{id}
      * @secure
      * @response `200` `RutasUpdateCircuitoData`
@@ -16796,7 +18467,7 @@ export class Api<SecurityDataType extends unknown> {
   };
   viajes = {
     /**
-     * @description Busca por estado, ruta ocasional y modalidad. Filtra por rango de fechas, modalidad de servicio y tipo de viaje (ocasional o regular). Si el token es de un conductor, solo retorna sus viajes asignados.
+     * @description Busca por estado, ruta ocasional y modalidad. Filtra por rango de fechas, modalidad de servicio y tipo de viaje. Si el token es de un conductor, solo retorna sus viajes asignados.
      *
      * @tags viajes
      * @name ViajesFindAll
@@ -16808,6 +18479,75 @@ export class Api<SecurityDataType extends unknown> {
     findAll: (query: ViajesFindAllParams, params: RequestParams = {}) =>
       this.http.request<ViajesFindAllData, any>({
         path: `/viaje/find-all`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags viajes
+     * @name ViajesFindAllLight
+     * @summary Obtener viajes (formato ligero) con paginación, búsqueda y filtros
+     * @request GET:/viaje/find-all-light
+     * @secure
+     * @response `200` `ViajesFindAllLightData`
+     */
+    findAllLight: (
+      query: ViajesFindAllLightParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ViajesFindAllLightData, any>({
+        path: `/viaje/find-all-light`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags viajes
+     * @name ViajesValidarVehiculo
+     * @summary Validar disponibilidad y requisitos de un vehículo para un horario programado
+     * @request GET:/viaje/validar-vehiculo
+     * @secure
+     * @response `200` `ViajesValidarVehiculoData`
+     */
+    validarVehiculo: (
+      query: ViajesValidarVehiculoParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ViajesValidarVehiculoData, any>({
+        path: `/viaje/validar-vehiculo`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags viajes
+     * @name ViajesValidarConductor
+     * @summary Validar disponibilidad y requisitos de un conductor para un horario programado
+     * @request GET:/viaje/validar-conductor
+     * @secure
+     * @response `200` `ViajesValidarConductorData`
+     */
+    validarConductor: (
+      query: ViajesValidarConductorParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ViajesValidarConductorData, any>({
+        path: `/viaje/validar-conductor`,
         method: "GET",
         query: query,
         secure: true,
@@ -16841,19 +18581,20 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags viajes
-     * @name ViajesCreate
-     * @summary Crear un nuevo viaje
-     * @request POST:/viaje/create
+     * @name ViajesFindTrayecto
+     * @summary Visualizar trayecto de un vehículo (paradas fijas y ocasionales)
+     * @request GET:/viaje/{id}/trayecto
      * @secure
-     * @response `200` `ViajesCreateData`
+     * @response `200` `ViajesFindTrayectoData`
      */
-    create: (data: ViajeCreateDto, params: RequestParams = {}) =>
-      this.http.request<ViajesCreateData, any>({
-        path: `/viaje/create`,
-        method: "POST",
-        body: data,
+    findTrayecto: (
+      { id, ...query }: ViajesFindTrayectoParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ViajesFindTrayectoData, any>({
+        path: `/viaje/${id}/trayecto`,
+        method: "GET",
         secure: true,
-        type: ContentType.Json,
         format: "json",
         ...params,
       }),
@@ -16862,8 +18603,28 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags viajes
+     * @name ViajesCreate
+     * @summary Crear un circuito de viajes (ida y vuelta)
+     * @request POST:/viaje/create
+     * @secure
+     * @response `201` `ViajesCreateData` ViajeCircuito creado exitosamente.
+     */
+    create: (data: ViajeCreateDto, params: RequestParams = {}) =>
+      this.http.request<ViajesCreateData, any>({
+        path: `/viaje/create`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags viajes
      * @name ViajesUpdate
-     * @summary Actualizar un viaje
+     * @summary Actualizar un viaje individual
      * @request PATCH:/viaje/update/{id}
      * @secure
      * @response `200` `ViajesUpdateData`
@@ -16888,7 +18649,7 @@ export class Api<SecurityDataType extends unknown> {
      *
      * @tags viajes
      * @name ViajesRemove
-     * @summary Eliminar un viaje
+     * @summary Eliminar logicamente un viaje individual y desligarlo
      * @request DELETE:/viaje/delete/{id}
      * @secure
      * @response `200` `ViajesRemoveData`
@@ -17254,18 +19015,18 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags viajes
-     * @name ViajesFindServicios
-     * @summary Obtener todos los servicios/tramos de un viaje
-     * @request GET:/viaje/{viajeId}/servicios
+     * @name ViajesFindTramos
+     * @summary Obtener todos los tramos de un viaje
+     * @request GET:/viaje/{viajeId}/tramos
      * @secure
-     * @response `200` `ViajesFindServiciosData`
+     * @response `200` `ViajesFindTramosData`
      */
-    findServicios: (
-      { viajeId, ...query }: ViajesFindServiciosParams,
+    findTramos: (
+      { viajeId, ...query }: ViajesFindTramosParams,
       params: RequestParams = {},
     ) =>
-      this.http.request<ViajesFindServiciosData, any>({
-        path: `/viaje/${viajeId}/servicios`,
+      this.http.request<ViajesFindTramosData, any>({
+        path: `/viaje/${viajeId}/tramos`,
         method: "GET",
         secure: true,
         format: "json",
@@ -17276,18 +19037,18 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags viajes
-     * @name ViajesGetNextStep
-     * @summary Obtener sugerencia para el siguiente tramo del viaje
-     * @request GET:/viaje/{viajeId}/servicio/next-step
+     * @name ViajesGetHojaRuta
+     * @summary Obtener los tramos formateados como hoja de ruta (trayectos entre puntos)
+     * @request GET:/viaje/{viajeId}/hoja-ruta
      * @secure
-     * @response `200` `ViajesGetNextStepData`
+     * @response `200` `ViajesGetHojaRutaData`
      */
-    getNextStep: (
-      { viajeId, ...query }: ViajesGetNextStepParams,
+    getHojaRuta: (
+      { viajeId, ...query }: ViajesGetHojaRutaParams,
       params: RequestParams = {},
     ) =>
-      this.http.request<ViajesGetNextStepData, any>({
-        path: `/viaje/${viajeId}/servicio/next-step`,
+      this.http.request<ViajesGetHojaRutaData, any>({
+        path: `/viaje/${viajeId}/hoja-ruta`,
         method: "GET",
         secure: true,
         format: "json",
@@ -17298,19 +19059,19 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags viajes
-     * @name ViajesCreateServicio
-     * @summary Crear un nuevo servicio/tramo para un viaje
-     * @request POST:/viaje/{viajeId}/servicio/create
+     * @name ViajesRegistrarDescanso
+     * @summary Registrar un descanso por parte del conductor
+     * @request POST:/viaje/{viajeId}/registrar-descanso
      * @secure
-     * @response `201` `ViajesCreateServicioData`
+     * @response `201` `ViajesRegistrarDescansoData`
      */
-    createServicio: (
-      { viajeId, ...query }: ViajesCreateServicioParams,
-      data: ViajeServicioCreateDto,
+    registrarDescanso: (
+      { viajeId, ...query }: ViajesRegistrarDescansoParams,
+      data: ViajeRegistrarDescansoDto,
       params: RequestParams = {},
     ) =>
-      this.http.request<ViajesCreateServicioData, any>({
-        path: `/viaje/${viajeId}/servicio/create`,
+      this.http.request<ViajesRegistrarDescansoData, any>({
+        path: `/viaje/${viajeId}/registrar-descanso`,
         method: "POST",
         body: data,
         secure: true,
@@ -17323,19 +19084,142 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags viajes
-     * @name ViajesUpdateServicio
-     * @summary Actualizar un servicio/tramo
-     * @request PATCH:/viaje/servicio/update/{id}
+     * @name ViajesRegistrarSalida
+     * @summary Registrar la salida del viaje (origen)
+     * @request POST:/viaje/{viajeId}/registrar-salida
      * @secure
-     * @response `200` `ViajesUpdateServicioData`
+     * @response `201` `ViajesRegistrarSalidaData`
      */
-    updateServicio: (
-      { id, ...query }: ViajesUpdateServicioParams,
-      data: ViajeServicioUpdateDto,
+    registrarSalida: (
+      { viajeId, ...query }: ViajesRegistrarSalidaParams,
+      data: ViajeRegistrarSalidaDto,
       params: RequestParams = {},
     ) =>
-      this.http.request<ViajesUpdateServicioData, any>({
-        path: `/viaje/servicio/update/${id}`,
+      this.http.request<ViajesRegistrarSalidaData, any>({
+        path: `/viaje/${viajeId}/registrar-salida`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags viajes
+     * @name ViajesRegistrarLlegada
+     * @summary Registrar la llegada del viaje (destino)
+     * @request POST:/viaje/{viajeId}/registrar-llegada
+     * @secure
+     * @response `201` `ViajesRegistrarLlegadaData`
+     */
+    registrarLlegada: (
+      { viajeId, ...query }: ViajesRegistrarLlegadaParams,
+      data: ViajeRegistrarLlegadaDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ViajesRegistrarLlegadaData, any>({
+        path: `/viaje/${viajeId}/registrar-llegada`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags viajes
+     * @name ViajesRegistrarPunto
+     * @summary Registrar el paso por un punto fijo programado
+     * @request POST:/viaje/{viajeId}/registrar-punto
+     * @secure
+     * @response `201` `ViajesRegistrarPuntoData`
+     */
+    registrarPunto: (
+      { viajeId, ...query }: ViajesRegistrarPuntoParams,
+      data: ViajeRegistrarPuntoDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ViajesRegistrarPuntoData, any>({
+        path: `/viaje/${viajeId}/registrar-punto`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags viajes
+     * @name ViajesRegistrarParada
+     * @summary Registrar una parada ocasional no programada
+     * @request POST:/viaje/{viajeId}/registrar-parada
+     * @secure
+     * @response `201` `ViajesRegistrarParadaData`
+     */
+    registrarParada: (
+      { viajeId, ...query }: ViajesRegistrarParadaParams,
+      data: ViajeRegistrarParadaDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ViajesRegistrarParadaData, any>({
+        path: `/viaje/${viajeId}/registrar-parada`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags viajes
+     * @name ViajesGetProximoTramo
+     * @summary Obtener la sugerencia del próximo tramo basado en la ruta y el progreso actual
+     * @request GET:/viaje/{viajeId}/proximo-tramo
+     * @secure
+     * @response `200` `ViajesGetProximoTramoData`
+     */
+    getProximoTramo: (
+      { viajeId, ...query }: ViajesGetProximoTramoParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ViajesGetProximoTramoData, any>({
+        path: `/viaje/${viajeId}/proximo-tramo`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags viajes
+     * @name ViajesUpdateTramo
+     * @summary Actualizar un tramo
+     * @request PATCH:/viaje/tramo/update/{id}
+     * @secure
+     * @response `200` `ViajesUpdateTramoData`
+     */
+    updateTramo: (
+      { id, ...query }: ViajesUpdateTramoParams,
+      data: ViajeTramoUpdateDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ViajesUpdateTramoData, any>({
+        path: `/viaje/tramo/update/${id}`,
         method: "PATCH",
         body: data,
         secure: true,
@@ -17348,18 +19232,18 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags viajes
-     * @name ViajesDeleteServicio
-     * @summary Eliminar un servicio/tramo
-     * @request DELETE:/viaje/servicio/delete/{id}
+     * @name ViajesDeleteTramo
+     * @summary Eliminar un tramo
+     * @request DELETE:/viaje/tramo/delete/{id}
      * @secure
-     * @response `200` `ViajesDeleteServicioData`
+     * @response `200` `ViajesDeleteTramoData`
      */
-    deleteServicio: (
-      { id, ...query }: ViajesDeleteServicioParams,
+    deleteTramo: (
+      { id, ...query }: ViajesDeleteTramoParams,
       params: RequestParams = {},
     ) =>
-      this.http.request<ViajesDeleteServicioData, any>({
-        path: `/viaje/servicio/delete/${id}`,
+      this.http.request<ViajesDeleteTramoData, any>({
+        path: `/viaje/tramo/delete/${id}`,
         method: "DELETE",
         secure: true,
         format: "json",
@@ -17383,6 +19267,7 @@ export class Api<SecurityDataType extends unknown> {
       this.http.request<ViajesFindPasajerosData, any>({
         path: `/viaje/${viajeId}/pasajeros`,
         method: "GET",
+        query: query,
         secure: true,
         format: "json",
         ...params,
@@ -17406,6 +19291,58 @@ export class Api<SecurityDataType extends unknown> {
       this.http.request<ViajesUpsertPasajerosData, any>({
         path: `/viaje/${viajeId}/pasajeros/upsert`,
         method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags viajes
+     * @name ViajesEscanearDnis
+     * @summary Escanear imágenes de DNIs y marcar asistencia/registrar pasajeros automáticamente
+     * @request POST:/viaje/{viajeId}/pasajeros/escanear-dnis
+     * @secure
+     * @response `201` `ViajesEscanearDnisData`
+     */
+    escanearDnis: (
+      { viajeId, ...query }: ViajesEscanearDnisParams,
+      data: ViajeEscanearDnisDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ViajesEscanearDnisData, any>({
+        path: `/viaje/${viajeId}/pasajeros/escanear-dnis`,
+        method: "POST",
+        query: query,
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags viajes
+     * @name ViajesAbordarPasajeros
+     * @summary Marcar abordaje de pasajeros (asistencia) y registrar movimientos en el tramo
+     * @request POST:/viaje/{viajeId}/pasajeros/abordar-pasajeros
+     * @secure
+     * @response `201` `ViajesAbordarPasajerosData`
+     */
+    abordarPasajeros: (
+      { viajeId, ...query }: ViajesAbordarPasajerosParams,
+      data: ViajePasajeroAbordarPasajerosDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ViajesAbordarPasajerosData, any>({
+        path: `/viaje/${viajeId}/pasajeros/abordar-pasajeros`,
+        method: "POST",
+        query: query,
         body: data,
         secure: true,
         type: ContentType.Json,
@@ -17652,6 +19589,71 @@ export class Api<SecurityDataType extends unknown> {
     ) =>
       this.http.request<NotificacionesMarkAsReadData, any>({
         path: `/notificacion/leido/${id}`,
+        method: "POST",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags notificaciones
+     * @name NotificacionesCreateForConductor
+     * @summary Crear una nueva notificación para un conductor
+     * @request POST:/notificacion/create-conductor/{conductorId}
+     * @response `201` `NotificacionesCreateForConductorData`
+     */
+    createForConductor: (
+      { conductorId, ...query }: NotificacionesCreateForConductorParams,
+      data: NotificacionCreateDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<NotificacionesCreateForConductorData, any>({
+        path: `/notificacion/create-conductor/${conductorId}`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags notificaciones
+     * @name NotificacionesFindAllByConductor
+     * @summary Obtener notificaciones de un conductor
+     * @request GET:/notificacion/conductor/{conductorId}
+     * @response `200` `NotificacionesFindAllByConductorData`
+     */
+    findAllByConductor: (
+      { conductorId, ...query }: NotificacionesFindAllByConductorParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<NotificacionesFindAllByConductorData, any>({
+        path: `/notificacion/conductor/${conductorId}`,
+        method: "GET",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags notificaciones
+     * @name NotificacionesMarkAsReadByConductor
+     * @summary Marcar notificación como leída para un conductor
+     * @request POST:/notificacion/leido-conductor/{id}
+     * @response `200` `NotificacionesMarkAsReadByConductorData`
+     */
+    markAsReadByConductor: (
+      { id, ...query }: NotificacionesMarkAsReadByConductorParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<NotificacionesMarkAsReadByConductorData, any>({
+        path: `/notificacion/leido-conductor/${id}`,
         method: "POST",
         query: query,
         format: "json",
@@ -18187,6 +20189,137 @@ export class Api<SecurityDataType extends unknown> {
     ) =>
       this.http.request<TalleresRemoveData, any>({
         path: `/taller/delete/${id}`,
+        method: "DELETE",
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags talleres
+     * @name TalleresCreateSucursal
+     * @summary Crear una nueva sucursal de taller
+     * @request POST:/taller/sucursales/create
+     * @secure
+     * @response `201` `TalleresCreateSucursalData`
+     */
+    createSucursal: (
+      data: SucursalCreateDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<TalleresCreateSucursalData, any>({
+        path: `/taller/sucursales/create`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags talleres
+     * @name TalleresFindAllSucursalesPaginated
+     * @summary Listar sucursales de forma paginada
+     * @request GET:/taller/sucursales/find-all-paginated
+     * @secure
+     * @response `200` `TalleresFindAllSucursalesPaginatedData`
+     */
+    findAllSucursalesPaginated: (
+      query: TalleresFindAllSucursalesPaginatedParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<TalleresFindAllSucursalesPaginatedData, any>({
+        path: `/taller/sucursales/find-all-paginated`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags talleres
+     * @name TalleresFindAllSucursales
+     * @summary Obtener todas las sucursales de talleres disponibles
+     * @request GET:/taller/sucursales/find-all
+     * @secure
+     * @response `200` `TalleresFindAllSucursalesData`
+     */
+    findAllSucursales: (params: RequestParams = {}) =>
+      this.http.request<TalleresFindAllSucursalesData, any>({
+        path: `/taller/sucursales/find-all`,
+        method: "GET",
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags talleres
+     * @name TalleresFindOneSucursal
+     * @summary Obtener una sucursal por ID
+     * @request GET:/taller/sucursales/find-one/{id}
+     * @secure
+     * @response `200` `TalleresFindOneSucursalData`
+     */
+    findOneSucursal: (
+      { id, ...query }: TalleresFindOneSucursalParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<TalleresFindOneSucursalData, any>({
+        path: `/taller/sucursales/find-one/${id}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags talleres
+     * @name TalleresUpdateSucursal
+     * @summary Actualizar una sucursal por ID
+     * @request PATCH:/taller/sucursales/update/{id}
+     * @secure
+     * @response `200` `TalleresUpdateSucursalData`
+     */
+    updateSucursal: (
+      { id, ...query }: TalleresUpdateSucursalParams,
+      data: SucursalUpdateDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<TalleresUpdateSucursalData, any>({
+        path: `/taller/sucursales/update/${id}`,
+        method: "PATCH",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags talleres
+     * @name TalleresRemoveSucursal
+     * @summary Eliminar una sucursal por ID
+     * @request DELETE:/taller/sucursales/delete/{id}
+     * @secure
+     * @response `200` `TalleresRemoveSucursalData`
+     */
+    removeSucursal: (
+      { id, ...query }: TalleresRemoveSucursalParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<TalleresRemoveSucursalData, any>({
+        path: `/taller/sucursales/delete/${id}`,
         method: "DELETE",
         secure: true,
         ...params,
@@ -18744,6 +20877,117 @@ export class Api<SecurityDataType extends unknown> {
         method: "DELETE",
         secure: true,
         format: "json",
+        ...params,
+      }),
+  };
+  alquileres = {
+    /**
+     * No description
+     *
+     * @tags alquileres
+     * @name AlquileresFindAll
+     * @summary Listar todos los alquileres (paginado)
+     * @request GET:/admin/alquileres
+     * @secure
+     * @response `200` `AlquileresFindAllData`
+     */
+    findAll: (
+      query: AlquileresFindAllParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<AlquileresFindAllData, any>({
+        path: `/admin/alquileres`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags alquileres
+     * @name AlquileresCreate
+     * @summary Crear un nuevo alquiler
+     * @request POST:/admin/alquileres
+     * @secure
+     * @response `201` `AlquileresCreateData`
+     */
+    create: (data: AlquilerCreateDto, params: RequestParams = {}) =>
+      this.http.request<AlquileresCreateData, any>({
+        path: `/admin/alquileres`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags alquileres
+     * @name AlquileresFindOne
+     * @summary Obtener un alquiler por ID
+     * @request GET:/admin/alquileres/{id}
+     * @secure
+     * @response `200` `AlquileresFindOneData`
+     */
+    findOne: (
+      { id, ...query }: AlquileresFindOneParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<AlquileresFindOneData, any>({
+        path: `/admin/alquileres/${id}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags alquileres
+     * @name AlquileresUpdate
+     * @summary Actualizar un alquiler
+     * @request PUT:/admin/alquileres/{id}
+     * @secure
+     * @response `200` `AlquileresUpdateData`
+     */
+    update: (
+      { id, ...query }: AlquileresUpdateParams,
+      data: AlquilerUpdateDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<AlquileresUpdateData, any>({
+        path: `/admin/alquileres/${id}`,
+        method: "PUT",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags alquileres
+     * @name AlquileresDelete
+     * @summary Eliminar un alquiler
+     * @request DELETE:/admin/alquileres/{id}
+     * @secure
+     * @response `200` `AlquileresDeleteData`
+     */
+    delete: (
+      { id, ...query }: AlquileresDeleteParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<AlquileresDeleteData, any>({
+        path: `/admin/alquileres/${id}`,
+        method: "DELETE",
+        secure: true,
         ...params,
       }),
   };

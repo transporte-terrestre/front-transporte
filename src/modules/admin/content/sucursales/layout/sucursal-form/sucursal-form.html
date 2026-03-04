@@ -1,0 +1,45 @@
+<form [formGroup]="sucursalForm" class="p-4 space-y-3">
+  <!-- Departamento -->
+  <div>
+    <label class="block text-xs font-inter-semibold text-text mb-1.5">Departamento</label>
+    <input
+      type="text"
+      formControlName="departamento"
+      class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+      placeholder="Ej: Lima"
+    />
+    @if (sucursalForm.get('departamento')?.touched && sucursalForm.get('departamento')?.errors) {
+      <p class="text-danger text-xs font-inter-medium mt-1">El departamento es requerido</p>
+    }
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+    <!-- Provincia -->
+    <div>
+      <label class="block text-xs font-inter-semibold text-text mb-1.5">Provincia</label>
+      <input
+        type="text"
+        formControlName="provincia"
+        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+        placeholder="Ej: Lima"
+      />
+      @if (sucursalForm.get('provincia')?.touched && sucursalForm.get('provincia')?.errors) {
+        <p class="text-danger text-xs font-inter-medium mt-1">La provincia es requerida</p>
+      }
+    </div>
+
+    <!-- Distrito -->
+    <div>
+      <label class="block text-xs font-inter-semibold text-text mb-1.5">Distrito</label>
+      <input
+        type="text"
+        formControlName="distrito"
+        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+        placeholder="Ej: Miraflores"
+      />
+      @if (sucursalForm.get('distrito')?.touched && sucursalForm.get('distrito')?.errors) {
+        <p class="text-danger text-xs font-inter-medium mt-1">El distrito es requerido</p>
+      }
+    </div>
+  </div>
+</form>
