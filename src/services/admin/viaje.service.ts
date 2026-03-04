@@ -208,4 +208,12 @@ export class ViajeService {
   generateHojaRuta(viaje: ViajeResultDto): void {
     generateHojaRutaPdf(viaje);
   }
+
+  async validarVehiculo(query: ApiQuery<'viajes', 'validarVehiculo'>) {
+    return await this.api.viajes.validarVehiculo(query).then((res) => res.data);
+  }
+
+  async validarConductor(query: ApiQuery<'viajes', 'validarConductor'>) {
+    return await this.api.viajes.validarConductor(query).then((res) => res.data);
+  }
 }

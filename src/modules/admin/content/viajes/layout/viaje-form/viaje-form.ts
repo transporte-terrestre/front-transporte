@@ -20,6 +20,7 @@ import { RutaInputSearch } from '@module/admin/components/input-searchs/ruta-inp
 import { ViajeTramosFormComponent } from './layout/viaje-tramos-form/viaje-tramos-form';
 import { ViajePasajerosForm } from './layout/viaje-pasajeros-form/viaje-pasajeros-form';
 import { FormGroup } from '@angular/forms';
+import { ViajeService } from '@service/admin/viaje.service';
 
 interface CircuitoSelection {
   rutaIda?: { id: number; distancia: string; tiempoEstimado: number };
@@ -48,6 +49,7 @@ interface CircuitoSelection {
 export class ViajeForm implements OnInit {
   private fb = inject(FormBuilder);
   private toastService = inject(ToastService);
+  private viajeService = inject(ViajeService);
 
   // Inputs
   viaje = input<ApiResponse<'viajes', 'findOne'> | null>(null);
@@ -58,11 +60,17 @@ export class ViajeForm implements OnInit {
   onUpdate = output<ApiBody<'viajes', 'update'>>();
   onDataChange = output<void>();
 
+  private checkAvailabilityTimeout: any;
+
   // Signals
   tipoViaje = signal<'ida' | 'vuelta' | 'ambos'>('ida');
   hasRutaIda = signal<boolean>(false);
   hasRutaVuelta = signal<boolean>(false);
   hasRutaSelected = signal<boolean>(false);
+
+  // Validation
+  vehiculoValidacionMsg = signal<{ status: boolean; message: string } | null>(null);
+  conductorValidacionMsg = signal<{ status: boolean; message: string } | null>(null);
 
   // Catálogos
   loadingCatalogos = signal(false);
@@ -164,10 +172,18 @@ export class ViajeForm implements OnInit {
           vehiculo: viajeData.vehiculos?.[0].id,
           conductor: viajeData.conductores?.[0].id,
           horasContrato: viajeData.horasContrato,
-          fechaSalidaDate: viajeData.fechaSalida ? this.extractDate(viajeData.fechaSalida) : '',
-          fechaSalidaTime: viajeData.fechaSalida ? this.extractTime(viajeData.fechaSalida) : '',
-          fechaLlegadaDate: viajeData.fechaLlegada ? this.extractDate(viajeData.fechaLlegada) : '',
-          fechaLlegadaTime: viajeData.fechaLlegada ? this.extractTime(viajeData.fechaLlegada) : '',
+          fechaSalidaDate: viajeData.fechaSalidaProgramada
+            ? this.extractDate(viajeData.fechaSalidaProgramada)
+            : '',
+          fechaSalidaTime: viajeData.fechaSalidaProgramada
+            ? this.extractTime(viajeData.fechaSalidaProgramada)
+            : '',
+          fechaLlegadaDate: viajeData.fechaLlegadaProgramada
+            ? this.extractDate(viajeData.fechaLlegadaProgramada)
+            : '',
+          fechaLlegadaTime: viajeData.fechaLlegadaProgramada
+            ? this.extractTime(viajeData.fechaLlegadaProgramada)
+            : '',
           estado: viajeData.estado,
           turno: viajeData.turno,
           sentido: viajeData.sentido,
@@ -284,6 +300,9 @@ export class ViajeForm implements OnInit {
       fLlegadaVDate?.updateValueAndValidity();
       fLlegadaVTime?.updateValueAndValidity();
       distV?.updateValueAndValidity();
+
+      // Chequeo de disponibilidad cuando conmutamos IDA/VUELTA/AMBOS y los tiempos recalculan
+      setTimeout(() => this.checkAvailability(), 100);
     });
 
     // Auto-set horasContrato based on Cliente
@@ -393,8 +412,33 @@ export class ViajeForm implements OnInit {
       this.updateDistanciaFinalState(estado);
     });
 
+    // Suscripciones para endpoints de validación
+    const validateKeys = [
+      'fechaSalidaDate',
+      'fechaSalidaTime',
+      'fechaLlegadaDate',
+      'fechaLlegadaTime',
+      'fechaSalidaVueltaDate',
+      'fechaSalidaVueltaTime',
+      'fechaLlegadaVueltaDate',
+      'fechaLlegadaVueltaTime',
+      'vehiculo',
+      'conductor',
+      'ruta',
+    ];
+    validateKeys.forEach((k) => {
+      this.viajeForm.get(k)?.valueChanges.subscribe(() => {
+        // Necesitamos un pequeño timeout porque ruta calcula los tiempos y parchValue tarda un tick
+        setTimeout(() => this.checkAvailability());
+      });
+    });
+
     // Aplicar estado inicial
     this.updateDistanciaFinalState(this.viajeForm.get('estado')?.value);
+    // Ejecutar inicial de disponibilidad si estamos en edit
+    if (this.editMode()) {
+      setTimeout(() => this.checkAvailability(), 500);
+    }
   }
 
   updateDistanciaFinalState(estado: string | null | undefined) {
@@ -409,6 +453,87 @@ export class ViajeForm implements OnInit {
       distanciaFinalControl?.clearValidators();
     }
     distanciaFinalControl?.updateValueAndValidity();
+  }
+
+  checkAvailability() {
+    clearTimeout(this.checkAvailabilityTimeout);
+    this.checkAvailabilityTimeout = setTimeout(() => {
+      // Si no hemos escogido circuito (fija) y estamos creando, el html ni siquiera permite al usuario ver las fechas de viaje
+      if (
+        !this.hasRutaSelected() &&
+        this.viajeForm.get('tipoRuta')?.value === 'fija' &&
+        !this.editMode()
+      ) {
+        this.vehiculoValidacionMsg.set(null);
+        this.conductorValidacionMsg.set(null);
+        return;
+      }
+
+      const fv = this.viajeForm.value;
+      const isEdit = this.editMode();
+      const viajeId = this.viaje()?.id;
+
+      // Obtener la fecha absoluta mínima (salida) y máxima (llegada)
+      let fechaSalidaStr = `${fv.fechaSalidaDate}T${fv.fechaSalidaTime}`;
+      let fechaLlegadaStr = `${fv.fechaLlegadaDate}T${fv.fechaLlegadaTime}`;
+
+      if (this.tipoViaje() === 'ambos') {
+        fechaLlegadaStr = `${fv.fechaLlegadaVueltaDate}T${fv.fechaLlegadaVueltaTime}`;
+      }
+
+      if (
+        !fv.fechaSalidaDate ||
+        !fv.fechaSalidaTime ||
+        !fv.fechaLlegadaDate ||
+        !fv.fechaLlegadaTime
+      ) {
+        this.vehiculoValidacionMsg.set(null);
+        this.conductorValidacionMsg.set(null);
+        return;
+      }
+
+      if (new Date(fechaSalidaStr) >= new Date(fechaLlegadaStr)) {
+        this.vehiculoValidacionMsg.set(null);
+        this.conductorValidacionMsg.set(null);
+        return;
+      }
+
+      // Vehicle
+      if (fv.vehiculo) {
+        const vId = typeof fv.vehiculo === 'object' ? fv.vehiculo.id : fv.vehiculo;
+        if (vId) {
+          this.viajeService
+            .validarVehiculo({
+              vehiculoId: vId,
+              fechaSalida: fechaSalidaStr,
+              fechaLlegada: fechaLlegadaStr,
+              viajeId,
+            })
+            .then((res) => this.vehiculoValidacionMsg.set(res))
+            .catch(() => this.vehiculoValidacionMsg.set(null));
+        }
+      } else {
+        this.vehiculoValidacionMsg.set(null);
+      }
+
+      // Conductor
+      if (fv.conductor) {
+        const cId = typeof fv.conductor === 'object' ? fv.conductor.id : fv.conductor;
+        if (cId) {
+          this.viajeService
+            .validarConductor({
+              conductorId: cId,
+              fechaSalida: fechaSalidaStr,
+              fechaLlegada: fechaLlegadaStr,
+              viajeId,
+            })
+            .then((res) => this.conductorValidacionMsg.set(res))
+            .catch(() => this.conductorValidacionMsg.set(null));
+        }
+      } else {
+        this.conductorValidacionMsg.set(null);
+      }
+    }, 400); // 400ms debounce
   }
 
   formatDateTimeForInput(date: Date | string): string {
@@ -619,7 +744,7 @@ export class ViajeForm implements OnInit {
         estado: (estadoVal || formValue.estado || 'programado') as any,
         turno: (turnoVal || formValue.turno || 'dia') as any,
         sentido: sentido,
-        fechaSalida:
+        fechaSalidaProgramada:
           fechaSalidaDateVal && fechaSalidaTimeVal
             ? `${fechaSalidaDateVal}T${fechaSalidaTimeVal}:00.000Z`
             : '',
@@ -637,7 +762,7 @@ export class ViajeForm implements OnInit {
       >['turno'];
 
       if (fechaLlegadaDateVal && fechaLlegadaTimeVal) {
-        detalle.fechaLlegada = `${fechaLlegadaDateVal}T${fechaLlegadaTimeVal}:00.000Z`;
+        detalle.fechaLlegadaProgramada = `${fechaLlegadaDateVal}T${fechaLlegadaTimeVal}:00.000Z`;
       }
       if (rutaId) detalle.rutaId = rutaId;
       if (formValue.rutaOcasional) detalle.rutaOcasional = formValue.rutaOcasional;

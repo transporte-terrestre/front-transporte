@@ -109,10 +109,13 @@ export class ViajesList implements OnInit, OnDestroy {
     });
 
     for (const viaje of allTrips) {
-      const fechaSalida = this.parseIsoAsLocal(viaje.fechaSalida);
-      const fechaLlegada = viaje.fechaLlegada
-        ? this.parseIsoAsLocal(viaje.fechaLlegada)
-        : new Date(fechaSalida.getTime() + 2 * 60 * 60 * 1000); // Default 2 hours
+      const fechaSalida = this.parseIsoAsLocal(
+        viaje.fechaSalidaProgramada || viaje.fechaSalida || '',
+      );
+      const fechaLlegada =
+        viaje.fechaLlegadaProgramada || viaje.fechaLlegada
+          ? this.parseIsoAsLocal(viaje.fechaLlegadaProgramada || viaje.fechaLlegada || '')
+          : new Date(fechaSalida.getTime() + 2 * 60 * 60 * 1000); // Default 2 hours
 
       // Normalizar fechas de inicio/fin para iterar por días
       const current = new Date(fechaSalida);
@@ -619,7 +622,9 @@ export class ViajesList implements OnInit, OnDestroy {
   }
 
   getTurnoBadgeClass(turno: 'dia' | 'noche' | undefined): string {
-    return 'bg-text/5 text-text/60';
+    return turno === 'noche'
+      ? 'bg-text border-text text-background shadow-sm'
+      : 'bg-text/5 border-text/10 text-text/80 shadow-sm';
   }
 
   getTurnoLabel(turno: 'dia' | 'noche' | undefined): string {
@@ -658,5 +663,38 @@ export class ViajesList implements OnInit, OnDestroy {
     const strMinutes = minutes < 10 ? '0' + minutes : minutes;
 
     return `${day} ${month} ${year} ${hours}:${strMinutes} ${ampm}`;
+  }
+
+  formatTimeOnly(dateString: string): string {
+    const date = this.parseIsoAsLocal(dateString);
+    let hours = date.getHours();
+    const minutes = date.getMinutes();
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    const strMinutes = minutes < 10 ? '0' + minutes : minutes;
+    return `${hours}:${strMinutes} ${ampm}`;
+  }
+
+  formatDateOnly(dateString: string): string {
+    const date = this.parseIsoAsLocal(dateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const months = [
+      'Ene',
+      'Feb',
+      'Mar',
+      'Abr',
+      'May',
+      'Jun',
+      'Jul',
+      'Ago',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dic',
+    ];
+    const month = months[date.getMonth()];
+    // The image format is '25 Feb' or just the abbreviated month so no year
+    return `${day} ${month}`;
   }
 }

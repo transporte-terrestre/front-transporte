@@ -3409,7 +3409,7 @@ export interface DocumentoItemDto {
   observacion?: string;
   /**
    * Fecha de Vencimiento Inicial/Por defecto
-   * @example "2026-03-03T13:34:20.501Z"
+   * @example "2026-03-04T00:35:37.605Z"
    */
   fechaVencimiento?: string;
 }
@@ -3592,17 +3592,17 @@ export interface BotiquinItemDto {
   habilitado: boolean;
   /**
    * Fecha de Vencimiento actual
-   * @example "2026-03-03T13:34:20.503Z"
+   * @example "2026-03-04T00:35:37.607Z"
    */
   fechaVencimiento?: string;
   /**
    * Fecha de Salida
-   * @example "2026-03-03T13:34:20.503Z"
+   * @example "2026-03-04T00:35:37.607Z"
    */
   fechaSalida?: string;
   /**
    * Fecha de Reposición
-   * @example "2026-03-03T13:34:20.503Z"
+   * @example "2026-03-04T00:35:37.607Z"
    */
   fechaReposicion?: string;
 }
@@ -5453,13 +5453,25 @@ export interface ViajeListDto {
    */
   sentido: "ida" | "vuelta";
   /**
-   * Departure date
+   * Scheduled departure date
    * @format date-time
    * @example "2025-01-01T10:00:00Z"
    */
-  fechaSalida: string;
+  fechaSalidaProgramada: string;
   /**
-   * Arrival date
+   * Scheduled arrival date
+   * @format date-time
+   * @example "2025-01-01T18:00:00Z"
+   */
+  fechaLlegadaProgramada?: string;
+  /**
+   * Real Departure date
+   * @format date-time
+   * @example "2025-01-01T10:00:00Z"
+   */
+  fechaSalida?: string;
+  /**
+   * Real Arrival date
    * @format date-time
    * @example "2025-01-01T18:00:00Z"
    */
@@ -5564,6 +5576,19 @@ export interface PaginatedViajeLightResultDto {
   data: ViajeCircuitoLightResultDto[];
   /** Metadatos de la paginación */
   meta: PaginationMetaDto;
+}
+
+export interface ValidacionResultDto {
+  /**
+   * Indica si la entidad (vehículo o conductor) está habilitada y disponible
+   * @example true
+   */
+  status: boolean;
+  /**
+   * Mensaje detallando el resultado de la validación
+   * @example "El vehículo está disponible para este viaje."
+   */
+  message: string;
 }
 
 export interface ViajeConductorDetalleDto {
@@ -6060,13 +6085,25 @@ export interface ViajeResultDto {
    */
   numeroVale?: string;
   /**
-   * Departure date
+   * Scheduled departure date
    * @format date-time
    * @example "2025-01-01T10:00:00Z"
    */
-  fechaSalida: string;
+  fechaSalidaProgramada: string;
   /**
-   * Arrival date
+   * Scheduled arrival date
+   * @format date-time
+   * @example "2025-01-01T18:00:00Z"
+   */
+  fechaLlegadaProgramada?: string;
+  /**
+   * Real Departure date
+   * @format date-time
+   * @example "2025-01-01T10:00:00Z"
+   */
+  fechaSalida?: string;
+  /**
+   * Real Arrival date
    * @format date-time
    * @example "2025-01-01T18:00:00Z"
    */
@@ -6185,17 +6222,17 @@ export interface ViajeDetalleCreateDto {
    */
   horasContrato?: string;
   /**
-   * Departure date
+   * Scheduled departure date
    * @format date-time
    * @example "2025-01-01T10:00:00Z"
    */
-  fechaSalida: string;
+  fechaSalidaProgramada: string;
   /**
-   * Arrival date
+   * Scheduled arrival date
    * @format date-time
    * @example "2025-01-01T18:00:00Z"
    */
-  fechaLlegada?: string;
+  fechaLlegadaProgramada?: string;
   /**
    * Estado del viaje
    * @default "programado"
@@ -6283,17 +6320,17 @@ export interface ViajeUpdateDto {
    */
   horasContrato?: string;
   /**
-   * Departure date
+   * Scheduled departure date
    * @format date-time
    * @example "2025-01-01T10:00:00Z"
    */
-  fechaSalida?: string;
+  fechaSalidaProgramada?: string;
   /**
-   * Arrival date
+   * Scheduled arrival date
    * @format date-time
    * @example "2025-01-01T18:00:00Z"
    */
-  fechaLlegada?: string;
+  fechaLlegadaProgramada?: string;
   /**
    * Estado del viaje
    * @default "programado"
@@ -8037,9 +8074,17 @@ export interface ViajeDetalladoDto {
   estado: string;
   modalidadServicio: string;
   /** @format date-time */
-  fechaSalida: string;
+  fechaSalidaProgramada: string;
+  /** @format date-time */
+  fechaLlegadaProgramada: string | null;
+  /** @format date-time */
+  fechaSalida: string | null;
   /** @format date-time */
   fechaLlegada: string | null;
+  /** ID del circuito al que pertenece este viaje */
+  circuitoId: number | null;
+  /** Sentido del viaje */
+  sentido: string;
 }
 
 export interface MantenimientoDetalladoVehiculoDto {
@@ -10142,6 +10187,44 @@ export interface ViajesFindAllLightParams {
 }
 
 export type ViajesFindAllLightData = PaginatedViajeLightResultDto;
+
+export interface ViajesValidarVehiculoParams {
+  /** ID del vehículo a validar */
+  vehiculoId: number;
+  /**
+   * Fecha de salida programada
+   * @format date-time
+   */
+  fechaSalida: string;
+  /**
+   * Fecha de llegada programada
+   * @format date-time
+   */
+  fechaLlegada: string;
+  /** ID del viaje actual (para excluirlo de la validación de cruces) */
+  viajeId?: number;
+}
+
+export type ViajesValidarVehiculoData = ValidacionResultDto;
+
+export interface ViajesValidarConductorParams {
+  /** ID del conductor a validar */
+  conductorId: number;
+  /**
+   * Fecha de salida programada
+   * @format date-time
+   */
+  fechaSalida: string;
+  /**
+   * Fecha de llegada programada
+   * @format date-time
+   */
+  fechaLlegada: string;
+  /** ID del viaje actual (para excluirlo de la validación de cruces) */
+  viajeId?: number;
+}
+
+export type ViajesValidarConductorData = ValidacionResultDto;
 
 export interface ViajesFindOneParams {
   /** ID del viaje */
@@ -13414,6 +13497,70 @@ export namespace Viajes {
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = ViajesFindAllLightData;
+  }
+
+  /**
+   * No description
+   * @tags viajes
+   * @name ViajesValidarVehiculo
+   * @summary Validar disponibilidad y requisitos de un vehículo para un horario programado
+   * @request GET:/viaje/validar-vehiculo
+   * @secure
+   * @response `200` `ViajesValidarVehiculoData`
+   */
+  export namespace ViajesValidarVehiculo {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /** ID del vehículo a validar */
+      vehiculoId: number;
+      /**
+       * Fecha de salida programada
+       * @format date-time
+       */
+      fechaSalida: string;
+      /**
+       * Fecha de llegada programada
+       * @format date-time
+       */
+      fechaLlegada: string;
+      /** ID del viaje actual (para excluirlo de la validación de cruces) */
+      viajeId?: number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ViajesValidarVehiculoData;
+  }
+
+  /**
+   * No description
+   * @tags viajes
+   * @name ViajesValidarConductor
+   * @summary Validar disponibilidad y requisitos de un conductor para un horario programado
+   * @request GET:/viaje/validar-conductor
+   * @secure
+   * @response `200` `ViajesValidarConductorData`
+   */
+  export namespace ViajesValidarConductor {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /** ID del conductor a validar */
+      conductorId: number;
+      /**
+       * Fecha de salida programada
+       * @format date-time
+       */
+      fechaSalida: string;
+      /**
+       * Fecha de llegada programada
+       * @format date-time
+       */
+      fechaLlegada: string;
+      /** ID del viaje actual (para excluirlo de la validación de cruces) */
+      viajeId?: number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ViajesValidarConductorData;
   }
 
   /**
@@ -18329,6 +18476,52 @@ export class Api<SecurityDataType extends unknown> {
     ) =>
       this.http.request<ViajesFindAllLightData, any>({
         path: `/viaje/find-all-light`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags viajes
+     * @name ViajesValidarVehiculo
+     * @summary Validar disponibilidad y requisitos de un vehículo para un horario programado
+     * @request GET:/viaje/validar-vehiculo
+     * @secure
+     * @response `200` `ViajesValidarVehiculoData`
+     */
+    validarVehiculo: (
+      query: ViajesValidarVehiculoParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ViajesValidarVehiculoData, any>({
+        path: `/viaje/validar-vehiculo`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags viajes
+     * @name ViajesValidarConductor
+     * @summary Validar disponibilidad y requisitos de un conductor para un horario programado
+     * @request GET:/viaje/validar-conductor
+     * @secure
+     * @response `200` `ViajesValidarConductorData`
+     */
+    validarConductor: (
+      query: ViajesValidarConductorParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ViajesValidarConductorData, any>({
+        path: `/viaje/validar-conductor`,
         method: "GET",
         query: query,
         secure: true,

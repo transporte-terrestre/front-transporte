@@ -211,7 +211,11 @@
                     >
                       <div class="flex flex-col h-full overflow-hidden">
                         <span class="text-[10px] font-inter-bold truncate">
-                          {{ formatTimeShort(event.viaje.fechaSalida) }}
+                          {{
+                            formatTimeShort(
+                              event.viaje.fechaSalidaProgramada || event.viaje.fechaSalida || ''
+                            )
+                          }}
                         </span>
                         <span class="text-xs font-inter-semibold truncate flex-1">
                           {{ getRutaDisplay(event.viaje) }}
@@ -425,13 +429,13 @@
                 </td>
                 <td class="px-4 py-3 whitespace-nowrap">
                   @if (row.viaje) {
-                    <div class="flex items-center gap-1">
+                    <div class="flex items-center">
                       @if (row.viaje.turno) {
                         <span
-                          class="px-2 py-0.5 text-[10px] font-inter-bold rounded-lg flex items-center gap-1.5 w-fit"
+                          class="px-3 py-1.5 text-[11px] font-inter-medium rounded-md border w-[80px] flex items-center justify-center gap-1.5"
                           [class]="getTurnoBadgeClass(row.viaje.turno)"
                         >
-                          <i class="fas text-[9px]" [class]="getTurnoIcon(row.viaje.turno)"></i>
+                          <i class="fas text-[11px]" [class]="getTurnoIcon(row.viaje.turno)"></i>
                           {{ getTurnoLabel(row.viaje.turno) }}
                         </span>
                       }
@@ -442,22 +446,78 @@
                 </td>
                 <td class="px-4 py-3 whitespace-nowrap">
                   @if (row.viaje) {
-                    <span class="text-xs font-inter-medium text-text">{{
-                      formatDate(row.viaje.fechaSalida)
-                    }}</span>
+                    <div class="flex flex-col gap-0.5">
+                      @if (row.viaje.fechaSalida) {
+                        <div
+                          class="flex items-center gap-1.5"
+                          [title]="'Salida Real: ' + formatDate(row.viaje.fechaSalida)"
+                        >
+                          <i class="fas fa-play text-[10px] text-success"></i>
+                          <span class="text-[13px] font-inter-bold text-text">
+                            {{ formatTimeOnly(row.viaje.fechaSalida) }}
+                          </span>
+                        </div>
+                        <span class="text-[11px] font-inter-medium text-text/40 ml-[16px]">
+                          {{ formatDateOnly(row.viaje.fechaSalida) }}
+                        </span>
+                      } @else if (row.viaje.fechaSalidaProgramada) {
+                        <div
+                          class="flex items-center gap-1.5"
+                          [title]="
+                            'Salida Programada: ' + formatDate(row.viaje.fechaSalidaProgramada)
+                          "
+                        >
+                          <i class="far fa-calendar text-[11px] text-text/30"></i>
+                          <span class="text-[13px] font-inter-bold text-text/70">
+                            {{ formatTimeOnly(row.viaje.fechaSalidaProgramada) }}
+                          </span>
+                        </div>
+                        <span class="text-[11px] font-inter-medium text-text/40 ml-[18px]">
+                          Prog: {{ formatDateOnly(row.viaje.fechaSalidaProgramada) }}
+                        </span>
+                      } @else {
+                        <span class="text-xs text-text/40">-</span>
+                      }
+                    </div>
                   } @else {
                     <span class="text-xs text-text/40">-</span>
                   }
                 </td>
                 <td class="px-4 py-3 whitespace-nowrap">
                   @if (row.viaje) {
-                    <span class="text-xs font-inter-medium text-text">
+                    <div class="flex flex-col gap-0.5">
                       @if (row.viaje.fechaLlegada) {
-                        {{ formatDate(row.viaje.fechaLlegada) }}
+                        <div
+                          class="flex items-center gap-1.5"
+                          [title]="'Llegada Real: ' + formatDate(row.viaje.fechaLlegada)"
+                        >
+                          <i class="fas fa-check-circle text-[11px] text-success"></i>
+                          <span class="text-[13px] font-inter-bold text-text">
+                            {{ formatTimeOnly(row.viaje.fechaLlegada) }}
+                          </span>
+                        </div>
+                        <span class="text-[11px] font-inter-medium text-text/40 ml-[18px]">
+                          {{ formatDateOnly(row.viaje.fechaLlegada) }}
+                        </span>
+                      } @else if (row.viaje.fechaLlegadaProgramada) {
+                        <div
+                          class="flex items-center gap-1.5"
+                          [title]="
+                            'Llegada Programada: ' + formatDate(row.viaje.fechaLlegadaProgramada)
+                          "
+                        >
+                          <i class="far fa-calendar text-[11px] text-text/30"></i>
+                          <span class="text-[13px] font-inter-bold text-text/70">
+                            {{ formatTimeOnly(row.viaje.fechaLlegadaProgramada) }}
+                          </span>
+                        </div>
+                        <span class="text-[11px] font-inter-medium text-text/40 ml-[18px]">
+                          Prog: {{ formatDateOnly(row.viaje.fechaLlegadaProgramada) }}
+                        </span>
                       } @else {
-                        <span class="text-text/40">-</span>
+                        <span class="text-xs text-text/40">-</span>
                       }
-                    </span>
+                    </div>
                   } @else {
                     <span class="text-xs text-text/40">-</span>
                   }

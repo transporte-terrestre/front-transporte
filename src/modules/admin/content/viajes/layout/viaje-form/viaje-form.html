@@ -206,6 +206,44 @@
         </div>
       }
 
+      <!-- Validation Msgs -->
+      @if (vehiculoValidacionMsg() || conductorValidacionMsg()) {
+        <div class="space-y-2 mt-2">
+          @if (vehiculoValidacionMsg(); as vMsg) {
+            <div
+              class="flex items-start gap-2 p-2.5 rounded-lg border text-xs font-inter-medium transition-colors"
+              [ngClass]="
+                vMsg.status
+                  ? 'bg-success/10 border-success/20 text-success'
+                  : 'bg-danger/10 border-danger/20 text-danger'
+              "
+            >
+              <i
+                class="fas mt-0.5"
+                [ngClass]="vMsg.status ? 'fa-check-circle' : 'fa-exclamation-circle'"
+              ></i>
+              <span>{{ vMsg.message }}</span>
+            </div>
+          }
+          @if (conductorValidacionMsg(); as cMsg) {
+            <div
+              class="flex items-start gap-2 p-2.5 rounded-lg border text-xs font-inter-medium transition-colors"
+              [ngClass]="
+                cMsg.status
+                  ? 'bg-success/10 border-success/20 text-success'
+                  : 'bg-danger/10 border-danger/20 text-danger'
+              "
+            >
+              <i
+                class="fas mt-0.5"
+                [ngClass]="cMsg.status ? 'fa-check-circle' : 'fa-exclamation-circle'"
+              ></i>
+              <span>{{ cMsg.message }}</span>
+            </div>
+          }
+        </div>
+      }
+
       <!-- Spacer for Dropdowns -->
       @if (!editMode()) {
         <div class="hidden lg:block h-32 w-full relative -z-10"></div>
