@@ -75,14 +75,15 @@
         >
           <div class="flex justify-between items-start mb-2">
             <div>
-              <h3 class="text-lg font-inter-bold text-text">{{ sucursal.nombre }}</h3>
+              <h3 class="text-lg font-inter-bold text-text">{{ sucursal.departamento }}</h3>
             </div>
           </div>
 
           <div class="space-y-2 text-sm text-text/80 mb-4">
-            @if (sucursal.direccion) {
-              <p><i class="fas fa-map-marker-alt w-5 text-center"></i> {{ sucursal.direccion }}</p>
-            }
+            <p>
+              <i class="fas fa-map-marker-alt w-5 text-center"></i> {{ sucursal.provincia }},
+              {{ sucursal.distrito }}
+            </p>
           </div>
 
           <!-- Actions -->
@@ -128,12 +129,12 @@
               <th
                 class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
               >
-                Nombre
+                Departamento
               </th>
               <th
                 class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
               >
-                Dirección
+                Ubicación
               </th>
               <th
                 class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase tracking-wider"
@@ -146,12 +147,12 @@
             @for (sucursal of sucursales(); track sucursal.id) {
               <tr class="hover:bg-text/5 transition-colors">
                 <td class="px-4 py-3 whitespace-nowrap">
-                  <span class="text-xs font-inter-bold text-text">{{ sucursal.nombre }}</span>
+                  <span class="text-xs font-inter-bold text-text">{{ sucursal.departamento }}</span>
                 </td>
                 <td class="px-4 py-3 whitespace-nowrap">
-                  <span class="text-xs font-inter-medium text-text">{{
-                    sucursal.direccion || '-'
-                  }}</span>
+                  <span class="text-xs font-inter-medium text-text"
+                    >{{ sucursal.provincia }}, {{ sucursal.distrito }}</span
+                  >
                 </td>
                 <td class="px-4 py-3 whitespace-nowrap text-right">
                   <div class="flex items-center justify-end gap-1">

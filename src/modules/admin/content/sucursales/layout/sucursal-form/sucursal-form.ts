@@ -22,8 +22,9 @@ export class SucursalForm implements OnInit {
   >();
 
   sucursalForm: FormGroup = this.fb.group({
-    nombre: ['', [Validators.required, Validators.minLength(2)]],
-    direccion: [''],
+    departamento: ['', [Validators.required, Validators.minLength(2)]],
+    provincia: ['', [Validators.required, Validators.minLength(2)]],
+    distrito: ['', [Validators.required, Validators.minLength(2)]],
   });
 
   constructor() {
@@ -33,8 +34,9 @@ export class SucursalForm implements OnInit {
 
       if (isEditMode && sucursalData) {
         this.sucursalForm.patchValue({
-          nombre: sucursalData.nombre,
-          direccion: sucursalData.direccion,
+          departamento: sucursalData.departamento,
+          provincia: sucursalData.provincia,
+          distrito: sucursalData.distrito,
         });
       } else {
         this.sucursalForm.reset();

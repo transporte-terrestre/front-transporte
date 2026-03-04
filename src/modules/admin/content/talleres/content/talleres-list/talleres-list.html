@@ -63,188 +63,84 @@
 
   <!-- Loading State -->
   @if (loading()) {
-  <div class="flex items-center justify-center py-12">
-    <div class="flex flex-col items-center gap-3">
-      <i class="fas fa-spinner fa-spin text-3xl text-secondary"></i>
-      <p class="text-text/60 font-inter-medium">Cargando talleres...</p>
+    <div class="flex items-center justify-center py-12">
+      <div class="flex flex-col items-center gap-3">
+        <i class="fas fa-spinner fa-spin text-3xl text-secondary"></i>
+        <p class="text-text/60 font-inter-medium">Cargando talleres...</p>
+      </div>
     </div>
-  </div>
   }
 
   <!-- Empty State -->
   @else if (talleres().length === 0) {
-  <div
-    class="flex flex-col items-center justify-center py-12 text-text/60 bg-background border border-text/10 rounded-xl"
-  >
-    <i class="fas fa-tools text-5xl mb-4 text-text/20"></i>
-    <p class="font-inter-semibold text-lg">No hay talleres registrados</p>
-    <p class="font-inter-regular text-sm mt-1">Comienza agregando un nuevo taller</p>
-  </div>
+    <div
+      class="flex flex-col items-center justify-center py-12 text-text/60 bg-background border border-text/10 rounded-xl"
+    >
+      <i class="fas fa-tools text-5xl mb-4 text-text/20"></i>
+      <p class="font-inter-semibold text-lg">No hay talleres registrados</p>
+      <p class="font-inter-regular text-sm mt-1">Comienza agregando un nuevo taller</p>
+    </div>
   }
 
   <!-- Grid View -->
   @else if (viewMode() === 'grid') {
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-    @for (taller of talleres(); track taller.id) {
-    <div
-      class="taller-card bg-background border border-text/10 rounded-xl shadow-sm hover:shadow-md transition-all overflow-hidden group p-4"
-    >
-      <div class="flex justify-between items-start mb-2">
-        <div>
-          <h3 class="text-lg font-inter-bold text-text">{{ taller.razonSocial }}</h3>
-          @if(taller.nombreComercial){
-          <p class="text-sm text-text/60">{{ taller.nombreComercial }}</p>
-          }
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      @for (taller of talleres(); track taller.id) {
+        <div
+          class="taller-card bg-background border border-text/10 rounded-xl shadow-sm hover:shadow-md transition-all overflow-hidden group p-4"
+        >
+          <div class="flex justify-between items-start mb-2">
+            <div>
+              <h3 class="text-lg font-inter-bold text-text">{{ taller.razonSocial }}</h3>
+              @if (taller.nombreComercial) {
+                <p class="text-sm text-text/60">{{ taller.nombreComercial }}</p>
+              }
+            </div>
+            <span
+              class="px-2 py-0.5 text-xs font-inter-semibold rounded-full capitalize flex items-center gap-1 w-fit"
+              [ngClass]="getTipoClasse(taller.tipo)"
+            >
+              <i [class]="'fas ' + getTipoIcon(taller.tipo)" class="text-xs"></i>
+              {{ taller.tipo }}
+            </span>
+          </div>
+
+          <div class="space-y-2 text-sm text-text/80 mb-4">
+            @if (taller.ruc) {
+              <p><i class="fas fa-barcode w-5 text-center"></i> {{ taller.ruc }}</p>
+            }
+            @if (taller.telefono) {
+              <p><i class="fas fa-phone w-5 text-center"></i> {{ taller.telefono }}</p>
+            }
+            @if (taller.email) {
+              <p><i class="fas fa-envelope w-5 text-center"></i> {{ taller.email }}</p>
+            }
+          </div>
+
+          <!-- Actions -->
+          <div class="pt-3 border-t border-text/10 flex items-center justify-end gap-2">
+            <button
+              (click)="navigateToEdit(taller)"
+              class="flex items-center gap-1.5 px-3 py-1.5 text-info hover:bg-info/10 rounded-lg transition-colors text-xs font-inter-semibold"
+              title="Editar"
+            >
+              <i class="fas fa-edit"></i>
+              <span>Editar</span>
+            </button>
+            <button
+              (click)="deleteTaller(taller.id)"
+              class="flex items-center gap-1.5 px-3 py-1.5 text-danger hover:bg-danger/10 rounded-lg transition-colors text-xs font-inter-semibold"
+              title="Eliminar"
+            >
+              <i class="fas fa-trash"></i>
+              <span>Eliminar</span>
+            </button>
+          </div>
         </div>
-        <span
-          class="px-2 py-0.5 text-xs font-inter-semibold rounded-full capitalize flex items-center gap-1 w-fit"
-          [ngClass]="getTipoClasse(taller.tipo)"
-        >
-          <i [class]="'fas ' + getTipoIcon(taller.tipo)" class="text-xs"></i>
-          {{ taller.tipo }}
-        </span>
-      </div>
-
-      <div class="space-y-2 text-sm text-text/80 mb-4">
-        @if(taller.ruc){
-        <p><i class="fas fa-barcode w-5 text-center"></i> {{ taller.ruc }}</p>
-        } @if(taller.telefono){
-        <p><i class="fas fa-phone w-5 text-center"></i> {{ taller.telefono }}</p>
-        } @if(taller.email){
-        <p><i class="fas fa-envelope w-5 text-center"></i> {{ taller.email }}</p>
-        } @if(taller.direccion){
-        <p><i class="fas fa-map-marker-alt w-5 text-center"></i> {{ taller.direccion }}</p>
-        }
-      </div>
-
-      <!-- Actions -->
-      <div class="pt-3 border-t border-text/10 flex items-center justify-end gap-2">
-        <button
-          (click)="navigateToEdit(taller)"
-          class="flex items-center gap-1.5 px-3 py-1.5 text-info hover:bg-info/10 rounded-lg transition-colors text-xs font-inter-semibold"
-          title="Editar"
-        >
-          <i class="fas fa-edit"></i>
-          <span>Editar</span>
-        </button>
-        <button
-          (click)="deleteTaller(taller.id)"
-          class="flex items-center gap-1.5 px-3 py-1.5 text-danger hover:bg-danger/10 rounded-lg transition-colors text-xs font-inter-semibold"
-          title="Eliminar"
-        >
-          <i class="fas fa-trash"></i>
-          <span>Eliminar</span>
-        </button>
-      </div>
-    </div>
-    }
-  </div>
-
-  <!-- Paginación Grid -->
-  <app-pagination
-    [meta]="meta()"
-    [currentPage]="currentPage()"
-    [pageSize]="pageSize()"
-    (pageChange)="onPageChange($event)"
-    (pageSizeChange)="onPageSizeChange($event)"
-  />
-  }
-
-  <!-- Table View -->
-  @else {
-  <div class="bg-background border border-text/10 rounded-xl shadow-sm overflow-hidden">
-    <div class="overflow-x-auto">
-      <table class="w-full">
-        <thead class="bg-text/5 border-b border-text/10">
-          <tr>
-            <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
-            >
-              RUC
-            </th>
-            <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
-            >
-              Razón Social
-            </th>
-            <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
-            >
-              Nombre Comercial
-            </th>
-            <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
-            >
-              Tipo
-            </th>
-            <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
-            >
-              Contacto
-            </th>
-            <th
-              class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase tracking-wider"
-            >
-              Acciones
-            </th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-text/10">
-          @for (taller of talleres(); track taller.id) {
-          <tr class="hover:bg-text/5 transition-colors">
-            <td class="px-4 py-3 whitespace-nowrap">
-              <span class="text-xs font-inter-semibold text-text">{{ taller.ruc || '-' }}</span>
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap">
-              <span class="text-xs font-inter-bold text-text">{{ taller.razonSocial }}</span>
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap">
-              <span class="text-xs font-inter-medium text-text">{{
-                taller.nombreComercial || '-'
-              }}</span>
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap">
-              <span
-                class="px-2 py-0.5 text-xs font-inter-semibold rounded-full capitalize flex items-center gap-1 w-fit"
-                [ngClass]="getTipoClasse(taller.tipo)"
-              >
-                <i [class]="'fas ' + getTipoIcon(taller.tipo)" class="text-xs"></i>
-                {{ taller.tipo }}
-              </span>
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap">
-              <div class="flex flex-col text-xs text-text/80">
-                @if(taller.telefono){
-                <span><i class="fas fa-phone mr-1"></i>{{ taller.telefono }}</span> }
-                @if(taller.email){
-                <span><i class="fas fa-envelope mr-1"></i>{{ taller.email }}</span> }
-              </div>
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap text-right">
-              <div class="flex items-center justify-end gap-1">
-                <button
-                  (click)="navigateToEdit(taller)"
-                  class="p-1.5 text-info hover:bg-info/10 rounded-lg transition-colors text-sm"
-                  title="Editar"
-                >
-                  <i class="fas fa-edit"></i>
-                </button>
-                <button
-                  (click)="deleteTaller(taller.id)"
-                  class="p-1.5 text-danger hover:bg-danger/10 rounded-lg transition-colors text-sm"
-                  title="Eliminar"
-                >
-                  <i class="fas fa-trash"></i>
-                </button>
-              </div>
-            </td>
-          </tr>
-          }
-        </tbody>
-      </table>
+      }
     </div>
 
-    <!-- Paginación Tabla -->
+    <!-- Paginación Grid -->
     <app-pagination
       [meta]="meta()"
       [currentPage]="currentPage()"
@@ -252,20 +148,126 @@
       (pageChange)="onPageChange($event)"
       (pageSizeChange)="onPageSizeChange($event)"
     />
-  </div>
+  }
+
+  <!-- Table View -->
+  @else {
+    <div class="bg-background border border-text/10 rounded-xl shadow-sm overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-text/5 border-b border-text/10">
+            <tr>
+              <th
+                class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              >
+                RUC
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              >
+                Razón Social
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              >
+                Nombre Comercial
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              >
+                Tipo
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              >
+                Contacto
+              </th>
+              <th
+                class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              >
+                Acciones
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-text/10">
+            @for (taller of talleres(); track taller.id) {
+              <tr class="hover:bg-text/5 transition-colors">
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <span class="text-xs font-inter-semibold text-text">{{ taller.ruc || '-' }}</span>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <span class="text-xs font-inter-bold text-text">{{ taller.razonSocial }}</span>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <span class="text-xs font-inter-medium text-text">{{
+                    taller.nombreComercial || '-'
+                  }}</span>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <span
+                    class="px-2 py-0.5 text-xs font-inter-semibold rounded-full capitalize flex items-center gap-1 w-fit"
+                    [ngClass]="getTipoClasse(taller.tipo)"
+                  >
+                    <i [class]="'fas ' + getTipoIcon(taller.tipo)" class="text-xs"></i>
+                    {{ taller.tipo }}
+                  </span>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <div class="flex flex-col text-xs text-text/80">
+                    @if (taller.telefono) {
+                      <span><i class="fas fa-phone mr-1"></i>{{ taller.telefono }}</span>
+                    }
+                    @if (taller.email) {
+                      <span><i class="fas fa-envelope mr-1"></i>{{ taller.email }}</span>
+                    }
+                  </div>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-right">
+                  <div class="flex items-center justify-end gap-1">
+                    <button
+                      (click)="navigateToEdit(taller)"
+                      class="p-1.5 text-info hover:bg-info/10 rounded-lg transition-colors text-sm"
+                      title="Editar"
+                    >
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button
+                      (click)="deleteTaller(taller.id)"
+                      class="p-1.5 text-danger hover:bg-danger/10 rounded-lg transition-colors text-sm"
+                      title="Eliminar"
+                    >
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Paginación Tabla -->
+      <app-pagination
+        [meta]="meta()"
+        [currentPage]="currentPage()"
+        [pageSize]="pageSize()"
+        (pageChange)="onPageChange($event)"
+        (pageSizeChange)="onPageSizeChange($event)"
+      />
+    </div>
   }
 </div>
 
 <!-- Modal -->
 @if (showModal()) {
-<app-modal-form
-  title="Nuevo Taller"
-  submitText="Crear"
-  [maxWidth]="'2xl'"
-  [loading]="loading()"
-  (onSubmit)="handleModalSubmit()"
-  (onClose)="closeModal()"
->
-  <app-taller-form [editMode]="false" (onSubmitForm)="handleFormSubmit($event)" />
-</app-modal-form>
+  <app-modal-form
+    title="Nuevo Taller"
+    submitText="Crear"
+    [maxWidth]="'2xl'"
+    [loading]="loading()"
+    (onSubmit)="handleModalSubmit()"
+    (onClose)="closeModal()"
+  >
+    <app-taller-form [editMode]="false" (onSubmitForm)="handleFormSubmit($event)" />
+  </app-modal-form>
 }

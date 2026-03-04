@@ -1,4 +1,4 @@
-import { Component, inject, signal, ElementRef, HostListener, input } from '@angular/core';
+import { Component, inject, signal, ElementRef, HostListener, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   ControlValueAccessor,
@@ -34,6 +34,9 @@ export class SucursalInputSearch implements ControlValueAccessor {
   initialData = input<ApiResponse<'talleres', 'findAllSucursalesPaginated'>['data']>([]);
   showClear = input(false);
   disabled = signal(false);
+
+  // Outputs
+  onSelectionChange = output<ApiResponse<'talleres', 'findAllSucursalesPaginated'>['data']>();
 
   // State
   isOpen = signal(false);
@@ -162,6 +165,7 @@ export class SucursalInputSearch implements ControlValueAccessor {
 
     this.selectedSucursales.set(nextValue);
     this.onChange(nextValue.map((s) => s.id));
+    this.onSelectionChange.emit(nextValue);
   }
 
   removeSucursal(id: number, event: MouseEvent) {
@@ -170,11 +174,13 @@ export class SucursalInputSearch implements ControlValueAccessor {
     const nextValue = current.filter((s) => s.id !== id);
     this.selectedSucursales.set(nextValue);
     this.onChange(nextValue.map((s) => s.id));
+    this.onSelectionChange.emit(nextValue);
   }
 
   clearSelection() {
     this.selectedSucursales.set([]);
     this.onChange([]);
+    this.onSelectionChange.emit([]);
     this.isOpen.set(false);
   }
 

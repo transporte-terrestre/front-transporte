@@ -3409,7 +3409,7 @@ export interface DocumentoItemDto {
   observacion?: string;
   /**
    * Fecha de Vencimiento Inicial/Por defecto
-   * @example "2026-03-04T00:35:37.605Z"
+   * @example "2026-03-04T11:37:24.194Z"
    */
   fechaVencimiento?: string;
 }
@@ -3592,17 +3592,17 @@ export interface BotiquinItemDto {
   habilitado: boolean;
   /**
    * Fecha de Vencimiento actual
-   * @example "2026-03-04T00:35:37.607Z"
+   * @example "2026-03-04T11:37:24.204Z"
    */
   fechaVencimiento?: string;
   /**
    * Fecha de Salida
-   * @example "2026-03-04T00:35:37.607Z"
+   * @example "2026-03-04T11:37:24.204Z"
    */
   fechaSalida?: string;
   /**
    * Fecha de Reposición
-   * @example "2026-03-04T00:35:37.607Z"
+   * @example "2026-03-04T11:37:24.204Z"
    */
   fechaReposicion?: string;
 }
@@ -3898,6 +3898,21 @@ export interface VehiculoMantenimientoListDto {
   actualizadoEn: string;
 }
 
+export interface SucursalDetalleResDto {
+  /** @example 1 */
+  sucursalId: number;
+  /** @example 1 */
+  id: number;
+  /** @example "Lima" */
+  departamento: string;
+  /** @example "Lima" */
+  provincia: string;
+  /** @example "Miraflores" */
+  distrito: string;
+  /** @example "Av. Direccion Exacta 123" */
+  direccion: string;
+}
+
 export interface TallerResultDto {
   /**
    * ID del taller
@@ -3935,11 +3950,6 @@ export interface TallerResultDto {
    */
   email: string | null;
   /**
-   * Dirección
-   * @example "Av. Principal 123"
-   */
-  direccion: string | null;
-  /**
    * Fecha de creación
    * @format date-time
    * @example "2023-01-01T00:00:00.000Z"
@@ -3950,6 +3960,8 @@ export interface TallerResultDto {
    * @example [1,2]
    */
   sucursalIds: number[];
+  /** Detalle de las sucursales con dirección (solo disponible en findOne) */
+  sucursales: SucursalDetalleResDto[];
   /**
    * Fecha de última actualización
    * @format date-time
@@ -7815,6 +7827,19 @@ export interface PasajeroUpdateDto {
   apellidos?: string;
 }
 
+export interface SucursalTallerDto {
+  /**
+   * ID de la sucursal
+   * @example 1
+   */
+  sucursalId: number;
+  /**
+   * Direccion exacta del taller en esta sucursal
+   * @example "Av. Direccion Exacta 123"
+   */
+  direccion: string;
+}
+
 export interface TallerCreateDto {
   /**
    * RUC del taller
@@ -7846,16 +7871,8 @@ export interface TallerCreateDto {
    * @example "contacto@taller.com"
    */
   email?: string;
-  /**
-   * Dirección del taller
-   * @example "Av. Industrial 555"
-   */
-  direccion?: string;
-  /**
-   * IDs de las sucursales del taller
-   * @example [1,2]
-   */
-  sucursalIds?: number[];
+  /** Lista de sucursales a vincular con su dirección */
+  sucursales?: SucursalTallerDto[];
 }
 
 export interface TallerListDto {
@@ -7895,11 +7912,6 @@ export interface TallerListDto {
    */
   email: string | null;
   /**
-   * Dirección
-   * @example "Av. Principal 123"
-   */
-  direccion: string | null;
-  /**
    * Fecha de creación
    * @format date-time
    * @example "2023-01-01T00:00:00.000Z"
@@ -7910,6 +7922,8 @@ export interface TallerListDto {
    * @example [1,2]
    */
   sucursalIds: number[];
+  /** Detalle de las sucursales con dirección (solo disponible en findOne) */
+  sucursales: SucursalDetalleResDto[];
 }
 
 export interface PaginatedTallerResultDto {
@@ -7950,29 +7964,26 @@ export interface TallerUpdateDto {
    * @example "contacto@taller.com"
    */
   email?: string;
-  /**
-   * Dirección del taller
-   * @example "Av. Industrial 555"
-   */
-  direccion?: string;
-  /**
-   * IDs de las sucursales del taller
-   * @example [1,2]
-   */
-  sucursalIds?: number[];
+  /** Lista de sucursales a vincular con su dirección */
+  sucursales?: SucursalTallerDto[];
 }
 
 export interface SucursalCreateDto {
   /**
-   * Nombre de la sucursal
-   * @example "Sucursal Principal"
+   * Departamento de la sucursal
+   * @example "Lima"
    */
-  nombre: string;
+  departamento: string;
   /**
-   * Dirección de la sucursal
-   * @example "Av. Industrial 555"
+   * Provincia de la sucursal
+   * @example "Lima"
    */
-  direccion?: string;
+  provincia: string;
+  /**
+   * Distrito de la sucursal
+   * @example "San Isidro"
+   */
+  distrito: string;
 }
 
 export interface SucursalListDto {
@@ -7982,15 +7993,20 @@ export interface SucursalListDto {
    */
   id: number;
   /**
-   * Nombre de la sucursal
-   * @example "Sucursal Norte"
+   * Departamento de la sucursal
+   * @example "Lima"
    */
-  nombre: string;
+  departamento: string;
   /**
-   * Dirección
-   * @example "Av. Norte 123"
+   * Provincia
+   * @example "Lima"
    */
-  direccion: string | null;
+  provincia: string;
+  /**
+   * Distrito
+   * @example "Miraflores"
+   */
+  distrito: string;
   /**
    * Fecha de creación
    * @format date-time
@@ -8011,15 +8027,20 @@ export interface SucursalResultDto {
    */
   id: number;
   /**
-   * Nombre de la sucursal
-   * @example "Sucursal Norte"
+   * Departamento de la sucursal
+   * @example "Lima"
    */
-  nombre: string;
+  departamento: string;
   /**
-   * Dirección
-   * @example "Av. Norte 123"
+   * Provincia
+   * @example "Lima"
    */
-  direccion: string | null;
+  provincia: string;
+  /**
+   * Distrito
+   * @example "Miraflores"
+   */
+  distrito: string;
   /**
    * Fecha de creación
    * @format date-time
@@ -8042,15 +8063,20 @@ export interface SucursalResultDto {
 
 export interface SucursalUpdateDto {
   /**
-   * Nombre de la sucursal
-   * @example "Sucursal Principal"
+   * Departamento de la sucursal
+   * @example "Lima"
    */
-  nombre?: string;
+  departamento?: string;
   /**
-   * Dirección de la sucursal
-   * @example "Av. Industrial 555"
+   * Provincia de la sucursal
+   * @example "Lima"
    */
-  direccion?: string;
+  provincia?: string;
+  /**
+   * Distrito de la sucursal
+   * @example "San Isidro"
+   */
+  distrito?: string;
 }
 
 export interface ViajeDetalladoDto {
