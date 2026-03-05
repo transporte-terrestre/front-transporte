@@ -44,7 +44,7 @@ export class DialogParadaComponent implements OnInit, OnDestroy {
       fecha: ['', [Validators.required]],
       hora: ['', [Validators.required]],
       kilometrajeActual: [0, [Validators.required, Validators.min(0)]],
-      cantidadPasajeros: [0, [Validators.required, Validators.min(0)]],
+      cantidadPasajeros: [0],
     });
   }
 
@@ -96,7 +96,7 @@ export class DialogParadaComponent implements OnInit, OnDestroy {
         longitud: Number(val.longitud),
         horaActual: isoString,
         kilometrajeActual: Number(val.kilometrajeActual),
-        cantidadPasajeros: Number(val.cantidadPasajeros),
+        cantidadPasajeros: 0,
       });
       this.toastService.success('Parada ocasional registrada');
       this.onSaved.emit();

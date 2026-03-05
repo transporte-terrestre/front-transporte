@@ -38,7 +38,7 @@ export class DialogEditTramoComponent implements OnInit {
       fecha: ['', [Validators.required]],
       hora: ['', [Validators.required]],
       kilometrajeFinal: [0, [Validators.required, Validators.min(0)]],
-      numeroPasajeros: [0, [Validators.required, Validators.min(0)]],
+      numeroPasajeros: [0],
     });
   }
 

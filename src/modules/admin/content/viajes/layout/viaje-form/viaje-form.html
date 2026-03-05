@@ -33,7 +33,7 @@
 
       <!-- Conductor y Vehículo (Solo Creación) -->
       @if (!editMode()) {
-        <div class="grid grid-cols-2 gap-3">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label class="text-xs font-inter-semibold text-text mb-1.5"> Conductor </label>
             <app-conductor-input-search formControlName="conductor"></app-conductor-input-search>
@@ -272,14 +272,14 @@
               <div
                 class="flex items-center justify-between px-4 py-2 bg-secondary/5 border-b border-secondary/20"
               >
-                <div class="flex flex-col">
+                <div class="flex flex-col flex-1 min-w-0 mr-2">
                   <div class="flex items-center gap-2">
                     <i class="fas fa-arrow-right text-secondary text-xs"></i>
                     <span class="text-xs font-inter-bold text-text uppercase">Ida</span>
                   </div>
                   @if (viajeForm.get('ruta')?.value?.rutaIda) {
                     <p
-                      class="text-[11px] text-text/50 mt-0.5 truncate max-w-[200px]"
+                      class="text-[11px] text-text/50 mt-0.5 truncate w-full"
                       [title]="
                         viajeForm.get('ruta')?.value?.rutaIda?.origen +
                         ' → ' +
@@ -393,7 +393,9 @@
                             class="fas {{ turno.icon }} text-xs"
                             [class.text-secondary]="viajeForm.get('turno')?.value === turno.value"
                           ></i>
-                          <span class="sr-only">{{ turno.label }}</span>
+                          <span class="hidden sm:inline text-xs font-inter-medium">{{
+                            turno.label
+                          }}</span>
                         </label>
                       }
                     </div>
@@ -450,14 +452,14 @@
               <div
                 class="flex items-center justify-between px-4 py-2 bg-info/5 border-b border-info/20"
               >
-                <div class="flex flex-col">
+                <div class="flex flex-col flex-1 min-w-0 mr-2">
                   <div class="flex items-center gap-2">
                     <i class="fas fa-arrow-left text-info text-xs"></i>
                     <span class="text-xs font-inter-bold text-text uppercase">Vuelta</span>
                   </div>
                   @if (viajeForm.get('ruta')?.value?.rutaVuelta) {
                     <p
-                      class="text-[11px] text-text/50 mt-0.5 truncate max-w-[200px]"
+                      class="text-[11px] text-text/50 mt-0.5 truncate w-full"
                       [title]="
                         viajeForm.get('ruta')?.value?.rutaVuelta?.origen +
                         ' → ' +
@@ -573,7 +575,9 @@
                             class="fas {{ turno.icon }} text-xs"
                             [class.text-info]="viajeForm.get('turnoVuelta')?.value === turno.value"
                           ></i>
-                          <span class="sr-only">{{ turno.label }}</span>
+                          <span class="hidden sm:inline text-xs font-inter-medium">{{
+                            turno.label
+                          }}</span>
                         </label>
                       }
                     </div>
@@ -641,7 +645,7 @@
                   viajeForm.get('sentido')?.value === 'vuelta')
               "
             >
-              <div class="flex flex-col">
+              <div class="flex flex-col flex-1 min-w-0 mr-2">
                 <div class="flex items-center gap-2">
                   <i
                     class="fas text-xs"
@@ -684,7 +688,7 @@
                     viajeForm.get('ruta')?.value?.rutaIda
                   ) {
                     <p
-                      class="text-[11px] text-text/50 mt-0.5 truncate max-w-[200px]"
+                      class="text-[11px] text-text/50 mt-0.5 truncate w-full"
                       [title]="
                         viajeForm.get('ruta')?.value?.rutaIda?.origen +
                         ' → ' +
@@ -698,7 +702,7 @@
                     tipoViaje() === 'vuelta' && viajeForm.get('ruta')?.value?.rutaVuelta
                   ) {
                     <p
-                      class="text-[11px] text-text/50 mt-0.5 truncate max-w-[200px]"
+                      class="text-[11px] text-text/50 mt-0.5 truncate w-full"
                       [title]="
                         viajeForm.get('ruta')?.value?.rutaVuelta?.origen +
                         ' → ' +
@@ -826,7 +830,9 @@
                             tipoViaje() === 'vuelta'
                           "
                         ></i>
-                        <span class="text-xs font-inter-medium">{{ turno.label }}</span>
+                        <span class="hidden sm:inline text-xs font-inter-medium">{{
+                          turno.label
+                        }}</span>
                       </label>
                     }
                   </div>

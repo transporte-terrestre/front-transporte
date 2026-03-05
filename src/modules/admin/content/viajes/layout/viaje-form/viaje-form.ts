@@ -435,10 +435,7 @@ export class ViajeForm implements OnInit {
 
     // Aplicar estado inicial
     this.updateDistanciaFinalState(this.viajeForm.get('estado')?.value);
-    // Ejecutar inicial de disponibilidad si estamos en edit
-    if (this.editMode()) {
-      setTimeout(() => this.checkAvailability(), 500);
-    }
+    // Ejecutar inicial de disponibilidad si estamos en edit (se removió por solicitud de usuario)
   }
 
   updateDistanciaFinalState(estado: string | null | undefined) {
@@ -456,6 +453,12 @@ export class ViajeForm implements OnInit {
   }
 
   checkAvailability() {
+    if (this.editMode()) {
+      this.vehiculoValidacionMsg.set(null);
+      this.conductorValidacionMsg.set(null);
+      return;
+    }
+
     clearTimeout(this.checkAvailabilityTimeout);
     this.checkAvailabilityTimeout = setTimeout(() => {
       // Si no hemos escogido circuito (fija) y estamos creando, el html ni siquiera permite al usuario ver las fechas de viaje

@@ -58,7 +58,7 @@ export class DialogPuntoComponent implements OnInit, OnDestroy {
       fecha: ['', [Validators.required]],
       hora: ['', [Validators.required]],
       kilometrajeActual: [0, [Validators.required, Validators.min(0)]],
-      cantidadPasajeros: [0, [Validators.required, Validators.min(0)]],
+      cantidadPasajeros: [0],
       rutaParadaId: [null, [Validators.required]],
     });
   }
@@ -111,7 +111,7 @@ export class DialogPuntoComponent implements OnInit, OnDestroy {
         longitud: Number(val.longitud),
         horaActual: isoString,
         kilometrajeActual: Number(val.kilometrajeActual),
-        cantidadPasajeros: Number(val.cantidadPasajeros),
+        cantidadPasajeros: 0,
         rutaParadaId: Number(val.rutaParadaId),
       });
       this.toastService.success('Punto de control registrado');
