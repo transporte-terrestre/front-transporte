@@ -73,7 +73,7 @@
 
       <!-- Kilometraje y Pasajeros (ocultos para descanso) -->
       @if (!esDescanso) {
-        <div class="space-y-2">
+        <div class="md:col-span-2 space-y-2">
           <label class="text-xs font-inter-bold text-text/60 uppercase tracking-wider"
             >Kilometraje *</label
           >
@@ -86,24 +86,6 @@
             <input
               type="number"
               formControlName="kilometrajeFinal"
-              class="w-full pl-10 pr-3 py-2.5 text-sm bg-background border border-text/10 focus:border-secondary rounded-xl outline-none transition-all"
-              placeholder="0"
-            />
-          </div>
-        </div>
-        <div class="space-y-2">
-          <label class="text-xs font-inter-bold text-text/60 uppercase tracking-wider"
-            >N° Pasajeros *</label
-          >
-          <div class="relative group">
-            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <i
-                class="fas fa-users text-text/30 transition-colors group-focus-within:text-secondary"
-              ></i>
-            </div>
-            <input
-              type="number"
-              formControlName="numeroPasajeros"
               class="w-full pl-10 pr-3 py-2.5 text-sm bg-background border border-text/10 focus:border-secondary rounded-xl outline-none transition-all"
               placeholder="0"
             />

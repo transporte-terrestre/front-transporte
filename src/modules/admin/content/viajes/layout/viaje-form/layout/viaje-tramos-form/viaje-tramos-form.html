@@ -1,14 +1,14 @@
 <div class="space-y-3">
-  <div class="flex items-center justify-between">
+  <div class="flex items-center justify-between gap-4">
     <label class="text-sm font-inter-bold text-text flex items-center gap-2">
-      <i class="fas fa-route text-secondary"></i>
-      Registros del Conductor
+      <i class="fas fa-route text-secondary shrink-0"></i>
+      <span class="leading-tight">Registros del Conductor</span>
     </label>
-    <div class="flex items-center gap-2">
+    <div class="flex items-center gap-2 shrink-0">
       <!-- Toggle vista -->
       <button
         (click)="toggleVista()"
-        class="text-xs px-3 py-1.5 rounded-lg font-inter-semibold transition-all flex items-center justify-center gap-1.5 w-[130px]"
+        class="text-xs px-3 py-1.5 rounded-lg font-inter-semibold transition-all flex items-center justify-center gap-1.5 sm:w-[130px]"
         [ngClass]="{
           'bg-text/5 text-text/60 hover:bg-text/10': true,
         }"
@@ -19,7 +19,7 @@
           [class.fa-list]="vistaHojaRuta()"
           [class.fa-table]="!vistaHojaRuta()"
         ></i>
-        {{ vistaHojaRuta() ? 'Registros' : 'Hoja de Ruta' }}
+        <span class="hidden sm:inline">{{ vistaHojaRuta() ? 'Registros' : 'Hoja de Ruta' }}</span>
       </button>
 
       <div class="relative">
@@ -28,7 +28,7 @@
           <button
             [disabled]="loadingSugerencia()"
             (click)="prepareAddTramo()"
-            class="text-xs bg-secondary/10 text-secondary px-3 py-1.5 rounded-lg font-inter-semibold hover:bg-secondary/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed w-[150px]"
+            class="text-xs bg-secondary/10 text-secondary px-3 py-1.5 rounded-lg font-inter-semibold hover:bg-secondary/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed sm:w-[150px]"
             title="Agregar nuevo registro"
           >
             <i
@@ -37,17 +37,17 @@
               [class.fa-spinner]="loadingSugerencia()"
               [class.fa-spin]="loadingSugerencia()"
             ></i>
-            <span>Nuevo Registro</span>
+            <span class="hidden sm:inline">Nuevo Registro</span>
           </button>
         } @else {
           <!-- Botón para vista de Hoja de Ruta -->
           <button
             (click)="descargarReporteDiario()"
-            class="text-xs bg-danger/10 text-danger px-3 py-1.5 rounded-lg font-inter-semibold hover:bg-danger/20 transition-all flex items-center justify-center gap-2 w-[170px]"
+            class="text-xs bg-danger/10 text-danger px-3 py-1.5 rounded-lg font-inter-semibold hover:bg-danger/20 transition-all flex items-center justify-center gap-2 sm:w-[170px]"
             title="Descargar Reporte Diario"
           >
             <i class="fas fa-file-pdf fa-fw"></i>
-            <span>Descargar Reporte</span>
+            <span class="hidden sm:inline">Descargar Reporte</span>
           </button>
         }
 
@@ -141,7 +141,10 @@
           </div>
 
           <!-- Todas las opciones -->
-          <div class="p-2 space-y-1">
+          <div
+            *ngIf="hasSalida() || proximoTramoSugerido()?.tipo !== 'origen'"
+            class="p-2 space-y-1"
+          >
             <button
               *ngIf="!hasSalida() && proximoTramoSugerido()?.tipo !== 'origen'"
               (click)="openDialog('origen')"
@@ -156,6 +159,7 @@
             </button>
             <button
               *ngIf="
+                hasSalida() &&
                 proximoTramoSugerido()?.faltanPuntosFijos === true &&
                 proximoTramoSugerido()?.tipo !== 'punto'
               "
@@ -170,6 +174,7 @@
               <span class="text-xs font-inter-semibold">Punto de Control</span>
             </button>
             <button
+              *ngIf="hasSalida()"
               (click)="openDialog('parada')"
               class="w-full flex items-center gap-3 p-2 hover:bg-text/5 rounded-lg transition-colors"
             >
@@ -181,6 +186,7 @@
               <span class="text-xs font-inter-semibold">Parada Ocasional</span>
             </button>
             <button
+              *ngIf="hasSalida()"
               (click)="openDialog('descanso')"
               class="w-full flex items-center gap-3 p-2 hover:bg-text/5 rounded-lg transition-colors"
             >
@@ -190,18 +196,6 @@
                 <i class="fas fa-coffee"></i>
               </div>
               <span class="text-xs font-inter-semibold">Descanso</span>
-            </button>
-            <button
-              *ngIf="!hasLlegada() && proximoTramoSugerido()?.tipo !== 'destino'"
-              (click)="openDialog('destino')"
-              class="w-full flex items-center gap-3 p-2 hover:bg-text/5 rounded-lg transition-colors"
-            >
-              <div
-                class="w-8 h-8 rounded-lg bg-text/5 flex items-center justify-center text-text/60"
-              >
-                <i class="fas fa-flag-checkered"></i>
-              </div>
-              <span class="text-xs font-inter-semibold">Registrar Llegada</span>
             </button>
           </div>
         </div>

@@ -386,15 +386,18 @@
 }
 
 <div class="space-y-3">
-  <div class="flex items-center justify-between">
+  <div class="flex items-center justify-between gap-4">
     <label class="text-sm font-inter-bold text-text flex items-center gap-2">
-      <i class="fas fa-users text-primary"></i>
-      Pasajeros Asignados ({{ pasajeros().length }})
+      <i class="fas fa-users text-primary shrink-0"></i>
+      <span class="sm:hidden leading-tight">Pasajeros ({{ pasajeros().length }})</span>
+      <span class="hidden sm:inline leading-tight"
+        >Pasajeros Asignados ({{ pasajeros().length }})</span
+      >
     </label>
     <button
       type="button"
       (click)="openModal()"
-      class="text-xs bg-secondary/10 text-secondary px-3 py-1.5 rounded-lg font-inter-semibold hover:bg-secondary/20 transition-all"
+      class="text-xs bg-secondary/10 text-secondary px-3 py-1.5 rounded-lg font-inter-semibold hover:bg-secondary/20 transition-all shrink-0"
     >
       Gestionar
     </button>
