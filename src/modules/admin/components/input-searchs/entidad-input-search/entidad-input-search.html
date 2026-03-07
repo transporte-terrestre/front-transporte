@@ -1,0 +1,93 @@
+<div class="relative w-full">
+  <!-- Trigger -->
+  <div
+    (click)="toggleDropdown()"
+    class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all cursor-pointer flex items-center justify-between"
+    [class.border-secondary]="isOpen()"
+    [class.opacity-50]="disabled()"
+    [class.cursor-not-allowed]="disabled()"
+  >
+    <span
+      class="truncate"
+      [class.text-text]="selectedEntidad()"
+      [class.text-text/50]="!selectedEntidad()"
+    >
+      {{ getDisplayText() }}
+    </span>
+    <div class="flex items-center gap-2">
+      @if (showClear() && selectedEntidad()) {
+        <div
+          (click)="$event.stopPropagation(); clearSelection()"
+          class="w-5 h-5 flex items-center justify-center rounded-full hover:bg-text/10 transition-colors text-text/50 hover:text-danger"
+        >
+          <i class="fas fa-times text-xs"></i>
+        </div>
+      }
+      <i
+        class="fas fa-chevron-down text-text/50 transition-transform duration-200"
+        [class.rotate-180]="isOpen()"
+      ></i>
+    </div>
+  </div>
+
+  <!-- Dropdown -->
+  @if (isOpen()) {
+    <div
+      class="absolute top-full left-0 w-full z-50 mt-1 bg-background border border-text/10 shadow-lg rounded-lg overflow-hidden"
+    >
+      <!-- Search Input -->
+      <div class="p-2 border-b border-text/5 bg-text/2">
+        <div class="relative">
+          <i
+            class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-xs"
+          ></i>
+          <input
+            [formControl]="searchControl"
+            type="text"
+            placeholder="Buscar entidad..."
+            class="w-full pl-8 pr-3 py-1.5 text-sm bg-background border border-text/10 rounded-md text-text outline-none focus:border-secondary transition-all"
+            (click)="$event.stopPropagation()"
+            autoFocus
+          />
+        </div>
+      </div>
+
+      <!-- List -->
+      <div class="max-h-60 overflow-y-auto">
+        @if (!clienteId()) {
+          <div class="p-4 text-center text-xs text-warning">Seleccione un cliente primero</div>
+        } @else if (loading()) {
+          <div class="p-4 text-center text-text/50 text-xs">
+            <i class="fas fa-spinner fa-spin mr-2"></i> Buscando...
+          </div>
+        } @else if (entidades().length === 0) {
+          <div class="p-4 text-center text-text/50 text-xs">No se encontraron resultados</div>
+        } @else {
+          <ul class="py-1">
+            @for (entidad of entidades(); track entidad.id) {
+              <li
+                (click)="selectEntidad(entidad)"
+                class="px-3 py-2 hover:bg-secondary/5 cursor-pointer transition-colors flex items-center gap-3 border-b border-text/5 last:border-0"
+                [class.bg-secondary/20]="selectedEntidad()?.id === entidad.id"
+              >
+                <!-- Avatar/Icon -->
+                <div
+                  class="w-8 h-8 rounded-full bg-text/5 flex items-center justify-center text-text/60 shrink-0"
+                >
+                  <i class="fas fa-building text-xs"></i>
+                </div>
+
+                <!-- Info -->
+                <div class="flex flex-col overflow-hidden">
+                  <span class="text-sm font-inter-medium text-text truncate">
+                    {{ entidad.nombreServicio }}
+                  </span>
+                </div>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    </div>
+  }
+</div>

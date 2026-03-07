@@ -1343,7 +1343,7 @@ export interface VehiculoListDto {
    * Vehicle status
    * @example "disponible"
    */
-  estado: "disponible" | "circulacion" | "taller" | "retirado";
+  estado: "disponible" | "circulacion" | "taller" | "retirado" | "alquilado";
   /**
    * List of owners names
    * @default []
@@ -1725,7 +1725,7 @@ export interface VehiculoResultDto {
    * Vehicle status
    * @example "disponible"
    */
-  estado: "disponible" | "circulacion" | "taller" | "retirado";
+  estado: "disponible" | "circulacion" | "taller" | "retirado" | "alquilado";
   comentarios?: VehiculoComentarioDetalleDto[];
   /**
    * Headquarters
@@ -1894,7 +1894,7 @@ export interface VehiculoCreateDto {
    * Vehicle status
    * @default "disponible"
    */
-  estado?: "disponible" | "circulacion" | "taller" | "retirado";
+  estado?: "disponible" | "circulacion" | "taller" | "retirado" | "alquilado";
   /**
    * Headquarters
    * @example "Lima"
@@ -2059,7 +2059,7 @@ export interface VehiculoUpdateDto {
    * Vehicle status
    * @default "disponible"
    */
-  estado?: "disponible" | "circulacion" | "taller" | "retirado";
+  estado?: "disponible" | "circulacion" | "taller" | "retirado" | "alquilado";
   /**
    * Headquarters
    * @example "Lima"
@@ -3409,7 +3409,7 @@ export interface DocumentoItemDto {
   observacion?: string;
   /**
    * Fecha de Vencimiento Inicial/Por defecto
-   * @example "2026-03-04T11:37:24.194Z"
+   * @example "2026-03-07T21:36:16.784Z"
    */
   fechaVencimiento?: string;
 }
@@ -3592,17 +3592,17 @@ export interface BotiquinItemDto {
   habilitado: boolean;
   /**
    * Fecha de Vencimiento actual
-   * @example "2026-03-04T11:37:24.204Z"
+   * @example "2026-03-07T21:36:16.789Z"
    */
   fechaVencimiento?: string;
   /**
    * Fecha de Salida
-   * @example "2026-03-04T11:37:24.204Z"
+   * @example "2026-03-07T21:36:16.789Z"
    */
   fechaSalida?: string;
   /**
    * Fecha de Reposición
-   * @example "2026-03-04T11:37:24.204Z"
+   * @example "2026-03-07T21:36:16.789Z"
    */
   fechaReposicion?: string;
 }
@@ -3832,7 +3832,7 @@ export interface VehiculoMantenimientoListDto {
    * Vehicle status
    * @example "disponible"
    */
-  estado: "disponible" | "circulacion" | "taller" | "retirado";
+  estado: "disponible" | "circulacion" | "taller" | "retirado" | "alquilado";
   comentarios?: VehiculoComentarioDetalleDto[];
   /**
    * Headquarters
@@ -4182,7 +4182,7 @@ export interface VehiculoMantenimientoResultDto {
    * Vehicle status
    * @example "disponible"
    */
-  estado: "disponible" | "circulacion" | "taller" | "retirado";
+  estado: "disponible" | "circulacion" | "taller" | "retirado" | "alquilado";
   comentarios?: VehiculoComentarioDetalleDto[];
   /**
    * Headquarters
@@ -4246,6 +4246,47 @@ export interface VehiculoMantenimientoResultDto {
    * @example "2023-01-01T00:00:00.000Z"
    */
   actualizadoEn: string;
+}
+
+export interface SucursalResultDto {
+  /**
+   * ID de la sucursal
+   * @example 1
+   */
+  id: number;
+  /**
+   * Departamento de la sucursal
+   * @example "Lima"
+   */
+  departamento: string;
+  /**
+   * Provincia
+   * @example "Lima"
+   */
+  provincia: string;
+  /**
+   * Distrito
+   * @example "Miraflores"
+   */
+  distrito: string;
+  /**
+   * Fecha de creación
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  creadoEn: string;
+  /**
+   * Fecha de última actualización
+   * @format date-time
+   * @example "2023-01-02T00:00:00.000Z"
+   */
+  actualizadoEn: string;
+  /**
+   * Fecha de eliminación (si aplica)
+   * @format date-time
+   * @example null
+   */
+  eliminadoEn: string | null;
 }
 
 export interface TareaResultDto {
@@ -4350,6 +4391,13 @@ export interface MantenimientoResultDto {
   /** Workshop details */
   taller: TallerResultDto;
   /**
+   * Branch ID
+   * @example 1
+   */
+  sucursalId: number | null;
+  /** Branch details */
+  sucursal?: SucursalResultDto | null;
+  /**
    * Service Order Code
    * @example "ORD-001"
    */
@@ -4432,6 +4480,11 @@ export interface MantenimientoCreateDto {
    */
   tallerId: number;
   /**
+   * Branch ID
+   * @example 1
+   */
+  sucursalId?: number;
+  /**
    * Maintenance type
    * @default "preventivo"
    */
@@ -4473,6 +4526,8 @@ export interface MantenimientoCreateDto {
    * @default "pendiente"
    */
   estado: "pendiente" | "en_proceso" | "finalizado";
+  /** Si es true, el vehículo cambiará su estado a taller. */
+  marcarEnTaller?: boolean;
 }
 
 export interface MantenimientoUpdateDto {
@@ -4486,6 +4541,11 @@ export interface MantenimientoUpdateDto {
    * @example 1
    */
   tallerId?: number;
+  /**
+   * Branch ID
+   * @example 1
+   */
+  sucursalId?: number;
   /**
    * Maintenance type
    * @default "preventivo"
@@ -4528,6 +4588,8 @@ export interface MantenimientoUpdateDto {
    * @default "pendiente"
    */
   estado?: "pendiente" | "en_proceso" | "finalizado";
+  /** Si es true, el vehículo cambiará su estado a taller. */
+  marcarEnTaller?: boolean;
 }
 
 export interface MantenimientoTareaCreateDto {
@@ -5256,7 +5318,7 @@ export interface VehiculoViajeDto {
    * Vehicle status
    * @example "disponible"
    */
-  estado: "disponible" | "circulacion" | "taller" | "retirado";
+  estado: "disponible" | "circulacion" | "taller" | "retirado" | "alquilado";
   comentarios?: VehiculoComentarioDetalleDto[];
   /**
    * Headquarters
@@ -5402,6 +5464,19 @@ export interface ClienteViajeDto {
   actualizadoEn: string;
 }
 
+export interface EntidadResultDto {
+  /** @example 1 */
+  id: number;
+  /** @example 1 */
+  clienteId: number;
+  /** @example "Minera Cerro Verde" */
+  nombreServicio: string;
+  /** @format date-time */
+  creadoEn: string;
+  /** @format date-time */
+  actualizadoEn: string;
+}
+
 export interface ViajeListDto {
   /**
    * Trip ID
@@ -5438,6 +5513,11 @@ export interface ViajeListDto {
    * @example 1
    */
   clienteId: number;
+  /**
+   * ID de la entidad
+   * @example 1
+   */
+  entidadId?: number;
   /**
    * Modalidad de servicio
    * @example "regular"
@@ -5503,6 +5583,7 @@ export interface ViajeListDto {
   conductorPrincipal?: ConductorViajeDto;
   vehiculoPrincipal?: VehiculoViajeDto;
   cliente?: ClienteViajeDto;
+  entidad?: EntidadResultDto;
   ruta?: RutaResultDto;
 }
 
@@ -5823,7 +5904,7 @@ export interface ViajeVehiculoDetalleDto {
    * Vehicle status
    * @example "disponible"
    */
-  estado: "disponible" | "circulacion" | "taller" | "retirado";
+  estado: "disponible" | "circulacion" | "taller" | "retirado" | "alquilado";
   comentarios?: VehiculoComentarioDetalleDto[];
   /**
    * Headquarters
@@ -6061,6 +6142,11 @@ export interface ViajeResultDto {
    */
   clienteId: number;
   /**
+   * ID de la entidad
+   * @example 1
+   */
+  entidadId?: number;
+  /**
    * Modalidad de servicio
    * @example "regular"
    */
@@ -6136,6 +6222,7 @@ export interface ViajeResultDto {
   vehiculos?: ViajeVehiculoDetalleDto[];
   comentarios?: ViajeComentarioDetalleDto[];
   cliente?: ClienteViajeResultDto;
+  entidad?: EntidadResultDto;
   ruta?: RutaResultDto;
   /**
    * Indica si el checklist de salida fue validado
@@ -6217,6 +6304,11 @@ export interface ViajeDetalleCreateDto {
    * @example 1
    */
   clienteId: number;
+  /**
+   * ID de la entidad (opcional)
+   * @example 1
+   */
+  entidadId?: number;
   /**
    * Modalidad de servicio
    * @default "regular"
@@ -6315,6 +6407,11 @@ export interface ViajeUpdateDto {
    * @example 1
    */
   clienteId?: number;
+  /**
+   * ID de la entidad (opcional)
+   * @example 1
+   */
+  entidadId?: number;
   /**
    * Modalidad de servicio
    * @default "regular"
@@ -7827,6 +7924,37 @@ export interface PasajeroUpdateDto {
   apellidos?: string;
 }
 
+export interface PaginatedEntidadResultDto {
+  data: EntidadResultDto[];
+  meta: object;
+}
+
+export interface EntidadCreateDto {
+  /**
+   * ID del cliente propietario
+   * @example 1
+   */
+  clienteId: number;
+  /**
+   * Nombre del servicio o entidad
+   * @example "Minera Cerro Verde"
+   */
+  nombreServicio: string;
+}
+
+export interface EntidadUpdateDto {
+  /**
+   * ID del cliente propietario
+   * @example 1
+   */
+  clienteId?: number;
+  /**
+   * Nombre del servicio o entidad
+   * @example "Minera Cerro Verde"
+   */
+  nombreServicio?: string;
+}
+
 export interface SucursalTallerDto {
   /**
    * ID de la sucursal
@@ -8018,47 +8146,6 @@ export interface SucursalListDto {
 export interface PaginatedSucursalResultDto {
   data: SucursalListDto[];
   meta: PaginationMetaDto;
-}
-
-export interface SucursalResultDto {
-  /**
-   * ID de la sucursal
-   * @example 1
-   */
-  id: number;
-  /**
-   * Departamento de la sucursal
-   * @example "Lima"
-   */
-  departamento: string;
-  /**
-   * Provincia
-   * @example "Lima"
-   */
-  provincia: string;
-  /**
-   * Distrito
-   * @example "Miraflores"
-   */
-  distrito: string;
-  /**
-   * Fecha de creación
-   * @format date-time
-   * @example "2023-01-01T00:00:00.000Z"
-   */
-  creadoEn: string;
-  /**
-   * Fecha de última actualización
-   * @format date-time
-   * @example "2023-01-02T00:00:00.000Z"
-   */
-  actualizadoEn: string;
-  /**
-   * Fecha de eliminación (si aplica)
-   * @format date-time
-   * @example null
-   */
-  eliminadoEn: string | null;
 }
 
 export interface SucursalUpdateDto {
@@ -9135,6 +9222,8 @@ export interface AlquilerCreateDto {
   fechaFin?: string;
   monto?: string;
   observaciones?: string;
+  /** Si es true, el vehículo cambiará su estado a alquilado. */
+  marcarComoAlquilado?: boolean;
 }
 
 export interface AlquilerUpdateDto {
@@ -9145,6 +9234,8 @@ export interface AlquilerUpdateDto {
   fechaFin?: string;
   monto?: string;
   observaciones?: string;
+  /** Si es true, el vehículo cambiará su estado a alquilado. */
+  marcarComoAlquilado?: boolean;
   estado?: string;
 }
 
@@ -9427,7 +9518,7 @@ export interface VehiculosFindAllParams {
    * Filtrar por estado del vehículo
    * @example "disponible"
    */
-  estado?: "disponible" | "circulacion" | "taller" | "retirado";
+  estado?: "disponible" | "circulacion" | "taller" | "retirado" | "alquilado";
   /** Filtrar por ID de marca */
   marcaId?: number;
 }
@@ -10141,15 +10232,9 @@ export interface ViajesFindAllParams {
   estado?: "programado" | "en_progreso" | "completado" | "cancelado";
   /** Filtrar por IDs de conductores (separados por coma) */
   conductoresId?: string[];
-  /**
-   * Filtrar por ID de cliente
-   * @example 1
-   */
+  /** Filtrar por ID de cliente */
   clienteId?: number;
-  /**
-   * Filtrar por ID de ruta
-   * @example 1
-   */
+  /** Filtrar por ID de ruta */
   rutaId?: number;
   /** Filtrar por IDs de vehículos (separados por coma) */
   vehiculosId?: string[];
@@ -10194,15 +10279,9 @@ export interface ViajesFindAllLightParams {
   estado?: "programado" | "en_progreso" | "completado" | "cancelado";
   /** Filtrar por IDs de conductores (separados por coma) */
   conductoresId?: string[];
-  /**
-   * Filtrar por ID de cliente
-   * @example 1
-   */
+  /** Filtrar por ID de cliente */
   clienteId?: number;
-  /**
-   * Filtrar por ID de ruta
-   * @example 1
-   */
+  /** Filtrar por ID de ruta */
   rutaId?: number;
   /** Filtrar por IDs de vehículos (separados por coma) */
   vehiculosId?: string[];
@@ -10785,6 +10864,51 @@ export interface ClientesDeletePasajeroParams {
 
 export type ClientesDeletePasajeroData = PasajeroResultDto;
 
+export interface ClientesFindAllEntidadesParams {
+  /**
+   * Número de página
+   * @example 1
+   */
+  page?: number;
+  /**
+   * Límite de items por página
+   * @example 10
+   */
+  limit?: number;
+  /** Término de búsqueda (nombre del servicio) */
+  search?: string;
+  /**
+   * ID del cliente para filtrar
+   * @example 1
+   */
+  clienteId?: number;
+}
+
+export type ClientesFindAllEntidadesData = PaginatedEntidadResultDto;
+
+export interface ClientesFindEntidadParams {
+  /** ID de la entidad */
+  id: number;
+}
+
+export type ClientesFindEntidadData = EntidadResultDto;
+
+export type ClientesCreateEntidadData = EntidadResultDto;
+
+export interface ClientesUpdateEntidadParams {
+  /** ID de la entidad */
+  id: number;
+}
+
+export type ClientesUpdateEntidadData = EntidadResultDto;
+
+export interface ClientesDeleteEntidadParams {
+  /** ID de la entidad */
+  id: number;
+}
+
+export type ClientesDeleteEntidadData = EntidadResultDto;
+
 export type TalleresCreateData = any;
 
 export interface TalleresFindAllParams {
@@ -10820,6 +10944,12 @@ export interface TalleresFindOneParams {
 }
 
 export type TalleresFindOneData = TallerResultDto;
+
+export interface TalleresFindSucursalesByTallerParams {
+  id: number;
+}
+
+export type TalleresFindSucursalesByTallerData = SucursalResultDto[];
 
 export interface TalleresUpdateParams {
   id: number;
@@ -11786,7 +11916,12 @@ export namespace Vehiculos {
        * Filtrar por estado del vehículo
        * @example "disponible"
        */
-      estado?: "disponible" | "circulacion" | "taller" | "retirado";
+      estado?:
+        | "disponible"
+        | "circulacion"
+        | "taller"
+        | "retirado"
+        | "alquilado";
       /** Filtrar por ID de marca */
       marcaId?: number;
     };
@@ -13437,15 +13572,9 @@ export namespace Viajes {
       estado?: "programado" | "en_progreso" | "completado" | "cancelado";
       /** Filtrar por IDs de conductores (separados por coma) */
       conductoresId?: string[];
-      /**
-       * Filtrar por ID de cliente
-       * @example 1
-       */
+      /** Filtrar por ID de cliente */
       clienteId?: number;
-      /**
-       * Filtrar por ID de ruta
-       * @example 1
-       */
+      /** Filtrar por ID de ruta */
       rutaId?: number;
       /** Filtrar por IDs de vehículos (separados por coma) */
       vehiculosId?: string[];
@@ -13503,15 +13632,9 @@ export namespace Viajes {
       estado?: "programado" | "en_progreso" | "completado" | "cancelado";
       /** Filtrar por IDs de conductores (separados por coma) */
       conductoresId?: string[];
-      /**
-       * Filtrar por ID de cliente
-       * @example 1
-       */
+      /** Filtrar por ID de cliente */
       clienteId?: number;
-      /**
-       * Filtrar por ID de ruta
-       * @example 1
-       */
+      /** Filtrar por ID de ruta */
       rutaId?: number;
       /** Filtrar por IDs de vehículos (separados por coma) */
       vehiculosId?: string[];
@@ -15013,6 +15136,118 @@ export namespace Clientes {
     export type RequestHeaders = {};
     export type ResponseBody = ClientesDeletePasajeroData;
   }
+
+  /**
+   * No description
+   * @tags clientes
+   * @name ClientesFindAllEntidades
+   * @summary Obtener entidades con paginación, búsqueda y filtro por cliente
+   * @request GET:/cliente/entidad/find-all
+   * @secure
+   * @response `200` `ClientesFindAllEntidadesData`
+   */
+  export namespace ClientesFindAllEntidades {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /**
+       * Número de página
+       * @example 1
+       */
+      page?: number;
+      /**
+       * Límite de items por página
+       * @example 10
+       */
+      limit?: number;
+      /** Término de búsqueda (nombre del servicio) */
+      search?: string;
+      /**
+       * ID del cliente para filtrar
+       * @example 1
+       */
+      clienteId?: number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ClientesFindAllEntidadesData;
+  }
+
+  /**
+   * No description
+   * @tags clientes
+   * @name ClientesFindEntidad
+   * @summary Obtener una entidad por ID
+   * @request GET:/cliente/entidad/find-one/{id}
+   * @secure
+   * @response `200` `ClientesFindEntidadData`
+   */
+  export namespace ClientesFindEntidad {
+    export type RequestParams = {
+      /** ID de la entidad */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ClientesFindEntidadData;
+  }
+
+  /**
+   * No description
+   * @tags clientes
+   * @name ClientesCreateEntidad
+   * @summary Crear una nueva entidad
+   * @request POST:/cliente/entidad/create
+   * @secure
+   * @response `201` `ClientesCreateEntidadData`
+   */
+  export namespace ClientesCreateEntidad {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = EntidadCreateDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = ClientesCreateEntidadData;
+  }
+
+  /**
+   * No description
+   * @tags clientes
+   * @name ClientesUpdateEntidad
+   * @summary Actualizar una entidad
+   * @request PATCH:/cliente/entidad/update/{id}
+   * @secure
+   * @response `200` `ClientesUpdateEntidadData`
+   */
+  export namespace ClientesUpdateEntidad {
+    export type RequestParams = {
+      /** ID de la entidad */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = EntidadUpdateDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = ClientesUpdateEntidadData;
+  }
+
+  /**
+   * No description
+   * @tags clientes
+   * @name ClientesDeleteEntidad
+   * @summary Eliminar una entidad
+   * @request DELETE:/cliente/entidad/delete/{id}
+   * @secure
+   * @response `200` `ClientesDeleteEntidadData`
+   */
+  export namespace ClientesDeleteEntidad {
+    export type RequestParams = {
+      /** ID de la entidad */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ClientesDeleteEntidadData;
+  }
 }
 
 export namespace Talleres {
@@ -15091,6 +15326,25 @@ export namespace Talleres {
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = TalleresFindOneData;
+  }
+
+  /**
+   * No description
+   * @tags talleres
+   * @name TalleresFindSucursalesByTaller
+   * @summary Obtener todas las sucursales de un taller
+   * @request GET:/taller/{id}/sucursales
+   * @secure
+   * @response `200` `TalleresFindSucursalesByTallerData`
+   */
+  export namespace TalleresFindSucursalesByTaller {
+    export type RequestParams = {
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = TalleresFindSucursalesByTallerData;
   }
 
   /**
@@ -20082,6 +20336,122 @@ export class Api<SecurityDataType extends unknown> {
         format: "json",
         ...params,
       }),
+
+    /**
+     * No description
+     *
+     * @tags clientes
+     * @name ClientesFindAllEntidades
+     * @summary Obtener entidades con paginación, búsqueda y filtro por cliente
+     * @request GET:/cliente/entidad/find-all
+     * @secure
+     * @response `200` `ClientesFindAllEntidadesData`
+     */
+    findAllEntidades: (
+      query: ClientesFindAllEntidadesParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ClientesFindAllEntidadesData, any>({
+        path: `/cliente/entidad/find-all`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags clientes
+     * @name ClientesFindEntidad
+     * @summary Obtener una entidad por ID
+     * @request GET:/cliente/entidad/find-one/{id}
+     * @secure
+     * @response `200` `ClientesFindEntidadData`
+     */
+    findEntidad: (
+      { id, ...query }: ClientesFindEntidadParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ClientesFindEntidadData, any>({
+        path: `/cliente/entidad/find-one/${id}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags clientes
+     * @name ClientesCreateEntidad
+     * @summary Crear una nueva entidad
+     * @request POST:/cliente/entidad/create
+     * @secure
+     * @response `201` `ClientesCreateEntidadData`
+     */
+    createEntidad: (
+      data: EntidadCreateDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ClientesCreateEntidadData, any>({
+        path: `/cliente/entidad/create`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags clientes
+     * @name ClientesUpdateEntidad
+     * @summary Actualizar una entidad
+     * @request PATCH:/cliente/entidad/update/{id}
+     * @secure
+     * @response `200` `ClientesUpdateEntidadData`
+     */
+    updateEntidad: (
+      { id, ...query }: ClientesUpdateEntidadParams,
+      data: EntidadUpdateDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ClientesUpdateEntidadData, any>({
+        path: `/cliente/entidad/update/${id}`,
+        method: "PATCH",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags clientes
+     * @name ClientesDeleteEntidad
+     * @summary Eliminar una entidad
+     * @request DELETE:/cliente/entidad/delete/{id}
+     * @secure
+     * @response `200` `ClientesDeleteEntidadData`
+     */
+    deleteEntidad: (
+      { id, ...query }: ClientesDeleteEntidadParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ClientesDeleteEntidadData, any>({
+        path: `/cliente/entidad/delete/${id}`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
   };
   talleres = {
     /**
@@ -20143,6 +20513,28 @@ export class Api<SecurityDataType extends unknown> {
     ) =>
       this.http.request<TalleresFindOneData, any>({
         path: `/taller/find-one/${id}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags talleres
+     * @name TalleresFindSucursalesByTaller
+     * @summary Obtener todas las sucursales de un taller
+     * @request GET:/taller/{id}/sucursales
+     * @secure
+     * @response `200` `TalleresFindSucursalesByTallerData`
+     */
+    findSucursalesByTaller: (
+      { id, ...query }: TalleresFindSucursalesByTallerParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<TalleresFindSucursalesByTallerData, any>({
+        path: `/taller/${id}/sucursales`,
         method: "GET",
         secure: true,
         format: "json",

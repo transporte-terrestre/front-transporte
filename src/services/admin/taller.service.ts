@@ -12,6 +12,9 @@ export class TallerService {
   async findOne(id: ApiParam<'talleres', 'findOne', 'id'>) {
     return await this.api.talleres.findOne({ id }).then((response) => response.data);
   }
+  async findSucursalesByTaller(id: number) {
+    return await this.api.talleres.findSucursalesByTaller({ id }).then((response) => response.data);
+  }
   async create(data: ApiBody<'talleres', 'create'>) {
     return await this.api.talleres.create(data).then((response) => response.data);
   }

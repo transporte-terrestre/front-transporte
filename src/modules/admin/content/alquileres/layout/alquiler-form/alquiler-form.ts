@@ -26,6 +26,7 @@ export class AlquilerForm {
 
     monto: this.fb.control<number | null>(null),
     observaciones: this.fb.control<string>(''),
+    marcarComoAlquilado: this.fb.control<boolean>(false),
   });
 
   constructor() {

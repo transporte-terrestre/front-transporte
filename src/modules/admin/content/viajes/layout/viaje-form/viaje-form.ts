@@ -21,6 +21,8 @@ import { ViajeTramosFormComponent } from './layout/viaje-tramos-form/viaje-tramo
 import { ViajePasajerosForm } from './layout/viaje-pasajeros-form/viaje-pasajeros-form';
 import { FormGroup } from '@angular/forms';
 import { ViajeService } from '@service/admin/viaje.service';
+import { ClienteService } from '@service/admin/cliente.service';
+import { EntidadInputSearch } from '@module/admin/components/input-searchs/entidad-input-search/entidad-input-search';
 
 interface CircuitoSelection {
   rutaIda?: { id: number; distancia: string; tiempoEstimado: number };
@@ -42,6 +44,7 @@ interface CircuitoSelection {
     ViajePasajerosForm,
     ViajeComentariosForm,
     ViajeTramosFormComponent,
+    EntidadInputSearch,
   ],
   templateUrl: './viaje-form.html',
   styleUrl: './viaje-form.css',
@@ -50,6 +53,7 @@ export class ViajeForm implements OnInit {
   private fb = inject(FormBuilder);
   private toastService = inject(ToastService);
   private viajeService = inject(ViajeService);
+  private clienteService = inject(ClienteService);
 
   // Inputs
   viaje = input<ApiResponse<'viajes', 'findOne'> | null>(null);
@@ -74,9 +78,11 @@ export class ViajeForm implements OnInit {
 
   // Catálogos
   loadingCatalogos = signal(false);
+  selectedClienteId = signal<number | null>(null);
 
   viajeForm: FormGroup = this.fb.group({
     cliente: [null, [Validators.required]],
+    entidad: [null], // ID de la entidad seleccionada
     tipoRuta: ['fija' as ApiResponse<'viajes', 'findOne'>['tipoRuta'], [Validators.required]],
     ruta: [null, [Validators.required]],
     rutaOcasional: [''],
@@ -163,6 +169,7 @@ export class ViajeForm implements OnInit {
       if (isEditMode && viajeData) {
         this.viajeForm.patchValue({
           cliente: viajeData.clienteId,
+          entidad: viajeData.entidadId || null,
           tipoRuta: viajeData.tipoRuta,
           ruta: viajeData.rutaId,
           rutaOcasional: viajeData.rutaOcasional,
@@ -305,16 +312,23 @@ export class ViajeForm implements OnInit {
       setTimeout(() => this.checkAvailability(), 100);
     });
 
-    // Auto-set horasContrato based on Cliente
-    this.viajeForm.get('cliente')?.valueChanges.subscribe((cliente) => {
+    // Auto-set horasContrato based on Cliente and fetch Entidades
+    this.viajeForm.get('cliente')?.valueChanges.subscribe(async (cliente) => {
+      this.viajeForm.patchValue({ entidad: null }, { emitEvent: false }); // Reset entidad always when cliente changes
+
       if (cliente && typeof cliente === 'object') {
-        const clienteData = cliente as { horasContrato?: number };
+        const clienteData = cliente as { id?: number; horasContrato?: number };
+        this.selectedClienteId.set(clienteData.id || null);
         if (clienteData.horasContrato !== undefined) {
           this.viajeForm.patchValue({
             horasContrato: clienteData.horasContrato,
           });
         }
+      } else if (cliente && typeof cliente === 'number') {
+        this.selectedClienteId.set(cliente);
+        this.viajeForm.patchValue({ horasContrato: '' }, { emitEvent: false });
       } else {
+        this.selectedClienteId.set(null);
         this.viajeForm.patchValue({
           horasContrato: '',
         });
@@ -717,6 +731,7 @@ export class ViajeForm implements OnInit {
       vehiculo,
       conductor,
       cliente,
+      entidad,
       ruta,
       ...cleanFormValue
     } = formValue;
@@ -740,6 +755,7 @@ export class ViajeForm implements OnInit {
     ): NonNullable<ApiBody<'viajes', 'create'>['ida']> => {
       const detalle: NonNullable<ApiBody<'viajes', 'create'>['ida']> = {
         clienteId: clienteIdNum,
+        entidadId: formValue.entidad ? Number(formValue.entidad) : undefined,
         tipoRuta: tipoRutaVal,
         modalidadServicio: (modalidadServicioVal ||
           formValue.modalidadServicio ||
