@@ -263,9 +263,73 @@
         }
         @if (pasajeros().length === 0) {
           <div
-            class="text-xs text-text/40 text-center py-4 border-2 border-dashed border-text/10 rounded-lg"
+            class="col-span-full text-xs text-text/40 text-center py-4 border-2 border-dashed border-text/10 rounded-lg"
           >
             No hay pasajeros registrados
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Entidades -->
+  @if (editMode() && cliente()) {
+    <div class="space-y-4 mt-6">
+      <div class="flex items-center justify-between">
+        <h3 class="text-sm font-inter-bold text-text">Entidades</h3>
+        <button
+          type="button"
+          (click)="openEntidadModal()"
+          class="text-xs font-inter-medium text-secondary hover:text-secondary/80 flex items-center gap-1 transition-colors"
+        >
+          <i class="fas fa-plus"></i> Agregar
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+        @for (entidad of entidades(); track entidad.id) {
+          <div
+            class="bg-background rounded-lg p-3 border border-text/10 flex items-center justify-between group hover:border-text/20 transition-all"
+          >
+            <div class="flex items-center gap-3">
+              <div
+                class="w-8 h-8 rounded-full bg-info/10 flex items-center justify-center text-info"
+              >
+                <i class="fas fa-building text-xs"></i>
+              </div>
+              <div>
+                <p class="text-sm font-inter-medium text-text">
+                  {{ entidad.nombreServicio }}
+                </p>
+              </div>
+            </div>
+            <div
+              class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              <button
+                type="button"
+                (click)="openEntidadModal(entidad)"
+                class="w-8 h-8 flex items-center justify-center rounded-lg bg-text/5 text-text hover:bg-text/10 transition-colors"
+                title="Editar"
+              >
+                <i class="fas fa-pen text-xs"></i>
+              </button>
+              <button
+                type="button"
+                (click)="deleteEntidad(entidad.id)"
+                class="w-8 h-8 flex items-center justify-center rounded-lg bg-danger/10 text-danger hover:bg-danger/20 transition-colors"
+                title="Eliminar"
+              >
+                <i class="fas fa-trash-alt text-xs"></i>
+              </button>
+            </div>
+          </div>
+        }
+        @if (entidades().length === 0) {
+          <div
+            class="col-span-full text-xs text-text/40 text-center py-4 border-2 border-dashed border-text/10 rounded-lg"
+          >
+            No hay entidades registradas
           </div>
         }
       </div>
@@ -299,6 +363,15 @@
       [clienteId]="cliente()!.id"
       (onCancel)="closePasajeroModal()"
       (onSave)="handleSavePasajero($event)"
+    />
+  }
+
+  @if (showEntidadModal()) {
+    <app-entidad-form
+      [entidad]="selectedEntidad()"
+      [clienteId]="cliente()!.id"
+      (onCancel)="closeEntidadModal()"
+      (onSave)="handleSaveEntidad($event)"
     />
   }
 </form>

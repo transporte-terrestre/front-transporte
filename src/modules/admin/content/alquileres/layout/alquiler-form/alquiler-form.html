@@ -53,6 +53,24 @@
       />
     </div>
 
+    <!-- Marcar como alquilado -->
+    <div
+      class="sm:col-span-2 flex items-center bg-secondary/5 p-3 rounded-lg border border-secondary/20"
+    >
+      <input
+        type="checkbox"
+        id="marcarComoAlquilado"
+        formControlName="marcarComoAlquilado"
+        class="w-4 h-4 text-secondary bg-background border-text/30 rounded focus:ring-secondary/20 focus:ring-2 cursor-pointer accent-secondary"
+      />
+      <label
+        for="marcarComoAlquilado"
+        class="ml-2 text-xs font-inter-medium text-text cursor-pointer"
+      >
+        Cambiar automáticamente el estado de este vehículo a "Alquilado"
+      </label>
+    </div>
+
     <!-- Observaciones -->
     <div class="sm:col-span-2">
       <label class="block text-xs font-inter-semibold text-text mb-1.5">Observaciones</label>

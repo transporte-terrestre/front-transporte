@@ -10,24 +10,38 @@
   <div class="col-span-1 lg:col-span-2 grid grid-cols-1 gap-6" [class.lg:grid-cols-5]="!editMode()">
     <!-- LEFT COLUMN: DEFINICIÓN DEL VIAJE -->
     <div class="space-y-4" [class.lg:col-span-2]="!editMode()">
-      <!-- Cliente + Horas C. -->
-      <div class="grid grid-cols-4 gap-3">
-        <div class="col-span-3">
+      <!-- Cliente, Entidad y Horas C. -->
+      <div class="grid grid-cols-1 gap-3">
+        <!-- Cliente fila principal -->
+        <div>
           <label class="text-xs font-inter-semibold text-text mb-1.5"> Cliente </label>
           <app-cliente-input-search formControlName="cliente"> </app-cliente-input-search>
           @if (viajeForm.get('cliente')?.touched && viajeForm.get('cliente')?.errors) {
             <p class="text-danger text-xs font-inter-medium mt-1">El cliente es requerido</p>
           }
         </div>
-        <div>
-          <label class="text-xs font-inter-semibold text-text mb-1.5"> Horas C. </label>
-          <input
-            type="text"
-            formControlName="horasContrato"
-            readonly
-            class="w-full px-3 py-2 text-sm bg-text/10 border-2 border-transparent rounded-lg text-text/60 font-inter-regular outline-none cursor-not-allowed text-center"
-            placeholder="--"
-          />
+
+        <!-- Entidad y Horas en la segunda fila -->
+        <div class="grid grid-cols-3 gap-3">
+          <div class="col-span-2">
+            <label class="text-xs font-inter-semibold text-text mb-1.5"> Entidad (Opc) </label>
+            <app-entidad-input-search
+              formControlName="entidad"
+              [clienteId]="selectedClienteId()"
+              [showClear]="true"
+            >
+            </app-entidad-input-search>
+          </div>
+          <div class="col-span-1">
+            <label class="text-xs font-inter-semibold text-text mb-1.5"> Hr. C. </label>
+            <input
+              type="text"
+              formControlName="horasContrato"
+              readonly
+              class="w-full px-3 py-2 text-sm bg-text/10 border-2 border-transparent rounded-lg text-text/60 font-inter-regular outline-none cursor-not-allowed text-center"
+              placeholder="-"
+            />
+          </div>
         </div>
       </div>
 
@@ -908,13 +922,11 @@
         </app-viaje-pasajeros-form>
       </div>
       <div>
-        <!-- Servicios / Tramos only for fixed routes -->
-        @if (viaje()!.tipoRuta === 'fija') {
-          <app-viaje-tramos-form
-            [viaje]="viaje()!"
-            (onDataChange)="onDataChange.emit()"
-          ></app-viaje-tramos-form>
-        }
+        <!-- Servicios / Tramos -->
+        <app-viaje-tramos-form
+          [viaje]="viaje()!"
+          (onDataChange)="onDataChange.emit()"
+        ></app-viaje-tramos-form>
       </div>
       <div>
         <!-- Comentarios -->
