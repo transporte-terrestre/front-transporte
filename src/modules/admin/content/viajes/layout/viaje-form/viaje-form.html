@@ -142,10 +142,10 @@
           <div
             class="grid p-1 bg-text/5 rounded-lg border border-text/10 gap-1"
             [class.grid-cols-2]="
-              viajeForm.get('tipoRuta')?.value !== 'fija' || !hasRutaIda() || !hasRutaVuelta()
+              viajeForm.get('tipoRuta')?.value === 'fija' && (!hasRutaIda() || !hasRutaVuelta())
             "
             [class.grid-cols-3]="
-              viajeForm.get('tipoRuta')?.value === 'fija' && hasRutaIda() && hasRutaVuelta()
+              viajeForm.get('tipoRuta')?.value !== 'fija' || (hasRutaIda() && hasRutaVuelta())
             "
           >
             <!-- IDA -->
@@ -195,6 +195,39 @@
               />
               VUELTA
             </label>
+
+            <!-- CIRCUITO (Always for Ocasional, optional for Fija?) -->
+            @if (viajeForm.get('tipoRuta')?.value !== 'fija') {
+              <label
+                class="relative flex items-center justify-center py-1.5 text-xs font-inter-bold rounded-md cursor-pointer transition-all select-none text-center"
+                [class.bg-background]="
+                  tipoViaje() === 'circuito' || viajeForm.get('sentido')?.value === 'circuito'
+                "
+                [class.text-text]="
+                  tipoViaje() === 'circuito' || viajeForm.get('sentido')?.value === 'circuito'
+                "
+                [class.shadow-sm]="
+                  tipoViaje() === 'circuito' || viajeForm.get('sentido')?.value === 'circuito'
+                "
+                [class.text-text/60]="
+                  tipoViaje() !== 'circuito' && viajeForm.get('sentido')?.value !== 'circuito'
+                "
+              >
+                <input
+                  type="radio"
+                  name="tipoViaje"
+                  value="circuito"
+                  [checked]="
+                    tipoViaje() === 'circuito' || viajeForm.get('sentido')?.value === 'circuito'
+                  "
+                  (change)="
+                    tipoViaje.set('circuito'); viajeForm.get('sentido')?.setValue('circuito')
+                  "
+                  class="hidden"
+                />
+                CIRCUITO
+              </label>
+            }
 
             <!-- AMBOS (Only Fixed) -->
             @if (viajeForm.get('tipoRuta')?.value === 'fija' && hasRutaIda() && hasRutaVuelta()) {
@@ -658,6 +691,7 @@
                 (viajeForm.get('tipoRuta')?.value !== 'fija' &&
                   viajeForm.get('sentido')?.value === 'vuelta')
               "
+              [class.bg-text/5]="viajeForm.get('sentido')?.value === 'circuito'"
             >
               <div class="flex flex-col flex-1 min-w-0 mr-2">
                 <div class="flex items-center gap-2">
@@ -683,15 +717,21 @@
                       (viajeForm.get('tipoRuta')?.value !== 'fija' &&
                         viajeForm.get('sentido')?.value === 'vuelta')
                     "
+                    [class.fa-route]="viajeForm.get('sentido')?.value === 'circuito'"
+                    [class.text-text/60]="viajeForm.get('sentido')?.value === 'circuito'"
                   ></i>
                   <span class="text-xs font-inter-bold text-text uppercase">
-                    {{
+                    @if (viajeForm.get('sentido')?.value === 'circuito') {
+                      CIRCUITO
+                    } @else if (
                       (viajeForm.get('tipoRuta')?.value === 'fija' && tipoViaje() === 'vuelta') ||
                       (viajeForm.get('tipoRuta')?.value !== 'fija' &&
                         viajeForm.get('sentido')?.value === 'vuelta')
-                        ? 'Vuelta'
-                        : 'Ida'
-                    }}
+                    ) {
+                      VUELTA
+                    } @else {
+                      IDA
+                    }
                   </span>
                 </div>
 

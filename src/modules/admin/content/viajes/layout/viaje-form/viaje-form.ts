@@ -67,7 +67,7 @@ export class ViajeForm implements OnInit {
   private checkAvailabilityTimeout: any;
 
   // Signals
-  tipoViaje = signal<'ida' | 'vuelta' | 'ambos'>('ida');
+  tipoViaje = signal<'ida' | 'vuelta' | 'ambos' | 'circuito'>('ida');
   hasRutaIda = signal<boolean>(false);
   hasRutaVuelta = signal<boolean>(false);
   hasRutaSelected = signal<boolean>(false);
@@ -110,6 +110,7 @@ export class ViajeForm implements OnInit {
     turno: ['dia' as ApiResponse<'viajes', 'findOne'>['turno'], [Validators.required]],
     turnoVuelta: ['dia' as ApiResponse<'viajes', 'findOne'>['turno']],
     sentido: ['ida' as ApiResponse<'viajes', 'findOne'>['sentido'], [Validators.required]],
+    metadata: [null],
   });
 
   estados: Array<{
@@ -159,6 +160,7 @@ export class ViajeForm implements OnInit {
   }> = [
     { value: 'ida', label: 'Ida', icon: 'fa-arrow-right' },
     { value: 'vuelta', label: 'Vuelta', icon: 'fa-arrow-left' },
+    { value: 'circuito', label: 'Circuito', icon: 'fa-sync' },
   ];
 
   constructor() {
@@ -194,6 +196,7 @@ export class ViajeForm implements OnInit {
           estado: viajeData.estado,
           turno: viajeData.turno,
           sentido: viajeData.sentido,
+          metadata: viajeData.metadata,
           // En edit mode, NO seteamos campos de vuelta extras porque editamos UN solo viaje a la vez
           fechaSalidaVueltaDate: '',
           fechaSalidaVueltaTime: '',
@@ -228,6 +231,7 @@ export class ViajeForm implements OnInit {
           modalidadServicio: 'regular',
           turno: 'dia',
           sentido: 'ida',
+          metadata: null,
           tipoViaje: 'ida',
           estado: 'programado',
           estadoVuelta: 'programado',
@@ -350,6 +354,13 @@ export class ViajeForm implements OnInit {
 
         // Distancia requerida para fija (se llena auto)
         distanciaEstimadaControl?.setValidators([Validators.required]);
+
+        // No forzamos 'ida' o 'ambos' aquí, esperamos a que seleccione la ruta
+        // para saber si tiene ida/vuelta. Pero si ya hay una ruta, podrímos intentar:
+        const currentRuta = rutaControl?.value;
+        if (currentRuta && currentRuta.rutaIda && currentRuta.rutaVuelta) {
+          this.tipoViaje.set('ambos');
+        }
       } else {
         rutaOcasionalControl?.setValidators([Validators.required]);
         rutaControl?.clearValidators();
@@ -358,6 +369,10 @@ export class ViajeForm implements OnInit {
         // Limpiar distancia y MANTENER validador para ocasional (requerido)
         distanciaEstimadaControl?.setValue('');
         // distanciaEstimada no se le hace clearValidators(), sigue siendo required
+
+        // Seleccionar circuito por defecto para rutas aleatorias
+        this.viajeForm.get('sentido')?.setValue('circuito');
+        this.tipoViaje.set('circuito');
       }
       rutaControl?.updateValueAndValidity();
       rutaOcasionalControl?.updateValueAndValidity();
@@ -381,7 +396,7 @@ export class ViajeForm implements OnInit {
 
         // Auto-seleccionar tipo de viaje según rutas disponibles
         if (c.rutaIda && c.rutaVuelta) {
-          // Tiene ambas, dejar la selección actual o 'ida' por defecto
+          this.tipoViaje.set('ambos');
         } else if (c.rutaIda && !c.rutaVuelta) {
           this.tipoViaje.set('ida');
         } else if (!c.rutaIda && c.rutaVuelta) {
@@ -742,7 +757,7 @@ export class ViajeForm implements OnInit {
     const tipoRutaVal: 'fija' | 'ocasional' = formValue.tipoRuta || 'fija';
 
     const buildDetalle = (
-      sentido: 'ida' | 'vuelta',
+      sentido: 'ida' | 'vuelta' | 'circuito',
       rutaId?: number,
       fechaSalidaDateVal?: string,
       fechaSalidaTimeVal?: string,
@@ -752,11 +767,13 @@ export class ViajeForm implements OnInit {
       modalidadServicioVal?: string,
       turnoVal?: string,
       estadoVal?: string,
+      metadataVal?: any,
     ): NonNullable<ApiBody<'viajes', 'create'>['ida']> => {
       const detalle: NonNullable<ApiBody<'viajes', 'create'>['ida']> = {
         clienteId: clienteIdNum,
         entidadId: formValue.entidad ? Number(formValue.entidad) : undefined,
         tipoRuta: tipoRutaVal,
+        metadata: metadataVal || formValue.metadata || undefined,
         modalidadServicio: (modalidadServicioVal ||
           formValue.modalidadServicio ||
           'regular') as any, // Only casting enum strings if TS gets weird, but we can avoid it if we know values
@@ -853,9 +870,9 @@ export class ViajeForm implements OnInit {
         }
         this.onSubmitForm.emit(createPayload);
       } else {
-        // Solo ida o solo vuelta
+        // Solo ida o solo vuelta o circuito
         let rutaId: number | undefined;
-        let sentido: 'ida' | 'vuelta' = 'ida';
+        let sentido: 'ida' | 'vuelta' | 'circuito' = formValue.sentido || 'ida';
         let distancia: string | undefined;
 
         if (tipo === 'ida' && circuito.rutaIda) {
@@ -904,6 +921,11 @@ export class ViajeForm implements OnInit {
         formValue.fechaSalidaTime,
         formValue.fechaLlegadaDate,
         formValue.fechaLlegadaTime,
+        formValue.distanciaEstimada,
+        formValue.modalidadServicio,
+        formValue.turno,
+        formValue.estado,
+        formValue.metadata,
       );
 
       if (this.editMode()) {

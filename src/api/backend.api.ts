@@ -3409,7 +3409,7 @@ export interface DocumentoItemDto {
   observacion?: string;
   /**
    * Fecha de Vencimiento Inicial/Por defecto
-   * @example "2026-03-07T21:36:16.784Z"
+   * @example "2026-03-08T01:55:17.037Z"
    */
   fechaVencimiento?: string;
 }
@@ -3592,17 +3592,17 @@ export interface BotiquinItemDto {
   habilitado: boolean;
   /**
    * Fecha de Vencimiento actual
-   * @example "2026-03-07T21:36:16.789Z"
+   * @example "2026-03-08T01:55:17.045Z"
    */
   fechaVencimiento?: string;
   /**
    * Fecha de Salida
-   * @example "2026-03-07T21:36:16.789Z"
+   * @example "2026-03-08T01:55:17.045Z"
    */
   fechaSalida?: string;
   /**
    * Fecha de Reposición
-   * @example "2026-03-07T21:36:16.789Z"
+   * @example "2026-03-08T01:55:17.045Z"
    */
   fechaReposicion?: string;
 }
@@ -5543,7 +5543,7 @@ export interface ViajeListDto {
    * Sentido del viaje (ida o vuelta)
    * @example "ida"
    */
-  sentido: "ida" | "vuelta";
+  sentido: "ida" | "vuelta" | "circuito";
   /**
    * Scheduled departure date
    * @format date-time
@@ -5597,6 +5597,8 @@ export interface ViajeCircuitoResultDto {
   ida?: ViajeListDto;
   /** Viaje de vuelta */
   vuelta?: ViajeListDto;
+  /** Viaje de circuito completo */
+  circuito?: ViajeListDto;
   /**
    * Fecha de creación
    * @format date-time
@@ -5656,6 +5658,8 @@ export interface ViajeCircuitoLightResultDto {
   ida?: ViajeLightResultDto;
   /** Viaje de vuelta (ligero) */
   vuelta?: ViajeLightResultDto;
+  /** Viaje de circuito completo (ligero) */
+  circuito?: ViajeLightResultDto;
   /**
    * Fecha de creación
    * @format date-time
@@ -6176,7 +6180,7 @@ export interface ViajeResultDto {
    * Sentido del viaje (ida o vuelta)
    * @example "ida"
    */
-  sentido: "ida" | "vuelta";
+  sentido: "ida" | "vuelta" | "circuito";
   /**
    * Número de vale de combustible
    * @example "242155"
@@ -6206,6 +6210,8 @@ export interface ViajeResultDto {
    * @example "2025-01-01T18:00:00Z"
    */
   fechaLlegada?: string;
+  /** Datos adicionales del viaje (metadata) */
+  metadata?: object;
   /**
    * Creation date
    * @format date-time
@@ -6351,7 +6357,7 @@ export interface ViajeDetalleCreateDto {
    * Sentido del viaje (ida o vuelta)
    * @default "ida"
    */
-  sentido?: "ida" | "vuelta";
+  sentido?: "ida" | "vuelta" | "circuito";
   /**
    * Número de vale de combustible
    * @example "242155"
@@ -6367,6 +6373,20 @@ export interface ViajeDetalleCreateDto {
    * @example 1
    */
   vehiculoId?: number;
+  /**
+   * Real departure date
+   * @format date-time
+   * @example "2025-01-01T10:30:00Z"
+   */
+  fechaSalida?: string;
+  /**
+   * Real arrival date
+   * @format date-time
+   * @example "2025-01-01T18:30:00Z"
+   */
+  fechaLlegada?: string;
+  /** Datos adicionales del viaje (metadata) */
+  metadata?: object;
 }
 
 export interface ViajeCreateDto {
@@ -6454,7 +6474,7 @@ export interface ViajeUpdateDto {
    * Sentido del viaje (ida o vuelta)
    * @default "ida"
    */
-  sentido?: "ida" | "vuelta";
+  sentido?: "ida" | "vuelta" | "circuito";
   /**
    * Número de vale de combustible
    * @example "242155"
@@ -6470,6 +6490,20 @@ export interface ViajeUpdateDto {
    * @example 1
    */
   vehiculoId?: number;
+  /**
+   * Real departure date
+   * @format date-time
+   * @example "2025-01-01T10:30:00Z"
+   */
+  fechaSalida?: string;
+  /**
+   * Real arrival date
+   * @format date-time
+   * @example "2025-01-01T18:30:00Z"
+   */
+  fechaLlegada?: string;
+  /** Datos adicionales del viaje (metadata) */
+  metadata?: object;
 }
 
 export interface ViajeConductorResultDto {
@@ -10239,7 +10273,7 @@ export interface ViajesFindAllParams {
   /** Filtrar por IDs de vehículos (separados por coma) */
   vehiculosId?: string[];
   /** Filtrar por sentido del viaje */
-  sentido?: "ida" | "vuelta";
+  sentido?: "ida" | "vuelta" | "circuito";
   /** Filtrar por turno del viaje */
   turno?: "dia" | "noche";
 }
@@ -10286,7 +10320,7 @@ export interface ViajesFindAllLightParams {
   /** Filtrar por IDs de vehículos (separados por coma) */
   vehiculosId?: string[];
   /** Filtrar por sentido del viaje */
-  sentido?: "ida" | "vuelta";
+  sentido?: "ida" | "vuelta" | "circuito";
   /** Filtrar por turno del viaje */
   turno?: "dia" | "noche";
 }
@@ -13579,7 +13613,7 @@ export namespace Viajes {
       /** Filtrar por IDs de vehículos (separados por coma) */
       vehiculosId?: string[];
       /** Filtrar por sentido del viaje */
-      sentido?: "ida" | "vuelta";
+      sentido?: "ida" | "vuelta" | "circuito";
       /** Filtrar por turno del viaje */
       turno?: "dia" | "noche";
     };
@@ -13639,7 +13673,7 @@ export namespace Viajes {
       /** Filtrar por IDs de vehículos (separados por coma) */
       vehiculosId?: string[];
       /** Filtrar por sentido del viaje */
-      sentido?: "ida" | "vuelta";
+      sentido?: "ida" | "vuelta" | "circuito";
       /** Filtrar por turno del viaje */
       turno?: "dia" | "noche";
     };

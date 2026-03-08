@@ -105,6 +105,7 @@ export class ViajesList implements OnInit, OnDestroy {
       const trips = [];
       if (c.ida) trips.push(c.ida);
       if (c.vuelta) trips.push(c.vuelta);
+      if (c.circuito) trips.push(c.circuito);
       return trips;
     });
 
@@ -392,18 +393,19 @@ export class ViajesList implements OnInit, OnDestroy {
     const rows: {
       circuito: ApiResponse<'viajes', 'findAll'>['data'][0];
       viaje: ViajeIndividual | null;
-      tipo: 'ida' | 'vuelta';
+      tipo: 'ida' | 'vuelta' | 'circuito';
       isFirst: boolean;
       rowSpan: number;
     }[] = [];
 
     this.viajes().forEach((circuito) => {
       const subRows: {
-        tipo: 'ida' | 'vuelta';
+        tipo: 'ida' | 'vuelta' | 'circuito';
         viaje: ViajeIndividual;
       }[] = [];
       if (circuito.ida) subRows.push({ tipo: 'ida', viaje: circuito.ida });
       if (circuito.vuelta) subRows.push({ tipo: 'vuelta', viaje: circuito.vuelta });
+      if (circuito.circuito) subRows.push({ tipo: 'circuito', viaje: circuito.circuito });
 
       if (subRows.length === 0) {
         rows.push({
@@ -607,17 +609,20 @@ export class ViajesList implements OnInit, OnDestroy {
     }
   }
 
-  getSentidoBadgeClass(sentido: 'ida' | 'vuelta' | undefined): string {
+  getSentidoBadgeClass(sentido: 'ida' | 'vuelta' | 'circuito' | undefined): string {
+    if (sentido === 'circuito') return 'bg-text/10 text-text uppercase';
     return sentido === 'vuelta'
       ? 'bg-info/10 text-info uppercase'
       : 'bg-success/10 text-success uppercase';
   }
 
-  getSentidoLabel(sentido: 'ida' | 'vuelta' | undefined): string {
+  getSentidoLabel(sentido: 'ida' | 'vuelta' | 'circuito' | undefined): string {
+    if (sentido === 'circuito') return 'Circuito';
     return sentido === 'vuelta' ? 'Vuelta' : 'Ida';
   }
 
-  getSentidoIcon(sentido: 'ida' | 'vuelta' | undefined): string {
+  getSentidoIcon(sentido: 'ida' | 'vuelta' | 'circuito' | undefined): string {
+    if (sentido === 'circuito') return 'fa-route';
     return sentido === 'vuelta' ? 'fa-arrow-left' : 'fa-arrow-right';
   }
 
