@@ -208,6 +208,8 @@ export class ViajeForm implements OnInit {
         // Sincronizar tipoViaje con el sentido actual para evitar sobrescribirlo erróneamente al guardar
         if (viajeData.sentido === 'vuelta') {
           this.tipoViaje.set('vuelta');
+        } else if (viajeData.sentido === 'circuito') {
+          this.tipoViaje.set('circuito');
         } else {
           this.tipoViaje.set('ida');
         }
@@ -937,5 +939,47 @@ export class ViajeForm implements OnInit {
         this.onSubmitForm.emit(createPayload);
       }
     }
+  }
+  // Helpers para mostrar fechas reales
+  parseIsoAsLocal(dateString: string): Date {
+    if (!dateString) return new Date();
+    if (dateString.indexOf('T') > -1) {
+      const [datePart, timePart] = dateString.split('T');
+      const [y, m, d] = datePart.split('-').map(Number);
+      const [h, min, s] = timePart.substring(0, 8).split(':').map(Number);
+      return new Date(y, m - 1, d, h, min, s || 0);
+    }
+    return new Date(dateString);
+  }
+
+  formatDate(dateString: string | null | undefined): string {
+    if (!dateString) return '';
+    const date = this.parseIsoAsLocal(dateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const months = [
+      'Ene',
+      'Feb',
+      'Mar',
+      'Abr',
+      'May',
+      'Jun',
+      'Jul',
+      'Ago',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dic',
+    ];
+    const month = months[date.getMonth()];
+    const year = date.getFullYear();
+
+    let hours = date.getHours();
+    const minutes = date.getMinutes();
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    const strMinutes = minutes < 10 ? '0' + minutes : minutes;
+
+    return `${day} ${month} ${year} ${hours}:${strMinutes} ${ampm}`;
   }
 }
