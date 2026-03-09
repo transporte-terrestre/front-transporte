@@ -756,6 +756,11 @@ export class ViajeForm implements OnInit {
     const clienteIdNum = formValue.cliente?.id
       ? Number(formValue.cliente.id)
       : Number(formValue.cliente);
+    const entidadIdNum = formValue.entidad?.id
+      ? Number(formValue.entidad.id)
+      : formValue.entidad
+        ? Number(formValue.entidad)
+        : undefined;
     const tipoRutaVal: 'fija' | 'ocasional' = formValue.tipoRuta || 'fija';
 
     const buildDetalle = (
@@ -773,7 +778,7 @@ export class ViajeForm implements OnInit {
     ): NonNullable<ApiBody<'viajes', 'create'>['ida']> => {
       const detalle: NonNullable<ApiBody<'viajes', 'create'>['ida']> = {
         clienteId: clienteIdNum,
-        entidadId: formValue.entidad ? Number(formValue.entidad) : undefined,
+        entidadId: entidadIdNum,
         tipoRuta: tipoRutaVal,
         metadata: metadataVal || formValue.metadata || undefined,
         modalidadServicio: (modalidadServicioVal ||

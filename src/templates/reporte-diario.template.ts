@@ -98,7 +98,8 @@ export const generateReporteDiarioPdf = (
   doc.text('EXTERNO (   )', svcX + 30, y);
   doc.text('TRANSVERSAL (   )', svcX + 60, y);
 
-  drawFieldLine('OBRA:', '', margin + 120, y, pageWidth - 2 * margin - 120);
+  const obra = viaje.entidad?.nombreServicio ? viaje.entidad.nombreServicio.toUpperCase() : '';
+  drawFieldLine('OBRA:', obra, margin + 120, y, pageWidth - 2 * margin - 120);
 
   y += 8;
 
