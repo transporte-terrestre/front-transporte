@@ -3409,7 +3409,7 @@ export interface DocumentoItemDto {
   observacion?: string;
   /**
    * Fecha de Vencimiento Inicial/Por defecto
-   * @example "2026-03-08T01:55:17.037Z"
+   * @example "2026-03-10T02:02:40.522Z"
    */
   fechaVencimiento?: string;
 }
@@ -3592,17 +3592,17 @@ export interface BotiquinItemDto {
   habilitado: boolean;
   /**
    * Fecha de Vencimiento actual
-   * @example "2026-03-08T01:55:17.045Z"
+   * @example "2026-03-10T02:02:40.536Z"
    */
   fechaVencimiento?: string;
   /**
    * Fecha de Salida
-   * @example "2026-03-08T01:55:17.045Z"
+   * @example "2026-03-10T02:02:40.536Z"
    */
   fechaSalida?: string;
   /**
    * Fecha de Reposición
-   * @example "2026-03-08T01:55:17.045Z"
+   * @example "2026-03-10T02:02:40.536Z"
    */
   fechaReposicion?: string;
 }
@@ -6373,18 +6373,6 @@ export interface ViajeDetalleCreateDto {
    * @example 1
    */
   vehiculoId?: number;
-  /**
-   * Real departure date
-   * @format date-time
-   * @example "2025-01-01T10:30:00Z"
-   */
-  fechaSalida?: string;
-  /**
-   * Real arrival date
-   * @format date-time
-   * @example "2025-01-01T18:30:00Z"
-   */
-  fechaLlegada?: string;
   /** Datos adicionales del viaje (metadata) */
   metadata?: object;
 }
@@ -6490,18 +6478,6 @@ export interface ViajeUpdateDto {
    * @example 1
    */
   vehiculoId?: number;
-  /**
-   * Real departure date
-   * @format date-time
-   * @example "2025-01-01T10:30:00Z"
-   */
-  fechaSalida?: string;
-  /**
-   * Real arrival date
-   * @format date-time
-   * @example "2025-01-01T18:30:00Z"
-   */
-  fechaLlegada?: string;
   /** Datos adicionales del viaje (metadata) */
   metadata?: object;
 }
@@ -7183,6 +7159,14 @@ export interface ViajePasajeroAbordarPasajerosDto {
    * @example [1,2,3]
    */
   viajePasajeroIds: number[];
+}
+
+export interface ViajePasajeroAbordarDnisDto {
+  /**
+   * DNIs de los pasajeros a abordar en el tramo
+   * @example ["72750623","48485858"]
+   */
+  dnis: string[];
 }
 
 export interface ChecklistItemResultDto {
@@ -9184,11 +9168,22 @@ export interface ProveedorDocumentoUpdateDto {
   fechaEmision?: string;
 }
 
+export interface AlquilerClienteDto {
+  id: number;
+  nombreCompleto: string;
+}
+
 export interface AlquilerVehiculoDto {
   id: number;
   placa: string;
   marca: string;
   modelo: string;
+}
+
+export interface AlquilerConductorDto {
+  id: number;
+  nombreCompleto: string;
+  dni?: string;
 }
 
 export interface AlquilerProveedorDto {
@@ -9198,9 +9193,35 @@ export interface AlquilerProveedorDto {
   ruc?: string;
 }
 
+export interface AlquilerDocumentoResultDto {
+  id: number;
+  alquilerId: number;
+  tipo:
+    | "contrato"
+    | "guia_remision"
+    | "acta_entrega"
+    | "acta_devolucion"
+    | "comprobante_pago"
+    | "otros";
+  nombre: string;
+  url: string;
+  /** @format date-time */
+  creadoEn: string;
+  /** @format date-time */
+  actualizadoEn: string;
+}
+
 export interface AlquilerItemDto {
   id: number;
+  clienteId: number;
   vehiculoId: number;
+  conductorId?: number;
+  tipo: "maquina_seca" | "maquina_operada";
+  kilometrajeInicial: number;
+  kilometrajeFinal?: number;
+  montoPorDia: number;
+  montoTotalFinal?: number;
+  razon?: string;
   /** @format date-time */
   fechaInicio: string;
   /** @format date-time */
@@ -9212,8 +9233,11 @@ export interface AlquilerItemDto {
   creadoEn: string;
   /** @format date-time */
   actualizadoEn: string;
+  cliente?: AlquilerClienteDto;
   vehiculo?: AlquilerVehiculoDto;
+  conductor?: AlquilerConductorDto;
   proveedor?: AlquilerProveedorDto;
+  documentos?: AlquilerDocumentoResultDto[];
 }
 
 export interface AlquilerPaginationMetaDto {
@@ -9232,7 +9256,15 @@ export interface AlquilerListDto {
 
 export interface AlquilerResultDto {
   id: number;
+  clienteId: number;
   vehiculoId: number;
+  conductorId?: number;
+  tipo: "maquina_seca" | "maquina_operada";
+  kilometrajeInicial: number;
+  kilometrajeFinal?: number;
+  montoPorDia: number;
+  montoTotalFinal?: number;
+  razon?: string;
   /** @format date-time */
   fechaInicio: string;
   /** @format date-time */
@@ -9244,33 +9276,101 @@ export interface AlquilerResultDto {
   creadoEn: string;
   /** @format date-time */
   actualizadoEn: string;
+  cliente?: AlquilerClienteDto;
   vehiculo?: AlquilerVehiculoDto;
+  conductor?: AlquilerConductorDto;
   proveedor?: AlquilerProveedorDto;
+  documentos?: AlquilerDocumentoResultDto[];
 }
 
 export interface AlquilerCreateDto {
+  clienteId: number;
   vehiculoId: number;
+  /** @example "maquina_seca" */
+  tipo: "maquina_seca" | "maquina_operada";
+  /** Conductor requerido cuando el tipo es maquina_operada */
+  conductorId: number;
+  /** @example 15234.5 */
+  kilometrajeInicial: number;
+  /** @example 450 */
+  montoPorDia: number;
+  /** Razón o motivo del alquiler */
+  razon?: string;
   /** @format date-time */
   fechaInicio: string;
-  /** @format date-time */
-  fechaFin?: string;
-  monto?: string;
   observaciones?: string;
   /** Si es true, el vehículo cambiará su estado a alquilado. */
   marcarComoAlquilado?: boolean;
 }
 
 export interface AlquilerUpdateDto {
+  clienteId?: number;
   vehiculoId?: number;
+  /** @example "maquina_seca" */
+  tipo?: "maquina_seca" | "maquina_operada";
+  /** Conductor requerido cuando el tipo es maquina_operada */
+  conductorId?: number;
+  /** @example 15234.5 */
+  kilometrajeInicial?: number;
+  /** @example 450 */
+  montoPorDia?: number;
+  /** Razón o motivo del alquiler */
+  razon?: string;
   /** @format date-time */
   fechaInicio?: string;
-  /** @format date-time */
-  fechaFin?: string;
-  monto?: string;
   observaciones?: string;
   /** Si es true, el vehículo cambiará su estado a alquilado. */
   marcarComoAlquilado?: boolean;
   estado?: string;
+  /** @format date-time */
+  fechaFin?: string;
+  kilometrajeFinal?: number;
+  montoTotalFinal?: number;
+}
+
+export interface AlquilerTerminarDto {
+  /** @format date-time */
+  fechaFin: string;
+  /** @example 15820.5 */
+  kilometrajeFinal: number;
+  /** @example 2500 */
+  montoTotalFinal: number;
+  /** Observaciones finales del cierre del alquiler */
+  observaciones?: string;
+}
+
+export interface AlquilerDocumentoCreateDto {
+  /** @example 1 */
+  alquilerId: number;
+  /** @example "contrato" */
+  tipo?:
+    | "contrato"
+    | "guia_remision"
+    | "acta_entrega"
+    | "acta_devolucion"
+    | "comprobante_pago"
+    | "otros";
+  /** @example "Contrato de alquiler" */
+  nombre: string;
+  /** @example "https://cdn.midominio.com/docs/contrato.pdf" */
+  url: string;
+}
+
+export interface AlquilerDocumentoUpdateDto {
+  /** @example 1 */
+  alquilerId?: number;
+  /** @example "contrato" */
+  tipo?:
+    | "contrato"
+    | "guia_remision"
+    | "acta_entrega"
+    | "acta_devolucion"
+    | "comprobante_pago"
+    | "otros";
+  /** @example "Contrato de alquiler" */
+  nombre?: string;
+  /** @example "https://cdn.midominio.com/docs/contrato.pdf" */
+  url?: string;
 }
 
 export interface StorageResultDto {
@@ -10612,6 +10712,18 @@ export interface ViajesAbordarPasajerosParams {
 
 export type ViajesAbordarPasajerosData = ViajePasajeroResultDto[];
 
+export interface ViajesAbordarPasajerosPorDniParams {
+  /**
+   * ID del tramo en el que suben los pasajeros (viaje_tramos)
+   * @example 123
+   */
+  viajeTramoId?: number;
+  /** ID del viaje */
+  viajeId: number;
+}
+
+export type ViajesAbordarPasajerosPorDniData = ViajePasajeroResultDto[];
+
 export type ViajesFindAllChecklistItemsData = ChecklistItemResultDto[];
 
 export interface ViajesFindChecklistItemParams {
@@ -11252,6 +11364,8 @@ export type ProveedoresDeleteDocumentoData = ProveedorDocumentoResultDto;
 export interface AlquileresFindAllParams {
   search?: string;
   estado?: string;
+  clienteId?: number;
+  tipo?: "maquina_seca" | "maquina_operada";
   /** @default 1 */
   page?: number;
   /** @default 10 */
@@ -11279,6 +11393,32 @@ export interface AlquileresDeleteParams {
 }
 
 export type AlquileresDeleteData = any;
+
+export interface AlquileresTerminarParams {
+  id: number;
+}
+
+export type AlquileresTerminarData = any;
+
+export interface AlquileresFindDocumentoParams {
+  id: number;
+}
+
+export type AlquileresFindDocumentoData = AlquilerDocumentoResultDto;
+
+export type AlquileresCreateDocumentoData = AlquilerDocumentoResultDto;
+
+export interface AlquileresUpdateDocumentoParams {
+  id: number;
+}
+
+export type AlquileresUpdateDocumentoData = AlquilerDocumentoResultDto;
+
+export interface AlquileresDeleteDocumentoParams {
+  id: number;
+}
+
+export type AlquileresDeleteDocumentoData = AlquilerDocumentoResultDto;
 
 export interface StorageUploadPayload {
   /** @format binary */
@@ -14450,6 +14590,32 @@ export namespace Viajes {
   /**
    * No description
    * @tags viajes
+   * @name ViajesAbordarPasajerosPorDni
+   * @summary Marcar abordaje de pasajeros por DNI y registrar movimientos en el tramo
+   * @request POST:/viaje/{viajeId}/pasajeros/abordar-por-dni
+   * @secure
+   * @response `201` `ViajesAbordarPasajerosPorDniData`
+   */
+  export namespace ViajesAbordarPasajerosPorDni {
+    export type RequestParams = {
+      /** ID del viaje */
+      viajeId: number;
+    };
+    export type RequestQuery = {
+      /**
+       * ID del tramo en el que suben los pasajeros (viaje_tramos)
+       * @example 123
+       */
+      viajeTramoId?: number;
+    };
+    export type RequestBody = ViajePasajeroAbordarDnisDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = ViajesAbordarPasajerosPorDniData;
+  }
+
+  /**
+   * No description
+   * @tags viajes
    * @name ViajesFindAllChecklistItems
    * @summary Obtener todos los items del catálogo de checklist
    * @request GET:/viaje/checklist-item/find-all
@@ -16101,6 +16267,8 @@ export namespace Alquileres {
     export type RequestQuery = {
       search?: string;
       estado?: string;
+      clienteId?: number;
+      tipo?: "maquina_seca" | "maquina_operada";
       /** @default 1 */
       page?: number;
       /** @default 10 */
@@ -16183,6 +16351,99 @@ export namespace Alquileres {
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = AlquileresDeleteData;
+  }
+
+  /**
+   * No description
+   * @tags alquileres
+   * @name AlquileresTerminar
+   * @summary Finalizar un alquiler (fecha fin, kilometraje final y monto final)
+   * @request PUT:/admin/alquileres/{id}/terminar
+   * @secure
+   * @response `200` `AlquileresTerminarData`
+   */
+  export namespace AlquileresTerminar {
+    export type RequestParams = {
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = AlquilerTerminarDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = AlquileresTerminarData;
+  }
+
+  /**
+   * No description
+   * @tags alquileres
+   * @name AlquileresFindDocumento
+   * @summary Obtener un documento de alquiler por ID
+   * @request GET:/admin/alquileres/documento/{id}
+   * @secure
+   * @response `200` `AlquileresFindDocumentoData`
+   */
+  export namespace AlquileresFindDocumento {
+    export type RequestParams = {
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = AlquileresFindDocumentoData;
+  }
+
+  /**
+   * No description
+   * @tags alquileres
+   * @name AlquileresCreateDocumento
+   * @summary Crear un documento de alquiler
+   * @request POST:/admin/alquileres/documento/create
+   * @secure
+   * @response `201` `AlquileresCreateDocumentoData`
+   */
+  export namespace AlquileresCreateDocumento {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = AlquilerDocumentoCreateDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = AlquileresCreateDocumentoData;
+  }
+
+  /**
+   * No description
+   * @tags alquileres
+   * @name AlquileresUpdateDocumento
+   * @summary Actualizar un documento de alquiler
+   * @request PUT:/admin/alquileres/documento/update/{id}
+   * @secure
+   * @response `200` `AlquileresUpdateDocumentoData`
+   */
+  export namespace AlquileresUpdateDocumento {
+    export type RequestParams = {
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = AlquilerDocumentoUpdateDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = AlquileresUpdateDocumentoData;
+  }
+
+  /**
+   * No description
+   * @tags alquileres
+   * @name AlquileresDeleteDocumento
+   * @summary Eliminar un documento de alquiler
+   * @request DELETE:/admin/alquileres/documento/delete/{id}
+   * @secure
+   * @response `200` `AlquileresDeleteDocumentoData`
+   */
+  export namespace AlquileresDeleteDocumento {
+    export type RequestParams = {
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = AlquileresDeleteDocumentoData;
   }
 }
 
@@ -19642,6 +19903,32 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags viajes
+     * @name ViajesAbordarPasajerosPorDni
+     * @summary Marcar abordaje de pasajeros por DNI y registrar movimientos en el tramo
+     * @request POST:/viaje/{viajeId}/pasajeros/abordar-por-dni
+     * @secure
+     * @response `201` `ViajesAbordarPasajerosPorDniData`
+     */
+    abordarPasajerosPorDni: (
+      { viajeId, ...query }: ViajesAbordarPasajerosPorDniParams,
+      data: ViajePasajeroAbordarDnisDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ViajesAbordarPasajerosPorDniData, any>({
+        path: `/viaje/${viajeId}/pasajeros/abordar-por-dni`,
+        method: "POST",
+        query: query,
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags viajes
      * @name ViajesFindAllChecklistItems
      * @summary Obtener todos los items del catálogo de checklist
      * @request GET:/viaje/checklist-item/find-all
@@ -21414,6 +21701,123 @@ export class Api<SecurityDataType extends unknown> {
         path: `/admin/alquileres/${id}`,
         method: "DELETE",
         secure: true,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags alquileres
+     * @name AlquileresTerminar
+     * @summary Finalizar un alquiler (fecha fin, kilometraje final y monto final)
+     * @request PUT:/admin/alquileres/{id}/terminar
+     * @secure
+     * @response `200` `AlquileresTerminarData`
+     */
+    terminar: (
+      { id, ...query }: AlquileresTerminarParams,
+      data: AlquilerTerminarDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<AlquileresTerminarData, any>({
+        path: `/admin/alquileres/${id}/terminar`,
+        method: "PUT",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags alquileres
+     * @name AlquileresFindDocumento
+     * @summary Obtener un documento de alquiler por ID
+     * @request GET:/admin/alquileres/documento/{id}
+     * @secure
+     * @response `200` `AlquileresFindDocumentoData`
+     */
+    findDocumento: (
+      { id, ...query }: AlquileresFindDocumentoParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<AlquileresFindDocumentoData, any>({
+        path: `/admin/alquileres/documento/${id}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags alquileres
+     * @name AlquileresCreateDocumento
+     * @summary Crear un documento de alquiler
+     * @request POST:/admin/alquileres/documento/create
+     * @secure
+     * @response `201` `AlquileresCreateDocumentoData`
+     */
+    createDocumento: (
+      data: AlquilerDocumentoCreateDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<AlquileresCreateDocumentoData, any>({
+        path: `/admin/alquileres/documento/create`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags alquileres
+     * @name AlquileresUpdateDocumento
+     * @summary Actualizar un documento de alquiler
+     * @request PUT:/admin/alquileres/documento/update/{id}
+     * @secure
+     * @response `200` `AlquileresUpdateDocumentoData`
+     */
+    updateDocumento: (
+      { id, ...query }: AlquileresUpdateDocumentoParams,
+      data: AlquilerDocumentoUpdateDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<AlquileresUpdateDocumentoData, any>({
+        path: `/admin/alquileres/documento/update/${id}`,
+        method: "PUT",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags alquileres
+     * @name AlquileresDeleteDocumento
+     * @summary Eliminar un documento de alquiler
+     * @request DELETE:/admin/alquileres/documento/delete/{id}
+     * @secure
+     * @response `200` `AlquileresDeleteDocumentoData`
+     */
+    deleteDocumento: (
+      { id, ...query }: AlquileresDeleteDocumentoParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<AlquileresDeleteDocumentoData, any>({
+        path: `/admin/alquileres/documento/delete/${id}`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
         ...params,
       }),
   };
