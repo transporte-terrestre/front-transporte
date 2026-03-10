@@ -3409,7 +3409,7 @@ export interface DocumentoItemDto {
   observacion?: string;
   /**
    * Fecha de Vencimiento Inicial/Por defecto
-   * @example "2026-03-10T02:02:40.522Z"
+   * @example "2026-03-10T05:44:38.517Z"
    */
   fechaVencimiento?: string;
 }
@@ -3592,17 +3592,17 @@ export interface BotiquinItemDto {
   habilitado: boolean;
   /**
    * Fecha de Vencimiento actual
-   * @example "2026-03-10T02:02:40.536Z"
+   * @example "2026-03-10T05:44:38.522Z"
    */
   fechaVencimiento?: string;
   /**
    * Fecha de Salida
-   * @example "2026-03-10T02:02:40.536Z"
+   * @example "2026-03-10T05:44:38.522Z"
    */
   fechaSalida?: string;
   /**
    * Fecha de Reposición
-   * @example "2026-03-10T02:02:40.536Z"
+   * @example "2026-03-10T05:44:38.522Z"
    */
   fechaReposicion?: string;
 }
@@ -7068,7 +7068,22 @@ export interface ViajePasajeroResultDto {
    * Indica si la asistencia del pasajero coincide con el tramo consultado
    * @example true
    */
-  esTramoActual?: boolean | null;
+  esAsistenciaTramoActual?: boolean | null;
+  /**
+   * ID de la parada donde el pasajero bajó (si tiene salida registrada)
+   * @example 5
+   */
+  paradaSalidaId?: number | null;
+  /**
+   * Nombre de la parada donde el pasajero bajó
+   * @example "Parada Central"
+   */
+  paradaSalidaNombre?: string | null;
+  /**
+   * Indica si la salida del pasajero coincide con el tramo consultado
+   * @example true
+   */
+  esSalidaTramoActual?: boolean | null;
   /**
    * Fecha de creación
    * @format date-time
@@ -7167,6 +7182,14 @@ export interface ViajePasajeroAbordarDnisDto {
    * @example ["72750623","48485858"]
    */
   dnis: string[];
+}
+
+export interface ViajePasajeroDesabordarPasajerosDto {
+  /**
+   * IDs de los registros de pasajeros en el viaje (viaje_pasajeros) que bajan del vehículo
+   * @example [1,2,3]
+   */
+  viajePasajeroIds: number[];
 }
 
 export interface ChecklistItemResultDto {
@@ -10723,6 +10746,18 @@ export interface ViajesAbordarPasajerosPorDniParams {
 }
 
 export type ViajesAbordarPasajerosPorDniData = ViajePasajeroResultDto[];
+
+export interface ViajesDesabordarPasajerosParams {
+  /**
+   * ID del tramo en el que suben los pasajeros (viaje_tramos)
+   * @example 123
+   */
+  viajeTramoId?: number;
+  /** ID del viaje */
+  viajeId: number;
+}
+
+export type ViajesDesabordarPasajerosData = ViajePasajeroResultDto[];
 
 export type ViajesFindAllChecklistItemsData = ChecklistItemResultDto[];
 
@@ -14611,6 +14646,32 @@ export namespace Viajes {
     export type RequestBody = ViajePasajeroAbordarDnisDto;
     export type RequestHeaders = {};
     export type ResponseBody = ViajesAbordarPasajerosPorDniData;
+  }
+
+  /**
+   * No description
+   * @tags viajes
+   * @name ViajesDesabordarPasajeros
+   * @summary Registrar descenso de pasajeros en el tramo
+   * @request POST:/viaje/{viajeId}/pasajeros/desabordar-pasajeros
+   * @secure
+   * @response `201` `ViajesDesabordarPasajerosData`
+   */
+  export namespace ViajesDesabordarPasajeros {
+    export type RequestParams = {
+      /** ID del viaje */
+      viajeId: number;
+    };
+    export type RequestQuery = {
+      /**
+       * ID del tramo en el que suben los pasajeros (viaje_tramos)
+       * @example 123
+       */
+      viajeTramoId?: number;
+    };
+    export type RequestBody = ViajePasajeroDesabordarPasajerosDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = ViajesDesabordarPasajerosData;
   }
 
   /**
@@ -19916,6 +19977,32 @@ export class Api<SecurityDataType extends unknown> {
     ) =>
       this.http.request<ViajesAbordarPasajerosPorDniData, any>({
         path: `/viaje/${viajeId}/pasajeros/abordar-por-dni`,
+        method: "POST",
+        query: query,
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags viajes
+     * @name ViajesDesabordarPasajeros
+     * @summary Registrar descenso de pasajeros en el tramo
+     * @request POST:/viaje/{viajeId}/pasajeros/desabordar-pasajeros
+     * @secure
+     * @response `201` `ViajesDesabordarPasajerosData`
+     */
+    desabordarPasajeros: (
+      { viajeId, ...query }: ViajesDesabordarPasajerosParams,
+      data: ViajePasajeroDesabordarPasajerosDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ViajesDesabordarPasajerosData, any>({
+        path: `/viaje/${viajeId}/pasajeros/desabordar-pasajeros`,
         method: "POST",
         query: query,
         body: data,

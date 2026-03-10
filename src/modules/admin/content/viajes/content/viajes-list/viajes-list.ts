@@ -13,6 +13,9 @@ import { ViajeForm } from '../../layout/viaje-form/viaje-form';
 import { PaginationComponent } from '../../../../components/pagination/pagination';
 import { PATH, buildPath } from '@route/path.route';
 import { getErrorMessage } from '@helper/error.helper';
+import { ClienteInputSearch } from '../../../../components/input-searchs/cliente-input-search/cliente-input-search';
+import { ConductorInputSearch } from '../../../../components/input-searchs/conductor-input-search/conductor-input-search';
+import { VehiculoInputSearch } from '../../../../components/input-searchs/vehiculo-input-search/vehiculo-input-search';
 
 export type ViajeIndividual = NonNullable<ApiResponse<'viajes', 'findAll'>['data'][0]['ida']>;
 
@@ -34,7 +37,7 @@ interface CalendarEvent {
 
 @Component({
   selector: 'app-viajes-list',
-  imports: [CommonModule, FormsModule, ModalForm, ViajeForm, PaginationComponent],
+  imports: [CommonModule, FormsModule, ModalForm, ViajeForm, PaginationComponent, ClienteInputSearch, ConductorInputSearch, VehiculoInputSearch],
   templateUrl: './viajes-list.html',
   styleUrl: './viajes-list.css',
 })
@@ -51,6 +54,7 @@ export class ViajesList implements OnInit, OnDestroy {
   loading = signal(false);
   showModal = signal(false);
   viewMode = signal<'table' | 'calendar'>('table');
+  showFilters = signal(false);
 
   // Paginación
   currentPage = signal(1);
@@ -61,6 +65,16 @@ export class ViajesList implements OnInit, OnDestroy {
   searchTerm = signal('');
   fechaInicio = signal('');
   fechaFin = signal('');
+  mesSeleccionado = signal(this.getCurrentMonth());
+  estado = signal('');
+  sentido = signal('');
+  turno = signal('');
+  clienteId = signal<number | string>('');
+  selectedClienteForSearch = signal<ApiResponse<'clientes', 'findAll'>['data'][number] | null>(null);
+  conductorId = signal<number | string>('');
+  selectedConductorForSearch = signal<ApiResponse<'conductores', 'findAll'>['data'][number] | null>(null);
+  vehiculoId = signal<number | string>('');
+  selectedVehiculoForSearch = signal<ApiResponse<'vehiculos', 'findAll'>['data'][number] | null>(null);
 
   // Calendario
   currentWeekStart = signal(this.getWeekStart(new Date()));
@@ -352,6 +366,9 @@ export class ViajesList implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    // Setear rango del mes actual por defecto
+    this.setMonthRange(this.mesSeleccionado());
+
     // Cargar según el modo de vista inicial
     if (this.viewMode() === 'calendar') {
       this.loadViajesForCalendar();
@@ -378,6 +395,12 @@ export class ViajesList implements OnInit, OnDestroy {
         search: this.searchTerm() || undefined,
         fechaInicio: this.fechaInicio() || undefined,
         fechaFin: this.fechaFin() || undefined,
+        estado: (this.estado() as any) || undefined,
+        sentido: (this.sentido() as any) || undefined,
+        turno: (this.turno() as any) || undefined,
+        clienteId: this.clienteId() ? Number(this.clienteId()) : undefined,
+        conductoresId: this.conductorId() ? [String(this.conductorId())] : undefined,
+        vehiculosId: this.vehiculoId() ? [String(this.vehiculoId())] : undefined,
       });
       this.viajes.set(response.data);
       this.meta.set(response.meta);
@@ -446,6 +469,53 @@ export class ViajesList implements OnInit, OnDestroy {
     this.onSearch();
   }
 
+  private getCurrentMonth(): string {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  }
+
+  private setMonthRange(monthValue: string) {
+    if (!monthValue) {
+      this.fechaInicio.set('');
+      this.fechaFin.set('');
+      return;
+    }
+    const [year, month] = monthValue.split('-').map(Number);
+    const firstDay = `${year}-${String(month).padStart(2, '0')}-01`;
+    const lastDay = new Date(year, month, 0).getDate();
+    const lastDayStr = `${year}-${String(month).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+    this.fechaInicio.set(firstDay);
+    this.fechaFin.set(lastDayStr);
+  }
+
+  onMonthChange(value: string) {
+    this.mesSeleccionado.set(value);
+    this.setMonthRange(value);
+    this.onSearch();
+  }
+
+  onFilterChange() {
+    this.onSearch();
+  }
+
+  onClienteChange(cliente: ApiResponse<'clientes', 'findAll'>['data'][number] | null) {
+    this.selectedClienteForSearch.set(cliente);
+    this.clienteId.set(cliente?.id || '');
+    this.onFilterChange();
+  }
+
+  onConductorChange(conductor: ApiResponse<'conductores', 'findAll'>['data'][number] | null) {
+    this.selectedConductorForSearch.set(conductor);
+    this.conductorId.set(conductor?.id || '');
+    this.onFilterChange();
+  }
+
+  onVehiculoChange(vehiculo: ApiResponse<'vehiculos', 'findAll'>['data'][number] | null) {
+    this.selectedVehiculoForSearch.set(vehiculo);
+    this.vehiculoId.set(vehiculo?.id || '');
+    this.onFilterChange();
+  }
+
   onPageChange(page: number) {
     this.currentPage.set(page);
     this.loadViajes();
@@ -461,6 +531,17 @@ export class ViajesList implements OnInit, OnDestroy {
     this.searchTerm.set('');
     this.fechaInicio.set('');
     this.fechaFin.set('');
+    this.mesSeleccionado.set(this.getCurrentMonth());
+    this.setMonthRange(this.mesSeleccionado());
+    this.estado.set('');
+    this.sentido.set('');
+    this.turno.set('');
+    this.clienteId.set('');
+    this.selectedClienteForSearch.set(null);
+    this.conductorId.set('');
+    this.selectedConductorForSearch.set(null);
+    this.vehiculoId.set('');
+    this.selectedVehiculoForSearch.set(null);
     this.currentPage.set(1);
     this.loadViajes();
   }

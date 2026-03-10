@@ -205,6 +205,16 @@ export class ViajeService {
       .then((response) => response.data);
   }
 
+  async desabordarPasajeros(
+    viajeId: number,
+    data: ApiBody<'viajes', 'desabordarPasajeros'>,
+    viajeTramoId: number,
+  ) {
+    return await this.api.viajes
+      .desabordarPasajeros({ viajeId, viajeTramoId }, data)
+      .then((response) => response.data);
+  }
+
   generateHojaRuta(viaje: ViajeResultDto): void {
     generateHojaRutaPdf(viaje);
   }

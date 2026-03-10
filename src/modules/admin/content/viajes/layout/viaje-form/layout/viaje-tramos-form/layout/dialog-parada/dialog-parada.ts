@@ -96,7 +96,7 @@ export class DialogParadaComponent implements OnInit, OnDestroy {
         longitud: Number(val.longitud),
         horaActual: isoString,
         kilometrajeActual: Number(val.kilometrajeActual),
-        cantidadPasajeros: 0,
+        cantidadPasajeros: this.sugerencia()?.ultimosPasajeros || 0,
       });
       this.toastService.success('Parada ocasional registrada');
       this.onSaved.emit();

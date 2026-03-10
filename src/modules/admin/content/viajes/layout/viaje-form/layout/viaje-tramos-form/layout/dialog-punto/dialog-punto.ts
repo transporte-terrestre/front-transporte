@@ -111,7 +111,7 @@ export class DialogPuntoComponent implements OnInit, OnDestroy {
         longitud: Number(val.longitud),
         horaActual: isoString,
         kilometrajeActual: Number(val.kilometrajeActual),
-        cantidadPasajeros: 0,
+        cantidadPasajeros: this.sugerencia()?.ultimosPasajeros || 0,
         rutaParadaId: Number(val.rutaParadaId),
       });
       this.toastService.success('Punto de control registrado');

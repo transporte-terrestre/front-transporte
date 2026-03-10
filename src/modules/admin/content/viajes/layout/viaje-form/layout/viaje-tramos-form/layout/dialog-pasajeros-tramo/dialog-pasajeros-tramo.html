@@ -2,45 +2,75 @@
   [title]="'Pasajeros - ' + tramo().tipo.toUpperCase()"
   [loading]="isSubmitting()"
   maxWidth="2xl"
-  submitText="Guardar"
+  [submitText]="'Guardar'"
   (onSubmit)="guardarCambios()"
   (onClose)="close()"
 >
-  <div class="p-6 space-y-6">
-    <!-- Entrada Manual / Búsqueda -->
+  <div class="p-3 sm:p-6 space-y-4 sm:space-y-6">
+    <!-- Tabs: Subir / Bajar -->
+    <div class="flex rounded-lg bg-text/5 p-0.5">
+      <button
+        (click)="cambiarModo('abordar')"
+        class="flex-1 flex items-center justify-center gap-2 py-2 text-[11px] font-inter-bold uppercase tracking-wider rounded-md transition-all"
+        [ngClass]="{
+          'bg-background text-secondary shadow-sm': modo() === 'abordar',
+          'text-text/40 hover:text-text/60': modo() !== 'abordar'
+        }"
+      >
+        <i class="fas fa-arrow-up text-[10px]"></i>
+        Subir
+      </button>
+      <button
+        (click)="cambiarModo('desabordar')"
+        class="flex-1 flex items-center justify-center gap-2 py-2 text-[11px] font-inter-bold uppercase tracking-wider rounded-md transition-all"
+        [ngClass]="{
+          'bg-background text-danger shadow-sm': modo() === 'desabordar',
+          'text-text/40 hover:text-text/60': modo() !== 'desabordar'
+        }"
+      >
+        <i class="fas fa-arrow-down text-[10px]"></i>
+        Bajar
+      </button>
+    </div>
 
     <!-- Ocupación del Tramo -->
     <div
-      class="relative overflow-hidden bg-background border border-text/10 rounded-xl p-5 shadow-sm"
+      class="relative overflow-hidden bg-background border border-text/10 rounded-xl p-3 sm:p-5 shadow-sm"
     >
-      <div class="flex items-center justify-between mb-4">
-        <div class="flex items-center gap-3">
+      <div class="flex items-center justify-between mb-3 sm:mb-4">
+        <div class="flex items-center gap-2 sm:gap-3">
           <div
-            class="w-10 h-10 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary"
+            class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center"
+            [ngClass]="{
+              'bg-secondary/10 text-secondary': modo() === 'abordar',
+              'bg-danger/10 text-danger': modo() === 'desabordar'
+            }"
           >
             <i class="fas fa-users"></i>
           </div>
           <div>
-            <h4 class="text-xs font-inter-bold text-text uppercase tracking-wider">
-              Ocupación del Tramo
+            <h4 class="text-[10px] sm:text-xs font-inter-bold text-text uppercase tracking-wider">
+              {{ modo() === 'abordar' ? 'Ocupación del Tramo' : 'Descenso del Tramo' }}
             </h4>
-            <p class="text-[10px] text-text/50 font-inter-medium">
-              Pasajeros abordando actualmente
+            <p class="text-[8px] sm:text-[10px] text-text/50 font-inter-medium">
+              {{ modo() === 'abordar' ? 'Pasajeros abordando actualmente' : 'Pasajeros que bajan aquí' }}
             </p>
           </div>
         </div>
         <div class="text-right">
-          <span class="text-2xl font-inter-bold text-secondary">{{ idsSeleccionados().size }}</span>
-          @if (capacidad() > 0) {
-            <span class="text-sm font-inter-bold text-text/30 ml-1">/ {{ capacidad() }}</span>
+          <span class="text-xl sm:text-2xl font-inter-bold" [ngClass]="{'text-secondary': modo() === 'abordar', 'text-danger': modo() === 'desabordar'}">
+            {{ modo() === 'abordar' ? idsSeleccionados().size : idsDesabordar().size }}
+          </span>
+          @if (modo() === 'abordar' && capacidad() > 0) {
+            <span class="text-xs sm:text-sm font-inter-bold text-text/30 ml-1">/ {{ capacidad() }}</span>
           }
         </div>
       </div>
 
-      @if (capacidad() > 0) {
+      @if (modo() === 'abordar' && capacidad() > 0) {
         <div class="space-y-2">
           <div
-            class="flex items-center justify-between text-[10px] font-inter-bold uppercase tracking-tight"
+            class="flex items-center justify-between text-[8px] sm:text-[10px] font-inter-bold uppercase tracking-tight"
           >
             <span [class]="porcentajeOcupacion() > 90 ? 'text-danger' : 'text-text/40'">
               {{ porcentajeOcupacion() }}% de capacidad
@@ -64,105 +94,216 @@
       }
     </div>
 
-    <!-- Listado de Pasajeros -->
-    <div class="space-y-3">
-      <div class="flex items-center justify-between px-1">
-        <h3 class="text-[10px] font-inter-bold text-text/40 uppercase tracking-widest">
-          Lista de Pasajeros Asignados
-        </h3>
+    <!-- ===== MODO ABORDAR ===== -->
+    @if (modo() === 'abordar') {
+      <div class="space-y-3">
+        <div class="flex items-center justify-between px-1">
+          <h3 class="text-[10px] font-inter-bold text-text/40 uppercase tracking-widest">
+            Lista de Pasajeros Asignados
+          </h3>
 
-        @if (pasajeros().length > 0) {
-          <button
-            (click)="toggleSeleccionTodos()"
-            class="text-[10px] font-inter-bold text-secondary uppercase hover:underline"
-          >
-            {{ isAllSelected() ? 'Deseleccionar todos' : 'Seleccionar todos' }}
-          </button>
-        }
-      </div>
+          @if (pasajeros().length > 0) {
+            <button
+              (click)="toggleSeleccionTodos()"
+              class="text-[10px] font-inter-bold text-secondary uppercase hover:underline"
+            >
+              {{ isAllSelected() ? 'Deseleccionar todos' : 'Seleccionar todos' }}
+            </button>
+          }
+        </div>
 
-      <div class="max-h-[350px] overflow-y-auto pr-2 custom-scrollbar space-y-2">
-        @if (pasajeros().length > 0) {
-          @for (p of pasajeros(); track p.id) {
-            @if (tieneAsistenciaOtroTramo(p)) {
-              <!-- Pasajero con asistencia en otro tramo: solo lectura, azul intenso -->
-              <div
-                class="flex items-center gap-3 p-3 rounded-xl border transition-all duration-300 bg-info/10 border-info/30 ring-1 ring-info/20 shadow-md shadow-info/5"
-              >
-                <div class="flex-1 min-w-0 pl-2">
-                  <p class="text-xs font-inter-bold text-info truncate uppercase tracking-tight">
-                    {{ getDisplayName(p) }}
-                  </p>
-                  <div class="flex flex-col gap-0.5 mt-0.5">
-                    <p class="text-[10px] text-info/70 font-inter-medium tracking-wide">
-                      DNI: {{ getDisplayDni(p) }}
+        <div class="max-h-[280px] sm:max-h-[350px] overflow-y-auto pr-2 custom-scrollbar space-y-2">
+          @if (pasajeros().length > 0) {
+            @for (p of pasajeros(); track p.id) {
+              @if (tieneAsistenciaOtroTramo(p)) {
+                <!-- Pasajero con asistencia en otro tramo: solo lectura, azul intenso -->
+                <div
+                  class="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-xl border transition-all duration-300 bg-info/10 border-info/30 ring-1 ring-info/20 shadow-md shadow-info/5"
+                >
+                  <div class="flex-1 min-w-0 pl-2">
+                    <p class="text-[10px] sm:text-xs font-inter-bold text-info truncate uppercase tracking-tight">
+                      {{ getDisplayName(p) }}
                     </p>
-                    <div class="flex items-center mt-1">
-                      <span
-                        class="inline-flex items-center px-1.5 py-0.5 rounded bg-info/10 text-info text-[7px] font-inter-bold uppercase tracking-widest border border-info/20"
-                      >
-                        <i class="fas fa-map-marker-alt mr-1 text-[6.5px]"></i>
-                        Subió en: {{ p.paradaAsistenciaNombre || 'otra parada' }}
-                      </span>
+                    <div class="flex flex-col gap-0.5 mt-0.5">
+                      <p class="text-[10px] text-info/70 font-inter-medium tracking-wide">
+                        DNI: {{ getDisplayDni(p) }}
+                      </p>
+                      <div class="flex items-center mt-1">
+                        <span
+                          class="inline-flex items-center px-1.5 py-0.5 rounded bg-info/10 text-info text-[7px] font-inter-bold uppercase tracking-widest border border-info/20"
+                        >
+                          <i class="fas fa-map-marker-alt mr-1 text-[6.5px]"></i>
+                          Subió en: {{ p.paradaAsistenciaNombre || 'otra parada' }}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div
-                  class="w-9 h-9 rounded-lg flex items-center justify-center bg-info text-white shadow-lg shadow-info/30"
-                >
-                  <i class="fas fa-check-double fa-fw text-xs"></i>
-                </div>
-              </div>
-            } @else {
-              <!-- Pasajero normal: interactivo -->
-              <div
-                (click)="toggleSeleccion(p.id)"
-                class="flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all duration-300"
-                [ngClass]="{
-                  'bg-background border-text/5 hover:border-text/10 shadow-sm':
-                    !idsSeleccionados().has(p.id),
-                  'bg-success/5 border-success/20 ring-1 ring-success/10 shadow-lg shadow-success/5':
-                    idsSeleccionados().has(p.id),
-                }"
-              >
-                <div class="flex-1 min-w-0 pl-2">
-                  <p
-                    class="text-xs font-inter-bold text-text truncate uppercase tracking-tight"
-                    [class.text-success]="idsSeleccionados().has(p.id)"
+                  <div
+                    class="w-7 h-7 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center bg-info text-white shadow-lg shadow-info/30"
                   >
-                    {{ getDisplayName(p) }}
-                  </p>
-                  <div class="flex items-center gap-2 mt-0.5">
-                    <p class="text-[10px] text-text/40 font-inter-medium tracking-wide">
-                      DNI: {{ getDisplayDni(p) }}
-                    </p>
+                    <i class="fas fa-check-double fa-fw text-xs"></i>
                   </div>
                 </div>
+              } @else {
+                <!-- Pasajero normal: interactivo -->
                 <div
-                  class="w-9 h-9 rounded-lg flex items-center justify-center transition-all"
+                  (click)="toggleSeleccion(p.id)"
+                  class="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-xl border cursor-pointer transition-all duration-300"
                   [ngClass]="{
-                    'bg-text/5 text-text/30': !idsSeleccionados().has(p.id),
-                    'bg-success text-white shadow-lg shadow-success/20': idsSeleccionados().has(
-                      p.id
-                    ),
+                    'bg-background border-text/5 hover:border-text/10 shadow-sm':
+                      !idsSeleccionados().has(p.id),
+                    'bg-success/5 border-success/20 ring-1 ring-success/10 shadow-lg shadow-success/5':
+                      idsSeleccionados().has(p.id),
                   }"
                 >
-                  <i
-                    class="fas fa-fw text-xs"
-                    [class.fa-plus]="!idsSeleccionados().has(p.id)"
-                    [class.fa-check]="idsSeleccionados().has(p.id)"
-                  ></i>
+                  <div class="flex-1 min-w-0 pl-2">
+                    <p
+                      class="text-[10px] sm:text-xs font-inter-bold text-text truncate uppercase tracking-tight"
+                      [class.text-success]="idsSeleccionados().has(p.id)"
+                    >
+                      {{ getDisplayName(p) }}
+                    </p>
+                    <div class="flex items-center gap-2 mt-0.5">
+                      <p class="text-[10px] text-text/40 font-inter-medium tracking-wide">
+                        DNI: {{ getDisplayDni(p) }}
+                      </p>
+                    </div>
+                  </div>
+                  <div
+                    class="w-7 h-7 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center transition-all"
+                    [ngClass]="{
+                      'bg-text/5 text-text/30': !idsSeleccionados().has(p.id),
+                      'bg-success text-white shadow-lg shadow-success/20': idsSeleccionados().has(
+                        p.id
+                      ),
+                    }"
+                  >
+                    <i
+                      class="fas fa-fw text-xs"
+                      [class.fa-plus]="!idsSeleccionados().has(p.id)"
+                      [class.fa-check]="idsSeleccionados().has(p.id)"
+                    ></i>
+                  </div>
                 </div>
-              </div>
+              }
             }
+          } @else {
+            <div class="flex flex-col items-center justify-center py-6 sm:py-10 opacity-40">
+              <i class="fas fa-users-slash text-2xl sm:text-3xl mb-3"></i>
+              <p class="text-[10px] sm:text-xs font-inter-medium">No hay pasajeros asignados al viaje</p>
+            </div>
           }
-        } @else {
-          <div class="flex flex-col items-center justify-center py-10 opacity-40">
-            <i class="fas fa-users-slash text-3xl mb-3"></i>
-            <p class="text-xs font-inter-medium">No hay pasajeros asignados al viaje</p>
-          </div>
-        }
+        </div>
       </div>
-    </div>
+    }
+
+    <!-- ===== MODO DESABORDAR ===== -->
+    @if (modo() === 'desabordar') {
+      <div class="space-y-3">
+        <div class="flex items-center justify-between px-1">
+          <h3 class="text-[10px] font-inter-bold text-text/40 uppercase tracking-widest">
+            Pasajeros Abordados
+          </h3>
+
+          @if (pasajerosAbordados().length > 0) {
+            <button
+              (click)="toggleDesabordarTodos()"
+              class="text-[10px] font-inter-bold text-danger uppercase hover:underline"
+            >
+              {{ isAllDesabordarSelected() ? 'Deseleccionar todos' : 'Seleccionar todos' }}
+            </button>
+          }
+        </div>
+
+        <div class="max-h-[280px] sm:max-h-[350px] overflow-y-auto pr-2 custom-scrollbar space-y-2">
+          @if (pasajerosAbordados().length > 0) {
+            @for (p of pasajerosAbordados(); track p.id) {
+              @if (tieneSalidaOtroTramo(p)) {
+                <!-- Pasajero que bajó en otro tramo: solo lectura -->
+                <div
+                  class="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-xl border transition-all duration-300 bg-warning/10 border-warning/30 ring-1 ring-warning/20 shadow-md shadow-warning/5"
+                >
+                  <div class="flex-1 min-w-0 pl-2">
+                    <p class="text-[10px] sm:text-xs font-inter-bold text-warning truncate uppercase tracking-tight">
+                      {{ getDisplayName(p) }}
+                    </p>
+                    <div class="flex flex-col gap-0.5 mt-0.5">
+                      <p class="text-[10px] text-warning/70 font-inter-medium tracking-wide">
+                        DNI: {{ getDisplayDni(p) }}
+                      </p>
+                      <div class="flex items-center mt-1">
+                        <span
+                          class="inline-flex items-center px-1.5 py-0.5 rounded bg-warning/10 text-warning text-[7px] font-inter-bold uppercase tracking-widest border border-warning/20"
+                        >
+                          <i class="fas fa-map-marker-alt mr-1 text-[6.5px]"></i>
+                          Bajó en: {{ p.paradaSalidaNombre || 'otra parada' }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="w-7 h-7 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center bg-warning text-white shadow-lg shadow-warning/30"
+                  >
+                    <i class="fas fa-arrow-down fa-fw text-xs"></i>
+                  </div>
+                </div>
+              } @else {
+                <!-- Pasajero abordado: interactivo para marcar descenso -->
+                <div
+                  (click)="toggleDesabordar(p.id)"
+                  class="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-xl border cursor-pointer transition-all duration-300"
+                  [ngClass]="{
+                    'bg-background border-text/5 hover:border-text/10 shadow-sm':
+                      !idsDesabordar().has(p.id),
+                    'bg-danger/5 border-danger/20 ring-1 ring-danger/10 shadow-lg shadow-danger/5':
+                      idsDesabordar().has(p.id),
+                  }"
+                >
+                  <div class="flex-1 min-w-0 pl-2">
+                    <p
+                      class="text-[10px] sm:text-xs font-inter-bold text-text truncate uppercase tracking-tight"
+                      [class.text-danger]="idsDesabordar().has(p.id)"
+                    >
+                      {{ getDisplayName(p) }}
+                    </p>
+                    <div class="flex flex-col gap-0.5 mt-0.5">
+                      <p class="text-[10px] text-text/40 font-inter-medium tracking-wide">
+                        DNI: {{ getDisplayDni(p) }}
+                      </p>
+                      @if (p.paradaAsistenciaNombre) {
+                        <span
+                          class="inline-flex items-center px-1.5 py-0.5 rounded bg-info/10 text-info text-[7px] font-inter-bold uppercase tracking-widest border border-info/20 w-fit"
+                        >
+                          <i class="fas fa-arrow-up mr-1 text-[6.5px]"></i>
+                          {{ p.paradaAsistenciaNombre }}
+                        </span>
+                      }
+                    </div>
+                  </div>
+                  <div
+                    class="w-7 h-7 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center transition-all"
+                    [ngClass]="{
+                      'bg-text/5 text-text/30': !idsDesabordar().has(p.id),
+                      'bg-danger text-white shadow-lg shadow-danger/20': idsDesabordar().has(p.id),
+                    }"
+                  >
+                    <i
+                      class="fas fa-fw text-xs"
+                      [class.fa-minus]="!idsDesabordar().has(p.id)"
+                      [class.fa-arrow-down]="idsDesabordar().has(p.id)"
+                    ></i>
+                  </div>
+                </div>
+              }
+            }
+          } @else {
+            <div class="flex flex-col items-center justify-center py-6 sm:py-10 opacity-40">
+              <i class="fas fa-bus text-2xl sm:text-3xl mb-3"></i>
+              <p class="text-[10px] sm:text-xs font-inter-medium">No hay pasajeros abordados</p>
+            </div>
+          }
+        </div>
+      </div>
+    }
   </div>
 </app-modal-form>
