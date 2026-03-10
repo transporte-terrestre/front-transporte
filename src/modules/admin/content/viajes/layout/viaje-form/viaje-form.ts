@@ -23,6 +23,7 @@ import { FormGroup } from '@angular/forms';
 import { ViajeService } from '@service/admin/viaje.service';
 import { ClienteService } from '@service/admin/cliente.service';
 import { EntidadInputSearch } from '@module/admin/components/input-searchs/entidad-input-search/entidad-input-search';
+import * as L from 'leaflet';
 
 interface CircuitoSelection {
   rutaIda?: { id: number; distancia: string; tiempoEstimado: number };
@@ -80,13 +81,18 @@ export class ViajeForm implements OnInit {
   loadingCatalogos = signal(false);
   selectedClienteId = signal<number | null>(null);
 
+  // Map state
+  showMapOcasional = signal(false);
+  private mapOcasional: L.Map | null = null;
+  private markerOcasional: L.Marker | null = null;
+
   viajeForm: FormGroup = this.fb.group({
     cliente: [null, [Validators.required]],
     entidad: [null], // ID de la entidad seleccionada
-    tipoRuta: ['fija' as ApiResponse<'viajes', 'findOne'>['tipoRuta'], [Validators.required]],
+    tipoRuta: ['ocasional' as ApiResponse<'viajes', 'findOne'>['tipoRuta'], [Validators.required]],
     ruta: [null, [Validators.required]],
     rutaOcasional: [''],
-    distanciaEstimada: ['', [Validators.required]],
+    distanciaEstimada: [''],
     distanciaEstimadaVuelta: [''], // Para la vuelta
     distanciaFinal: [{ value: '', disabled: true }],
     horasContrato: [''],
@@ -237,7 +243,7 @@ export class ViajeForm implements OnInit {
           tipoViaje: 'ida',
           estado: 'programado',
           estadoVuelta: 'programado',
-          tipoRuta: 'fija',
+          tipoRuta: 'ocasional',
           // Resetear nuevos campos con defaults
           fechaSalidaDate: this.getTodayDate(),
           fechaSalidaTime: '10:00',
@@ -354,8 +360,7 @@ export class ViajeForm implements OnInit {
         rutaOcasionalControl?.clearValidators();
         rutaOcasionalControl?.setValue('');
 
-        // Distancia requerida para fija (se llena auto)
-        distanciaEstimadaControl?.setValidators([Validators.required]);
+        distanciaEstimadaControl?.clearValidators();
 
         // No forzamos 'ida' o 'ambos' aquí, esperamos a que seleccione la ruta
         // para saber si tiene ida/vuelta. Pero si ya hay una ruta, podrímos intentar:
@@ -368,9 +373,8 @@ export class ViajeForm implements OnInit {
         rutaControl?.clearValidators();
         rutaControl?.setValue(null);
 
-        // Limpiar distancia y MANTENER validador para ocasional (requerido)
+        distanciaEstimadaControl?.clearValidators();
         distanciaEstimadaControl?.setValue('');
-        // distanciaEstimada no se le hace clearValidators(), sigue siendo required
 
         // Seleccionar circuito por defecto para rutas aleatorias
         this.viajeForm.get('sentido')?.setValue('circuito');
@@ -761,7 +765,7 @@ export class ViajeForm implements OnInit {
       : formValue.entidad
         ? Number(formValue.entidad)
         : undefined;
-    const tipoRutaVal: 'fija' | 'ocasional' = formValue.tipoRuta || 'fija';
+    const tipoRutaVal: 'fija' | 'ocasional' = formValue.tipoRuta || 'ocasional';
 
     const buildDetalle = (
       sentido: 'ida' | 'vuelta' | 'circuito',
@@ -986,5 +990,93 @@ export class ViajeForm implements OnInit {
     const strMinutes = minutes < 10 ? '0' + minutes : minutes;
 
     return `${day} ${month} ${year} ${hours}:${strMinutes} ${ampm}`;
+  }
+
+  // --- Map logic for Ocasional ---
+  toggleMapOcasional() {
+    this.showMapOcasional.set(!this.showMapOcasional());
+    if (this.showMapOcasional()) {
+      setTimeout(() => this.initMapOcasional(), 100);
+    } else {
+      if (this.mapOcasional) {
+        this.mapOcasional.remove();
+        this.mapOcasional = null;
+        this.markerOcasional = null;
+      }
+    }
+  }
+
+  private initMapOcasional() {
+    if (this.mapOcasional) {
+      this.mapOcasional.invalidateSize();
+      return;
+    }
+
+    this.mapOcasional = L.map('map-ocasional').setView([-12.046374, -77.042793], 12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors',
+    }).addTo(this.mapOcasional);
+
+    const metadata = this.viajeForm.get('metadata')?.value;
+    const puntoPartida = metadata?.puntoPartida;
+    if (puntoPartida && puntoPartida.lat != null && puntoPartida.lng != null) {
+      this.setMarkerOcasional(puntoPartida.lat, puntoPartida.lng);
+      this.mapOcasional.setView([puntoPartida.lat, puntoPartida.lng], 15);
+    } else {
+      const defaultLat = -12.046374;
+      const defaultLng = -77.042793;
+      this.setMarkerOcasional(defaultLat, defaultLng);
+      this.mapOcasional.setView([defaultLat, defaultLng], 12);
+      this.updateMetadataPuntoPartida(defaultLat, defaultLng);
+    }
+
+    this.mapOcasional.on('click', (e: L.LeafletMouseEvent) => {
+      this.setMarkerOcasional(e.latlng.lat, e.latlng.lng);
+      this.updateMetadataPuntoPartida(e.latlng.lat, e.latlng.lng);
+    });
+  }
+
+  private setMarkerOcasional(lat: number, lng: number) {
+    if (!this.mapOcasional) return;
+
+    if (this.markerOcasional) {
+      this.markerOcasional.setLatLng([lat, lng]);
+    } else {
+      const icon = L.divIcon({
+        className: 'custom-div-icon',
+        html: `
+          <div style="position: relative; width: 30px; height: 30px;">
+            <div style="width: 30px; height: 30px; border-radius: 50% 50% 50% 0; background: #22c55e; position: absolute; transform: rotate(-45deg); left: 0; top: 0; box-shadow: -1px 1px 4px rgba(0,0,0,0.3);"></div>
+            <i class="fas fa-map-marker-alt" style="color: white; font-size: 12px; position: absolute; top: 8px; left: 50%; transform: translateX(-50%); z-index: 10;"></i>
+          </div>
+        `,
+        iconSize: [30, 42],
+        iconAnchor: [15, 30],
+      });
+      this.markerOcasional = L.marker([lat, lng], { icon, draggable: true }).addTo(
+        this.mapOcasional,
+      );
+      this.markerOcasional.on('dragend', () => {
+        const coords = this.markerOcasional!.getLatLng();
+        this.updateMetadataPuntoPartida(coords.lat, coords.lng);
+      });
+    }
+  }
+
+  updateMetadataPuntoPartida(lat: number, lng: number) {
+    const metaControls = this.viajeForm.get('metadata');
+    const meta = metaControls?.value || {};
+    meta.puntoPartida = { lat, lng };
+    metaControls?.setValue(meta);
+  }
+
+  updateMapCoordsFromInputs(latInput: string, lngInput: string) {
+    const lat = parseFloat(latInput);
+    const lng = parseFloat(lngInput);
+    if (!isNaN(lat) && !isNaN(lng)) {
+      this.setMarkerOcasional(lat, lng);
+      this.mapOcasional?.setView([lat, lng], 15);
+      this.updateMetadataPuntoPartida(lat, lng);
+    }
   }
 }

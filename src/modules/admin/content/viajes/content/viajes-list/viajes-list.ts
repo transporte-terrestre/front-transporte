@@ -10,6 +10,8 @@ import { ToastService } from '@service/toast.service';
 import { AlertService } from '@service/alert.service';
 import { ModalForm } from '../../../../components/modal-form/modal-form';
 import { ViajeForm } from '../../layout/viaje-form/viaje-form';
+import { ModalInfo } from '@module/admin/components/modal-info/modal-info';
+import { ViajeDetail } from '../../layout/viaje-detail/viaje-detail';
 import { PaginationComponent } from '../../../../components/pagination/pagination';
 import { PATH, buildPath } from '@route/path.route';
 import { getErrorMessage } from '@helper/error.helper';
@@ -37,7 +39,7 @@ interface CalendarEvent {
 
 @Component({
   selector: 'app-viajes-list',
-  imports: [CommonModule, FormsModule, ModalForm, ViajeForm, PaginationComponent, ClienteInputSearch, ConductorInputSearch, VehiculoInputSearch],
+  imports: [CommonModule, FormsModule, ModalForm, ViajeForm, PaginationComponent, ClienteInputSearch, ConductorInputSearch, VehiculoInputSearch, ModalInfo, ViajeDetail],
   templateUrl: './viajes-list.html',
   styleUrl: './viajes-list.css',
 })
@@ -53,6 +55,8 @@ export class ViajesList implements OnInit, OnDestroy {
   viajes = signal<ApiResponse<'viajes', 'findAll'>['data']>([]);
   loading = signal(false);
   showModal = signal(false);
+  showDetailModal = signal(false);
+  selectedViaje = signal<ViajeIndividual | null>(null);
   viewMode = signal<'table' | 'calendar'>('table');
   showFilters = signal(false);
 
@@ -78,6 +82,8 @@ export class ViajesList implements OnInit, OnDestroy {
 
   // Calendario
   currentWeekStart = signal(this.getWeekStart(new Date()));
+
+  // removed placeholder viewChild
   calendarHours = Array.from({ length: 24 }, (_, i) => i); // 0:00 - 23:00 (24 horas)
 
   // Catálogos para mostrar nombres en lugar de IDs
@@ -560,6 +566,16 @@ export class ViajesList implements OnInit, OnDestroy {
 
   openCreateModal() {
     this.showModal.set(true);
+  }
+
+  // Detail modal
+  viewDetails(viaje: ViajeIndividual) {
+    this.selectedViaje.set(viaje);
+    this.showDetailModal.set(true);
+  }
+
+  closeDetailModal() {
+    this.showDetailModal.set(false);
   }
 
   navigateToEdit(viaje: ViajeIndividual) {

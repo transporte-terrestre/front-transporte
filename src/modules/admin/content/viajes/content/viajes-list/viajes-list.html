@@ -407,7 +407,7 @@
           </thead>
           <tbody class="divide-y divide-text/10">
             @for (row of processedRows(); track row.circuito.id + '-' + row.tipo) {
-              <tr class="hover:bg-text/5 transition-colors group">
+              <tr class="hover:bg-text/5 transition-colors group" (click)="row.viaje && viewDetails(row.viaje)">
                 <!-- Celdas agrupadas (Circuito) -->
                 @if (row.isFirst) {
                   <td
@@ -641,4 +641,15 @@
   >
     <app-viaje-form [editMode]="false" (onSubmitForm)="handleFormSubmit($event)" />
   </app-modal-form>
+}
+
+<!-- Detail modal -->
+@if (showDetailModal()) {
+  <app-modal-info
+    title="Detalle del Viaje"
+    maxWidth="4xl"
+    (onClose)="showDetailModal.set(false)"
+  >
+    <app-viaje-detail [viaje]="selectedViaje()!" />
+  </app-modal-info>
 }
