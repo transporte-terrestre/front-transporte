@@ -869,7 +869,47 @@ export class RutaForm implements OnInit, AfterViewInit, OnDestroy {
   async submitForm() {
     if (this.rutaForm.invalid) {
       this.rutaForm.markAllAsTouched();
-      this.toastService.warning('Complete todos los campos requeridos.');
+
+      const invalidFields: string[] = [];
+      const fieldLabels: Record<string, string> = {
+        nombre: 'Nombre de ruta',
+        origen: 'Punto de Origen (Ida)',
+        destino: 'Punto de Destino (Ida)',
+        origenLat: 'Ubicación Origen (Ida)',
+        origenLng: 'Ubicación Origen (Ida)',
+        destinoLat: 'Ubicación Destino (Ida)',
+        destinoLng: 'Ubicación Destino (Ida)',
+        distancia: 'Distancia (Ida)',
+        tiempoEstimado: 'Tiempo Estimado (Ida)',
+        origenVuelta: 'Punto de Origen (Vuelta)',
+        destinoVuelta: 'Punto de Destino (Vuelta)',
+        origenLatVuelta: 'Ubicación Origen (Vuelta)',
+        origenLngVuelta: 'Ubicación Origen (Vuelta)',
+        destinoLatVuelta: 'Ubicación Destino (Vuelta)',
+        destinoLngVuelta: 'Ubicación Destino (Vuelta)',
+        distanciaVuelta: 'Distancia (Vuelta)',
+        tiempoEstimadoVuelta: 'Tiempo Estimado (Vuelta)',
+      };
+
+      for (const [key, control] of Object.entries(this.rutaForm.controls)) {
+        if (control.invalid) {
+          const label = fieldLabels[key] || key;
+          if (!invalidFields.includes(label)) {
+            invalidFields.push(label);
+          }
+        }
+      }
+
+      // Check FormArrays as well just in case
+      if (this.paradasIdaFA.invalid) invalidFields.push('Tiempos en Paradas (Ida)');
+      if (this.paradasVueltaFA.invalid) invalidFields.push('Tiempos en Paradas (Vuelta)');
+
+      const msg =
+        invalidFields.length > 0
+          ? 'Revisa los campos requeridos: ' + invalidFields.join(', ')
+          : 'Complete todos los campos de la ruta.';
+
+      this.toastService.warning(msg);
       return;
     }
 

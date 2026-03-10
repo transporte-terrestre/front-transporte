@@ -16,6 +16,7 @@ import { ToastService } from '@service/toast.service';
 import { AlertService } from '@service/alert.service';
 import { ViajeService } from '@service/admin/viaje.service';
 import {
+  ViajeItemHojaRutaDto,
   ViajeHojaRutaResultDto,
   ViajeProximoTramoResultDto,
   ViajePuntoTrayectoDto,
@@ -320,7 +321,7 @@ export class ViajeTramosFormComponent implements AfterViewInit, OnDestroy {
       this.loadingHojaRuta.set(true);
       try {
         const data = await this.viajeService.getHojaRuta(this.viaje().id);
-        this.hojaRuta.set(data);
+        this.hojaRuta.set(this.ajustarHojaRutaConDescansos(data));
       } catch (e) {
         console.error('Error cargando hoja de ruta:', e);
       } finally {
@@ -490,5 +491,105 @@ export class ViajeTramosFormComponent implements AfterViewInit, OnDestroy {
     }
 
     return 'Descanso';
+  }
+
+  private ajustarHojaRutaConDescansos(data: ViajeHojaRutaResultDto): ViajeHojaRutaResultDto {
+    const tramosRegistrados = [...this.tramos()].sort((a, b) => {
+      const ta = a.horaFinal ? new Date(a.horaFinal).getTime() : 0;
+      const tb = b.horaFinal ? new Date(b.horaFinal).getTime() : 0;
+      return ta - tb;
+    });
+
+    const tramosReales = tramosRegistrados.filter((t) => t.tipo !== 'descanso');
+    if (!data.tramos?.length || tramosReales.length < 2) return data;
+
+    const tramosAjustados = data.tramos.map((row, idx) => {
+      const inicioReal = tramosReales[idx];
+      const finReal = tramosReales[idx + 1];
+      if (!inicioReal?.horaFinal || !finReal?.horaFinal) return row;
+
+      const tInicio = new Date(inicioReal.horaFinal).getTime();
+      const tFin = new Date(finReal.horaFinal).getTime();
+
+      const descansosEntre = tramosRegistrados.filter((t) => {
+        if (t.tipo !== 'descanso' || !t.horaFinal) return false;
+        const tDescanso = new Date(t.horaFinal).getTime();
+        return tDescanso > tInicio && tDescanso <= tFin;
+      });
+
+      const ultimoDescanso = descansosEntre.length > 0 ? descansosEntre[descansosEntre.length - 1] : null;
+      if (!ultimoDescanso?.horaFinal) return row;
+
+      const tSalidaAjustada = new Date(ultimoDescanso.horaFinal).getTime();
+      const diffMin = Math.max(Math.round((tFin - tSalidaAjustada) / 60000), 0);
+
+      const kmInicialAjustado =
+        ultimoDescanso.kilometrajeFinal != null
+          ? Number(ultimoDescanso.kilometrajeFinal)
+          : inicioReal.kilometrajeFinal != null
+            ? Number(inicioReal.kilometrajeFinal)
+            : null;
+
+      const kmFinal = finReal.kilometrajeFinal != null ? Number(finReal.kilometrajeFinal) : null;
+      const kmDiff = kmInicialAjustado != null && kmFinal != null ? Math.max(kmFinal - kmInicialAjustado, 0) : null;
+
+      const rowAjustado: ViajeItemHojaRutaDto = {
+        ...row,
+        horaSalida: this.formatHoraAmPmUTC(ultimoDescanso.horaFinal),
+        tiempoRecorrido: diffMin > 0 ? this.formatDuracion(diffMin) : '—',
+      };
+
+      if (kmInicialAjustado != null) {
+        rowAjustado.kmInicial = `${kmInicialAjustado.toLocaleString('es-PE')} KM`;
+      }
+
+      if (kmDiff != null) {
+        rowAjustado.kilometrajeRecorrido = kmDiff > 0 ? `${kmDiff.toLocaleString('es-PE')} KM` : '—';
+      }
+
+      return rowAjustado;
+    });
+
+    const totalMin = tramosAjustados.reduce((acc, t) => acc + this.parseDuracionMinutos(t.tiempoRecorrido), 0);
+
+    return {
+      ...data,
+      tramos: tramosAjustados,
+      tiempoTotal: totalMin > 0 ? this.formatDuracion(totalMin) : data.tiempoTotal,
+    };
+  }
+
+  private formatHoraAmPmUTC(dateStr: string | null | undefined): string {
+    if (!dateStr) return '—';
+    const d = new Date(dateStr);
+    let hours = d.getUTCHours();
+    const minutes = String(d.getUTCMinutes()).padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12 || 12;
+    return `${hours}:${minutes} ${ampm}`;
+  }
+
+  private formatDuracion(minutos: number): string {
+    if (minutos < 1) return '< 1 min';
+    if (minutos < 60) return `${minutos} min`;
+    const h = Math.floor(minutos / 60);
+    const m = minutos % 60;
+    return m > 0 ? `${h}h ${m}min` : `${h}h`;
+  }
+
+  private parseDuracionMinutos(value: string | null | undefined): number {
+    if (!value || value === '—') return 0;
+    if (value.includes('<')) return 0;
+
+    const onlyMin = value.match(/^(\d+)\s*min$/i);
+    if (onlyMin) return Number(onlyMin[1]);
+
+    const hm = value.match(/^(\d+)h\s*(\d+)min$/i);
+    if (hm) return Number(hm[1]) * 60 + Number(hm[2]);
+
+    const onlyHour = value.match(/^(\d+)h$/i);
+    if (onlyHour) return Number(onlyHour[1]) * 60;
+
+    return 0;
   }
 }

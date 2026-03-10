@@ -211,7 +211,6 @@ export class ViajePasajerosForm {
 
         if (addedCount > 0) {
           this.pasajeros.set(currentList);
-          this.toastService.success(`${addedCount} pasajeros cargados desde Excel`);
           this.mode.set('list');
         } else {
           this.toastService.info('Todos los pasajeros ya están en la lista');

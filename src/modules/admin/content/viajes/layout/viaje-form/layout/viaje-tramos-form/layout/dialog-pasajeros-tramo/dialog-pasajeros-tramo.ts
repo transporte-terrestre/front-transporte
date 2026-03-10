@@ -29,6 +29,9 @@ export class DialogPasajerosTramoComponent implements OnInit {
   tramo = input.required<ViajeTramoResultDto>();
   capacidad = input<number>(0);
 
+  // Mode: abordar or desabordar
+  modo = signal<'abordar' | 'desabordar'>('abordar');
+
   // Computed
   porcentajeOcupacion = computed(() => {
     const num = this.tramo().numeroPasajeros || 0;
@@ -46,12 +49,26 @@ export class DialogPasajerosTramoComponent implements OnInit {
   isSubmitting = signal(false);
   pasajeros = signal<ViajePasajeroResultDto[]>([]);
   idsSeleccionados = signal<Set<number>>(new Set());
+  idsDesabordar = signal<Set<number>>(new Set());
 
-  // Computed for selection
+  // Computed for abordar selection
   isAllSelected = computed(() => {
     const editables = this.pasajeros().filter((p) => !this.tieneAsistenciaOtroTramo(p));
     if (editables.length === 0) return false;
     return editables.every((p) => this.idsSeleccionados().has(p.id));
+  });
+
+  // Computed: pasajeros abordados (que pueden bajar) — excluye los que subieron en este tramo
+  pasajerosAbordados = computed(() => {
+    return this.pasajeros().filter(
+      (p) => (p.asistencia || p.paradaAsistenciaId != null) && !p.esAsistenciaTramoActual,
+    );
+  });
+
+  isAllDesabordarSelected = computed(() => {
+    const editables = this.pasajerosAbordados().filter((p) => !this.tieneSalidaOtroTramo(p));
+    if (editables.length === 0) return false;
+    return editables.every((p) => this.idsDesabordar().has(p.id));
   });
 
   constructor() {}
@@ -68,7 +85,7 @@ export class DialogPasajerosTramoComponent implements OnInit {
       // Ordenar: Verde (Este tramo) > Azul (Otro tramo) > Gris (Pendiente)
       const sortedData = [...data].sort((a, b) => {
         const getWeight = (p: ViajePasajeroResultDto) => {
-          if (p.esTramoActual && p.asistencia) return 3; // Verde
+          if (p.esAsistenciaTramoActual && p.asistencia) return 3; // Verde
           if (this.tieneAsistenciaOtroTramo(p)) return 2; // Azul
           return 1; // Gris
         };
@@ -83,15 +100,23 @@ export class DialogPasajerosTramoComponent implements OnInit {
 
       this.pasajeros.set(sortedData);
 
-      // Inicializar selección solo con los que tienen asistencia en este tramo (los verdes)
-      const iniciales = data.filter((p) => p.asistencia && p.esTramoActual).map((p) => p.id);
+      // Inicializar selección abordar: los que tienen asistencia en este tramo (los verdes)
+      const iniciales = data.filter((p) => p.asistencia && p.esAsistenciaTramoActual).map((p) => p.id);
       this.idsSeleccionados.set(new Set(iniciales));
+
+      // Inicializar selección desabordar: los que tienen salida en este tramo
+      const inicialesDesabordar = data.filter((p) => p.esSalidaTramoActual).map((p) => p.id);
+      this.idsDesabordar.set(new Set(inicialesDesabordar));
     } catch (error) {
       console.error(error);
       this.toastService.error('Error al cargar pasajeros');
     } finally {
       this.loading.set(false);
     }
+  }
+
+  cambiarModo(modo: 'abordar' | 'desabordar') {
+    this.modo.set(modo);
   }
 
   toggleSeleccion(id: number) {
@@ -117,20 +142,53 @@ export class DialogPasajerosTramoComponent implements OnInit {
     this.idsSeleccionados.set(newSet);
   }
 
+  toggleDesabordar(id: number) {
+    const p = this.pasajeros().find((p) => p.id === id);
+    if (p && this.tieneSalidaOtroTramo(p)) return;
+
+    const set = new Set(this.idsDesabordar());
+    if (set.has(id)) set.delete(id);
+    else set.add(id);
+    this.idsDesabordar.set(set);
+  }
+
+  toggleDesabordarTodos() {
+    const editables = this.pasajerosAbordados().filter((p) => !this.tieneSalidaOtroTramo(p));
+    const newSet = new Set(this.idsDesabordar());
+
+    if (this.isAllDesabordarSelected()) {
+      editables.forEach((p) => newSet.delete(p.id));
+    } else {
+      editables.forEach((p) => newSet.add(p.id));
+    }
+    this.idsDesabordar.set(newSet);
+  }
+
   async guardarCambios() {
-    // Filtrar para enviar solo los IDs de los pasajeros del tramo actual (los editables)
-    const ids = Array.from(this.idsSeleccionados()).filter((id) => {
+    const idsAbordar = Array.from(this.idsSeleccionados()).filter((id) => {
       const p = this.pasajeros().find((pas) => pas.id === id);
       return p ? !this.tieneAsistenciaOtroTramo(p) : false;
     });
 
+    const idsDesabordarArr = Array.from(this.idsDesabordar()).filter((id) => {
+      const p = this.pasajeros().find((pas) => pas.id === id);
+      return p ? !this.tieneSalidaOtroTramo(p) : false;
+    });
+
     this.isSubmitting.set(true);
     try {
-      await this.viajeService.abordarPasajeros(
-        this.viajeId(),
-        { viajePasajeroIds: ids },
-        this.tramo().id,
-      );
+      await Promise.all([
+        this.viajeService.abordarPasajeros(
+          this.viajeId(),
+          { viajePasajeroIds: idsAbordar },
+          this.tramo().id,
+        ),
+        this.viajeService.desabordarPasajeros(
+          this.viajeId(),
+          { viajePasajeroIds: idsDesabordarArr },
+          this.tramo().id,
+        ),
+      ]);
       this.toastService.success('Cambios guardados correctamente');
       await this.loadPasajeros();
       this.onSaved.emit(false);
@@ -158,6 +216,11 @@ export class DialogPasajerosTramoComponent implements OnInit {
 
   /** Retorna true si el pasajero tiene asistencia registrada en otro tramo */
   tieneAsistenciaOtroTramo(p: ViajePasajeroResultDto) {
-    return p.paradaAsistenciaId != null && !p.esTramoActual;
+    return p.paradaAsistenciaId != null && !p.esAsistenciaTramoActual;
+  }
+
+  /** Retorna true si el pasajero tiene salida registrada en otro tramo */
+  tieneSalidaOtroTramo(p: ViajePasajeroResultDto) {
+    return p.paradaSalidaId != null && !p.esSalidaTramoActual;
   }
 }

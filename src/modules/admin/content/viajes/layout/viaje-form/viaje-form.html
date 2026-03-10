@@ -10,24 +10,38 @@
   <div class="col-span-1 lg:col-span-2 grid grid-cols-1 gap-6" [class.lg:grid-cols-5]="!editMode()">
     <!-- LEFT COLUMN: DEFINICIÓN DEL VIAJE -->
     <div class="space-y-4" [class.lg:col-span-2]="!editMode()">
-      <!-- Cliente + Horas C. -->
-      <div class="grid grid-cols-4 gap-3">
-        <div class="col-span-3">
+      <!-- Cliente, Entidad y Horas C. -->
+      <div class="grid grid-cols-1 gap-3">
+        <!-- Cliente fila principal -->
+        <div>
           <label class="text-xs font-inter-semibold text-text mb-1.5"> Cliente </label>
           <app-cliente-input-search formControlName="cliente"> </app-cliente-input-search>
           @if (viajeForm.get('cliente')?.touched && viajeForm.get('cliente')?.errors) {
             <p class="text-danger text-xs font-inter-medium mt-1">El cliente es requerido</p>
           }
         </div>
-        <div>
-          <label class="text-xs font-inter-semibold text-text mb-1.5"> Horas C. </label>
-          <input
-            type="text"
-            formControlName="horasContrato"
-            readonly
-            class="w-full px-3 py-2 text-sm bg-text/10 border-2 border-transparent rounded-lg text-text/60 font-inter-regular outline-none cursor-not-allowed text-center"
-            placeholder="--"
-          />
+
+        <!-- Entidad y Horas en la segunda fila -->
+        <div class="grid grid-cols-3 gap-3">
+          <div class="col-span-2">
+            <label class="text-xs font-inter-semibold text-text mb-1.5"> Entidad (Opc) </label>
+            <app-entidad-input-search
+              formControlName="entidad"
+              [clienteId]="selectedClienteId()"
+              [showClear]="true"
+            >
+            </app-entidad-input-search>
+          </div>
+          <div class="col-span-1">
+            <label class="text-xs font-inter-semibold text-text mb-1.5"> Hr. C. </label>
+            <input
+              type="text"
+              formControlName="horasContrato"
+              readonly
+              class="w-full px-3 py-2 text-sm bg-text/10 border-2 border-transparent rounded-lg text-text/60 font-inter-regular outline-none cursor-not-allowed text-center"
+              placeholder="-"
+            />
+          </div>
         </div>
       </div>
 
@@ -115,6 +129,61 @@
                 La descripción de la ruta es requerida
               </p>
             }
+
+            <div class="mt-3">
+              <button
+                type="button"
+                (click)="toggleMapOcasional()"
+                [class.bg-success]="showMapOcasional()"
+                [class.text-white]="showMapOcasional()"
+                [class.border-success]="showMapOcasional()"
+                class="flex items-center justify-center gap-2 px-3 py-1.5 text-[11px] font-inter-semibold rounded-md border border-text/10 bg-text/5 text-text/80 hover:bg-success hover:text-white hover:border-success transition-all w-full"
+              >
+                <i class="fas fa-map-marked-alt"></i>
+                Marcar en Mapa
+              </button>
+
+              @if (showMapOcasional()) {
+                <div
+                  class="mt-2 p-3 bg-text/5 border border-dashed border-text/10 rounded-xl relative"
+                >
+                  <div class="flex flex-col sm:flex-row gap-2 mb-3">
+                    <div class="flex-1 relative">
+                      <label
+                        class="text-[9px] font-inter-bold text-text/50 uppercase tracking-wider block mb-1"
+                        >Latitud</label
+                      >
+                      <input
+                        type="number"
+                        #latInput
+                        [value]="viajeForm.get('metadata')?.value?.puntoPartida?.lat ?? ''"
+                        (input)="updateMapCoordsFromInputs(latInput.value, lngInput.value)"
+                        class="w-full px-2 py-1 text-xs bg-background border border-text/10 rounded-md text-text font-inter-medium outline-none focus:border-success transition-all"
+                        placeholder="Ej: -12.0463"
+                      />
+                    </div>
+                    <div class="flex-1 relative">
+                      <label
+                        class="text-[9px] font-inter-bold text-text/50 uppercase tracking-wider block mb-1"
+                        >Longitud</label
+                      >
+                      <input
+                        type="number"
+                        #lngInput
+                        [value]="viajeForm.get('metadata')?.value?.puntoPartida?.lng ?? ''"
+                        (input)="updateMapCoordsFromInputs(latInput.value, lngInput.value)"
+                        class="w-full px-2 py-1 text-xs bg-background border border-text/10 rounded-md text-text font-inter-medium outline-none focus:border-success transition-all"
+                        placeholder="Ej: -77.0427"
+                      />
+                    </div>
+                  </div>
+                  <div
+                    id="map-ocasional"
+                    class="w-full h-40 rounded-lg overflow-hidden border border-text/10 relative z-10 shadow-inner"
+                  ></div>
+                </div>
+              }
+            </div>
           }
         </div>
       </ng-template>
@@ -128,10 +197,10 @@
           <div
             class="grid p-1 bg-text/5 rounded-lg border border-text/10 gap-1"
             [class.grid-cols-2]="
-              viajeForm.get('tipoRuta')?.value !== 'fija' || !hasRutaIda() || !hasRutaVuelta()
+              viajeForm.get('tipoRuta')?.value === 'fija' && (!hasRutaIda() || !hasRutaVuelta())
             "
             [class.grid-cols-3]="
-              viajeForm.get('tipoRuta')?.value === 'fija' && hasRutaIda() && hasRutaVuelta()
+              viajeForm.get('tipoRuta')?.value !== 'fija' || (hasRutaIda() && hasRutaVuelta())
             "
           >
             <!-- IDA -->
@@ -181,6 +250,39 @@
               />
               VUELTA
             </label>
+
+            <!-- CIRCUITO (Always for Ocasional, optional for Fija?) -->
+            @if (viajeForm.get('tipoRuta')?.value !== 'fija') {
+              <label
+                class="relative flex items-center justify-center py-1.5 text-xs font-inter-bold rounded-md cursor-pointer transition-all select-none text-center"
+                [class.bg-background]="
+                  tipoViaje() === 'circuito' || viajeForm.get('sentido')?.value === 'circuito'
+                "
+                [class.text-text]="
+                  tipoViaje() === 'circuito' || viajeForm.get('sentido')?.value === 'circuito'
+                "
+                [class.shadow-sm]="
+                  tipoViaje() === 'circuito' || viajeForm.get('sentido')?.value === 'circuito'
+                "
+                [class.text-text/60]="
+                  tipoViaje() !== 'circuito' && viajeForm.get('sentido')?.value !== 'circuito'
+                "
+              >
+                <input
+                  type="radio"
+                  name="tipoViaje"
+                  value="circuito"
+                  [checked]="
+                    tipoViaje() === 'circuito' || viajeForm.get('sentido')?.value === 'circuito'
+                  "
+                  (change)="
+                    tipoViaje.set('circuito'); viajeForm.get('sentido')?.setValue('circuito')
+                  "
+                  class="hidden"
+                />
+                CIRCUITO
+              </label>
+            }
 
             <!-- AMBOS (Only Fixed) -->
             @if (viajeForm.get('tipoRuta')?.value === 'fija' && hasRutaIda() && hasRutaVuelta()) {
@@ -244,8 +346,8 @@
         </div>
       }
 
-      <!-- Spacer for Dropdowns -->
-      @if (!editMode()) {
+      <!-- Spacer for Dropdowns (Sólo para rutas fijas) -->
+      @if (!editMode() && viajeForm.get('tipoRuta')?.value === 'fija') {
         <div class="hidden lg:block h-32 w-full relative -z-10"></div>
       }
     </div>
@@ -325,6 +427,16 @@
                           class="flex-1 px-2 py-1.5 text-xs bg-text/5 border border-transparent focus:border-secondary rounded-md text-text font-inter-regular outline-none transition-all text-center"
                         />
                       </div>
+                      @if (editMode() && viaje()?.fechaSalida) {
+                        <div
+                          class="mt-1 flex items-center gap-1.5 px-2 py-1 rounded bg-success/5 border border-success/10"
+                        >
+                          <i class="fas fa-play text-[10px] text-success"></i>
+                          <span class="text-[11px] font-inter-medium text-success">
+                            Real: {{ formatDate(viaje()?.fechaSalida) }}
+                          </span>
+                        </div>
+                      }
                     </div>
                   </div>
                   <!-- IDA: Llegada -->
@@ -347,6 +459,16 @@
                           class="flex-1 px-2 py-1.5 text-xs bg-text/5 border border-transparent focus:border-secondary rounded-md text-text font-inter-regular outline-none transition-all text-center"
                         />
                       </div>
+                      @if (editMode() && viaje()?.fechaLlegada) {
+                        <div
+                          class="mt-1 flex items-center gap-1.5 px-2 py-1 rounded bg-success/5 border border-success/10"
+                        >
+                          <i class="fas fa-check-circle text-[10px] text-success"></i>
+                          <span class="text-[11px] font-inter-medium text-success">
+                            Real: {{ formatDate(viaje()?.fechaLlegada) }}
+                          </span>
+                        </div>
+                      }
                     </div>
                   </div>
                 </div>
@@ -644,6 +766,7 @@
                 (viajeForm.get('tipoRuta')?.value !== 'fija' &&
                   viajeForm.get('sentido')?.value === 'vuelta')
               "
+              [class.bg-text/5]="viajeForm.get('sentido')?.value === 'circuito'"
             >
               <div class="flex flex-col flex-1 min-w-0 mr-2">
                 <div class="flex items-center gap-2">
@@ -669,15 +792,21 @@
                       (viajeForm.get('tipoRuta')?.value !== 'fija' &&
                         viajeForm.get('sentido')?.value === 'vuelta')
                     "
+                    [class.fa-route]="viajeForm.get('sentido')?.value === 'circuito'"
+                    [class.text-text/60]="viajeForm.get('sentido')?.value === 'circuito'"
                   ></i>
                   <span class="text-xs font-inter-bold text-text uppercase">
-                    {{
+                    @if (viajeForm.get('sentido')?.value === 'circuito') {
+                      CIRCUITO
+                    } @else if (
                       (viajeForm.get('tipoRuta')?.value === 'fija' && tipoViaje() === 'vuelta') ||
                       (viajeForm.get('tipoRuta')?.value !== 'fija' &&
                         viajeForm.get('sentido')?.value === 'vuelta')
-                        ? 'Vuelta'
-                        : 'Ida'
-                    }}
+                    ) {
+                      VUELTA
+                    } @else {
+                      IDA
+                    }
                   </span>
                 </div>
 
@@ -752,6 +881,16 @@
                         class="flex-1 px-2 py-1.5 text-xs bg-text/5 border border-transparent focus:border-secondary rounded-md text-text font-inter-regular outline-none transition-all text-center"
                       />
                     </div>
+                    @if (editMode() && viaje()?.fechaSalida) {
+                      <div
+                        class="mt-1 flex items-center gap-1.5 px-2 py-1 rounded bg-success/5 border border-success/10"
+                      >
+                        <i class="fas fa-play text-[10px] text-success"></i>
+                        <span class="text-[11px] font-inter-medium text-success">
+                          Real: {{ formatDate(viaje()?.fechaSalida) }}
+                        </span>
+                      </div>
+                    }
                   </div>
                 </div>
                 <!-- SINGLE: Llegada -->
@@ -774,6 +913,16 @@
                         class="flex-1 px-2 py-1.5 text-xs bg-text/5 border border-transparent focus:border-secondary rounded-md text-text font-inter-regular outline-none transition-all text-center"
                       />
                     </div>
+                    @if (editMode() && viaje()?.fechaLlegada) {
+                      <div
+                        class="mt-1 flex items-center gap-1.5 px-2 py-1 rounded bg-success/5 border border-success/10"
+                      >
+                        <i class="fas fa-check-circle text-[10px] text-success"></i>
+                        <span class="text-[11px] font-inter-medium text-success">
+                          Real: {{ formatDate(viaje()?.fechaLlegada) }}
+                        </span>
+                      </div>
+                    }
                   </div>
                 </div>
               </div>
@@ -908,13 +1057,11 @@
         </app-viaje-pasajeros-form>
       </div>
       <div>
-        <!-- Servicios / Tramos only for fixed routes -->
-        @if (viaje()!.tipoRuta === 'fija') {
-          <app-viaje-tramos-form
-            [viaje]="viaje()!"
-            (onDataChange)="onDataChange.emit()"
-          ></app-viaje-tramos-form>
-        }
+        <!-- Servicios / Tramos -->
+        <app-viaje-tramos-form
+          [viaje]="viaje()!"
+          (onDataChange)="onDataChange.emit()"
+        ></app-viaje-tramos-form>
       </div>
       <div>
         <!-- Comentarios -->

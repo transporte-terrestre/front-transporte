@@ -5,7 +5,7 @@
       <div>
         <h1 class="text-2xl font-anton text-text lowercase">Alquileres</h1>
         <p class="text-sm text-text/60 font-inter-regular mt-1">
-          Administra los alquileres de vehículos a proveedores
+          Administra los alquileres de maquinaria (seca y operada)
         </p>
       </div>
       <div class="flex items-center gap-2 w-full sm:w-auto">
@@ -28,7 +28,7 @@
           type="text"
           [ngModel]="searchTerm()"
           (ngModelChange)="onSearchChange($event)"
-          placeholder="Buscar por proveedor, placa de vehículo..."
+          placeholder="Buscar por cliente, conductor, placa..."
           class="w-full pl-10 pr-4 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all"
         />
       </div>
@@ -68,7 +68,13 @@
               <th
                 class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
               >
-                Vehículo
+                Cliente / Tipo
+              </th>
+
+              <th
+                class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              >
+                Vehículo / Conductor
               </th>
 
               <th
@@ -79,7 +85,17 @@
               <th
                 class="px-4 py-3 text-center text-xs font-inter-bold text-text/60 uppercase tracking-wider"
               >
+                Kilometraje
+              </th>
+              <th
+                class="px-4 py-3 text-center text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              >
                 Monto
+              </th>
+              <th
+                class="px-4 py-3 text-center text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              >
+                Total
               </th>
               <th
                 class="px-4 py-3 text-center text-xs font-inter-bold text-text/60 uppercase tracking-wider"
@@ -100,6 +116,20 @@
                 (click)="navigateToEdit(alquiler)"
               >
                 <td class="px-4 py-3 whitespace-nowrap">
+                  <div class="flex flex-col gap-0.5">
+                    <span class="text-xs font-inter-bold text-text uppercase">{{
+                      $any(alquiler.cliente)?.nombreCompleto || '—'
+                    }}</span>
+                    <span
+                      class="text-[10px] font-inter-semibold uppercase"
+                      [class.text-warning]="alquiler.tipo === 'maquina_operada'"
+                      [class.text-info]="alquiler.tipo === 'maquina_seca'"
+                      >{{ alquiler.tipo === 'maquina_operada' ? 'Máquina Operada' : 'Máquina Seca' }}</span
+                    >
+                  </div>
+                </td>
+
+                <td class="px-4 py-3 whitespace-nowrap">
                   <div class="flex items-center gap-2">
                     <div
                       class="w-8 h-8 rounded-lg bg-text/5 border border-text/10 flex items-center justify-center"
@@ -114,6 +144,11 @@
                         >{{ $any(alquiler.vehiculo)?.marca }}
                         {{ $any(alquiler.vehiculo)?.modelo }}</span
                       >
+                      @if (alquiler.tipo === 'maquina_operada') {
+                        <span class="text-[10px] text-text/60 font-inter-medium"
+                          >Conductor: {{ $any(alquiler.conductor)?.nombreCompleto || '—' }}</span
+                        >
+                      }
                     </div>
                   </div>
                 </td>
@@ -136,13 +171,29 @@
                 </td>
 
                 <td class="px-4 py-3 whitespace-nowrap text-center">
-                  @if (alquiler.monto) {
-                    <span
-                      class="text-xs font-inter-bold text-success bg-success/10 px-2 py-0.5 rounded-md"
-                      >S/ {{ alquiler.monto }}</span
+                  <div class="flex flex-col gap-0.5 items-center">
+                    <span class="text-[10px] text-text/60 font-inter-medium"
+                      >Km Ini: {{ alquiler.kilometrajeInicial }}</span
                     >
+                    @if (alquiler.kilometrajeFinal != null) {
+                      <span class="text-[10px] text-text/60 font-inter-medium"
+                        >Km Fin: {{ alquiler.kilometrajeFinal }}</span
+                      >
+                    }
+                  </div>
+                </td>
+
+                <td class="px-4 py-3 whitespace-nowrap text-center">
+                  <span class="text-xs font-inter-bold text-success bg-success/10 px-2 py-0.5 rounded-md"
+                    >S/ {{ alquiler.montoPorDia }}/día</span
+                  >
+                </td>
+
+                <td class="px-4 py-3 whitespace-nowrap text-center">
+                  @if (alquiler.montoTotalFinal != null) {
+                    <span class="text-xs font-inter-bold text-text">S/ {{ alquiler.montoTotalFinal }}</span>
                   } @else {
-                    <span class="text-xs text-text/40 italic">-</span>
+                    <span class="text-xs text-text/40">—</span>
                   }
                 </td>
 
@@ -166,6 +217,12 @@
                     >
                       <i class="fas fa-edit"></i>
                     </button>
+                    <ng-container *ngIf="alquiler.estado === 'activo'">
+                      <app-alquiler-terminar-modal
+                        [alquiler]="alquiler"
+                        (onCompleted)="loadAlquileres()"
+                      ></app-alquiler-terminar-modal>
+                    </ng-container>
                     <button
                       (click)="deleteAlquiler(alquiler.id, $event)"
                       class="p-1.5 text-danger hover:bg-danger/10 rounded-lg transition-colors text-sm"
@@ -210,3 +267,4 @@
     />
   </app-modal-form>
 }
+

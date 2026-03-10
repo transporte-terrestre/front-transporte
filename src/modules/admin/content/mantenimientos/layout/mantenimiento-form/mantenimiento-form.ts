@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { ApiResponse, ApiBody, ApiField, MantenimientoDocumentoResultDto } from 'api/backend.api';
 import { VehiculoInputSearch } from '@module/admin/components/input-searchs/vehiculo-input-search/vehiculo-input-search';
 import { TallerInputSearch } from '@module/admin/components/input-searchs/taller-input-search/taller-input-search';
+import { TallerSucursalInputSearch } from '@module/admin/components/input-searchs/taller-sucursal-input-search/taller-sucursal-input-search';
 import { MantenimientoTareasForm } from './content/mantenimiento-tareas-form/mantenimiento-tareas-form';
 import {
   DocumentsDateUpload,
@@ -17,10 +18,10 @@ import { getErrorMessage } from '@helper/error.helper';
 @Component({
   selector: 'app-mantenimiento-form',
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     VehiculoInputSearch,
     TallerInputSearch,
+    TallerSucursalInputSearch,
     MantenimientoTareasForm,
     DocumentsDateUpload,
   ],
@@ -45,10 +46,12 @@ export class MantenimientoForm implements OnInit {
 
   // State
   localDocuments = signal<ApiResponse<'mantenimientos', 'findOne'>['documentos'] | null>(null);
+  selectedTallerId = signal<number | null>(null);
 
   mantenimientoForm: FormGroup = this.fb.group({
     vehiculo: [null, [Validators.required]],
     taller: [null, [Validators.required]],
+    sucursal: [null],
     codigoOrden: [{ value: '', disabled: true }],
     tipo: ['preventivo', [Validators.required]],
     costoTotal: ['', [Validators.required, Validators.min(0)]],
@@ -58,6 +61,7 @@ export class MantenimientoForm implements OnInit {
     kilometraje: [{ value: '', disabled: true }, [Validators.required, Validators.min(0)]],
     kilometrajeProximoMantenimiento: ['', [Validators.required, Validators.min(0)]],
     estado: ['pendiente', [Validators.required]],
+    marcarEnTaller: [false],
   });
 
   tipos: Array<{
@@ -100,9 +104,11 @@ export class MantenimientoForm implements OnInit {
       const dateSelected = this.selectedDate();
 
       if (isEditMode && mantenimientoData) {
+        this.selectedTallerId.set(mantenimientoData.tallerId || null);
         this.mantenimientoForm.patchValue({
           vehiculo: mantenimientoData.vehiculoId,
           taller: mantenimientoData.tallerId,
+          sucursal: mantenimientoData.sucursalId,
           codigoOrden: mantenimientoData.codigoOrden,
           tipo: mantenimientoData.tipo,
           costoTotal: mantenimientoData.costoTotal,
@@ -140,6 +146,18 @@ export class MantenimientoForm implements OnInit {
         }
       }
     });
+
+    // Escuchar cambios en taller para resetear sucursal y actualizar id
+    this.mantenimientoForm.get('taller')?.valueChanges.subscribe((taller) => {
+      this.mantenimientoForm.patchValue({ sucursal: null }, { emitEvent: false });
+      if (taller && typeof taller === 'object') {
+        this.selectedTallerId.set(taller.id || null);
+      } else if (taller && typeof taller === 'number') {
+        this.selectedTallerId.set(taller);
+      } else {
+        this.selectedTallerId.set(null);
+      }
+    });
   }
 
   ngOnInit() {}
@@ -156,6 +174,11 @@ export class MantenimientoForm implements OnInit {
         ? Number(formValue.vehiculo.id)
         : Number(formValue.vehiculo),
       tallerId: formValue.taller?.id ? Number(formValue.taller.id) : Number(formValue.taller),
+      sucursalId: (formValue.sucursal?.id
+        ? Number(formValue.sucursal.id)
+        : formValue.sucursal
+          ? Number(formValue.sucursal)
+          : undefined) as any,
       tipo: formValue.tipo,
       costoTotal: String(formValue.costoTotal),
       descripcion: formValue.descripcion,
@@ -164,6 +187,7 @@ export class MantenimientoForm implements OnInit {
       kilometraje: Number(formValue.kilometraje),
       kilometrajeProximoMantenimiento: Number(formValue.kilometrajeProximoMantenimiento),
       estado: formValue.estado,
+      marcarEnTaller: formValue.marcarEnTaller || false,
     };
 
     this.onSubmitForm.emit(formData);

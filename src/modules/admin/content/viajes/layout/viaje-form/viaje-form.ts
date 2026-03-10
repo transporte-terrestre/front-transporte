@@ -21,6 +21,9 @@ import { ViajeTramosFormComponent } from './layout/viaje-tramos-form/viaje-tramo
 import { ViajePasajerosForm } from './layout/viaje-pasajeros-form/viaje-pasajeros-form';
 import { FormGroup } from '@angular/forms';
 import { ViajeService } from '@service/admin/viaje.service';
+import { ClienteService } from '@service/admin/cliente.service';
+import { EntidadInputSearch } from '@module/admin/components/input-searchs/entidad-input-search/entidad-input-search';
+import * as L from 'leaflet';
 
 interface CircuitoSelection {
   rutaIda?: { id: number; distancia: string; tiempoEstimado: number };
@@ -42,6 +45,7 @@ interface CircuitoSelection {
     ViajePasajerosForm,
     ViajeComentariosForm,
     ViajeTramosFormComponent,
+    EntidadInputSearch,
   ],
   templateUrl: './viaje-form.html',
   styleUrl: './viaje-form.css',
@@ -50,6 +54,7 @@ export class ViajeForm implements OnInit {
   private fb = inject(FormBuilder);
   private toastService = inject(ToastService);
   private viajeService = inject(ViajeService);
+  private clienteService = inject(ClienteService);
 
   // Inputs
   viaje = input<ApiResponse<'viajes', 'findOne'> | null>(null);
@@ -63,7 +68,7 @@ export class ViajeForm implements OnInit {
   private checkAvailabilityTimeout: any;
 
   // Signals
-  tipoViaje = signal<'ida' | 'vuelta' | 'ambos'>('ida');
+  tipoViaje = signal<'ida' | 'vuelta' | 'ambos' | 'circuito'>('ida');
   hasRutaIda = signal<boolean>(false);
   hasRutaVuelta = signal<boolean>(false);
   hasRutaSelected = signal<boolean>(false);
@@ -74,13 +79,20 @@ export class ViajeForm implements OnInit {
 
   // Catálogos
   loadingCatalogos = signal(false);
+  selectedClienteId = signal<number | null>(null);
+
+  // Map state
+  showMapOcasional = signal(false);
+  private mapOcasional: L.Map | null = null;
+  private markerOcasional: L.Marker | null = null;
 
   viajeForm: FormGroup = this.fb.group({
     cliente: [null, [Validators.required]],
-    tipoRuta: ['fija' as ApiResponse<'viajes', 'findOne'>['tipoRuta'], [Validators.required]],
+    entidad: [null], // ID de la entidad seleccionada
+    tipoRuta: ['ocasional' as ApiResponse<'viajes', 'findOne'>['tipoRuta'], [Validators.required]],
     ruta: [null, [Validators.required]],
     rutaOcasional: [''],
-    distanciaEstimada: ['', [Validators.required]],
+    distanciaEstimada: [''],
     distanciaEstimadaVuelta: [''], // Para la vuelta
     distanciaFinal: [{ value: '', disabled: true }],
     horasContrato: [''],
@@ -104,6 +116,7 @@ export class ViajeForm implements OnInit {
     turno: ['dia' as ApiResponse<'viajes', 'findOne'>['turno'], [Validators.required]],
     turnoVuelta: ['dia' as ApiResponse<'viajes', 'findOne'>['turno']],
     sentido: ['ida' as ApiResponse<'viajes', 'findOne'>['sentido'], [Validators.required]],
+    metadata: [null],
   });
 
   estados: Array<{
@@ -153,6 +166,7 @@ export class ViajeForm implements OnInit {
   }> = [
     { value: 'ida', label: 'Ida', icon: 'fa-arrow-right' },
     { value: 'vuelta', label: 'Vuelta', icon: 'fa-arrow-left' },
+    { value: 'circuito', label: 'Circuito', icon: 'fa-sync' },
   ];
 
   constructor() {
@@ -163,6 +177,7 @@ export class ViajeForm implements OnInit {
       if (isEditMode && viajeData) {
         this.viajeForm.patchValue({
           cliente: viajeData.clienteId,
+          entidad: viajeData.entidadId || null,
           tipoRuta: viajeData.tipoRuta,
           ruta: viajeData.rutaId,
           rutaOcasional: viajeData.rutaOcasional,
@@ -187,6 +202,7 @@ export class ViajeForm implements OnInit {
           estado: viajeData.estado,
           turno: viajeData.turno,
           sentido: viajeData.sentido,
+          metadata: viajeData.metadata,
           // En edit mode, NO seteamos campos de vuelta extras porque editamos UN solo viaje a la vez
           fechaSalidaVueltaDate: '',
           fechaSalidaVueltaTime: '',
@@ -198,6 +214,8 @@ export class ViajeForm implements OnInit {
         // Sincronizar tipoViaje con el sentido actual para evitar sobrescribirlo erróneamente al guardar
         if (viajeData.sentido === 'vuelta') {
           this.tipoViaje.set('vuelta');
+        } else if (viajeData.sentido === 'circuito') {
+          this.tipoViaje.set('circuito');
         } else {
           this.tipoViaje.set('ida');
         }
@@ -221,10 +239,11 @@ export class ViajeForm implements OnInit {
           modalidadServicio: 'regular',
           turno: 'dia',
           sentido: 'ida',
+          metadata: null,
           tipoViaje: 'ida',
           estado: 'programado',
           estadoVuelta: 'programado',
-          tipoRuta: 'fija',
+          tipoRuta: 'ocasional',
           // Resetear nuevos campos con defaults
           fechaSalidaDate: this.getTodayDate(),
           fechaSalidaTime: '10:00',
@@ -305,16 +324,23 @@ export class ViajeForm implements OnInit {
       setTimeout(() => this.checkAvailability(), 100);
     });
 
-    // Auto-set horasContrato based on Cliente
-    this.viajeForm.get('cliente')?.valueChanges.subscribe((cliente) => {
+    // Auto-set horasContrato based on Cliente and fetch Entidades
+    this.viajeForm.get('cliente')?.valueChanges.subscribe(async (cliente) => {
+      this.viajeForm.patchValue({ entidad: null }, { emitEvent: false }); // Reset entidad always when cliente changes
+
       if (cliente && typeof cliente === 'object') {
-        const clienteData = cliente as { horasContrato?: number };
+        const clienteData = cliente as { id?: number; horasContrato?: number };
+        this.selectedClienteId.set(clienteData.id || null);
         if (clienteData.horasContrato !== undefined) {
           this.viajeForm.patchValue({
             horasContrato: clienteData.horasContrato,
           });
         }
+      } else if (cliente && typeof cliente === 'number') {
+        this.selectedClienteId.set(cliente);
+        this.viajeForm.patchValue({ horasContrato: '' }, { emitEvent: false });
       } else {
+        this.selectedClienteId.set(null);
         this.viajeForm.patchValue({
           horasContrato: '',
         });
@@ -334,16 +360,25 @@ export class ViajeForm implements OnInit {
         rutaOcasionalControl?.clearValidators();
         rutaOcasionalControl?.setValue('');
 
-        // Distancia requerida para fija (se llena auto)
-        distanciaEstimadaControl?.setValidators([Validators.required]);
+        distanciaEstimadaControl?.clearValidators();
+
+        // No forzamos 'ida' o 'ambos' aquí, esperamos a que seleccione la ruta
+        // para saber si tiene ida/vuelta. Pero si ya hay una ruta, podrímos intentar:
+        const currentRuta = rutaControl?.value;
+        if (currentRuta && currentRuta.rutaIda && currentRuta.rutaVuelta) {
+          this.tipoViaje.set('ambos');
+        }
       } else {
         rutaOcasionalControl?.setValidators([Validators.required]);
         rutaControl?.clearValidators();
         rutaControl?.setValue(null);
 
-        // Limpiar distancia y MANTENER validador para ocasional (requerido)
+        distanciaEstimadaControl?.clearValidators();
         distanciaEstimadaControl?.setValue('');
-        // distanciaEstimada no se le hace clearValidators(), sigue siendo required
+
+        // Seleccionar circuito por defecto para rutas aleatorias
+        this.viajeForm.get('sentido')?.setValue('circuito');
+        this.tipoViaje.set('circuito');
       }
       rutaControl?.updateValueAndValidity();
       rutaOcasionalControl?.updateValueAndValidity();
@@ -367,7 +402,7 @@ export class ViajeForm implements OnInit {
 
         // Auto-seleccionar tipo de viaje según rutas disponibles
         if (c.rutaIda && c.rutaVuelta) {
-          // Tiene ambas, dejar la selección actual o 'ida' por defecto
+          this.tipoViaje.set('ambos');
         } else if (c.rutaIda && !c.rutaVuelta) {
           this.tipoViaje.set('ida');
         } else if (!c.rutaIda && c.rutaVuelta) {
@@ -717,6 +752,7 @@ export class ViajeForm implements OnInit {
       vehiculo,
       conductor,
       cliente,
+      entidad,
       ruta,
       ...cleanFormValue
     } = formValue;
@@ -724,10 +760,15 @@ export class ViajeForm implements OnInit {
     const clienteIdNum = formValue.cliente?.id
       ? Number(formValue.cliente.id)
       : Number(formValue.cliente);
-    const tipoRutaVal: 'fija' | 'ocasional' = formValue.tipoRuta || 'fija';
+    const entidadIdNum = formValue.entidad?.id
+      ? Number(formValue.entidad.id)
+      : formValue.entidad
+        ? Number(formValue.entidad)
+        : undefined;
+    const tipoRutaVal: 'fija' | 'ocasional' = formValue.tipoRuta || 'ocasional';
 
     const buildDetalle = (
-      sentido: 'ida' | 'vuelta',
+      sentido: 'ida' | 'vuelta' | 'circuito',
       rutaId?: number,
       fechaSalidaDateVal?: string,
       fechaSalidaTimeVal?: string,
@@ -737,10 +778,13 @@ export class ViajeForm implements OnInit {
       modalidadServicioVal?: string,
       turnoVal?: string,
       estadoVal?: string,
+      metadataVal?: any,
     ): NonNullable<ApiBody<'viajes', 'create'>['ida']> => {
       const detalle: NonNullable<ApiBody<'viajes', 'create'>['ida']> = {
         clienteId: clienteIdNum,
+        entidadId: entidadIdNum,
         tipoRuta: tipoRutaVal,
+        metadata: metadataVal || formValue.metadata || undefined,
         modalidadServicio: (modalidadServicioVal ||
           formValue.modalidadServicio ||
           'regular') as any, // Only casting enum strings if TS gets weird, but we can avoid it if we know values
@@ -837,9 +881,9 @@ export class ViajeForm implements OnInit {
         }
         this.onSubmitForm.emit(createPayload);
       } else {
-        // Solo ida o solo vuelta
+        // Solo ida o solo vuelta o circuito
         let rutaId: number | undefined;
-        let sentido: 'ida' | 'vuelta' = 'ida';
+        let sentido: 'ida' | 'vuelta' | 'circuito' = formValue.sentido || 'ida';
         let distancia: string | undefined;
 
         if (tipo === 'ida' && circuito.rutaIda) {
@@ -888,6 +932,11 @@ export class ViajeForm implements OnInit {
         formValue.fechaSalidaTime,
         formValue.fechaLlegadaDate,
         formValue.fechaLlegadaTime,
+        formValue.distanciaEstimada,
+        formValue.modalidadServicio,
+        formValue.turno,
+        formValue.estado,
+        formValue.metadata,
       );
 
       if (this.editMode()) {
@@ -898,6 +947,136 @@ export class ViajeForm implements OnInit {
         };
         this.onSubmitForm.emit(createPayload);
       }
+    }
+  }
+  // Helpers para mostrar fechas reales
+  parseIsoAsLocal(dateString: string): Date {
+    if (!dateString) return new Date();
+    if (dateString.indexOf('T') > -1) {
+      const [datePart, timePart] = dateString.split('T');
+      const [y, m, d] = datePart.split('-').map(Number);
+      const [h, min, s] = timePart.substring(0, 8).split(':').map(Number);
+      return new Date(y, m - 1, d, h, min, s || 0);
+    }
+    return new Date(dateString);
+  }
+
+  formatDate(dateString: string | null | undefined): string {
+    if (!dateString) return '';
+    const date = this.parseIsoAsLocal(dateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const months = [
+      'Ene',
+      'Feb',
+      'Mar',
+      'Abr',
+      'May',
+      'Jun',
+      'Jul',
+      'Ago',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dic',
+    ];
+    const month = months[date.getMonth()];
+    const year = date.getFullYear();
+
+    let hours = date.getHours();
+    const minutes = date.getMinutes();
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    const strMinutes = minutes < 10 ? '0' + minutes : minutes;
+
+    return `${day} ${month} ${year} ${hours}:${strMinutes} ${ampm}`;
+  }
+
+  // --- Map logic for Ocasional ---
+  toggleMapOcasional() {
+    this.showMapOcasional.set(!this.showMapOcasional());
+    if (this.showMapOcasional()) {
+      setTimeout(() => this.initMapOcasional(), 100);
+    } else {
+      if (this.mapOcasional) {
+        this.mapOcasional.remove();
+        this.mapOcasional = null;
+        this.markerOcasional = null;
+      }
+    }
+  }
+
+  private initMapOcasional() {
+    if (this.mapOcasional) {
+      this.mapOcasional.invalidateSize();
+      return;
+    }
+
+    this.mapOcasional = L.map('map-ocasional').setView([-12.046374, -77.042793], 12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors',
+    }).addTo(this.mapOcasional);
+
+    const metadata = this.viajeForm.get('metadata')?.value;
+    const puntoPartida = metadata?.puntoPartida;
+    if (puntoPartida && puntoPartida.lat != null && puntoPartida.lng != null) {
+      this.setMarkerOcasional(puntoPartida.lat, puntoPartida.lng);
+      this.mapOcasional.setView([puntoPartida.lat, puntoPartida.lng], 15);
+    } else {
+      const defaultLat = -12.046374;
+      const defaultLng = -77.042793;
+      this.setMarkerOcasional(defaultLat, defaultLng);
+      this.mapOcasional.setView([defaultLat, defaultLng], 12);
+      this.updateMetadataPuntoPartida(defaultLat, defaultLng);
+    }
+
+    this.mapOcasional.on('click', (e: L.LeafletMouseEvent) => {
+      this.setMarkerOcasional(e.latlng.lat, e.latlng.lng);
+      this.updateMetadataPuntoPartida(e.latlng.lat, e.latlng.lng);
+    });
+  }
+
+  private setMarkerOcasional(lat: number, lng: number) {
+    if (!this.mapOcasional) return;
+
+    if (this.markerOcasional) {
+      this.markerOcasional.setLatLng([lat, lng]);
+    } else {
+      const icon = L.divIcon({
+        className: 'custom-div-icon',
+        html: `
+          <div style="position: relative; width: 30px; height: 30px;">
+            <div style="width: 30px; height: 30px; border-radius: 50% 50% 50% 0; background: #22c55e; position: absolute; transform: rotate(-45deg); left: 0; top: 0; box-shadow: -1px 1px 4px rgba(0,0,0,0.3);"></div>
+            <i class="fas fa-map-marker-alt" style="color: white; font-size: 12px; position: absolute; top: 8px; left: 50%; transform: translateX(-50%); z-index: 10;"></i>
+          </div>
+        `,
+        iconSize: [30, 42],
+        iconAnchor: [15, 30],
+      });
+      this.markerOcasional = L.marker([lat, lng], { icon, draggable: true }).addTo(
+        this.mapOcasional,
+      );
+      this.markerOcasional.on('dragend', () => {
+        const coords = this.markerOcasional!.getLatLng();
+        this.updateMetadataPuntoPartida(coords.lat, coords.lng);
+      });
+    }
+  }
+
+  updateMetadataPuntoPartida(lat: number, lng: number) {
+    const metaControls = this.viajeForm.get('metadata');
+    const meta = metaControls?.value || {};
+    meta.puntoPartida = { lat, lng };
+    metaControls?.setValue(meta);
+  }
+
+  updateMapCoordsFromInputs(latInput: string, lngInput: string) {
+    const lat = parseFloat(latInput);
+    const lng = parseFloat(lngInput);
+    if (!isNaN(lat) && !isNaN(lng)) {
+      this.setMarkerOcasional(lat, lng);
+      this.mapOcasional?.setView([lat, lng], 15);
+      this.updateMetadataPuntoPartida(lat, lng);
     }
   }
 }

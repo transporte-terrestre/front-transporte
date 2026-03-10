@@ -1,0 +1,192 @@
+<div class="space-y-4">
+  <div class="flex items-center justify-between mb-2">
+    <h3 class="text-xs font-inter-semibold text-text uppercase tracking-wider">Ruta Registrada</h3>
+    <button
+      (click)="descargarReporteDiario()"
+      class="text-[10px] bg-danger/10 text-danger px-2.5 py-1.5 rounded-md font-inter-semibold hover:bg-danger/20 transition-all flex items-center justify-center gap-1.5"
+      title="Descargar Reporte Diario"
+    >
+      <i class="fas fa-file-pdf"></i>
+      <span class="hidden sm:inline">Descargar Reporte</span>
+    </button>
+  </div>
+  <!-- MAP -->
+  <div class="relative overflow-hidden rounded-2xl bg-text/5 border border-text/10 mb-4 h-60">
+    <div id="viaje-detail-map" class="w-full h-full"></div>
+  </div>
+
+  <!-- Info general (Vehiculo, Conductor, Cliente) -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+    <div class="flex items-center gap-2 p-2 rounded-lg bg-text/5 border border-text/10">
+      <div
+        class="w-8 h-8 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary"
+      >
+        <i class="fas fa-building text-xs"></i>
+      </div>
+      <div class="flex flex-col min-w-0">
+        <span class="text-[10px] font-inter-bold text-text/50 uppercase tracking-wider"
+          >Cliente</span
+        >
+        <span class="text-xs font-inter-semibold text-text truncate">{{
+          getClienteDisplay(viaje()!)
+        }}</span>
+      </div>
+    </div>
+    <div class="flex items-center gap-2 p-2 rounded-lg bg-text/5 border border-text/10">
+      <div class="w-8 h-8 rounded-lg bg-info/10 flex items-center justify-center text-info">
+        <i class="fas fa-bus text-xs"></i>
+      </div>
+      <div class="flex flex-col min-w-0">
+        <span class="text-[10px] font-inter-bold text-text/50 uppercase tracking-wider"
+          >Vehículo</span
+        >
+        <span class="text-xs font-inter-semibold text-text truncate">{{
+          getVehiculoDisplay(viaje()!)
+        }}</span>
+      </div>
+    </div>
+    <div class="flex items-center gap-2 p-2 rounded-lg bg-text/5 border border-text/10">
+      <div class="w-8 h-8 rounded-lg bg-success/10 flex items-center justify-center text-success">
+        <i class="fas fa-id-card text-xs"></i>
+      </div>
+      <div class="flex flex-col min-w-0">
+        <span class="text-[10px] font-inter-bold text-text/50 uppercase tracking-wider"
+          >Conductor</span
+        >
+        <span class="text-xs font-inter-semibold text-text truncate">{{
+          getConductorDisplay(viaje()!)
+        }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading indicator -->
+  @if (loading()) {
+    <div class="flex items-center justify-center py-8">
+      <i class="fas fa-spinner fa-spin text-secondary text-lg"></i>
+    </div>
+  } @else if (hojaRuta()?.tramos?.length) {
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="border-b border-text/10">
+            <th
+              class="py-2 px-2 text-[9px] font-inter-bold text-text/40 uppercase tracking-wider whitespace-nowrap"
+            >
+              Hora Salida
+            </th>
+            <th
+              class="py-2 px-2 text-[9px] font-inter-bold text-text/40 uppercase tracking-wider whitespace-nowrap"
+            >
+              KM Inicial
+            </th>
+            <th class="py-2 px-2 text-[9px] font-inter-bold text-text/40 uppercase tracking-wider">
+              Punto Partida
+            </th>
+            <th class="py-2 px-2 text-[9px] font-inter-bold text-text/40 uppercase tracking-wider">
+              Punto Llegada
+            </th>
+            <th
+              class="py-2 px-2 text-[9px] font-inter-bold text-text/40 uppercase tracking-wider text-center whitespace-nowrap"
+            >
+              N° Pasajeros
+            </th>
+            <th
+              class="py-2 px-2 text-[9px] font-inter-bold text-text/40 uppercase tracking-wider whitespace-nowrap"
+            >
+              Hora Término
+            </th>
+            <th
+              class="py-2 px-2 text-[9px] font-inter-bold text-text/40 uppercase tracking-wider whitespace-nowrap"
+            >
+              KM Final
+            </th>
+            <th
+              class="py-2 px-2 text-[9px] font-inter-bold text-text/40 uppercase tracking-wider whitespace-nowrap"
+            >
+              Tiempo Recorrido
+            </th>
+            <th
+              class="py-2 px-2 text-[9px] font-inter-bold text-text/40 uppercase tracking-wider whitespace-nowrap"
+            >
+              KM Recorrido
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-text/5">
+          @for (tramo of hojaRuta()?.tramos; track tramo.horaSalida) {
+            <tr class="hover:bg-text/5 transition-colors">
+              <td class="py-2 px-2">
+                <span class="text-[11px] font-inter-medium text-text/60">{{
+                  tramo.horaSalida
+                }}</span>
+              </td>
+              <td class="py-2 px-2">
+                <span class="text-[11px] font-inter-medium text-text/60">{{
+                  tramo.kmInicial
+                }}</span>
+              </td>
+              <td class="py-2 px-2">
+                <span class="text-xs font-inter-semibold text-text">{{ tramo.puntoPartida }}</span>
+              </td>
+              <td class="py-2 px-2">
+                <span class="text-xs font-inter-semibold text-text">{{ tramo.puntoLlegada }}</span>
+              </td>
+              <td class="py-2 px-2 text-center">
+                <span
+                  class="inline-flex items-center justify-center px-2 py-0.5 rounded-full bg-text/5 text-[10px] font-inter-bold text-text/60"
+                >
+                  {{ tramo.numeroPasajeros != null ? tramo.numeroPasajeros : '—' }}
+                </span>
+              </td>
+              <td class="py-2 px-2">
+                <span class="text-[11px] font-inter-medium text-text/60">{{
+                  tramo.horaTermino
+                }}</span>
+              </td>
+              <td class="py-2 px-2">
+                <span class="text-[11px] font-inter-medium text-text/60">{{ tramo.kmFinal }}</span>
+              </td>
+              <td class="py-2 px-2">
+                <span class="text-[11px] font-inter-bold text-info">{{
+                  tramo.tiempoRecorrido
+                }}</span>
+              </td>
+              <td class="py-2 px-2">
+                <span class="text-[11px] font-inter-bold text-secondary">{{
+                  tramo.kilometrajeRecorrido
+                }}</span>
+              </td>
+            </tr>
+          }
+        </tbody>
+        <tfoot>
+          <tr class="border-t-2 border-text/10 bg-text/2">
+            <td colspan="7" class="py-2 px-2 text-right">
+              <span class="text-[10px] font-inter-bold text-text/40 uppercase tracking-wider"
+                >Totales:</span
+              >
+            </td>
+            <td class="py-2 px-2">
+              <span class="text-[11px] font-inter-bold text-info">{{
+                hojaRuta()?.tiempoTotal
+              }}</span>
+            </td>
+            <td class="py-2 px-2">
+              <span class="text-[11px] font-inter-bold text-secondary">{{
+                hojaRuta()?.kilometrajeTotal
+              }}</span>
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  } @else {
+    <div
+      class="flex flex-col items-center justify-center py-6 bg-text/5 border border-dashed border-text/10 rounded-xl"
+    >
+      <i class="fas fa-route text-text/20 mb-2 text-2xl"></i>
+      <p class="text-text/40 text-xs font-inter-medium">No hay registros para este viaje</p>
+    </div>
+  }
+</div>

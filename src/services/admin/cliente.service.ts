@@ -64,4 +64,28 @@ export class ClienteService {
   async deletePasajero(id: ApiParam<'clientes', 'deletePasajero', 'id'>) {
     return await this.api.clientes.deletePasajero({ id }).then((response) => response.data);
   }
+
+  // Entidades
+  async findAllEntidades(query: ApiQuery<'clientes', 'findAllEntidades'>) {
+    return await this.api.clientes.findAllEntidades(query).then((response) => response.data);
+  }
+
+  async findEntidad(id: ApiParam<'clientes', 'findEntidad', 'id'>) {
+    return await this.api.clientes.findEntidad({ id }).then((response) => response.data);
+  }
+
+  async createEntidad(entidad: ApiBody<'clientes', 'createEntidad'>) {
+    return await this.api.clientes.createEntidad(entidad).then((response) => response.data);
+  }
+
+  async updateEntidad(
+    id: ApiParam<'clientes', 'updateEntidad', 'id'>,
+    entidad: ApiBody<'clientes', 'updateEntidad'>,
+  ) {
+    return await this.api.clientes.updateEntidad({ id }, entidad).then((response) => response.data);
+  }
+
+  async deleteEntidad(id: ApiParam<'clientes', 'deleteEntidad', 'id'>) {
+    return await this.api.clientes.deleteEntidad({ id }).then((response) => response.data);
+  }
 }

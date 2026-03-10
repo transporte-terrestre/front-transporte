@@ -13,10 +13,18 @@ import { getErrorMessage } from '@helper/error.helper';
 import { AlertService } from '@service/alert.service';
 
 import { PasajeroForm, PasajeroData } from './layout/pasajero-form/pasajero-form';
+import { EntidadForm, EntidadData } from './layout/entidad-form/entidad-form';
 
 @Component({
   selector: 'app-cliente-form',
-  imports: [CommonModule, ReactiveFormsModule, ImagesUpload, DocumentsDateUpload, PasajeroForm],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    ImagesUpload,
+    DocumentsDateUpload,
+    PasajeroForm,
+    EntidadForm,
+  ],
   templateUrl: './cliente-form.html',
   styleUrl: './cliente-form.css',
 })
@@ -39,6 +47,10 @@ export class ClienteForm implements OnInit {
   pasajeros = signal<PasajeroData[]>([]);
   showPasajeroModal = signal(false);
   selectedPasajero = signal<PasajeroData | null>(null);
+
+  entidades = signal<EntidadData[]>([]);
+  showEntidadModal = signal(false);
+  selectedEntidad = signal<EntidadData | null>(null);
 
   clienteForm: FormGroup = this.fb.group({
     tipoDocumento: ['DNI', [Validators.required]],
@@ -87,6 +99,7 @@ export class ClienteForm implements OnInit {
         this.imagenes.set(clienteData.imagenes || []);
         this.localDocuments.set(JSON.parse(JSON.stringify(clienteData.documentos)));
         this.loadPasajeros(clienteData.id);
+        this.loadEntidades(clienteData.id);
       } else {
         this.clienteForm.reset({ tipoDocumento: 'DNI' });
         this.imagenes.set([]);
@@ -336,5 +349,63 @@ export class ClienteForm implements OnInit {
           });
       },
     );
+  }
+
+  // Entidades Management
+  loadEntidades(clienteId: number) {
+    this.clienteService
+      .findAllEntidades({ clienteId, limit: 100, page: 1 })
+      .then((res) => {
+        this.entidades.set(res.data);
+      })
+      .catch((err) => {
+        console.error('Error al cargar entidades:', err);
+      });
+  }
+
+  openEntidadModal(entidad: EntidadData | null = null) {
+    this.selectedEntidad.set(entidad);
+    this.showEntidadModal.set(true);
+  }
+
+  closeEntidadModal() {
+    this.showEntidadModal.set(false);
+    this.selectedEntidad.set(null);
+  }
+
+  handleSaveEntidad(data: EntidadData) {
+    const promise = data.id
+      ? this.clienteService.updateEntidad(data.id, data)
+      : this.clienteService.createEntidad(data);
+
+    promise
+      .then(() => {
+        this.toastService.success(
+          data.id ? 'Entidad actualizada exitosamente' : 'Entidad creada exitosamente',
+        );
+        this.loadEntidades(this.cliente()!.id);
+        this.closeEntidadModal();
+      })
+      .catch((err) => {
+        console.error('Error al guardar entidad:', err);
+        this.toastService.error('Error al guardar entidad');
+      });
+  }
+
+  deleteEntidad(id: number | undefined) {
+    if (!id) return;
+
+    this.alertService.delete('Eliminar entidad', '¿Estás seguro de eliminar esta entidad?', () => {
+      this.clienteService
+        .deleteEntidad(id)
+        .then(() => {
+          this.toastService.success('Entidad eliminada exitosamente');
+          this.loadEntidades(this.cliente()!.id);
+        })
+        .catch((err) => {
+          console.error('Error al eliminar entidad:', err);
+          this.toastService.error('Error al eliminar entidad');
+        });
+    });
   }
 }

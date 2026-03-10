@@ -12,18 +12,22 @@ import { ModalForm } from '../../../../components/modal-form/modal-form';
 import { AlquilerForm } from '../../layout/alquiler-form/alquiler-form';
 import { PaginationComponent } from '../../../../components/pagination/pagination';
 import { AlquilerEstadoUpdate } from './layout/alquiler-estado-update/alquiler-estado-update';
+import { AlquilerTerminarModal } from './layout/alquiler-terminar-modal/alquiler-terminar-modal';
 import { PATH, buildPath } from '@route/path.route';
 import { getErrorMessage } from '@helper/error.helper';
+import { ReactiveFormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-alquileres-list',
   imports: [
     CommonModule,
     FormsModule,
+    ReactiveFormsModule,
     ModalForm,
     AlquilerForm,
     PaginationComponent,
     AlquilerEstadoUpdate,
+    AlquilerTerminarModal,
   ],
   templateUrl: './alquileres-list.html',
   styleUrl: './alquileres-list.css',
@@ -134,6 +138,7 @@ export class AlquileresList implements OnInit {
     this.router.navigate([path]);
   }
 
+
   deleteAlquiler(id: number, event: Event) {
     event.stopPropagation();
     this.alertService.delete(
@@ -162,4 +167,5 @@ export class AlquileresList implements OnInit {
     const diffTime = Math.abs(pEnd.getTime() - pStart.getTime());
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   }
+
 }

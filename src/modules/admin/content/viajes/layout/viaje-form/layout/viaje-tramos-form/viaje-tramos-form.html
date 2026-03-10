@@ -59,7 +59,7 @@
           <!-- Sugerencia (solo si hay un lugar sugerido) -->
           <div
             *ngIf="proximoTramoSugerido() as sug"
-            [class.hidden]="!sug.nombreLugar"
+            [class.hidden]="!sug.nombreLugar && sug.tipo !== 'origen'"
             class="p-3 border-b border-text/10 transition-colors"
             [ngClass]="{
               'bg-success/5': sug.tipo === 'origen',
@@ -111,7 +111,10 @@
               </div>
               <div class="min-w-0 flex-1">
                 <p class="text-xs font-inter-bold text-text truncate leading-tight">
-                  {{ sug.nombreLugar }}
+                  {{
+                    sug.nombreLugar ||
+                      (sug.tipo === 'origen' ? 'Iniciar Viaje' : 'Siguiente Registro')
+                  }}
                 </p>
                 <p class="text-[10px] text-text/50 font-inter-medium mt-0.5">
                   {{
@@ -196,6 +199,18 @@
                 <i class="fas fa-coffee"></i>
               </div>
               <span class="text-xs font-inter-semibold">Descanso</span>
+            </button>
+            <button
+              *ngIf="hasSalida() && !hasLlegada() && !proximoTramoSugerido()?.esPuntoFijo"
+              (click)="openDialog('destino')"
+              class="w-full flex items-center gap-3 p-2 hover:bg-text/5 rounded-lg transition-colors"
+            >
+              <div
+                class="w-8 h-8 rounded-lg bg-text/5 flex items-center justify-center text-text/60"
+              >
+                <i class="fas fa-flag-checkered"></i>
+              </div>
+              <span class="text-xs font-inter-semibold">Registrar Llegada</span>
             </button>
           </div>
         </div>

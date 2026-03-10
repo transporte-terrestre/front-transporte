@@ -1,0 +1,26 @@
+<app-modal-form
+  [title]="entidad() ? 'Editar Entidad' : 'Nueva Entidad'"
+  submitText="Guardar"
+  cancelText="Cancelar"
+  [maxWidth]="'sm'"
+  (onSubmit)="submit()"
+  (onClose)="cancel()"
+>
+  <form [formGroup]="form" class="space-y-4 p-4">
+    <!-- Nombre del Servicio -->
+    <div>
+      <label class="block text-xs font-inter-semibold text-text mb-1.5">Nombre del Servicio</label>
+      <input
+        type="text"
+        formControlName="nombreServicio"
+        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+        placeholder="Ej. Minera Cerro Verde"
+      />
+      @if (form.get('nombreServicio')?.touched && form.get('nombreServicio')?.errors) {
+        <p class="text-danger text-xs font-inter-medium mt-1">
+          El nombre del servicio es requerido
+        </p>
+      }
+    </div>
+  </form>
+</app-modal-form>

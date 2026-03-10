@@ -1,68 +1,160 @@
-<form [formGroup]="form" class="p-4 space-y-4">
-  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-    <!-- Vehículo -->
+<form [formGroup]="form" class="p-4 space-y-3">
+  <!-- Cliente y Vehículo -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
     <div>
-      <label class="block text-xs font-inter-semibold text-text mb-1.5"
-        >Vehículo <span class="text-danger">*</span></label
-      >
+      <label class="block text-xs font-inter-semibold text-text mb-1.5">Cliente</label>
+      <app-cliente-input-search
+        formControlName="clienteId"
+        [class.border-danger]="isFieldInvalid('clienteId')"
+      />
+      @if (isFieldInvalid('clienteId')) {
+        <p class="text-danger text-xs font-inter-medium mt-1">Cliente requerido</p>
+      }
+    </div>
+
+    <div>
+      <label class="block text-xs font-inter-semibold text-text mb-1.5">Vehículo</label>
       <app-vehiculo-input-search
         formControlName="vehiculoId"
         [class.border-danger]="isFieldInvalid('vehiculoId')"
       />
+      @if (isFieldInvalid('vehiculoId')) {
+        <p class="text-danger text-xs font-inter-medium mt-1">Vehículo requerido</p>
+      }
     </div>
+  </div>
 
-    <!-- Monto -->
+  <!-- Tipo y Conductor -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
     <div>
-      <label class="block text-xs font-inter-semibold text-text mb-1.5">Monto S/.</label>
+      <label class="block text-xs font-inter-semibold text-text mb-1.5">Tipo</label>
       <div class="relative">
-        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-text/40 font-inter-medium"
-          >S/</span
+        <select
+          formControlName="tipo"
+          class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all appearance-none cursor-pointer"
         >
-        <input
-          type="number"
-          step="0.01"
-          formControlName="monto"
-          placeholder="0.00"
-          class="w-full pl-8 pr-3 py-2 text-sm bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-          [class.border-danger]="isFieldInvalid('monto')"
-        />
+          <option value="maquina_seca">Maquina Seca</option>
+          <option value="maquina_operada">Maquina Operada</option>
+        </select>
+        <span class="absolute inset-y-0 right-3 flex items-center text-text/60 pointer-events-none">
+          <i class="fas fa-chevron-down text-xs"></i>
+        </span>
       </div>
     </div>
 
-    <!-- Fecha Inicio -->
     <div>
-      <label class="block text-xs font-inter-semibold text-text mb-1.5"
-        >Fecha Inicio <span class="text-danger">*</span></label
-      >
+      <label class="block text-xs font-inter-semibold text-text mb-1.5">
+        Conductor
+        @if (isTipoOperada()) {
+          <span class="text-danger">*</span>
+        }
+      </label>
+      <app-conductor-input-search
+        formControlName="conductorId"
+        [class.border-danger]="isFieldInvalid('conductorId')"
+      />
+      @if (isFieldInvalid('conductorId')) {
+        <p class="text-danger text-xs font-inter-medium mt-1">Conductor requerido</p>
+      }
+    </div>
+  </div>
+
+  <!-- Kilometraje y Monto -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+    <div>
+      <label class="block text-xs font-inter-semibold text-text mb-1.5">Kilometraje Inicial</label>
+      <input
+        type="number"
+        step="0.01"
+        formControlName="kilometrajeInicial"
+        placeholder="0.00"
+        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+        [class.border-danger]="isFieldInvalid('kilometrajeInicial')"
+      />
+      @if (isFieldInvalid('kilometrajeInicial')) {
+        <p class="text-danger text-xs font-inter-medium mt-1">Kilometraje requerido</p>
+      }
+    </div>
+
+    <div>
+      <label class="block text-xs font-inter-semibold text-text mb-1.5">Monto por día S/.</label>
+      <div class="relative">
+        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-text/40 font-inter-medium text-sm">S/</span>
+        <input
+          type="number"
+          step="0.01"
+          formControlName="montoPorDia"
+          placeholder="0.00"
+          class="w-full pl-8 pr-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+          [class.border-danger]="isFieldInvalid('montoPorDia')"
+        />
+      </div>
+      @if (isFieldInvalid('montoPorDia')) {
+        <p class="text-danger text-xs font-inter-medium mt-1">Monto requerido</p>
+      }
+    </div>
+  </div>
+
+  <!-- Fechas -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+    <div>
+      <label class="block text-xs font-inter-semibold text-text mb-1.5">Fecha Inicio</label>
       <input
         type="date"
         formControlName="fechaInicio"
-        class="w-full px-3 py-2 text-sm bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
         [class.border-danger]="isFieldInvalid('fechaInicio')"
       />
+      @if (isFieldInvalid('fechaInicio')) {
+        <p class="text-danger text-xs font-inter-medium mt-1">Fecha inicio requerida</p>
+      }
     </div>
 
-    <!-- Fecha Fin -->
     <div>
       <label class="block text-xs font-inter-semibold text-text mb-1.5">Fecha Fin</label>
       <input
         type="date"
         formControlName="fechaFin"
-        class="w-full px-3 py-2 text-sm bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-        [class.border-danger]="isFieldInvalid('fechaFin')"
+        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
       />
     </div>
+  </div>
 
-    <!-- Observaciones -->
-    <div class="sm:col-span-2">
-      <label class="block text-xs font-inter-semibold text-text mb-1.5">Observaciones</label>
-      <textarea
-        formControlName="observaciones"
-        rows="3"
-        placeholder="Detalles del alquiler..."
-        class="w-full px-3 py-2 text-sm bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all resize-none"
-        [class.border-danger]="isFieldInvalid('observaciones')"
-      ></textarea>
-    </div>
+  <!-- Marcar como alquilado -->
+  <div class="flex items-center bg-secondary/5 p-3 rounded-lg border border-secondary/20">
+    <input
+      type="checkbox"
+      id="marcarComoAlquilado"
+      formControlName="marcarComoAlquilado"
+      class="w-4 h-4 text-secondary bg-background border-text/30 rounded focus:ring-secondary/20 focus:ring-2 cursor-pointer accent-secondary"
+    />
+    <label
+      for="marcarComoAlquilado"
+      class="ml-2 text-xs font-inter-medium text-text cursor-pointer"
+    >
+      Cambiar automáticamente el estado de este vehículo a "Alquilado"
+    </label>
+  </div>
+
+  <!-- Razón / Motivo -->
+  <div>
+    <label class="block text-xs font-inter-semibold text-text mb-1.5">Razón / Motivo</label>
+    <textarea
+      formControlName="razon"
+      rows="2"
+      placeholder="Razón del alquiler..."
+      class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all resize-none"
+    ></textarea>
+  </div>
+
+  <!-- Observaciones -->
+  <div>
+    <label class="block text-xs font-inter-semibold text-text mb-1.5">Observaciones</label>
+    <textarea
+      formControlName="observaciones"
+      rows="3"
+      placeholder="Detalles del alquiler..."
+      class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all resize-none"
+    ></textarea>
   </div>
 </form>
