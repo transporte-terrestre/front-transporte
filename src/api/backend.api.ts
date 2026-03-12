@@ -190,6 +190,27 @@ export interface ConductorLoginInfoDto {
    * @example "2023-01-01T00:00:00.000Z"
    */
   eliminadoEn: string | null;
+  /** Documentos que no aplican para el conductor */
+  documentosNoAplicables: (
+    | "dni"
+    | "licencia_mtc"
+    | "seguro_vida_ley"
+    | "sctr"
+    | "examen_medico"
+    | "psicosensometrico"
+    | "induccion_general"
+    | "manejo_defensivo"
+    | "licencia_interna"
+    | "autoriza_ssgg"
+    | "curso_seguridad_portuaria"
+    | "curso_mercancias_peligrosas"
+    | "curso_basico_pbip"
+    | "examen_medico_temporal"
+    | "induccion_visita"
+    | "em_visita"
+    | "pase_conduc"
+    | "foto_funcionario"
+  )[];
 }
 
 export interface ConductorLoginResultDto {
@@ -871,6 +892,27 @@ export interface ConductorResultDto {
    * @example "2023-01-01T00:00:00.000Z"
    */
   eliminadoEn: string | null;
+  /** Documentos que no aplican para el conductor */
+  documentosNoAplicables: (
+    | "dni"
+    | "licencia_mtc"
+    | "seguro_vida_ley"
+    | "sctr"
+    | "examen_medico"
+    | "psicosensometrico"
+    | "induccion_general"
+    | "manejo_defensivo"
+    | "licencia_interna"
+    | "autoriza_ssgg"
+    | "curso_seguridad_portuaria"
+    | "curso_mercancias_peligrosas"
+    | "curso_basico_pbip"
+    | "examen_medico_temporal"
+    | "induccion_visita"
+    | "em_visita"
+    | "pase_conduc"
+    | "foto_funcionario"
+  )[];
   /** Driver documents grouped by type */
   documentos: DocumentosAgrupadosConductorDto;
 }
@@ -943,6 +985,27 @@ export interface ConductorCreateDto {
    * @example ["https://res.cloudinary.com/xxx/fotocheck.jpg"]
    */
   fotocheck?: string[];
+  /** Documentos que no aplican para el conductor */
+  documentosNoAplicables?: (
+    | "dni"
+    | "licencia_mtc"
+    | "seguro_vida_ley"
+    | "sctr"
+    | "examen_medico"
+    | "psicosensometrico"
+    | "induccion_general"
+    | "manejo_defensivo"
+    | "licencia_interna"
+    | "autoriza_ssgg"
+    | "curso_seguridad_portuaria"
+    | "curso_mercancias_peligrosas"
+    | "curso_basico_pbip"
+    | "examen_medico_temporal"
+    | "induccion_visita"
+    | "em_visita"
+    | "pase_conduc"
+    | "foto_funcionario"
+  )[];
 }
 
 export interface ConductorUpdateDto {
@@ -1013,6 +1076,27 @@ export interface ConductorUpdateDto {
    * @example ["https://res.cloudinary.com/xxx/fotocheck.jpg"]
    */
   fotocheck?: string[];
+  /** Documentos que no aplican para el conductor */
+  documentosNoAplicables?: (
+    | "dni"
+    | "licencia_mtc"
+    | "seguro_vida_ley"
+    | "sctr"
+    | "examen_medico"
+    | "psicosensometrico"
+    | "induccion_general"
+    | "manejo_defensivo"
+    | "licencia_interna"
+    | "autoriza_ssgg"
+    | "curso_seguridad_portuaria"
+    | "curso_mercancias_peligrosas"
+    | "curso_basico_pbip"
+    | "examen_medico_temporal"
+    | "induccion_visita"
+    | "em_visita"
+    | "pase_conduc"
+    | "foto_funcionario"
+  )[];
 }
 
 export interface ConductorDocumentoCreateDto {
@@ -1425,12 +1509,16 @@ export interface VehiculoEstadoDocumentosDto {
   certificado_valor_anadido: string;
   /** @example "nulo" */
   constancia_gps: string;
-  /** @example "caducado" */
-  certificado_tacos: string;
   /** @example "activo" */
   certificado_extintores_hidrostatica: string;
   /** @example "nulo" */
-  certificado_norma_r66: string;
+  certificado_extintores_operatividad: string;
+  /** @example "activo" */
+  certificado_rops: string;
+  /** @example "nulo" */
+  certificado_radio_frecuencia: string;
+  /** @example "activo" */
+  certificacion_frenos: string;
   /** @example "activo" */
   certificado_laminados_lunas: string;
   /** @example "nulo" */
@@ -1546,7 +1634,10 @@ export interface VehiculoDocumentoResultDto {
     | "certificado_valor_anadido"
     | "constancia_gps"
     | "certificado_extintores_hidrostatica"
-    | "certificado_norma_r66"
+    | "certificado_extintores_operatividad"
+    | "certificado_rops"
+    | "certificado_radio_frecuencia"
+    | "certificacion_frenos"
     | "certificado_laminados_lunas"
     | "certificado_carroceria"
     | "certificado_caracteristicas_tecnicas"
@@ -1600,7 +1691,10 @@ export interface DocumentosAgrupadosVehiculoDto {
   constancia_gps: VehiculoDocumentoResultDto[];
   revision_gps: VehiculoDocumentoResultDto[];
   certificado_extintores_hidrostatica: VehiculoDocumentoResultDto[];
-  certificado_norma_r66: VehiculoDocumentoResultDto[];
+  certificado_extintores_operatividad: VehiculoDocumentoResultDto[];
+  certificado_rops: VehiculoDocumentoResultDto[];
+  certificado_radio_frecuencia: VehiculoDocumentoResultDto[];
+  certificacion_frenos: VehiculoDocumentoResultDto[];
   certificado_laminados_lunas: VehiculoDocumentoResultDto[];
   certificado_carroceria: VehiculoDocumentoResultDto[];
   certificado_caracteristicas_tecnicas: VehiculoDocumentoResultDto[];
@@ -1722,6 +1816,11 @@ export interface VehiculoResultDto {
    */
   kilometraje: number;
   /**
+   * Maintenance mileage
+   * @example 50000
+   */
+  kilometrajeMantenimiento: number;
+  /**
    * Vehicle status
    * @example "disponible"
    */
@@ -1793,6 +1892,11 @@ export interface VehiculoResultDto {
    * @example "2023-01-01T00:00:00.000Z"
    */
   actualizadoEn: string;
+  /**
+   * Lista de tipos de documentos que no aplican a este vehículo
+   * @example ["tarjeta_propiedad"]
+   */
+  documentosNoAplicables?: string[];
   /** Vehicle documents grouped by type */
   documentos: DocumentosAgrupadosVehiculoDto;
 }
@@ -1891,6 +1995,11 @@ export interface VehiculoCreateDto {
    */
   kilometraje: number;
   /**
+   * Maintenance mileage
+   * @example 50000
+   */
+  kilometrajeMantenimiento: number;
+  /**
    * Vehicle status
    * @default "disponible"
    */
@@ -1956,10 +2065,10 @@ export interface VehiculoCreateDto {
    */
   imagenes?: string[];
   /**
-   * Lista de URLs de documentos del vehículo
-   * @example ["https://res.cloudinary.com/xxx/document.pdf"]
+   * Lista de tipos de documentos que no aplican a este vehículo
+   * @example ["tarjeta_propiedad"]
    */
-  documentos?: string[];
+  documentosNoAplicables?: string[];
 }
 
 export interface VehiculoUpdateDto {
@@ -2056,6 +2165,11 @@ export interface VehiculoUpdateDto {
    */
   kilometraje?: number;
   /**
+   * Maintenance mileage
+   * @example 50000
+   */
+  kilometrajeMantenimiento?: number;
+  /**
    * Vehicle status
    * @default "disponible"
    */
@@ -2121,10 +2235,10 @@ export interface VehiculoUpdateDto {
    */
   imagenes?: string[];
   /**
-   * Lista de URLs de documentos del vehículo
-   * @example ["https://res.cloudinary.com/xxx/document.pdf"]
+   * Lista de tipos de documentos que no aplican a este vehículo
+   * @example ["tarjeta_propiedad"]
    */
-  documentos?: string[];
+  documentosNoAplicables?: string[];
 }
 
 export interface VehiculoDocumentoCreateDto {
@@ -2149,7 +2263,10 @@ export interface VehiculoDocumentoCreateDto {
     | "certificado_valor_anadido"
     | "constancia_gps"
     | "certificado_extintores_hidrostatica"
-    | "certificado_norma_r66"
+    | "certificado_extintores_operatividad"
+    | "certificado_rops"
+    | "certificado_radio_frecuencia"
+    | "certificacion_frenos"
     | "certificado_laminados_lunas"
     | "certificado_carroceria"
     | "certificado_caracteristicas_tecnicas"
@@ -2195,7 +2312,10 @@ export interface VehiculoDocumentoUpdateDto {
     | "certificado_valor_anadido"
     | "constancia_gps"
     | "certificado_extintores_hidrostatica"
-    | "certificado_norma_r66"
+    | "certificado_extintores_operatividad"
+    | "certificado_rops"
+    | "certificado_radio_frecuencia"
+    | "certificacion_frenos"
     | "certificado_laminados_lunas"
     | "certificado_carroceria"
     | "certificado_caracteristicas_tecnicas"
@@ -3409,7 +3529,7 @@ export interface DocumentoItemDto {
   observacion?: string;
   /**
    * Fecha de Vencimiento Inicial/Por defecto
-   * @example "2026-03-10T05:44:38.517Z"
+   * @example "2026-03-12T01:05:30.377Z"
    */
   fechaVencimiento?: string;
 }
@@ -3592,17 +3712,17 @@ export interface BotiquinItemDto {
   habilitado: boolean;
   /**
    * Fecha de Vencimiento actual
-   * @example "2026-03-10T05:44:38.522Z"
+   * @example "2026-03-12T01:05:30.383Z"
    */
   fechaVencimiento?: string;
   /**
    * Fecha de Salida
-   * @example "2026-03-10T05:44:38.522Z"
+   * @example "2026-03-12T01:05:30.383Z"
    */
   fechaSalida?: string;
   /**
    * Fecha de Reposición
-   * @example "2026-03-10T05:44:38.522Z"
+   * @example "2026-03-12T01:05:30.383Z"
    */
   fechaReposicion?: string;
 }
@@ -3829,6 +3949,11 @@ export interface VehiculoMantenimientoListDto {
    */
   kilometraje: number;
   /**
+   * Maintenance mileage
+   * @example 50000
+   */
+  kilometrajeMantenimiento: number;
+  /**
    * Vehicle status
    * @example "disponible"
    */
@@ -3896,6 +4021,11 @@ export interface VehiculoMantenimientoListDto {
    * @example "2023-01-01T00:00:00.000Z"
    */
   actualizadoEn: string;
+  /**
+   * Lista de tipos de documentos que no aplican a este vehículo
+   * @example ["tarjeta_propiedad"]
+   */
+  documentosNoAplicables?: string[];
 }
 
 export interface SucursalDetalleResDto {
@@ -4179,6 +4309,11 @@ export interface VehiculoMantenimientoResultDto {
    */
   kilometraje: number;
   /**
+   * Maintenance mileage
+   * @example 50000
+   */
+  kilometrajeMantenimiento: number;
+  /**
    * Vehicle status
    * @example "disponible"
    */
@@ -4246,6 +4381,11 @@ export interface VehiculoMantenimientoResultDto {
    * @example "2023-01-01T00:00:00.000Z"
    */
   actualizadoEn: string;
+  /**
+   * Lista de tipos de documentos que no aplican a este vehículo
+   * @example ["tarjeta_propiedad"]
+   */
+  documentosNoAplicables?: string[];
 }
 
 export interface SucursalResultDto {
@@ -5199,6 +5339,27 @@ export interface ConductorViajeDto {
    * @example "2023-01-01T00:00:00.000Z"
    */
   eliminadoEn: string | null;
+  /** Documentos que no aplican para el conductor */
+  documentosNoAplicables: (
+    | "dni"
+    | "licencia_mtc"
+    | "seguro_vida_ley"
+    | "sctr"
+    | "examen_medico"
+    | "psicosensometrico"
+    | "induccion_general"
+    | "manejo_defensivo"
+    | "licencia_interna"
+    | "autoriza_ssgg"
+    | "curso_seguridad_portuaria"
+    | "curso_mercancias_peligrosas"
+    | "curso_basico_pbip"
+    | "examen_medico_temporal"
+    | "induccion_visita"
+    | "em_visita"
+    | "pase_conduc"
+    | "foto_funcionario"
+  )[];
 }
 
 export interface VehiculoViajeDto {
@@ -5315,6 +5476,11 @@ export interface VehiculoViajeDto {
    */
   kilometraje: number;
   /**
+   * Maintenance mileage
+   * @example 50000
+   */
+  kilometrajeMantenimiento: number;
+  /**
    * Vehicle status
    * @example "disponible"
    */
@@ -5382,6 +5548,11 @@ export interface VehiculoViajeDto {
    * @example "2023-01-01T00:00:00.000Z"
    */
   actualizadoEn: string;
+  /**
+   * Lista de tipos de documentos que no aplican a este vehículo
+   * @example ["tarjeta_propiedad"]
+   */
+  documentosNoAplicables?: string[];
 }
 
 export interface ClienteViajeDto {
@@ -5779,6 +5950,27 @@ export interface ViajeConductorDetalleDto {
    * @example "2023-01-01T00:00:00.000Z"
    */
   eliminadoEn: string | null;
+  /** Documentos que no aplican para el conductor */
+  documentosNoAplicables: (
+    | "dni"
+    | "licencia_mtc"
+    | "seguro_vida_ley"
+    | "sctr"
+    | "examen_medico"
+    | "psicosensometrico"
+    | "induccion_general"
+    | "manejo_defensivo"
+    | "licencia_interna"
+    | "autoriza_ssgg"
+    | "curso_seguridad_portuaria"
+    | "curso_mercancias_peligrosas"
+    | "curso_basico_pbip"
+    | "examen_medico_temporal"
+    | "induccion_visita"
+    | "em_visita"
+    | "pase_conduc"
+    | "foto_funcionario"
+  )[];
   /**
    * Es conductor principal
    * @example true
@@ -5905,6 +6097,11 @@ export interface ViajeVehiculoDetalleDto {
    */
   kilometraje: number;
   /**
+   * Maintenance mileage
+   * @example 50000
+   */
+  kilometrajeMantenimiento: number;
+  /**
    * Vehicle status
    * @example "disponible"
    */
@@ -5972,6 +6169,11 @@ export interface ViajeVehiculoDetalleDto {
    * @example "2023-01-01T00:00:00.000Z"
    */
   actualizadoEn: string;
+  /**
+   * Lista de tipos de documentos que no aplican a este vehículo
+   * @example ["tarjeta_propiedad"]
+   */
+  documentosNoAplicables?: string[];
   /**
    * Es vehículo principal
    * @example true

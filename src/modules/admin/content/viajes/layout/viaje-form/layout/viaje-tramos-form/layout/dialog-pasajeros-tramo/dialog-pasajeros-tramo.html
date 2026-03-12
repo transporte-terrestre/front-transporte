@@ -270,9 +270,9 @@
                       <p class="text-[10px] text-text/40 font-inter-medium tracking-wide">
                         DNI: {{ getDisplayDni(p) }}
                       </p>
-                      @if (p.paradaAsistenciaNombre) {
+                      @if (p.paradaAsistenciaNombre && !idsDesabordar().has(p.id)) {
                         <span
-                          class="inline-flex items-center px-1.5 py-0.5 rounded bg-info/10 text-info text-[7px] font-inter-bold uppercase tracking-widest border border-info/20 w-fit"
+                          class="inline-flex items-center px-1.5 py-0.5 rounded bg-text/5 text-text/60 text-[7px] font-inter-bold uppercase tracking-widest border border-text/10 w-fit mt-1"
                         >
                           <i class="fas fa-arrow-up mr-1 text-[6.5px]"></i>
                           {{ p.paradaAsistenciaNombre }}

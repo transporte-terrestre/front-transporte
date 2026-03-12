@@ -368,23 +368,36 @@
               >
                 Const. GPS
               </th>
+
               <th
-                class="px-3 py-2 text-center font-inter-bold text-text/60 uppercase tracking-wider"
-                title="Certificado de Tacos"
+                class="px-3 py-2 text-center font-inter-bold text-text/60 uppercase tracking-wider whitespace-nowrap"
+                title="Certificado Prueba Hidrostática (Extintores)"
               >
-                Tacos
+                Ext. Hidro
               </th>
               <th
                 class="px-3 py-2 text-center font-inter-bold text-text/60 uppercase tracking-wider whitespace-nowrap"
-                title="Certificado de Extintores / Hidrostática"
+                title="Certificado Operatividad (Extintores)"
               >
-                Ext. Hid
+                Ext. Oper
               </th>
               <th
-                class="px-3 py-2 text-center font-inter-bold text-text/60 uppercase tracking-wider"
-                title="Certificado Norma R66"
+                class="px-3 py-2 text-center font-inter-bold text-text/60 uppercase tracking-wider whitespace-nowrap"
+                title="Certificado ROPS"
               >
-                R66
+                ROPS
+              </th>
+              <th
+                class="px-3 py-2 text-center font-inter-bold text-text/60 uppercase tracking-wider whitespace-nowrap"
+                title="Certificado Radio Frecuencia"
+              >
+                Radio
+              </th>
+              <th
+                class="px-3 py-2 text-center font-inter-bold text-text/60 uppercase tracking-wider whitespace-nowrap"
+                title="Certificación de Frenos"
+              >
+                Frenos
               </th>
               <th
                 class="px-3 py-2 text-center font-inter-bold text-text/60 uppercase tracking-wider whitespace-nowrap"
@@ -542,16 +555,7 @@
                     "
                   ></i>
                 </td>
-                <td class="px-3 py-2 text-center">
-                  <i
-                    [class]="
-                      'fas ' +
-                      getDocumentoEstadoIcon(vehiculo.certificado_tacos) +
-                      ' ' +
-                      getDocumentoEstadoClass(vehiculo.certificado_tacos)
-                    "
-                  ></i>
-                </td>
+
                 <td class="px-3 py-2 text-center">
                   <i
                     [class]="
@@ -566,9 +570,39 @@
                   <i
                     [class]="
                       'fas ' +
-                      getDocumentoEstadoIcon(vehiculo.certificado_norma_r66) +
+                      getDocumentoEstadoIcon(vehiculo.certificado_extintores_operatividad) +
                       ' ' +
-                      getDocumentoEstadoClass(vehiculo.certificado_norma_r66)
+                      getDocumentoEstadoClass(vehiculo.certificado_extintores_operatividad)
+                    "
+                  ></i>
+                </td>
+                <td class="px-3 py-2 text-center">
+                  <i
+                    [class]="
+                      'fas ' +
+                      getDocumentoEstadoIcon(vehiculo.certificado_rops) +
+                      ' ' +
+                      getDocumentoEstadoClass(vehiculo.certificado_rops)
+                    "
+                  ></i>
+                </td>
+                <td class="px-3 py-2 text-center">
+                  <i
+                    [class]="
+                      'fas ' +
+                      getDocumentoEstadoIcon(vehiculo.certificado_radio_frecuencia) +
+                      ' ' +
+                      getDocumentoEstadoClass(vehiculo.certificado_radio_frecuencia)
+                    "
+                  ></i>
+                </td>
+                <td class="px-3 py-2 text-center">
+                  <i
+                    [class]="
+                      'fas ' +
+                      getDocumentoEstadoIcon(vehiculo.certificacion_frenos) +
+                      ' ' +
+                      getDocumentoEstadoClass(vehiculo.certificacion_frenos)
                     "
                   ></i>
                 </td>

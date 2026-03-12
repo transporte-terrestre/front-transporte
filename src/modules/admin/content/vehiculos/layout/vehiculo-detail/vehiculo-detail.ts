@@ -78,9 +78,15 @@ export class VehiculoDetail {
     { value: 'certificado_tacos', label: 'Certificado de Tacos' },
     {
       value: 'certificado_extintores_hidrostatica',
-      label: 'Certificado de Extintores (Hidrostática)',
+      label: 'Cert. Prueba Hidrostática (Extintores)',
     },
-    { value: 'certificado_norma_r66', label: 'Certificado Norma R66' },
+    {
+      value: 'certificado_extintores_operatividad',
+      label: 'Cert. Operatividad (Extintores)',
+    },
+    { value: 'certificado_rops', label: 'Certificado ROPS' },
+    { value: 'certificado_radio_frecuencia', label: 'Cert. Radio Frecuencia' },
+    { value: 'certificacion_frenos', label: 'Certificación de Frenos' },
     { value: 'certificado_laminados_lunas', label: 'Certificado Laminados Lunas' },
     { value: 'certificado_carroceria', label: 'Certificado de Carrocería' },
     {

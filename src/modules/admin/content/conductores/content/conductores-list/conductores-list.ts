@@ -240,8 +240,10 @@ export class ConductoresList implements OnInit, OnDestroy {
         return 'text-warning';
       case 'nulo':
         return 'text-danger';
-      default:
+      case 'no_aplica':
         return 'text-text/40';
+      default:
+        return 'text-text/30';
     }
   }
 
@@ -253,6 +255,8 @@ export class ConductoresList implements OnInit, OnDestroy {
         return 'fa-clock';
       case 'nulo':
         return 'fa-times-circle';
+      case 'no_aplica':
+        return 'fa-minus-circle';
       default:
         return 'fa-question-circle';
     }
