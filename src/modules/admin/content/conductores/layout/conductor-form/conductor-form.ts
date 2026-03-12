@@ -45,6 +45,7 @@ export class ConductorForm implements OnInit {
     numeroLicencia: ['', [Validators.required, Validators.minLength(5)]],
     claseLicencia: ['', [Validators.required]],
     categoriaLicencia: ['', [Validators.required]],
+    documentosNoAplicables: [[]],
   });
 
   tiposDocumento = [
@@ -120,6 +121,7 @@ export class ConductorForm implements OnInit {
           numeroLicencia: conductorData.numeroLicencia,
           claseLicencia: conductorData.claseLicencia,
           categoriaLicencia: conductorData.categoriaLicencia,
+          documentosNoAplicables: conductorData.documentosNoAplicables || [],
         });
 
         // Contraseña no es obligatoria al editar (solo si quiere cambiarla)
@@ -206,6 +208,7 @@ export class ConductorForm implements OnInit {
     const formData = {
       ...this.conductorForm.value,
       fotocheck: this.imagenes(),
+      documentosNoAplicables: this.conductorForm.value.documentosNoAplicables || [],
     };
 
     // Remove empty password if edit
@@ -334,5 +337,24 @@ export class ConductorForm implements OnInit {
     const docs = this.localDocuments();
     if (!docs) return [];
     return docs[tipo] || [];
+  }
+
+  isNoAplica(docType: string): boolean {
+    const arrayControl = this.conductorForm.get('documentosNoAplicables');
+    return arrayControl?.value?.includes(docType) || false;
+  }
+
+  toggleNoAplicaDocumento(event: Event, docType: string) {
+    const isChecked = (event.target as HTMLInputElement).checked;
+    const arrayControl = this.conductorForm.get('documentosNoAplicables');
+    if (!arrayControl) return;
+    let values = [...(arrayControl.value || [])];
+    if (isChecked) {
+        if (!values.includes(docType)) values.push(docType);
+    } else {
+        values = values.filter(v => v !== docType);
+    }
+    arrayControl.setValue(values);
+    this.conductorForm.markAsDirty();
   }
 }

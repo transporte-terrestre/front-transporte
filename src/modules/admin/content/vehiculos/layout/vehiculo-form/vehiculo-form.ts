@@ -80,6 +80,7 @@ export class VehiculoForm implements OnInit {
     asientos: ['', [Validators.min(0)]],
     ejes: ['', [Validators.min(0)]],
     kilometraje: ['', [Validators.required, Validators.min(0)]],
+    kilometrajeMantenimiento: [0, [Validators.min(0)]],
     estado: ['disponible', [Validators.required]],
     propietarios: [[], []], // We keep this but manage ids manually on submit
     proveedores: [[], []], // We keep this but manage ids manually on submit
@@ -95,6 +96,7 @@ export class VehiculoForm implements OnInit {
     longitud: ['', []],
     altura: ['', []],
     ancho: ['', []],
+    documentosNoAplicables: [[]],
   });
 
   // Temporary control for the search input
@@ -170,15 +172,33 @@ export class VehiculoForm implements OnInit {
     { value: 'certificado_adas', label: 'Cert. ADAS', requireIssue: true, requireExpiration: true },
     {
       value: 'certificado_extintores_hidrostatica',
-      label: 'Cert. Extintores / Hidrostática',
+      label: 'Cert. Prueba Hidrostática (Extintores)',
       requireIssue: true,
       requireExpiration: true,
     },
     {
-      value: 'certificado_norma_r66',
-      label: 'Cert. Norma R66',
+      value: 'certificado_extintores_operatividad',
+      label: 'Cert. Operatividad (Extintores)',
+      requireIssue: true,
+      requireExpiration: true,
+    },
+    {
+      value: 'certificado_rops',
+      label: 'Cert. ROPS',
       requireIssue: true,
       requireExpiration: false,
+    },
+    {
+      value: 'certificado_radio_frecuencia',
+      label: 'Cert. Radio Frecuencia',
+      requireIssue: true,
+      requireExpiration: true,
+    },
+    {
+      value: 'certificacion_frenos',
+      label: 'Certificación de Frenos',
+      requireIssue: true,
+      requireExpiration: true,
     },
     {
       value: 'certificado_laminados_lunas',
@@ -294,6 +314,7 @@ export class VehiculoForm implements OnInit {
           asientos: vehiculoData.asientos,
           ejes: vehiculoData.ejes,
           kilometraje: vehiculoData.kilometraje,
+          kilometrajeMantenimiento: vehiculoData.kilometrajeMantenimiento,
           estado: vehiculoData.estado,
           // New fields mapping
           pasajeros: vehiculoData.pasajeros,
@@ -307,6 +328,7 @@ export class VehiculoForm implements OnInit {
           longitud: vehiculoData.longitud,
           altura: vehiculoData.altura,
           ancho: vehiculoData.ancho,
+          documentosNoAplicables: vehiculoData.documentosNoAplicables || [],
         });
         this.imagenes.set(vehiculoData.imagenes || []);
         this.localDocuments.set(JSON.parse(JSON.stringify(vehiculoData.documentos)));
@@ -365,6 +387,7 @@ export class VehiculoForm implements OnInit {
       asientos: formValue.asientos ? Number(formValue.asientos) : undefined,
       ejes: formValue.ejes ? Number(formValue.ejes) : undefined,
       kilometraje: formValue.kilometraje,
+      kilometrajeMantenimiento: formValue.kilometrajeMantenimiento ? Number(formValue.kilometrajeMantenimiento) : 0,
       estado: formValue.estado,
       propietarios: this.selectedOwners().map((p) => p.id),
       proveedores: this.selectedProviders().map((p) => p.id),
@@ -381,6 +404,7 @@ export class VehiculoForm implements OnInit {
       longitud: formValue.longitud ? String(formValue.longitud) : undefined,
       altura: formValue.altura ? String(formValue.altura) : undefined,
       ancho: formValue.ancho ? String(formValue.ancho) : undefined,
+      documentosNoAplicables: formValue.documentosNoAplicables || [],
     };
     this.onSubmitForm.emit(formData);
   }
@@ -482,6 +506,25 @@ export class VehiculoForm implements OnInit {
         this.localDocuments.set(newDocs);
       }
     }
+  }
+
+  isNoAplica(docType: string): boolean {
+    const arrayControl = this.vehiculoForm.get('documentosNoAplicables');
+    return arrayControl?.value?.includes(docType) || false;
+  }
+
+  toggleNoAplicaDocumento(event: Event, docType: string) {
+    const isChecked = (event.target as HTMLInputElement).checked;
+    const arrayControl = this.vehiculoForm.get('documentosNoAplicables');
+    if (!arrayControl) return;
+    let values = [...(arrayControl.value || [])];
+    if (isChecked) {
+        if (!values.includes(docType)) values.push(docType);
+    } else {
+        values = values.filter(v => v !== docType);
+    }
+    arrayControl.setValue(values);
+    this.vehiculoForm.markAsDirty();
   }
 
   getDocuments(tipo: keyof ApiField<'vehiculos', 'findOne', 'documentos'>): DocumentItem[] {

@@ -514,7 +514,8 @@ export class ViajeTramosFormComponent implements AfterViewInit, OnDestroy {
       const descansosEntre = tramosRegistrados.filter((t) => {
         if (t.tipo !== 'descanso' || !t.horaFinal) return false;
         const tDescanso = new Date(t.horaFinal).getTime();
-        return tDescanso > tInicio && tDescanso <= tFin;
+        // El descanso ocurre a partir del punto de partida (inicioReal) y ANTES de la llegada (finReal)
+        return tDescanso >= tInicio && tDescanso < tFin;
       });
 
       const ultimoDescanso = descansosEntre.length > 0 ? descansosEntre[descansosEntre.length - 1] : null;
@@ -523,12 +524,11 @@ export class ViajeTramosFormComponent implements AfterViewInit, OnDestroy {
       const tSalidaAjustada = new Date(ultimoDescanso.horaFinal).getTime();
       const diffMin = Math.max(Math.round((tFin - tSalidaAjustada) / 60000), 0);
 
+      // El kmInicial SIEMPRE es el del punto de partida antes del descanso
       const kmInicialAjustado =
-        ultimoDescanso.kilometrajeFinal != null
-          ? Number(ultimoDescanso.kilometrajeFinal)
-          : inicioReal.kilometrajeFinal != null
-            ? Number(inicioReal.kilometrajeFinal)
-            : null;
+        inicioReal.kilometrajeFinal != null
+          ? Number(inicioReal.kilometrajeFinal)
+          : null;
 
       const kmFinal = finReal.kilometrajeFinal != null ? Number(finReal.kilometrajeFinal) : null;
       const kmDiff = kmInicialAjustado != null && kmFinal != null ? Math.max(kmFinal - kmInicialAjustado, 0) : null;
