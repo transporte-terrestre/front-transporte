@@ -69,14 +69,16 @@ export const generateReporteDiarioPdf = (
   const turno = viaje.turno ? (viaje.turno === 'dia' ? 'DÍA' : 'NOCHE') : 'DÍA';
   drawFieldLine('TURNO:', turno, margin + 70, y, 60);
 
-  const vehiculo = viaje.vehiculos?.[0] || { placa: '' };
-  drawFieldLine('PLACA DEL VEHÍCULO:', vehiculo.placa, margin + 140, y, 90);
+  const vehiculoData = (viaje as any).vehiculoPrincipal || {};
+  const vehiculoDisplay = vehiculoData.placa ? (vehiculoData.marca ? `${vehiculoData.placa} - ${vehiculoData.marca}` : vehiculoData.placa) : '';
+  drawFieldLine('PLACA DEL VEHÍCULO:', vehiculoDisplay.toUpperCase(), margin + 140, y, 90);
 
   y += 8;
 
   // Row 2: Conductor
-  const conductor = viaje.conductores?.[0] || { nombreCompleto: '', nombres: '' };
-  const conductorName = conductor.nombreCompleto || (conductor as any).nombres || '';
+  const conductorData = (viaje as any).conductorPrincipal || {};
+  const conductorName = conductorData.nombreCompleto || 
+                       (conductorData.nombres ? `${conductorData.nombres} ${conductorData.apellidos || ''}` : '');
   drawFieldLine('CONDUCTOR:', conductorName.toUpperCase(), margin, y, pageWidth - 2 * margin);
 
   y += 8;

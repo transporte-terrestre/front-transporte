@@ -3529,7 +3529,7 @@ export interface DocumentoItemDto {
   observacion?: string;
   /**
    * Fecha de Vencimiento Inicial/Por defecto
-   * @example "2026-03-12T01:05:30.377Z"
+   * @example "2026-03-13T12:44:44.052Z"
    */
   fechaVencimiento?: string;
 }
@@ -3712,17 +3712,17 @@ export interface BotiquinItemDto {
   habilitado: boolean;
   /**
    * Fecha de Vencimiento actual
-   * @example "2026-03-12T01:05:30.383Z"
+   * @example "2026-03-13T12:44:44.055Z"
    */
   fechaVencimiento?: string;
   /**
    * Fecha de Salida
-   * @example "2026-03-12T01:05:30.383Z"
+   * @example "2026-03-13T12:44:44.055Z"
    */
   fechaSalida?: string;
   /**
    * Fecha de Reposición
-   * @example "2026-03-12T01:05:30.383Z"
+   * @example "2026-03-13T12:44:44.055Z"
    */
   fechaReposicion?: string;
 }
@@ -4618,7 +4618,7 @@ export interface MantenimientoCreateDto {
    * Workshop ID
    * @example 1
    */
-  tallerId: number;
+  tallerId?: number;
   /**
    * Branch ID
    * @example 1
@@ -5026,6 +5026,129 @@ export interface MantenimientoReporteEstadoDto {
 export interface PaginatedReporteEstadoResultDto {
   data: MantenimientoReporteEstadoDto[];
   meta: PaginationMetaDto;
+}
+
+export interface NotificacionListDto {
+  id: number;
+  titulo: string;
+  mensaje: string;
+  /** @default "info" */
+  tipo?: "info" | "warning" | "error" | "success";
+  /** @format date-time */
+  creadoEn: string;
+  leido: boolean;
+  metadata?: object;
+}
+
+export interface PaginatedNotificacionResultDto {
+  /** Lista de notificaciones */
+  data: NotificacionListDto[];
+  /** Metadatos de la paginación */
+  meta: PaginationMetaDto;
+}
+
+export interface NotificacionCreateDto {
+  titulo: string;
+  mensaje: string;
+  /** @default "info" */
+  tipo?: "info" | "warning" | "error" | "success";
+  metadata?: object;
+}
+
+export interface NotificacionResultDto {
+  /** @example 1 */
+  id: number;
+  /** @example "Título de la notificación" */
+  titulo: string;
+  /** @example "Cuerpo del mensaje de la notificación" */
+  mensaje: string;
+  /** @example "info" */
+  tipo: "info" | "warning" | "error" | "success";
+  /**
+   * @format date-time
+   * @example "2023-01-01T00:00:00.000Z"
+   */
+  creadoEn: string;
+  /** @example false */
+  leido: boolean;
+  metadata?: object;
+}
+
+export interface VencimientoResumenDto {
+  /** @example 5 */
+  clientes: number;
+  /** @example 3 */
+  conductores: number;
+  /** @example 2 */
+  vehiculos: number;
+  /** @example 1 */
+  usuarios: number;
+  /** @example 2 */
+  vencidos: number;
+  /** @example 9 */
+  porVencer: number;
+}
+
+export interface NotificacionPreviewDto {
+  /** @example "DNI próximo a vencer" */
+  titulo: string;
+  /** @example "El documento DNI de Cliente Juan Pérez vencerá en 5 días" */
+  mensaje: string;
+  /** @example "warning" */
+  tipo: "info" | "warning" | "error" | "success";
+  /** @example "cliente" */
+  entidad: "cliente" | "conductor" | "vehiculo" | "usuario";
+  /** @example 1 */
+  entidadId: number;
+  /** @example "Juan Pérez" */
+  entidadNombre: string;
+  /** @example "dni" */
+  tipoDocumento: string;
+  /** @example 5 */
+  diasRestantes: number;
+}
+
+export interface PreviewVencimientosResultDto {
+  /** @example {"fechaReferencia":"2025-12-18","diasAnticipacion":7,"fechaLimite":"2025-12-25"} */
+  parametros: object;
+  /** @example 11 */
+  totalDocumentosEncontrados: number;
+  resumen: VencimientoResumenDto;
+  notificaciones: NotificacionPreviewDto[];
+}
+
+export interface GenerarVencimientosResultDto {
+  /** @example "Se crearon 5 notificaciones" */
+  message: string;
+  /** @example 5 */
+  created: number;
+  notifications?: NotificacionResultDto[];
+  previews: NotificacionPreviewDto[];
+  /** @example {"fechaReferencia":"2025-12-18","diasAnticipacion":7} */
+  parametros: object;
+}
+
+export interface SendEmailDto {
+  /**
+   * Correo del destinatario
+   * @example "example@gmail.com"
+   */
+  to: string;
+  /**
+   * Asunto
+   * @example "Asunto del correo"
+   */
+  subject: string;
+  /**
+   * Cuerpo del mensaje en texto plano
+   * @example "Contenido del correo"
+   */
+  text: string;
+  /**
+   * Cuerpo del mensaje en HTML
+   * @example "<h1>Hola</h1>"
+   */
+  html?: string;
 }
 
 export interface RutaResultDto {
@@ -7564,129 +7687,6 @@ export interface ViajeChecklistResultDto {
   message?: string;
 }
 
-export interface NotificacionListDto {
-  id: number;
-  titulo: string;
-  mensaje: string;
-  /** @default "info" */
-  tipo?: "info" | "warning" | "error" | "success";
-  /** @format date-time */
-  creadoEn: string;
-  leido: boolean;
-  metadata?: object;
-}
-
-export interface PaginatedNotificacionResultDto {
-  /** Lista de notificaciones */
-  data: NotificacionListDto[];
-  /** Metadatos de la paginación */
-  meta: PaginationMetaDto;
-}
-
-export interface NotificacionCreateDto {
-  titulo: string;
-  mensaje: string;
-  /** @default "info" */
-  tipo?: "info" | "warning" | "error" | "success";
-  metadata?: object;
-}
-
-export interface NotificacionResultDto {
-  /** @example 1 */
-  id: number;
-  /** @example "Título de la notificación" */
-  titulo: string;
-  /** @example "Cuerpo del mensaje de la notificación" */
-  mensaje: string;
-  /** @example "info" */
-  tipo: "info" | "warning" | "error" | "success";
-  /**
-   * @format date-time
-   * @example "2023-01-01T00:00:00.000Z"
-   */
-  creadoEn: string;
-  /** @example false */
-  leido: boolean;
-  metadata?: object;
-}
-
-export interface VencimientoResumenDto {
-  /** @example 5 */
-  clientes: number;
-  /** @example 3 */
-  conductores: number;
-  /** @example 2 */
-  vehiculos: number;
-  /** @example 1 */
-  usuarios: number;
-  /** @example 2 */
-  vencidos: number;
-  /** @example 9 */
-  porVencer: number;
-}
-
-export interface NotificacionPreviewDto {
-  /** @example "DNI próximo a vencer" */
-  titulo: string;
-  /** @example "El documento DNI de Cliente Juan Pérez vencerá en 5 días" */
-  mensaje: string;
-  /** @example "warning" */
-  tipo: "info" | "warning" | "error" | "success";
-  /** @example "cliente" */
-  entidad: "cliente" | "conductor" | "vehiculo" | "usuario";
-  /** @example 1 */
-  entidadId: number;
-  /** @example "Juan Pérez" */
-  entidadNombre: string;
-  /** @example "dni" */
-  tipoDocumento: string;
-  /** @example 5 */
-  diasRestantes: number;
-}
-
-export interface PreviewVencimientosResultDto {
-  /** @example {"fechaReferencia":"2025-12-18","diasAnticipacion":7,"fechaLimite":"2025-12-25"} */
-  parametros: object;
-  /** @example 11 */
-  totalDocumentosEncontrados: number;
-  resumen: VencimientoResumenDto;
-  notificaciones: NotificacionPreviewDto[];
-}
-
-export interface GenerarVencimientosResultDto {
-  /** @example "Se crearon 5 notificaciones" */
-  message: string;
-  /** @example 5 */
-  created: number;
-  notifications?: NotificacionResultDto[];
-  previews: NotificacionPreviewDto[];
-  /** @example {"fechaReferencia":"2025-12-18","diasAnticipacion":7} */
-  parametros: object;
-}
-
-export interface SendEmailDto {
-  /**
-   * Correo del destinatario
-   * @example "example@gmail.com"
-   */
-  to: string;
-  /**
-   * Asunto
-   * @example "Asunto del correo"
-   */
-  subject: string;
-  /**
-   * Cuerpo del mensaje en texto plano
-   * @example "Contenido del correo"
-   */
-  text: string;
-  /**
-   * Cuerpo del mensaje en HTML
-   * @example "<h1>Hola</h1>"
-   */
-  html?: string;
-}
-
 export interface ClienteListDto {
   /**
    * ID del cliente
@@ -9453,7 +9453,7 @@ export interface AlquilerItemDto {
   fechaFin?: string;
   monto?: string;
   observaciones?: string;
-  estado: string;
+  estado: "activo" | "finalizado" | "cancelado";
   /** @format date-time */
   creadoEn: string;
   /** @format date-time */
@@ -9496,7 +9496,7 @@ export interface AlquilerResultDto {
   fechaFin?: string;
   monto?: string;
   observaciones?: string;
-  estado: string;
+  estado: "activo" | "finalizado" | "cancelado";
   /** @format date-time */
   creadoEn: string;
   /** @format date-time */
@@ -9546,7 +9546,7 @@ export interface AlquilerUpdateDto {
   observaciones?: string;
   /** Si es true, el vehículo cambiará su estado a alquilado. */
   marcarComoAlquilado?: boolean;
-  estado?: string;
+  estado?: "activo" | "finalizado" | "cancelado";
   /** @format date-time */
   fechaFin?: string;
   kilometrajeFinal?: number;
@@ -10332,7 +10332,7 @@ export interface MantenimientosFindAllParams {
    * @example 10
    */
   limit?: number;
-  /** Búsqueda por tipo, descripción o código de orden del mantenimiento */
+  /** Búsqueda por código de orden o ID exacto del mantenimiento */
   search?: string;
   /** Fecha de inicio para filtrar por rango (formato: YYYY-MM-DD) */
   fechaInicio?: string;
@@ -10348,6 +10348,10 @@ export interface MantenimientosFindAllParams {
    * @example "pendiente"
    */
   estado?: "pendiente" | "en_proceso" | "finalizado";
+  /** Filtrar por taller */
+  tallerId?: number;
+  /** Filtrar por vehículo */
+  vehiculoId?: number;
 }
 
 export type MantenimientosFindAllData = PaginatedMantenimientoResultDto;
@@ -10477,10 +10481,123 @@ export interface MantenimientosGetReporteEstadoVehiculosParams {
    * @default "proximos"
    */
   sort?: "proximos" | "ultimos";
+  /** ID del vehículo para filtrar */
+  vehiculoId?: number;
 }
 
 export type MantenimientosGetReporteEstadoVehiculosData =
   PaginatedReporteEstadoResultDto;
+
+export interface NotificacionesFindAllParams {
+  /**
+   * Número de página (comienza en 1)
+   * @default 1
+   * @example 1
+   */
+  page?: number;
+  /**
+   * Cantidad de elementos por página
+   * @default 10
+   * @example 10
+   */
+  limit?: number;
+  /**
+   * ID del usuario
+   * @example 1
+   */
+  userId: number;
+}
+
+export type NotificacionesFindAllData = PaginatedNotificacionResultDto;
+
+export type NotificacionesCreateData = NotificacionResultDto;
+
+export interface NotificacionesMarkAsReadParams {
+  userId: number;
+  id: number;
+}
+
+export type NotificacionesMarkAsReadData = NotificacionResultDto;
+
+export interface NotificacionesCreateForConductorParams {
+  conductorId: number;
+}
+
+export type NotificacionesCreateForConductorData = NotificacionResultDto;
+
+export interface NotificacionesFindAllByConductorParams {
+  /**
+   * Número de página (comienza en 1)
+   * @default 1
+   * @example 1
+   */
+  page?: number;
+  /**
+   * Cantidad de elementos por página
+   * @default 10
+   * @example 10
+   */
+  limit?: number;
+  conductorId: number;
+}
+
+export type NotificacionesFindAllByConductorData =
+  PaginatedNotificacionResultDto;
+
+export interface NotificacionesMarkAsReadByConductorParams {
+  conductorId: number;
+  id: number;
+}
+
+export type NotificacionesMarkAsReadByConductorData = NotificacionResultDto;
+
+export interface NotificacionesPreviewVencimientosParams {
+  /**
+   * Fecha de referencia (YYYY-MM-DD). Punto de partida para la búsqueda.
+   * @example "2025-12-18"
+   */
+  fecha: string;
+  /**
+   * Días de anticipación a buscar (default: 7). Busca documentos que vencen hasta fecha + diasAnticipacion.
+   * @default 7
+   * @example 7
+   */
+  diasAnticipacion?: number;
+}
+
+export type NotificacionesPreviewVencimientosData =
+  PreviewVencimientosResultDto;
+
+export interface NotificacionesGenerarVencimientosParams {
+  /**
+   * Fecha de referencia (YYYY-MM-DD). Punto de partida para la búsqueda.
+   * @example "2025-12-18"
+   */
+  fecha: string;
+  /**
+   * Días de anticipación a buscar (default: 7). Busca documentos que vencen hasta fecha + diasAnticipacion.
+   * @default 7
+   * @example 7
+   */
+  diasAnticipacion?: number;
+}
+
+export type NotificacionesGenerarVencimientosData =
+  GenerarVencimientosResultDto;
+
+export type NotificacionesSendEmailData = any;
+
+export interface NotificacionesNotifyEachAdminParams {
+  diasAnticipacion: number;
+}
+
+export type NotificacionesNotifyEachAdminData = any;
+
+export interface NotificacionesNotifyEachConductorParams {
+  diasAnticipacion: number;
+}
+
+export type NotificacionesNotifyEachConductorData = any;
 
 export interface RutasFindAllParams {
   /**
@@ -11017,117 +11134,6 @@ export interface ViajesDeleteChecklistParams {
 
 export type ViajesDeleteChecklistData = ViajeChecklistResultDto;
 
-export interface NotificacionesFindAllParams {
-  /**
-   * Número de página (comienza en 1)
-   * @default 1
-   * @example 1
-   */
-  page?: number;
-  /**
-   * Cantidad de elementos por página
-   * @default 10
-   * @example 10
-   */
-  limit?: number;
-  /**
-   * ID del usuario
-   * @example 1
-   */
-  userId: number;
-}
-
-export type NotificacionesFindAllData = PaginatedNotificacionResultDto;
-
-export type NotificacionesCreateData = NotificacionResultDto;
-
-export interface NotificacionesMarkAsReadParams {
-  userId: number;
-  id: number;
-}
-
-export type NotificacionesMarkAsReadData = NotificacionResultDto;
-
-export interface NotificacionesCreateForConductorParams {
-  conductorId: number;
-}
-
-export type NotificacionesCreateForConductorData = NotificacionResultDto;
-
-export interface NotificacionesFindAllByConductorParams {
-  /**
-   * Número de página (comienza en 1)
-   * @default 1
-   * @example 1
-   */
-  page?: number;
-  /**
-   * Cantidad de elementos por página
-   * @default 10
-   * @example 10
-   */
-  limit?: number;
-  conductorId: number;
-}
-
-export type NotificacionesFindAllByConductorData =
-  PaginatedNotificacionResultDto;
-
-export interface NotificacionesMarkAsReadByConductorParams {
-  conductorId: number;
-  id: number;
-}
-
-export type NotificacionesMarkAsReadByConductorData = NotificacionResultDto;
-
-export interface NotificacionesPreviewVencimientosParams {
-  /**
-   * Fecha de referencia (YYYY-MM-DD). Punto de partida para la búsqueda.
-   * @example "2025-12-18"
-   */
-  fecha: string;
-  /**
-   * Días de anticipación a buscar (default: 7). Busca documentos que vencen hasta fecha + diasAnticipacion.
-   * @default 7
-   * @example 7
-   */
-  diasAnticipacion?: number;
-}
-
-export type NotificacionesPreviewVencimientosData =
-  PreviewVencimientosResultDto;
-
-export interface NotificacionesGenerarVencimientosParams {
-  /**
-   * Fecha de referencia (YYYY-MM-DD). Punto de partida para la búsqueda.
-   * @example "2025-12-18"
-   */
-  fecha: string;
-  /**
-   * Días de anticipación a buscar (default: 7). Busca documentos que vencen hasta fecha + diasAnticipacion.
-   * @default 7
-   * @example 7
-   */
-  diasAnticipacion?: number;
-}
-
-export type NotificacionesGenerarVencimientosData =
-  GenerarVencimientosResultDto;
-
-export type NotificacionesSendEmailData = any;
-
-export interface NotificacionesNotifyEachAdminParams {
-  diasAnticipacion: number;
-}
-
-export type NotificacionesNotifyEachAdminData = any;
-
-export interface NotificacionesNotifyEachConductorParams {
-  diasAnticipacion: number;
-}
-
-export type NotificacionesNotifyEachConductorData = any;
-
 export interface ClientesFindAllParams {
   /**
    * Número de página (comienza en 1)
@@ -11600,9 +11606,15 @@ export type ProveedoresDeleteDocumentoData = ProveedorDocumentoResultDto;
 
 export interface AlquileresFindAllParams {
   search?: string;
-  estado?: string;
+  /** Filtrar por estado */
+  estado?: "activo" | "finalizado" | "cancelado";
   clienteId?: number;
+  /** Filtrar por tipo */
   tipo?: "maquina_seca" | "maquina_operada";
+  conductorId?: number;
+  vehiculoId?: number;
+  fechaInicio?: string;
+  fechaFin?: string;
   /** @default 1 */
   page?: number;
   /** @default 10 */
@@ -13366,7 +13378,7 @@ export namespace Vehiculos {
 
 export namespace Mantenimientos {
   /**
-   * @description Busca por tipo, proveedor o descripción. Filtra por rango de fechas.
+   * @description Busca por código de orden o ID. Filtra por fechas, tipo, estado, taller y vehículo.
    * @tags mantenimientos
    * @name MantenimientosFindAll
    * @summary Obtener mantenimientos con paginación, búsqueda y filtros
@@ -13389,7 +13401,7 @@ export namespace Mantenimientos {
        * @example 10
        */
       limit?: number;
-      /** Búsqueda por tipo, descripción o código de orden del mantenimiento */
+      /** Búsqueda por código de orden o ID exacto del mantenimiento */
       search?: string;
       /** Fecha de inicio para filtrar por rango (formato: YYYY-MM-DD) */
       fechaInicio?: string;
@@ -13405,6 +13417,10 @@ export namespace Mantenimientos {
        * @example "pendiente"
        */
       estado?: "pendiente" | "en_proceso" | "finalizado";
+      /** Filtrar por taller */
+      tallerId?: number;
+      /** Filtrar por vehículo */
+      vehiculoId?: number;
     };
     export type RequestBody = never;
     export type RequestHeaders = {};
@@ -13760,10 +13776,261 @@ export namespace Mantenimientos {
        * @default "proximos"
        */
       sort?: "proximos" | "ultimos";
+      /** ID del vehículo para filtrar */
+      vehiculoId?: number;
     };
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = MantenimientosGetReporteEstadoVehiculosData;
+  }
+}
+
+export namespace Notificaciones {
+  /**
+   * No description
+   * @tags notificaciones
+   * @name NotificacionesFindAll
+   * @summary Obtener notificaciones del usuario
+   * @request GET:/notificacion/find-all
+   * @response `200` `NotificacionesFindAllData`
+   */
+  export namespace NotificacionesFindAll {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /**
+       * Número de página (comienza en 1)
+       * @default 1
+       * @example 1
+       */
+      page?: number;
+      /**
+       * Cantidad de elementos por página
+       * @default 10
+       * @example 10
+       */
+      limit?: number;
+      /**
+       * ID del usuario
+       * @example 1
+       */
+      userId: number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = NotificacionesFindAllData;
+  }
+
+  /**
+   * No description
+   * @tags notificaciones
+   * @name NotificacionesCreate
+   * @summary Crear una nueva notificación general
+   * @request POST:/notificacion/create
+   * @response `201` `NotificacionesCreateData`
+   */
+  export namespace NotificacionesCreate {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = NotificacionCreateDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = NotificacionesCreateData;
+  }
+
+  /**
+   * No description
+   * @tags notificaciones
+   * @name NotificacionesMarkAsRead
+   * @summary Marcar notificación como leída
+   * @request POST:/notificacion/leido/{id}
+   * @response `200` `NotificacionesMarkAsReadData`
+   */
+  export namespace NotificacionesMarkAsRead {
+    export type RequestParams = {
+      id: number;
+    };
+    export type RequestQuery = {
+      userId: number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = NotificacionesMarkAsReadData;
+  }
+
+  /**
+   * No description
+   * @tags notificaciones
+   * @name NotificacionesCreateForConductor
+   * @summary Crear una nueva notificación para un conductor
+   * @request POST:/notificacion/create-conductor/{conductorId}
+   * @response `201` `NotificacionesCreateForConductorData`
+   */
+  export namespace NotificacionesCreateForConductor {
+    export type RequestParams = {
+      conductorId: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = NotificacionCreateDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = NotificacionesCreateForConductorData;
+  }
+
+  /**
+   * No description
+   * @tags notificaciones
+   * @name NotificacionesFindAllByConductor
+   * @summary Obtener notificaciones de un conductor
+   * @request GET:/notificacion/conductor/{conductorId}
+   * @response `200` `NotificacionesFindAllByConductorData`
+   */
+  export namespace NotificacionesFindAllByConductor {
+    export type RequestParams = {
+      conductorId: number;
+    };
+    export type RequestQuery = {
+      /**
+       * Número de página (comienza en 1)
+       * @default 1
+       * @example 1
+       */
+      page?: number;
+      /**
+       * Cantidad de elementos por página
+       * @default 10
+       * @example 10
+       */
+      limit?: number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = NotificacionesFindAllByConductorData;
+  }
+
+  /**
+   * No description
+   * @tags notificaciones
+   * @name NotificacionesMarkAsReadByConductor
+   * @summary Marcar notificación como leída para un conductor
+   * @request POST:/notificacion/leido-conductor/{id}
+   * @response `200` `NotificacionesMarkAsReadByConductorData`
+   */
+  export namespace NotificacionesMarkAsReadByConductor {
+    export type RequestParams = {
+      id: number;
+    };
+    export type RequestQuery = {
+      conductorId: number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = NotificacionesMarkAsReadByConductorData;
+  }
+
+  /**
+   * No description
+   * @tags notificaciones
+   * @name NotificacionesPreviewVencimientos
+   * @summary TEST: Previsualizar notificaciones de documentos por vencer
+   * @request GET:/notificacion/vencimientos/test
+   * @response `200` `NotificacionesPreviewVencimientosData`
+   */
+  export namespace NotificacionesPreviewVencimientos {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /**
+       * Fecha de referencia (YYYY-MM-DD). Punto de partida para la búsqueda.
+       * @example "2025-12-18"
+       */
+      fecha: string;
+      /**
+       * Días de anticipación a buscar (default: 7). Busca documentos que vencen hasta fecha + diasAnticipacion.
+       * @default 7
+       * @example 7
+       */
+      diasAnticipacion?: number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = NotificacionesPreviewVencimientosData;
+  }
+
+  /**
+   * @description Busca documentos por vencer/vencidos y CREA las notificaciones en la base de datos.
+   * @tags notificaciones
+   * @name NotificacionesGenerarVencimientos
+   * @summary Generar y guardar notificaciones de documentos por vencer
+   * @request POST:/notificacion/vencimientos/generar
+   * @response `201` `NotificacionesGenerarVencimientosData`
+   */
+  export namespace NotificacionesGenerarVencimientos {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /**
+       * Fecha de referencia (YYYY-MM-DD). Punto de partida para la búsqueda.
+       * @example "2025-12-18"
+       */
+      fecha: string;
+      /**
+       * Días de anticipación a buscar (default: 7). Busca documentos que vencen hasta fecha + diasAnticipacion.
+       * @default 7
+       * @example 7
+       */
+      diasAnticipacion?: number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = NotificacionesGenerarVencimientosData;
+  }
+
+  /**
+   * No description
+   * @tags notificaciones
+   * @name NotificacionesSendEmail
+   * @summary Enviar un correo electrónico
+   * @request POST:/notificacion/send-email
+   * @response `200` `NotificacionesSendEmailData` Correo enviado correctamente
+   */
+  export namespace NotificacionesSendEmail {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = SendEmailDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = NotificacionesSendEmailData;
+  }
+
+  /**
+   * No description
+   * @tags notificaciones
+   * @name NotificacionesNotifyEachAdmin
+   * @summary Enviar lista de conductores con documentos por vencer a todos los administradores
+   * @request POST:/notificacion/notify-each-admin
+   * @response `200` `NotificacionesNotifyEachAdminData` Correos enviados con el reporte
+   */
+  export namespace NotificacionesNotifyEachAdmin {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      diasAnticipacion: number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = NotificacionesNotifyEachAdminData;
+  }
+
+  /**
+   * No description
+   * @tags notificaciones
+   * @name NotificacionesNotifyEachConductor
+   * @summary Enviar correo personalizado a cada conductor con sus documentos por vencer
+   * @request POST:/notificacion/notify-each-conductor
+   * @response `200` `NotificacionesNotifyEachConductorData` Proceso de notificación por correo finalizado
+   */
+  export namespace NotificacionesNotifyEachConductor {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      diasAnticipacion: number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = NotificacionesNotifyEachConductorData;
   }
 }
 
@@ -15043,255 +15310,6 @@ export namespace Viajes {
   }
 }
 
-export namespace Notificaciones {
-  /**
-   * No description
-   * @tags notificaciones
-   * @name NotificacionesFindAll
-   * @summary Obtener notificaciones del usuario
-   * @request GET:/notificacion/find-all
-   * @response `200` `NotificacionesFindAllData`
-   */
-  export namespace NotificacionesFindAll {
-    export type RequestParams = {};
-    export type RequestQuery = {
-      /**
-       * Número de página (comienza en 1)
-       * @default 1
-       * @example 1
-       */
-      page?: number;
-      /**
-       * Cantidad de elementos por página
-       * @default 10
-       * @example 10
-       */
-      limit?: number;
-      /**
-       * ID del usuario
-       * @example 1
-       */
-      userId: number;
-    };
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = NotificacionesFindAllData;
-  }
-
-  /**
-   * No description
-   * @tags notificaciones
-   * @name NotificacionesCreate
-   * @summary Crear una nueva notificación general
-   * @request POST:/notificacion/create
-   * @response `201` `NotificacionesCreateData`
-   */
-  export namespace NotificacionesCreate {
-    export type RequestParams = {};
-    export type RequestQuery = {};
-    export type RequestBody = NotificacionCreateDto;
-    export type RequestHeaders = {};
-    export type ResponseBody = NotificacionesCreateData;
-  }
-
-  /**
-   * No description
-   * @tags notificaciones
-   * @name NotificacionesMarkAsRead
-   * @summary Marcar notificación como leída
-   * @request POST:/notificacion/leido/{id}
-   * @response `200` `NotificacionesMarkAsReadData`
-   */
-  export namespace NotificacionesMarkAsRead {
-    export type RequestParams = {
-      id: number;
-    };
-    export type RequestQuery = {
-      userId: number;
-    };
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = NotificacionesMarkAsReadData;
-  }
-
-  /**
-   * No description
-   * @tags notificaciones
-   * @name NotificacionesCreateForConductor
-   * @summary Crear una nueva notificación para un conductor
-   * @request POST:/notificacion/create-conductor/{conductorId}
-   * @response `201` `NotificacionesCreateForConductorData`
-   */
-  export namespace NotificacionesCreateForConductor {
-    export type RequestParams = {
-      conductorId: number;
-    };
-    export type RequestQuery = {};
-    export type RequestBody = NotificacionCreateDto;
-    export type RequestHeaders = {};
-    export type ResponseBody = NotificacionesCreateForConductorData;
-  }
-
-  /**
-   * No description
-   * @tags notificaciones
-   * @name NotificacionesFindAllByConductor
-   * @summary Obtener notificaciones de un conductor
-   * @request GET:/notificacion/conductor/{conductorId}
-   * @response `200` `NotificacionesFindAllByConductorData`
-   */
-  export namespace NotificacionesFindAllByConductor {
-    export type RequestParams = {
-      conductorId: number;
-    };
-    export type RequestQuery = {
-      /**
-       * Número de página (comienza en 1)
-       * @default 1
-       * @example 1
-       */
-      page?: number;
-      /**
-       * Cantidad de elementos por página
-       * @default 10
-       * @example 10
-       */
-      limit?: number;
-    };
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = NotificacionesFindAllByConductorData;
-  }
-
-  /**
-   * No description
-   * @tags notificaciones
-   * @name NotificacionesMarkAsReadByConductor
-   * @summary Marcar notificación como leída para un conductor
-   * @request POST:/notificacion/leido-conductor/{id}
-   * @response `200` `NotificacionesMarkAsReadByConductorData`
-   */
-  export namespace NotificacionesMarkAsReadByConductor {
-    export type RequestParams = {
-      id: number;
-    };
-    export type RequestQuery = {
-      conductorId: number;
-    };
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = NotificacionesMarkAsReadByConductorData;
-  }
-
-  /**
-   * No description
-   * @tags notificaciones
-   * @name NotificacionesPreviewVencimientos
-   * @summary TEST: Previsualizar notificaciones de documentos por vencer
-   * @request GET:/notificacion/vencimientos/test
-   * @response `200` `NotificacionesPreviewVencimientosData`
-   */
-  export namespace NotificacionesPreviewVencimientos {
-    export type RequestParams = {};
-    export type RequestQuery = {
-      /**
-       * Fecha de referencia (YYYY-MM-DD). Punto de partida para la búsqueda.
-       * @example "2025-12-18"
-       */
-      fecha: string;
-      /**
-       * Días de anticipación a buscar (default: 7). Busca documentos que vencen hasta fecha + diasAnticipacion.
-       * @default 7
-       * @example 7
-       */
-      diasAnticipacion?: number;
-    };
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = NotificacionesPreviewVencimientosData;
-  }
-
-  /**
-   * @description Busca documentos por vencer/vencidos y CREA las notificaciones en la base de datos.
-   * @tags notificaciones
-   * @name NotificacionesGenerarVencimientos
-   * @summary Generar y guardar notificaciones de documentos por vencer
-   * @request POST:/notificacion/vencimientos/generar
-   * @response `201` `NotificacionesGenerarVencimientosData`
-   */
-  export namespace NotificacionesGenerarVencimientos {
-    export type RequestParams = {};
-    export type RequestQuery = {
-      /**
-       * Fecha de referencia (YYYY-MM-DD). Punto de partida para la búsqueda.
-       * @example "2025-12-18"
-       */
-      fecha: string;
-      /**
-       * Días de anticipación a buscar (default: 7). Busca documentos que vencen hasta fecha + diasAnticipacion.
-       * @default 7
-       * @example 7
-       */
-      diasAnticipacion?: number;
-    };
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = NotificacionesGenerarVencimientosData;
-  }
-
-  /**
-   * No description
-   * @tags notificaciones
-   * @name NotificacionesSendEmail
-   * @summary Enviar un correo electrónico
-   * @request POST:/notificacion/send-email
-   * @response `200` `NotificacionesSendEmailData` Correo enviado correctamente
-   */
-  export namespace NotificacionesSendEmail {
-    export type RequestParams = {};
-    export type RequestQuery = {};
-    export type RequestBody = SendEmailDto;
-    export type RequestHeaders = {};
-    export type ResponseBody = NotificacionesSendEmailData;
-  }
-
-  /**
-   * No description
-   * @tags notificaciones
-   * @name NotificacionesNotifyEachAdmin
-   * @summary Enviar lista de conductores con documentos por vencer a todos los administradores
-   * @request POST:/notificacion/notify-each-admin
-   * @response `200` `NotificacionesNotifyEachAdminData` Correos enviados con el reporte
-   */
-  export namespace NotificacionesNotifyEachAdmin {
-    export type RequestParams = {};
-    export type RequestQuery = {
-      diasAnticipacion: number;
-    };
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = NotificacionesNotifyEachAdminData;
-  }
-
-  /**
-   * No description
-   * @tags notificaciones
-   * @name NotificacionesNotifyEachConductor
-   * @summary Enviar correo personalizado a cada conductor con sus documentos por vencer
-   * @request POST:/notificacion/notify-each-conductor
-   * @response `200` `NotificacionesNotifyEachConductorData` Proceso de notificación por correo finalizado
-   */
-  export namespace NotificacionesNotifyEachConductor {
-    export type RequestParams = {};
-    export type RequestQuery = {
-      diasAnticipacion: number;
-    };
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = NotificacionesNotifyEachConductorData;
-  }
-}
-
 export namespace Clientes {
   /**
    * No description
@@ -16529,9 +16547,15 @@ export namespace Alquileres {
     export type RequestParams = {};
     export type RequestQuery = {
       search?: string;
-      estado?: string;
+      /** Filtrar por estado */
+      estado?: "activo" | "finalizado" | "cancelado";
       clienteId?: number;
+      /** Filtrar por tipo */
       tipo?: "maquina_seca" | "maquina_operada";
+      conductorId?: number;
+      vehiculoId?: number;
+      fechaInicio?: string;
+      fechaFin?: string;
       /** @default 1 */
       page?: number;
       /** @default 10 */
@@ -18701,7 +18725,7 @@ export class Api<SecurityDataType extends unknown> {
   };
   mantenimientos = {
     /**
-     * @description Busca por tipo, proveedor o descripción. Filtra por rango de fechas.
+     * @description Busca por código de orden o ID. Filtra por fechas, tipo, estado, taller y vehículo.
      *
      * @tags mantenimientos
      * @name MantenimientosFindAll
@@ -19116,6 +19140,236 @@ export class Api<SecurityDataType extends unknown> {
         query: query,
         secure: true,
         format: "json",
+        ...params,
+      }),
+  };
+  notificaciones = {
+    /**
+     * No description
+     *
+     * @tags notificaciones
+     * @name NotificacionesFindAll
+     * @summary Obtener notificaciones del usuario
+     * @request GET:/notificacion/find-all
+     * @response `200` `NotificacionesFindAllData`
+     */
+    findAll: (
+      query: NotificacionesFindAllParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<NotificacionesFindAllData, any>({
+        path: `/notificacion/find-all`,
+        method: "GET",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags notificaciones
+     * @name NotificacionesCreate
+     * @summary Crear una nueva notificación general
+     * @request POST:/notificacion/create
+     * @response `201` `NotificacionesCreateData`
+     */
+    create: (
+      data: NotificacionCreateDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<NotificacionesCreateData, any>({
+        path: `/notificacion/create`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags notificaciones
+     * @name NotificacionesMarkAsRead
+     * @summary Marcar notificación como leída
+     * @request POST:/notificacion/leido/{id}
+     * @response `200` `NotificacionesMarkAsReadData`
+     */
+    markAsRead: (
+      { id, ...query }: NotificacionesMarkAsReadParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<NotificacionesMarkAsReadData, any>({
+        path: `/notificacion/leido/${id}`,
+        method: "POST",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags notificaciones
+     * @name NotificacionesCreateForConductor
+     * @summary Crear una nueva notificación para un conductor
+     * @request POST:/notificacion/create-conductor/{conductorId}
+     * @response `201` `NotificacionesCreateForConductorData`
+     */
+    createForConductor: (
+      { conductorId, ...query }: NotificacionesCreateForConductorParams,
+      data: NotificacionCreateDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<NotificacionesCreateForConductorData, any>({
+        path: `/notificacion/create-conductor/${conductorId}`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags notificaciones
+     * @name NotificacionesFindAllByConductor
+     * @summary Obtener notificaciones de un conductor
+     * @request GET:/notificacion/conductor/{conductorId}
+     * @response `200` `NotificacionesFindAllByConductorData`
+     */
+    findAllByConductor: (
+      { conductorId, ...query }: NotificacionesFindAllByConductorParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<NotificacionesFindAllByConductorData, any>({
+        path: `/notificacion/conductor/${conductorId}`,
+        method: "GET",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags notificaciones
+     * @name NotificacionesMarkAsReadByConductor
+     * @summary Marcar notificación como leída para un conductor
+     * @request POST:/notificacion/leido-conductor/{id}
+     * @response `200` `NotificacionesMarkAsReadByConductorData`
+     */
+    markAsReadByConductor: (
+      { id, ...query }: NotificacionesMarkAsReadByConductorParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<NotificacionesMarkAsReadByConductorData, any>({
+        path: `/notificacion/leido-conductor/${id}`,
+        method: "POST",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags notificaciones
+     * @name NotificacionesPreviewVencimientos
+     * @summary TEST: Previsualizar notificaciones de documentos por vencer
+     * @request GET:/notificacion/vencimientos/test
+     * @response `200` `NotificacionesPreviewVencimientosData`
+     */
+    previewVencimientos: (
+      query: NotificacionesPreviewVencimientosParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<NotificacionesPreviewVencimientosData, any>({
+        path: `/notificacion/vencimientos/test`,
+        method: "GET",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Busca documentos por vencer/vencidos y CREA las notificaciones en la base de datos.
+     *
+     * @tags notificaciones
+     * @name NotificacionesGenerarVencimientos
+     * @summary Generar y guardar notificaciones de documentos por vencer
+     * @request POST:/notificacion/vencimientos/generar
+     * @response `201` `NotificacionesGenerarVencimientosData`
+     */
+    generarVencimientos: (
+      query: NotificacionesGenerarVencimientosParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<NotificacionesGenerarVencimientosData, any>({
+        path: `/notificacion/vencimientos/generar`,
+        method: "POST",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags notificaciones
+     * @name NotificacionesSendEmail
+     * @summary Enviar un correo electrónico
+     * @request POST:/notificacion/send-email
+     * @response `200` `NotificacionesSendEmailData` Correo enviado correctamente
+     */
+    sendEmail: (data: SendEmailDto, params: RequestParams = {}) =>
+      this.http.request<NotificacionesSendEmailData, any>({
+        path: `/notificacion/send-email`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags notificaciones
+     * @name NotificacionesNotifyEachAdmin
+     * @summary Enviar lista de conductores con documentos por vencer a todos los administradores
+     * @request POST:/notificacion/notify-each-admin
+     * @response `200` `NotificacionesNotifyEachAdminData` Correos enviados con el reporte
+     */
+    notifyEachAdmin: (
+      query: NotificacionesNotifyEachAdminParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<NotificacionesNotifyEachAdminData, any>({
+        path: `/notificacion/notify-each-admin`,
+        method: "POST",
+        query: query,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags notificaciones
+     * @name NotificacionesNotifyEachConductor
+     * @summary Enviar correo personalizado a cada conductor con sus documentos por vencer
+     * @request POST:/notificacion/notify-each-conductor
+     * @response `200` `NotificacionesNotifyEachConductorData` Proceso de notificación por correo finalizado
+     */
+    notifyEachConductor: (
+      query: NotificacionesNotifyEachConductorParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<NotificacionesNotifyEachConductorData, any>({
+        path: `/notificacion/notify-each-conductor`,
+        method: "POST",
+        query: query,
         ...params,
       }),
   };
@@ -20391,236 +20645,6 @@ export class Api<SecurityDataType extends unknown> {
         method: "DELETE",
         secure: true,
         format: "json",
-        ...params,
-      }),
-  };
-  notificaciones = {
-    /**
-     * No description
-     *
-     * @tags notificaciones
-     * @name NotificacionesFindAll
-     * @summary Obtener notificaciones del usuario
-     * @request GET:/notificacion/find-all
-     * @response `200` `NotificacionesFindAllData`
-     */
-    findAll: (
-      query: NotificacionesFindAllParams,
-      params: RequestParams = {},
-    ) =>
-      this.http.request<NotificacionesFindAllData, any>({
-        path: `/notificacion/find-all`,
-        method: "GET",
-        query: query,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags notificaciones
-     * @name NotificacionesCreate
-     * @summary Crear una nueva notificación general
-     * @request POST:/notificacion/create
-     * @response `201` `NotificacionesCreateData`
-     */
-    create: (
-      data: NotificacionCreateDto,
-      params: RequestParams = {},
-    ) =>
-      this.http.request<NotificacionesCreateData, any>({
-        path: `/notificacion/create`,
-        method: "POST",
-        body: data,
-        type: ContentType.Json,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags notificaciones
-     * @name NotificacionesMarkAsRead
-     * @summary Marcar notificación como leída
-     * @request POST:/notificacion/leido/{id}
-     * @response `200` `NotificacionesMarkAsReadData`
-     */
-    markAsRead: (
-      { id, ...query }: NotificacionesMarkAsReadParams,
-      params: RequestParams = {},
-    ) =>
-      this.http.request<NotificacionesMarkAsReadData, any>({
-        path: `/notificacion/leido/${id}`,
-        method: "POST",
-        query: query,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags notificaciones
-     * @name NotificacionesCreateForConductor
-     * @summary Crear una nueva notificación para un conductor
-     * @request POST:/notificacion/create-conductor/{conductorId}
-     * @response `201` `NotificacionesCreateForConductorData`
-     */
-    createForConductor: (
-      { conductorId, ...query }: NotificacionesCreateForConductorParams,
-      data: NotificacionCreateDto,
-      params: RequestParams = {},
-    ) =>
-      this.http.request<NotificacionesCreateForConductorData, any>({
-        path: `/notificacion/create-conductor/${conductorId}`,
-        method: "POST",
-        body: data,
-        type: ContentType.Json,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags notificaciones
-     * @name NotificacionesFindAllByConductor
-     * @summary Obtener notificaciones de un conductor
-     * @request GET:/notificacion/conductor/{conductorId}
-     * @response `200` `NotificacionesFindAllByConductorData`
-     */
-    findAllByConductor: (
-      { conductorId, ...query }: NotificacionesFindAllByConductorParams,
-      params: RequestParams = {},
-    ) =>
-      this.http.request<NotificacionesFindAllByConductorData, any>({
-        path: `/notificacion/conductor/${conductorId}`,
-        method: "GET",
-        query: query,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags notificaciones
-     * @name NotificacionesMarkAsReadByConductor
-     * @summary Marcar notificación como leída para un conductor
-     * @request POST:/notificacion/leido-conductor/{id}
-     * @response `200` `NotificacionesMarkAsReadByConductorData`
-     */
-    markAsReadByConductor: (
-      { id, ...query }: NotificacionesMarkAsReadByConductorParams,
-      params: RequestParams = {},
-    ) =>
-      this.http.request<NotificacionesMarkAsReadByConductorData, any>({
-        path: `/notificacion/leido-conductor/${id}`,
-        method: "POST",
-        query: query,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags notificaciones
-     * @name NotificacionesPreviewVencimientos
-     * @summary TEST: Previsualizar notificaciones de documentos por vencer
-     * @request GET:/notificacion/vencimientos/test
-     * @response `200` `NotificacionesPreviewVencimientosData`
-     */
-    previewVencimientos: (
-      query: NotificacionesPreviewVencimientosParams,
-      params: RequestParams = {},
-    ) =>
-      this.http.request<NotificacionesPreviewVencimientosData, any>({
-        path: `/notificacion/vencimientos/test`,
-        method: "GET",
-        query: query,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Busca documentos por vencer/vencidos y CREA las notificaciones en la base de datos.
-     *
-     * @tags notificaciones
-     * @name NotificacionesGenerarVencimientos
-     * @summary Generar y guardar notificaciones de documentos por vencer
-     * @request POST:/notificacion/vencimientos/generar
-     * @response `201` `NotificacionesGenerarVencimientosData`
-     */
-    generarVencimientos: (
-      query: NotificacionesGenerarVencimientosParams,
-      params: RequestParams = {},
-    ) =>
-      this.http.request<NotificacionesGenerarVencimientosData, any>({
-        path: `/notificacion/vencimientos/generar`,
-        method: "POST",
-        query: query,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags notificaciones
-     * @name NotificacionesSendEmail
-     * @summary Enviar un correo electrónico
-     * @request POST:/notificacion/send-email
-     * @response `200` `NotificacionesSendEmailData` Correo enviado correctamente
-     */
-    sendEmail: (data: SendEmailDto, params: RequestParams = {}) =>
-      this.http.request<NotificacionesSendEmailData, any>({
-        path: `/notificacion/send-email`,
-        method: "POST",
-        body: data,
-        type: ContentType.Json,
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags notificaciones
-     * @name NotificacionesNotifyEachAdmin
-     * @summary Enviar lista de conductores con documentos por vencer a todos los administradores
-     * @request POST:/notificacion/notify-each-admin
-     * @response `200` `NotificacionesNotifyEachAdminData` Correos enviados con el reporte
-     */
-    notifyEachAdmin: (
-      query: NotificacionesNotifyEachAdminParams,
-      params: RequestParams = {},
-    ) =>
-      this.http.request<NotificacionesNotifyEachAdminData, any>({
-        path: `/notificacion/notify-each-admin`,
-        method: "POST",
-        query: query,
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags notificaciones
-     * @name NotificacionesNotifyEachConductor
-     * @summary Enviar correo personalizado a cada conductor con sus documentos por vencer
-     * @request POST:/notificacion/notify-each-conductor
-     * @response `200` `NotificacionesNotifyEachConductorData` Proceso de notificación por correo finalizado
-     */
-    notifyEachConductor: (
-      query: NotificacionesNotifyEachConductorParams,
-      params: RequestParams = {},
-    ) =>
-      this.http.request<NotificacionesNotifyEachConductorData, any>({
-        path: `/notificacion/notify-each-conductor`,
-        method: "POST",
-        query: query,
         ...params,
       }),
   };

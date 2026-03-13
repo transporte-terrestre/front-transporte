@@ -11,21 +11,31 @@
       <div class="flex items-center gap-2 w-full sm:w-auto">
         <button
           (click)="showFilters.set(!showFilters())"
-          class="flex-1 sm:flex-none lg:hidden flex items-center justify-center gap-2 px-4 py-2 bg-text/10 text-text rounded-lg text-sm font-inter-semibold hover:bg-text/20 transition-all self-stretch"
+          class="flex-1 sm:flex-none lg:hidden flex items-center justify-center gap-2 px-3 py-2 bg-text/10 text-text rounded-lg text-sm font-inter-semibold hover:bg-text/20 transition-all self-stretch"
           title="Filtros"
         >
           <i class="fas fa-filter text-xs"></i>
           <span class="sm:hidden">Filtros</span>
         </button>
         <button
+          (click)="exportToExcel()"
+          class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 xl:px-4 py-2 bg-success/10 text-success rounded-lg text-sm font-inter-semibold hover:bg-success/20 transition-all self-stretch"
+          title="Exportar a Excel"
+        >
+          <i class="fas fa-file-excel text-xs"></i>
+          <span class="hidden xl:inline">Excel</span>
+        </button>
+        <button
           (click)="toggleViewMode()"
-          class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-text/10 text-text rounded-lg text-sm font-inter-semibold hover:bg-text/20 transition-all self-stretch"
+          class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 xl:px-4 py-2 bg-text/10 text-text rounded-lg text-sm font-inter-semibold hover:bg-text/20 transition-all self-stretch"
           title="Cambiar vista"
         >
           @if (viewMode() === 'calendar') {
             <i class="fas fa-calendar-alt text-xs"></i>
+            <span class="hidden xl:inline ml-2">Lista</span>
           } @else {
             <i class="fas fa-list text-xs"></i>
+            <span class="hidden xl:inline ml-2">Calendario</span>
           }
         </button>
         <button
@@ -40,22 +50,55 @@
 
     <!-- Buscador y Filtros (Solo para grid/table) -->
     @if (viewMode() !== 'calendar') {
-      <div class="grid grid-cols-1 sm:grid-cols-4 gap-3" [class.hidden]="!showFilters()" [class.lg:grid]="!showFilters()">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3" [class.hidden]="!showFilters()" [class.lg:grid]="!showFilters()">
         <!-- Mes -->
-        <div class="relative sm:col-span-2 lg:col-span-1">
+        <div class="relative w-full group">
           <i
-            class="fas fa-calendar absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"
+            class="fas fa-calendar-alt absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"
           ></i>
           <input
             type="month"
             [ngModel]="mesSeleccionado()"
             (ngModelChange)="onMonthChange($event)"
-            class="w-full pl-10 pr-4 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all"
+            class="w-full pl-15 pr-4 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all"
+            title="Filtrar por mes"
           />
+          @if (mesSeleccionado()) {
+            <button
+              (click)="onMonthChange('')"
+              class="absolute left-9 top-1/2 -translate-y-1/2 text-text/30 hover:text-danger transition-colors p-1"
+              title="Limpiar mes"
+            >
+              <i class="fas fa-times text-xs"></i>
+            </button>
+          }
+        </div>
+
+        <!-- Día Específico -->
+        <div class="relative w-full group">
+          <i
+            class="fas fa-calendar-day absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"
+          ></i>
+          <input
+            type="date"
+            [ngModel]="fechaDia()"
+            (ngModelChange)="onDiaChange($event)"
+            class="w-full pl-15 pr-4 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all"
+            title="Filtrar por día exacto"
+          />
+          @if (fechaDia()) {
+            <button
+              (click)="onDiaChange('')"
+              class="absolute left-9 top-1/2 -translate-y-1/2 text-text/30 hover:text-danger transition-colors p-1"
+              title="Limpiar día"
+            >
+              <i class="fas fa-times text-xs"></i>
+            </button>
+          }
         </div>
 
         <!-- Estado -->
-        <div class="relative sm:col-span-2 lg:col-span-1">
+        <div class="relative w-full">
           <i class="fas fa-tag absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"></i>
           <select
             [ngModel]="estado()"
@@ -74,7 +117,7 @@
         </div>
 
         <!-- Sentido -->
-        <div class="relative sm:col-span-2 lg:col-span-1">
+        <div class="relative w-full">
           <i class="fas fa-arrows-alt-h absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"></i>
           <select
             [ngModel]="sentido()"
@@ -92,7 +135,7 @@
         </div>
 
         <!-- Turno -->
-        <div class="relative sm:col-span-2 lg:col-span-1">
+        <div class="relative w-full">
           <i class="fas fa-clock absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"></i>
           <select
             [ngModel]="turno()"
@@ -108,11 +151,9 @@
           ></i>
         </div>
 
-        <!-- Cliente, Conductor, Vehículo -->
-        <div class="sm:col-span-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div
-            class="relative border-2 border-text/10 rounded-lg focus-within:border-secondary transition-all"
-          >
+        <!-- Clientes, Conductores, Vehículos (Ocupan el resto) -->
+        <div class="lg:col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="relative w-full">
             <app-cliente-input-search
               [ngModel]="selectedClienteForSearch()"
               (ngModelChange)="onClienteChange($event)"
@@ -121,9 +162,7 @@
             />
           </div>
 
-          <div
-            class="relative border-2 border-text/10 rounded-lg focus-within:border-secondary transition-all"
-          >
+          <div class="relative w-full">
             <app-conductor-input-search
               [ngModel]="selectedConductorForSearch()"
               (ngModelChange)="onConductorChange($event)"
@@ -132,9 +171,7 @@
             />
           </div>
 
-          <div
-            class="relative border-2 border-text/10 rounded-lg focus-within:border-secondary transition-all"
-          >
+          <div class="relative w-full">
             <app-vehiculo-input-search
               [ngModel]="selectedVehiculoForSearch()"
               (ngModelChange)="onVehiculoChange($event)"

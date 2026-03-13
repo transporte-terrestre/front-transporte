@@ -16,6 +16,10 @@ import { AlquilerTerminarModal } from './layout/alquiler-terminar-modal/alquiler
 import { PATH, buildPath } from '@route/path.route';
 import { getErrorMessage } from '@helper/error.helper';
 import { ReactiveFormsModule } from '@angular/forms';
+import { ClienteInputSearch } from '../../../../components/input-searchs/cliente-input-search/cliente-input-search';
+import { ConductorInputSearch } from '../../../../components/input-searchs/conductor-input-search/conductor-input-search';
+import { VehiculoInputSearch } from '../../../../components/input-searchs/vehiculo-input-search/vehiculo-input-search';
+import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-alquileres-list',
@@ -28,6 +32,9 @@ import { ReactiveFormsModule } from '@angular/forms';
     PaginationComponent,
     AlquilerEstadoUpdate,
     AlquilerTerminarModal,
+    ClienteInputSearch,
+    ConductorInputSearch,
+    VehiculoInputSearch,
   ],
   templateUrl: './alquileres-list.html',
   styleUrl: './alquileres-list.css',
@@ -37,7 +44,6 @@ export class AlquileresList implements OnInit {
   private toastService = inject(ToastService);
   private alertService = inject(AlertService);
   private router = inject(Router);
-
   private searchSubject = new Subject<string>();
 
   alquileres = signal<ApiResponse<'alquileres', 'findAll'>['data']>([]);
@@ -50,11 +56,25 @@ export class AlquileresList implements OnInit {
   meta = signal<ApiResponse<'alquileres', 'findAll'>['meta'] | null>(null);
 
   // Filtros
+  showFilters = signal(false);
   searchTerm = signal('');
+  fechaInicio = signal('');
+  fechaFin = signal('');
+  fechaDia = signal('');
+  mesSeleccionado = signal(this.getCurrentMonth());
+  estado = signal('');
+  tipo = signal('');
+  clienteId = signal<number | string>('');
+  selectedClienteForSearch = signal<ApiResponse<'clientes', 'findAll'>['data'][number] | null>(null);
+  conductorId = signal<number | string>('');
+  selectedConductorForSearch = signal<ApiResponse<'conductores', 'findAll'>['data'][number] | null>(null);
+  vehiculoId = signal<number | string>('');
+  selectedVehiculoForSearch = signal<ApiResponse<'vehiculos', 'findAll'>['data'][number] | null>(null);
 
   formComponent = viewChild<AlquilerForm>('formComponent');
 
   ngOnInit() {
+    this.setMonthRange(this.mesSeleccionado());
     this.loadAlquileres();
 
     this.searchSubject.pipe(debounceTime(500), distinctUntilChanged()).subscribe(() => {
@@ -69,6 +89,13 @@ export class AlquileresList implements OnInit {
         page: this.currentPage(),
         limit: this.pageSize(),
         search: this.searchTerm() || undefined,
+        estado: (this.estado() as any) || undefined,
+        tipo: (this.tipo() as any) || undefined,
+        clienteId: this.clienteId() ? Number(this.clienteId()) : undefined,
+        conductorId: this.conductorId() ? Number(this.conductorId()) : undefined,
+        vehiculoId: this.vehiculoId() ? Number(this.vehiculoId()) : undefined,
+        fechaInicio: this.fechaInicio() || undefined,
+        fechaFin: this.fechaFin() || undefined,
       });
       this.alquileres.set(response.data);
       this.meta.set(response.meta);
@@ -101,8 +128,79 @@ export class AlquileresList implements OnInit {
     this.loadAlquileres();
   }
 
+  onFilterChange() {
+    this.onSearch();
+  }
+
+  onMonthChange(value: string) {
+    this.mesSeleccionado.set(value);
+    this.setMonthRange(value);
+    this.onSearch();
+  }
+
+  onDiaChange(value: string) {
+    this.fechaDia.set(value);
+    if (value) {
+      this.fechaInicio.set(value);
+      this.fechaFin.set(value);
+    } else {
+      this.setMonthRange(this.mesSeleccionado());
+    }
+    this.onSearch();
+  }
+
+  onClienteChange(cliente: ApiResponse<'clientes', 'findAll'>['data'][number] | null) {
+    this.selectedClienteForSearch.set(cliente);
+    this.clienteId.set(cliente?.id || '');
+    this.onFilterChange();
+  }
+
+  onConductorChange(conductor: ApiResponse<'conductores', 'findAll'>['data'][number] | null) {
+    this.selectedConductorForSearch.set(conductor);
+    this.conductorId.set(conductor?.id || '');
+    this.onFilterChange();
+  }
+
+  onVehiculoChange(vehiculo: ApiResponse<'vehiculos', 'findAll'>['data'][number] | null) {
+    this.selectedVehiculoForSearch.set(vehiculo);
+    this.vehiculoId.set(vehiculo?.id || '');
+    this.onFilterChange();
+  }
+
+  private getCurrentMonth(): string {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  }
+
+  private setMonthRange(monthValue: string) {
+    if (!monthValue) {
+      this.fechaInicio.set('');
+      this.fechaFin.set('');
+      return;
+    }
+    const [year, month] = monthValue.split('-').map(Number);
+    const firstDay = `${year}-${String(month).padStart(2, '0')}-01`;
+    const lastDay = new Date(year, month, 0).getDate();
+    const lastDayStr = `${year}-${String(month).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+    this.fechaInicio.set(firstDay);
+    this.fechaFin.set(lastDayStr);
+  }
+
   clearFilters() {
     this.searchTerm.set('');
+    this.fechaInicio.set('');
+    this.fechaFin.set('');
+    this.fechaDia.set('');
+    this.mesSeleccionado.set(this.getCurrentMonth());
+    this.setMonthRange(this.mesSeleccionado());
+    this.estado.set('');
+    this.tipo.set('');
+    this.clienteId.set('');
+    this.selectedClienteForSearch.set(null);
+    this.conductorId.set('');
+    this.selectedConductorForSearch.set(null);
+    this.vehiculoId.set('');
+    this.selectedVehiculoForSearch.set(null);
     this.currentPage.set(1);
     this.loadAlquileres();
   }
