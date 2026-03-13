@@ -1,20 +1,22 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ReportesViaje, ViajeReportMode } from './layout/reportes-viaje/reportes-viaje';
 import {
   ReportesMantenimiento,
   MantenimientoReportMode,
 } from './layout/reportes-mantenimiento/reportes-mantenimiento';
 import { ReportesConductores } from './layout/reportes-conductores/reportes-conductores';
+import { ReportesClientes } from './layout/reportes-clientes/reportes-clientes';
 
-type ReportCategory = 'viajes' | 'mantenimientos' | 'conductores';
+type ReportCategory = 'viajes' | 'mantenimientos' | 'conductores' | 'clientes';
 
 type ReportMode = ViajeReportMode | MantenimientoReportMode;
 
 @Component({
   selector: 'app-reportes',
   standalone: true,
-  imports: [CommonModule, ReportesViaje, ReportesMantenimiento, ReportesConductores],
+  imports: [CommonModule, FormsModule, ReportesViaje, ReportesMantenimiento, ReportesConductores, ReportesClientes],
   templateUrl: './reportes.html',
   styleUrl: './reportes.css',
 })
