@@ -10,7 +10,7 @@
   <!-- Mode Selection -->
   <div class="bg-background border border-text/10 rounded-2xl p-6 shadow-sm">
     <!-- Category Toggle -->
-    <div class="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-0 mb-5">
+    <div class="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-0">
       <h2 class="text-sm font-inter-bold text-text flex items-center gap-2">
         <i class="fas fa-sliders-h text-secondary"></i>
         Tipo de Reporte
@@ -26,12 +26,14 @@
           <option value="viajes">Viajes</option>
           <option value="mantenimientos">Mantenimientos</option>
           <option value="conductores">Conductores</option>
+          <option value="clientes">Clientes</option>
         </select>
         <!-- Icono Izquierdo Dinámico -->
         <div class="absolute left-3 top-1/2 -translate-y-1/2 text-secondary">
           @if (reportCategory() === 'viajes') { <i class="fas fa-route"></i> }
           @else if (reportCategory() === 'mantenimientos') { <i class="fas fa-tools"></i> }
           @else if (reportCategory() === 'conductores') { <i class="fas fa-id-card"></i> }
+          @else if (reportCategory() === 'clientes') { <i class="fas fa-building"></i> }
         </div>
         <!-- Chevron Derecha -->
         <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-text/40 text-[10px] pointer-events-none"></i>
@@ -40,7 +42,7 @@
 
     <!-- Viajes Options -->
     @if (reportCategory() === 'viajes') {
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-5">
       <!-- Vehículo Card -->
       <button
         (click)="onModeChange('vehiculo')"
@@ -135,7 +137,7 @@
 
     <!-- Mantenimientos Options -->
     @if (reportCategory() === 'mantenimientos') {
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5">
       <!-- Mantenimientos Vehiculo Card -->
       <button
         (click)="onModeChange('mantenimientos-vehiculo')"
@@ -212,5 +214,10 @@
   <!-- Child Component: Conductores -->
   @if (reportCategory() === 'conductores') {
   <app-reportes-conductores></app-reportes-conductores>
+  }
+
+  <!-- Child Component: Clientes -->
+  @if (reportCategory() === 'clientes') {
+  <app-reportes-clientes></app-reportes-clientes>
   }
 </div>

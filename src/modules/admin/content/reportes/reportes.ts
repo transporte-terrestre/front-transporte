@@ -7,15 +7,16 @@ import {
   MantenimientoReportMode,
 } from './layout/reportes-mantenimiento/reportes-mantenimiento';
 import { ReportesConductores } from './layout/reportes-conductores/reportes-conductores';
+import { ReportesClientes } from './layout/reportes-clientes/reportes-clientes';
 
-type ReportCategory = 'viajes' | 'mantenimientos' | 'conductores';
+type ReportCategory = 'viajes' | 'mantenimientos' | 'conductores' | 'clientes';
 
 type ReportMode = ViajeReportMode | MantenimientoReportMode;
 
 @Component({
   selector: 'app-reportes',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReportesViaje, ReportesMantenimiento, ReportesConductores],
+  imports: [CommonModule, FormsModule, ReportesViaje, ReportesMantenimiento, ReportesConductores, ReportesClientes],
   templateUrl: './reportes.html',
   styleUrl: './reportes.css',
 })

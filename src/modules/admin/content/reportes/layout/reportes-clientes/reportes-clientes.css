@@ -1,0 +1,52 @@
+:host {
+  display: block;
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.font-anton {
+  font-family: 'Anton', sans-serif;
+}
+
+.font-inter-regular {
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+}
+
+.font-inter-medium {
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+}
+
+.font-inter-semibold {
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+}
+
+.font-inter-bold {
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+}
+
+table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+tr:last-child td:first-child {
+  border-bottom-left-radius: 1rem;
+}
+
+tr:last-child td:last-child {
+  border-bottom-right-radius: 1rem;
+}
