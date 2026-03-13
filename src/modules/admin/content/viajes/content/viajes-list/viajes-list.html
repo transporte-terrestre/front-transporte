@@ -53,20 +53,17 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3" [class.hidden]="!showFilters()" [class.lg:grid]="!showFilters()">
         <!-- Mes -->
         <div class="relative w-full group">
-          <i
-            class="fas fa-calendar-alt absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"
-          ></i>
           <input
             type="month"
             [ngModel]="mesSeleccionado()"
             (ngModelChange)="onMonthChange($event)"
-            class="w-full pl-15 pr-4 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all"
+            class="w-full pl-4 pr-4 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all"
             title="Filtrar por mes"
           />
           @if (mesSeleccionado()) {
             <button
               (click)="onMonthChange('')"
-              class="absolute left-9 top-1/2 -translate-y-1/2 text-text/30 hover:text-danger transition-colors p-1"
+              class="absolute right-10 inset-y-0 flex items-center text-text/30 hover:text-danger transition-colors p-1"
               title="Limpiar mes"
             >
               <i class="fas fa-times text-xs"></i>
@@ -76,20 +73,17 @@
 
         <!-- Día Específico -->
         <div class="relative w-full group">
-          <i
-            class="fas fa-calendar-day absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"
-          ></i>
           <input
             type="date"
             [ngModel]="fechaDia()"
             (ngModelChange)="onDiaChange($event)"
-            class="w-full pl-15 pr-4 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all"
+            class="w-full pl-4 pr-4 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all"
             title="Filtrar por día exacto"
           />
           @if (fechaDia()) {
             <button
               (click)="onDiaChange('')"
-              class="absolute left-9 top-1/2 -translate-y-1/2 text-text/30 hover:text-danger transition-colors p-1"
+              class="absolute right-10 inset-y-0 flex items-center text-text/30 hover:text-danger transition-colors p-1"
               title="Limpiar día"
             >
               <i class="fas fa-times text-xs"></i>

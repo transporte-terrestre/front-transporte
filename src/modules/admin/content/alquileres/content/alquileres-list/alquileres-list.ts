@@ -259,6 +259,45 @@ export class AlquileresList implements OnInit {
     );
   }
 
+  exportToExcel() {
+    if (this.alquileres().length === 0) {
+      this.toastService.warning('No hay datos para exportar');
+      return;
+    }
+
+    const data = this.alquileres().map((a) => {
+      return {
+        ID: a.id,
+        Cliente: (a.cliente as any)?.razonSocial || (a.cliente as any)?.nombreCompleto || '—',
+        Tipo: a.tipo === 'maquina_operada' ? 'Máquina Operada' : 'Máquina Seca',
+        Vehículo: `${(a.vehiculo as any)?.marca || ''} ${(a.vehiculo as any)?.modelo || ''} - ${(a.vehiculo as any)?.placa || ''}`.trim() || (a.vehiculo as any)?.placa || '—',
+        Conductor: (a.conductor as any)?.nombreCompleto || '—',
+        'Fecha Inicio': a.fechaInicio ? new Date(a.fechaInicio).toLocaleDateString() : '—',
+        'Fecha Fin': a.fechaFin ? new Date(a.fechaFin).toLocaleDateString() : '—',
+        Días: a.fechaFin ? this.getDiffDias(a.fechaInicio, a.fechaFin) : '—',
+        'Km Inicial': a.kilometrajeInicial,
+        'Km Final': a.kilometrajeFinal ?? '—',
+        'Monto por Día': `S/ ${a.montoPorDia}`,
+        'Monto Total': a.montoTotalFinal ? `S/ ${a.montoTotalFinal}` : '—',
+        Estado: this.getEstadoLabel(a.estado),
+      };
+    });
+
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Alquileres');
+    XLSX.writeFile(wb, `Reporte_Alquileres_${new Date().toISOString().split('T')[0]}.xlsx`);
+  }
+
+  private getEstadoLabel(estado: string): string {
+    switch (estado) {
+      case 'activo': return 'Activo';
+      case 'finalizado': return 'Finalizado';
+      case 'cancelado': return 'Cancelado';
+      default: return estado;
+    }
+  }
+
   getDiffDias(start: string | Date, end: string | Date): number {
     const pStart = new Date(start);
     const pEnd = new Date(end);
