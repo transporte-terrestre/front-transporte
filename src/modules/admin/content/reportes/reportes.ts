@@ -1,5 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ReportesViaje, ViajeReportMode } from './layout/reportes-viaje/reportes-viaje';
 import {
   ReportesMantenimiento,
@@ -14,7 +15,7 @@ type ReportMode = ViajeReportMode | MantenimientoReportMode;
 @Component({
   selector: 'app-reportes',
   standalone: true,
-  imports: [CommonModule, ReportesViaje, ReportesMantenimiento, ReportesConductores],
+  imports: [CommonModule, FormsModule, ReportesViaje, ReportesMantenimiento, ReportesConductores],
   templateUrl: './reportes.html',
   styleUrl: './reportes.css',
 })
