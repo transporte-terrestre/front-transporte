@@ -56,8 +56,10 @@ export class MantenimientoForm implements OnInit {
     tipo: ['preventivo', [Validators.required]],
     costoTotal: ['', [Validators.required, Validators.min(0)]],
     descripcion: ['', [Validators.required, Validators.minLength(10)]],
-    fechaIngreso: ['', [Validators.required]],
-    fechaSalida: ['', [Validators.required]],
+    fechaIngresoDate: ['', [Validators.required]],
+    fechaIngresoTime: ['00:00', [Validators.required]],
+    fechaSalidaDate: [''],
+    fechaSalidaTime: ['00:00'],
     kilometraje: [{ value: '', disabled: true }, [Validators.required, Validators.min(0)]],
     kilometrajeProximoMantenimiento: ['', [Validators.required, Validators.min(0)]],
     estado: ['pendiente', [Validators.required]],
@@ -113,23 +115,35 @@ export class MantenimientoForm implements OnInit {
           tipo: mantenimientoData.tipo,
           costoTotal: mantenimientoData.costoTotal,
           descripcion: mantenimientoData.descripcion,
-          fechaIngreso: mantenimientoData.fechaIngreso
-            ? this.formatDateTimeForInput(mantenimientoData.fechaIngreso)
+          fechaIngresoDate: mantenimientoData.fechaIngreso
+            ? mantenimientoData.fechaIngreso.split('T')[0]
             : '',
-          fechaSalida: mantenimientoData.fechaSalida
-            ? this.formatDateTimeForInput(mantenimientoData.fechaSalida)
+          fechaIngresoTime: mantenimientoData.fechaIngreso
+            ? mantenimientoData.fechaIngreso.split('T')[1]?.substring(0, 5) || '00:00'
+            : '00:00',
+          fechaSalidaDate: mantenimientoData.fechaSalida
+            ? mantenimientoData.fechaSalida.split('T')[0]
             : '',
+          fechaSalidaTime: mantenimientoData.fechaSalida
+            ? mantenimientoData.fechaSalida.split('T')[1]?.substring(0, 5) || '00:00'
+            : '00:00',
           kilometraje: mantenimientoData.kilometraje,
           kilometrajeProximoMantenimiento: mantenimientoData.kilometrajeProximoMantenimiento,
           estado: mantenimientoData.estado,
         });
         this.localDocuments.set(JSON.parse(JSON.stringify(mantenimientoData.documentos)));
       } else {
-        const fechaInicial = dateSelected ? this.formatDateTimeForInput(dateSelected) : '';
+        const entryDate = dateSelected || new Date();
+        const exitDate = new Date(entryDate);
+        exitDate.setDate(entryDate.getDate() + 1);
+
         this.mantenimientoForm.reset({
           tipo: 'preventivo',
           estado: 'pendiente',
-          fechaIngreso: fechaInicial,
+          fechaIngresoDate: entryDate.toISOString().split('T')[0],
+          fechaIngresoTime: '00:00',
+          fechaSalidaDate: exitDate.toISOString().split('T')[0],
+          fechaSalidaTime: '00:00',
         });
         this.localDocuments.set(null);
       }
@@ -138,12 +152,18 @@ export class MantenimientoForm implements OnInit {
     // Escuchar cambios en vehículo para setear kilometraje automáticamente
     this.mantenimientoForm.get('vehiculo')?.valueChanges.subscribe((vehiculo) => {
       if (vehiculo && typeof vehiculo === 'object') {
-        const vehiculoData = vehiculo as { kilometraje?: number };
-        if (vehiculoData.kilometraje !== undefined) {
-          this.mantenimientoForm.patchValue({
-            kilometraje: vehiculoData.kilometraje,
-          });
-        }
+        const vehiculoData = vehiculo as {
+          kilometraje?: number;
+          kilometrajeMantenimiento?: number;
+        };
+        
+        const kmActual = vehiculoData.kilometraje ?? 0;
+        const kmIntervalo = vehiculoData.kilometrajeMantenimiento ?? 0;
+
+        this.mantenimientoForm.patchValue({
+          kilometraje: kmActual,
+          kilometrajeProximoMantenimiento: kmActual + kmIntervalo,
+        });
       }
     });
 
@@ -182,8 +202,12 @@ export class MantenimientoForm implements OnInit {
       tipo: formValue.tipo,
       costoTotal: String(formValue.costoTotal),
       descripcion: formValue.descripcion,
-      fechaIngreso: formValue.fechaIngreso ? `${formValue.fechaIngreso}:00.000Z` : '',
-      fechaSalida: formValue.fechaSalida ? `${formValue.fechaSalida}:00.000Z` : '',
+      fechaIngreso: formValue.fechaIngresoDate
+        ? `${formValue.fechaIngresoDate}T${formValue.fechaIngresoTime || '00:00'}:00.000Z`
+        : '',
+      fechaSalida: formValue.fechaSalidaDate
+        ? `${formValue.fechaSalidaDate}T${formValue.fechaSalidaTime || '00:00'}:00.000Z`
+        : '',
       kilometraje: Number(formValue.kilometraje),
       kilometrajeProximoMantenimiento: Number(formValue.kilometrajeProximoMantenimiento),
       estado: formValue.estado,

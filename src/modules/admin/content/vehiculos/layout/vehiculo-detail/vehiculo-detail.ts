@@ -75,7 +75,7 @@ export class VehiculoDetail {
     { value: 'certificado_instalacion_gps', label: 'Certificado de Instalación GPS' },
     { value: 'certificado_valor_anadido', label: 'Certificado de Valor Añadido' },
     { value: 'constancia_gps', label: 'Constancia GPS' },
-    { value: 'certificado_tacos', label: 'Certificado de Tacos' },
+    { value: 'revision_gps', label: 'Revisión GPS' },
     {
       value: 'certificado_extintores_hidrostatica',
       label: 'Cert. Prueba Hidrostática (Extintores)',

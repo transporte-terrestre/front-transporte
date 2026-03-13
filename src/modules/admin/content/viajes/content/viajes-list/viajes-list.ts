@@ -18,6 +18,7 @@ import { getErrorMessage } from '@helper/error.helper';
 import { ClienteInputSearch } from '../../../../components/input-searchs/cliente-input-search/cliente-input-search';
 import { ConductorInputSearch } from '../../../../components/input-searchs/conductor-input-search/conductor-input-search';
 import { VehiculoInputSearch } from '../../../../components/input-searchs/vehiculo-input-search/vehiculo-input-search';
+import * as XLSX from 'xlsx';
 
 export type ViajeIndividual = NonNullable<ApiResponse<'viajes', 'findAll'>['data'][0]['ida']>;
 
@@ -69,6 +70,7 @@ export class ViajesList implements OnInit, OnDestroy {
   searchTerm = signal('');
   fechaInicio = signal('');
   fechaFin = signal('');
+  fechaDia = signal('');
   mesSeleccionado = signal(this.getCurrentMonth());
   estado = signal('');
   sentido = signal('');
@@ -500,6 +502,17 @@ export class ViajesList implements OnInit, OnDestroy {
     this.onSearch();
   }
 
+  onDiaChange(value: string) {
+    this.fechaDia.set(value);
+    if (value) {
+      this.fechaInicio.set(value);
+      this.fechaFin.set(value);
+    } else {
+      this.setMonthRange(this.mesSeleccionado());
+    }
+    this.onSearch();
+  }
+
   onFilterChange() {
     this.onSearch();
   }
@@ -534,9 +547,9 @@ export class ViajesList implements OnInit, OnDestroy {
   }
 
   clearFilters() {
-    this.searchTerm.set('');
     this.fechaInicio.set('');
     this.fechaFin.set('');
+    this.fechaDia.set('');
     this.mesSeleccionado.set(this.getCurrentMonth());
     this.setMonthRange(this.mesSeleccionado());
     this.estado.set('');
@@ -636,6 +649,36 @@ export class ViajesList implements OnInit, OnDestroy {
         );
       },
     );
+  }
+
+  exportToExcel() {
+    if (this.viajes().length === 0) {
+      this.toastService.warning('No hay datos para exportar');
+      return;
+    }
+
+    const data = this.processedRows().map((row) => {
+      const v = row.viaje;
+      if (!v) return null;
+
+      return {
+        ID: row.circuito.id,
+        Sentido: this.getSentidoLabel(row.tipo),
+        Cliente: this.getClienteDisplay(v),
+        Ruta: this.getRutaDisplay(v),
+        Vehículo: this.getVehiculoDisplay(v),
+        Conductor: this.getConductorDisplay(v),
+        Estado: this.getEstadoLabel(v.estado),
+        Turno: this.getTurnoLabel(v.turno),
+        Salida: this.formatDate(v.fechaSalidaProgramada || v.fechaSalida || ''),
+        Llegada: v.fechaLlegadaProgramada || v.fechaLlegada ? this.formatDate(v.fechaLlegadaProgramada || v.fechaLlegada || '') : '-',
+      };
+    }).filter(r => r !== null);
+
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Viajes');
+    XLSX.writeFile(wb, `Reporte_Viajes_${new Date().toISOString().split('T')[0]}.xlsx`);
   }
 
   getRutaDisplay(viaje: ViajeIndividual): string {

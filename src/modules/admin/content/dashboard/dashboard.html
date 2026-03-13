@@ -136,11 +136,12 @@
       <div class="p-6 border-b border-text/10">
         <div class="flex items-center justify-between">
           <h2 class="text-lg font-anton text-text lowercase">Viajes Recientes</h2>
-          <button
+          <a
+            [routerLink]="viajesListPath"
             class="text-xs font-inter-semibold text-secondary hover:text-secondary/80 transition-colors"
           >
             Ver todos →
-          </button>
+          </a>
         </div>
       </div>
 
@@ -199,11 +200,12 @@
       <div class="p-6 border-b border-text/10">
         <div class="flex items-center justify-between">
           <h2 class="text-lg font-anton text-text lowercase">Mantenimientos Próximos</h2>
-          <button
+          <a
+            [routerLink]="mantenimientosListPath"
             class="text-xs font-inter-semibold text-secondary hover:text-secondary/80 transition-colors"
           >
             Ver calendario →
-          </button>
+          </a>
         </div>
       </div>
 
@@ -228,13 +230,24 @@
           <div class="flex items-center justify-between mt-3 pt-3 border-t border-text/10">
             <div class="flex items-center gap-1.5">
               <i class="fas fa-calendar text-text/40 text-xs"></i>
-              <span class="text-xs font-inter-medium text-text/60">{{ mant.fecha }}</span>
+              <span class="text-xs font-inter-medium text-text/60">{{ mant.fecha | date: 'dd/MM/yyyy' }}</span>
             </div>
-            <span class="text-xs font-inter-semibold text-secondary">
-              En {{ mant.dias }} días
+            <span class="text-xs font-inter-semibold" [class.text-secondary]="mant.dias >= 0" [class.text-danger]="mant.dias < 0">
+              @if (mant.dias > 0) {
+                En {{ mant.dias }} días
+              } @else if (mant.dias === 0) {
+                Hoy
+              } @else {
+                Vencido hace {{ -mant.dias }} días
+              }
             </span>
           </div>
         </div>
+        } @empty {
+          <div class="py-12 text-center">
+            <i class="fas fa-wrench text-text/20 text-4xl mb-3"></i>
+            <p class="text-text/60 text-sm font-inter-medium">No hay mantenimientos pendientes</p>
+          </div>
         }
       </div>
     </div>

@@ -1,7 +1,21 @@
 <form [formGroup]="mantenimientoForm" class="p-4 space-y-3">
   <!-- Loading Catálogos -->
 
-  <!-- Vehículo y Taller -->
+  <!-- Código Orden -->
+  <div>
+    <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+      <i class="fas fa-file-invoice text-secondary"></i>
+      Código Orden
+    </label>
+    <input
+      type="text"
+      formControlName="codigoOrden"
+      class="w-full px-3 py-2 text-sm bg-text/10 border-2 border-transparent rounded-lg text-text/60 font-inter-medium outline-none cursor-not-allowed"
+      [placeholder]="editMode() && mantenimiento()?.codigoOrden ? '' : 'Autogenerado'"
+    />
+  </div>
+
+  <!-- Vehículo y Kilometraje -->
   <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
     <div>
       <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
@@ -16,6 +30,50 @@
       }
     </div>
 
+    <div>
+      <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+        <i class="fas fa-tachometer-alt text-secondary"></i>
+        Km. Actual
+      </label>
+      <input
+        type="number"
+        formControlName="kilometraje"
+        min="0"
+        readonly
+        class="w-full px-3 py-2 text-sm bg-text/10 border-2 border-transparent rounded-lg text-text/60 font-inter-medium outline-none cursor-not-allowed"
+        placeholder="Se autocompleta"
+      />
+      @if (
+        mantenimientoForm.get('kilometraje')?.touched &&
+        mantenimientoForm.get('kilometraje')?.errors
+      ) {
+        <p class="text-danger text-xs font-inter-medium mt-1">El kilometraje es requerido</p>
+      }
+    </div>
+
+    <div>
+      <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+        <i class="fas fa-road text-secondary"></i>
+        Prox. Mantenimiento
+      </label>
+      <input
+        type="number"
+        formControlName="kilometrajeProximoMantenimiento"
+        min="0"
+        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+        placeholder="Ej: 60000"
+      />
+      @if (
+        mantenimientoForm.get('kilometrajeProximoMantenimiento')?.touched &&
+        mantenimientoForm.get('kilometrajeProximoMantenimiento')?.errors
+      ) {
+        <p class="text-danger text-xs font-inter-medium mt-1">Requerido</p>
+      }
+    </div>
+  </div>
+
+  <!-- Taller y Sucursal -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
     <div>
       <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
         <i class="fas fa-building text-secondary"></i>
@@ -40,185 +98,131 @@
     </div>
   </div>
 
-  <!-- Código Orden y Kilometraje -->
+  <!-- Tipo, Estado y Costo -->
   <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+    <!-- Tipo de Mantenimiento -->
     <div>
       <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
-        <i class="fas fa-file-invoice text-secondary"></i>
-        Código Orden
+        <i class="fas fa-tools text-primary"></i>
+        Tipo
       </label>
-      <input
-        type="text"
-        formControlName="codigoOrden"
-        class="w-full px-3 py-2 text-sm bg-text/10 border-2 border-transparent rounded-lg text-text/60 font-inter-medium outline-none cursor-not-allowed"
-        [placeholder]="editMode() && mantenimiento()?.codigoOrden ? '' : 'Autogenerado'"
-      />
+      <div class="relative">
+        <select
+          formControlName="tipo"
+          class="w-full px-3 pr-10 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-medium outline-none appearance-none cursor-pointer transition-all"
+        >
+          @for (tipo of tipos; track tipo.value) {
+            <option [value]="tipo.value">{{ tipo.label }}</option>
+          }
+        </select>
+        <span class="absolute right-3 top-1/2 -translate-y-1/2 text-text/40 pointer-events-none">
+          <i class="fas fa-chevron-down text-xs"></i>
+        </span>
+      </div>
     </div>
 
+    <!-- Estado -->
     <div>
       <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
-        <i class="fas fa-tachometer-alt text-info"></i>
-        Km. Actual
+        <i class="fas fa-info-circle text-info"></i>
+        Estado
+      </label>
+      <div class="relative">
+        <select
+          formControlName="estado"
+          class="w-full px-3 pr-10 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-medium outline-none appearance-none cursor-pointer transition-all"
+        >
+          @for (estado of estados; track estado.value) {
+            <option [value]="estado.value">{{ estado.label }}</option>
+          }
+        </select>
+        <span class="absolute right-3 top-1/2 -translate-y-1/2 text-text/40 pointer-events-none">
+          <i class="fas fa-chevron-down text-xs"></i>
+        </span>
+      </div>
+    </div>
+
+    <!-- Costo -->
+    <div>
+      <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+        <i class="fas fa-dollar-sign text-success"></i>
+        Costo Total
       </label>
       <input
         type="number"
-        formControlName="kilometraje"
-        min="0"
-        readonly
-        class="w-full px-3 py-2 text-sm bg-text/10 border-2 border-transparent rounded-lg text-text/60 font-inter-medium outline-none cursor-not-allowed"
-        placeholder="Se autocompleta"
-      />
-      @if (
-        mantenimientoForm.get('kilometraje')?.touched &&
-        mantenimientoForm.get('kilometraje')?.errors
-      ) {
-        <p class="text-danger text-xs font-inter-medium mt-1">El kilometraje es requerido</p>
-      }
-    </div>
-
-    <div>
-      <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
-        <i class="fas fa-road text-success"></i>
-        Prox. Mantenimiento
-      </label>
-      <input
-        type="number"
-        formControlName="kilometrajeProximoMantenimiento"
+        formControlName="costoTotal"
+        step="0.01"
         min="0"
         class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-        placeholder="Ej: 60000"
+        placeholder="150.50"
       />
       @if (
-        mantenimientoForm.get('kilometrajeProximoMantenimiento')?.touched &&
-        mantenimientoForm.get('kilometrajeProximoMantenimiento')?.errors
+        mantenimientoForm.get('costoTotal')?.touched && mantenimientoForm.get('costoTotal')?.errors
       ) {
-        <p class="text-danger text-xs font-inter-medium mt-1">Requerido</p>
+        <p class="text-danger text-xs font-inter-medium mt-1">El costo es requerido</p>
       }
     </div>
-  </div>
-
-  <!-- Tipo de Mantenimiento -->
-  <div>
-    <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
-      <i class="fas fa-tools text-primary"></i>
-      Tipo de Mantenimiento
-    </label>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-      @for (tipo of tipos; track tipo.value) {
-        <label
-          class="flex items-center gap-3 px-3 py-2.5 rounded-lg border-2 cursor-pointer transition-all"
-          [class.bg-secondary/10]="mantenimientoForm.get('tipo')?.value === tipo.value"
-          [class.border-secondary]="mantenimientoForm.get('tipo')?.value === tipo.value"
-          [class.border-text/10]="mantenimientoForm.get('tipo')?.value !== tipo.value"
-        >
-          <input
-            type="radio"
-            [value]="tipo.value"
-            formControlName="tipo"
-            class="w-4 h-4 text-secondary border-2 border-text/30 focus:ring-2 focus:ring-secondary/20 cursor-pointer accent-secondary"
-          />
-          <div class="flex items-center gap-2 flex-1">
-            <i [class]="'fas ' + tipo.icon + ' text-sm ' + tipo.color"></i>
-            <span class="text-sm font-inter-medium text-text">{{ tipo.label }}</span>
-          </div>
-        </label>
-      }
-    </div>
-    @if (mantenimientoForm.get('tipo')?.touched && mantenimientoForm.get('tipo')?.errors) {
-      <p class="text-danger text-xs font-inter-medium mt-1">El tipo es requerido</p>
-    }
-  </div>
-
-  <!-- Costo -->
-  <div>
-    <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
-      <i class="fas fa-dollar-sign text-success"></i>
-      Costo Total
-    </label>
-    <input
-      type="number"
-      formControlName="costoTotal"
-      step="0.01"
-      min="0"
-      class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-      placeholder="150.50"
-    />
-    @if (
-      mantenimientoForm.get('costoTotal')?.touched && mantenimientoForm.get('costoTotal')?.errors
-    ) {
-      <p class="text-danger text-xs font-inter-medium mt-1">El costo es requerido</p>
-    }
   </div>
 
   <!-- Fechas -->
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-background p-4 rounded-xl border border-text/10">
+    <!-- Ingreso -->
     <div>
-      <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
-        <i class="fas fa-calendar-alt text-warning"></i>
-        Fecha Ingreso
-      </label>
-      <input
-        type="datetime-local"
-        formControlName="fechaIngreso"
-        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-      />
-      @if (
-        mantenimientoForm.get('fechaIngreso')?.touched &&
-        mantenimientoForm.get('fechaIngreso')?.errors
-      ) {
-        <p class="text-danger text-xs font-inter-medium mt-1">La fecha de ingreso es requerida</p>
-      }
-    </div>
-
-    <div>
-      <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
-        <i class="fas fa-calendar-check text-success"></i>
-        Fecha Salida
-      </label>
-      <input
-        type="datetime-local"
-        formControlName="fechaSalida"
-        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-      />
-      @if (
-        mantenimientoForm.get('fechaSalida')?.touched &&
-        mantenimientoForm.get('fechaSalida')?.errors
-      ) {
-        <p class="text-danger text-xs font-inter-medium mt-1">La fecha de salida es requerida</p>
-      }
-    </div>
-  </div>
-
-  <!-- Estado -->
-  <div>
-    <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
-      <i class="fas fa-info-circle text-secondary"></i>
-      Estado
-    </label>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
-      @for (estado of estados; track estado.value) {
-        <label
-          class="flex items-center gap-2 px-3 py-2.5 rounded-lg border-2 cursor-pointer transition-all"
-          [class.bg-secondary/10]="mantenimientoForm.get('estado')?.value === estado.value"
-          [class.border-secondary]="mantenimientoForm.get('estado')?.value === estado.value"
-          [class.border-text/10]="mantenimientoForm.get('estado')?.value !== estado.value"
-        >
+      <h4 class="text-xs font-inter-semibold text-text mb-2 flex items-center gap-2">
+        <i class="fas fa-sign-in-alt text-secondary"></i>
+        Ingreso
+      </h4>
+      <div class="space-y-1.5">
+        <div class="flex items-center gap-2">
+          <label class="text-xs font-inter-medium text-text/70 w-12">Fecha</label>
           <input
-            type="radio"
-            [value]="estado.value"
-            formControlName="estado"
-            class="w-4 h-4 text-secondary border-2 border-text/30 focus:ring-2 focus:ring-secondary/20 cursor-pointer accent-secondary"
+            type="date"
+            formControlName="fechaIngresoDate"
+            class="flex-1 px-2 py-1.5 text-xs bg-text/5 border border-transparent focus:border-secondary rounded-md text-text font-inter-regular outline-none transition-all"
           />
-          <div class="flex items-center gap-2 flex-1 min-w-0">
-            <i [class]="'fas ' + estado.icon + ' text-sm ' + estado.color"></i>
-            <span class="text-sm font-inter-medium text-text truncate">{{ estado.label }}</span>
-          </div>
-        </label>
-      }
+        </div>
+        <div class="flex items-center gap-2">
+          <label class="text-xs font-inter-medium text-text/70 w-12">Hora</label>
+          <input
+            type="time"
+            formControlName="fechaIngresoTime"
+            class="flex-1 px-2 py-1.5 text-xs bg-text/5 border border-transparent focus:border-secondary rounded-md text-text font-inter-regular outline-none transition-all text-center"
+          />
+        </div>
+        @if (
+          (mantenimientoForm.get('fechaIngresoDate')?.touched || mantenimientoForm.get('fechaIngresoTime')?.touched) &&
+          (mantenimientoForm.get('fechaIngresoDate')?.errors || mantenimientoForm.get('fechaIngresoTime')?.errors)
+        ) {
+          <p class="text-danger text-[10px] font-inter-medium mt-1">Requerido</p>
+        }
+      </div>
     </div>
-    @if (mantenimientoForm.get('estado')?.touched && mantenimientoForm.get('estado')?.errors) {
-      <p class="text-danger text-xs font-inter-medium mt-1">El estado es requerido</p>
-    }
+
+    <!-- Salida -->
+    <div>
+      <h4 class="text-xs font-inter-semibold text-text mb-2 flex items-center gap-2">
+        <i class="fas fa-sign-out-alt text-secondary"></i>
+        Salida
+      </h4>
+      <div class="space-y-1.5">
+        <div class="flex items-center gap-2">
+          <label class="text-xs font-inter-medium text-text/70 w-12">Fecha</label>
+          <input
+            type="date"
+            formControlName="fechaSalidaDate"
+            class="flex-1 px-2 py-1.5 text-xs bg-text/5 border border-transparent focus:border-secondary rounded-md text-text font-inter-regular outline-none transition-all"
+          />
+        </div>
+        <div class="flex items-center gap-2">
+          <label class="text-xs font-inter-medium text-text/70 w-12">Hora</label>
+          <input
+            type="time"
+            formControlName="fechaSalidaTime"
+            class="flex-1 px-2 py-1.5 text-xs bg-text/5 border border-transparent focus:border-secondary rounded-md text-text font-inter-regular outline-none transition-all text-center"
+          />
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Marcar en Taller -->
@@ -237,7 +241,7 @@
   <!-- Descripción -->
   <div>
     <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
-      <i class="fas fa-align-left text-primary"></i>
+      <i class="fas fa-align-left text-text/40"></i>
       Descripción
     </label>
     <textarea

@@ -10,6 +10,14 @@
       </div>
       <div class="flex items-center gap-2 w-full sm:w-auto">
         <button
+          (click)="showFilters.set(!showFilters())"
+          class="flex-1 sm:flex-none lg:hidden flex items-center justify-center gap-2 px-3 py-2 bg-text/10 text-text rounded-lg text-sm font-inter-semibold hover:bg-text/20 transition-all self-stretch"
+          title="Filtros"
+        >
+          <i class="fas fa-filter text-xs"></i>
+          <span class="sm:hidden">Filtros</span>
+        </button>
+        <button
           (click)="openCreateModal()"
           class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-secondary text-background rounded-lg text-sm font-inter-semibold hover:bg-secondary/90 transition-all shadow-sm hover:shadow-md"
         >
@@ -20,15 +28,130 @@
     </div>
 
     <!-- Buscador y Filtros -->
-    <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
-      <!-- Búsqueda -->
-      <div class="relative sm:col-span-4 lg:col-span-2">
+    <div
+      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3"
+      [class.hidden]="!showFilters()"
+      [class.lg:grid]="!showFilters()"
+    >
+      <!-- Mes -->
+      <div class="relative w-full group">
+        <i
+          class="fas fa-calendar-alt absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"
+        ></i>
+        <input
+          type="month"
+          [ngModel]="mesSeleccionado()"
+          (ngModelChange)="onMonthChange($event)"
+          class="w-full pl-15 pr-4 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all"
+          title="Filtrar por mes"
+        />
+        @if (mesSeleccionado()) {
+          <button
+            (click)="onMonthChange('')"
+            class="absolute left-9 top-1/2 -translate-y-1/2 text-text/30 hover:text-danger transition-colors p-1"
+            title="Limpiar mes"
+          >
+            <i class="fas fa-times text-xs"></i>
+          </button>
+        }
+      </div>
+
+      <!-- Día Específico -->
+      <div class="relative w-full group">
+        <i
+          class="fas fa-calendar-day absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"
+        ></i>
+        <input
+          type="date"
+          [ngModel]="fechaDia()"
+          (ngModelChange)="onDiaChange($event)"
+          class="w-full pl-15 pr-4 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all"
+          title="Filtrar por día exacto"
+        />
+        @if (fechaDia()) {
+          <button
+            (click)="onDiaChange('')"
+            class="absolute left-9 top-1/2 -translate-y-1/2 text-text/30 hover:text-danger transition-colors p-1"
+            title="Limpiar día"
+          >
+            <i class="fas fa-times text-xs"></i>
+          </button>
+        }
+      </div>
+
+      <!-- Estado -->
+      <div class="relative w-full">
+        <i class="fas fa-tag absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"></i>
+        <select
+          [ngModel]="estado()"
+          (ngModelChange)="estado.set($event); onFilterChange()"
+          class="w-full pl-10 pr-8 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all appearance-none cursor-pointer"
+        >
+          <option value="">Todos los Estados</option>
+          <option value="activo">Activo</option>
+          <option value="finalizado">Finalizado</option>
+          <option value="cancelado">Cancelado</option>
+        </select>
+        <i
+          class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-text/40 text-[10px] pointer-events-none"
+        ></i>
+      </div>
+
+      <!-- Tipo -->
+      <div class="relative w-full">
+        <i class="fas fa-cogs absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"></i>
+        <select
+          [ngModel]="tipo()"
+          (ngModelChange)="tipo.set($event); onFilterChange()"
+          class="w-full pl-10 pr-8 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all appearance-none cursor-pointer"
+        >
+          <option value="">Todos los Tipos</option>
+          <option value="maquina_seca">Máquina Seca</option>
+          <option value="maquina_operada">Máquina Operada</option>
+        </select>
+        <i
+          class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-text/40 text-[10px] pointer-events-none"
+        ></i>
+      </div>
+
+      <!-- Clientes, Conductores, Vehículos -->
+      <div class="lg:col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div class="relative w-full">
+          <app-cliente-input-search
+            [ngModel]="selectedClienteForSearch()"
+            (ngModelChange)="onClienteChange($event)"
+            [showClear]="true"
+            class="block w-full"
+          />
+        </div>
+
+        <div class="relative w-full">
+          <app-conductor-input-search
+            [ngModel]="selectedConductorForSearch()"
+            (ngModelChange)="onConductorChange($event)"
+            [showClear]="true"
+            class="block w-full"
+          />
+        </div>
+
+        <div class="relative w-full">
+          <app-vehiculo-input-search
+            [ngModel]="selectedVehiculoForSearch()"
+            (ngModelChange)="onVehiculoChange($event)"
+            [showClear]="true"
+            class="block w-full"
+          />
+        </div>
+      </div>
+
+      <!-- Búsqueda (Opcional/Secundario ahora) -->
+      <div class="relative w-full">
         <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"></i>
         <input
           type="text"
           [ngModel]="searchTerm()"
           (ngModelChange)="onSearchChange($event)"
-          placeholder="Buscar por cliente, conductor, placa..."
+          placeholder="Buscar..."
           class="w-full pl-10 pr-4 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all"
         />
       </div>

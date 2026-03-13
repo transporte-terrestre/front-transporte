@@ -1,7 +1,9 @@
 import { Component, signal, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { DashboardService } from '@service/admin/dashboard.service';
 import { ToastService } from '@service/toast.service';
+import { PATH, buildPath } from '@route/path.route';
 
 import {
   DashboardStatsDto,
@@ -44,13 +46,16 @@ interface IngresoMensualVM extends IngresoMensualDto {}
 
 @Component({
   selector: 'app-dashboard',
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
 })
 export class Dashboard implements OnInit {
   private dashboardService = inject(DashboardService);
   private toastService = inject(ToastService);
+
+  viajesListPath = '/' + buildPath(PATH.admin.viajes.list);
+  mantenimientosListPath = '/' + buildPath(PATH.admin.mantenimientos.list);
 
   loading = signal(true);
 
@@ -146,9 +151,11 @@ export class Dashboard implements OnInit {
       const data = response.data || [];
 
       const estadoMap: { [key: string]: { label: string; color: string } } = {
-        activo: { label: 'Disponible', color: 'bg-green-500' },
+        disponible: { label: 'Disponible', color: 'bg-green-500' },
+        circulacion: { label: 'En Circulación', color: 'bg-blue-500' },
         taller: { label: 'En Taller', color: 'bg-yellow-500' },
         retirado: { label: 'Retirado', color: 'bg-red-500' },
+        alquilado: { label: 'Alquilado', color: 'bg-purple-500' },
       };
 
       this.vehiculosPorEstado.set(

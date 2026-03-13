@@ -165,7 +165,13 @@ export class VehiculoForm implements OnInit {
     },
     {
       value: 'constancia_gps',
-      label: 'Constancia GPS (Revisión)',
+      label: 'Constancia GPS',
+      requireIssue: true,
+      requireExpiration: true,
+    },
+    {
+      value: 'revision_gps',
+      label: 'Revisión GPS',
       requireIssue: true,
       requireExpiration: true,
     },
