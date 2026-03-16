@@ -1,21 +1,9 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, OnInit, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ClienteService } from '@service/admin/cliente.service';
 import { AlquilerService } from '@service/admin/alquiler.service';
-import { ToastService } from '@service/toast.service';
-import { ClienteListDto, AlquilerItemDto } from '@api/backend.api';
-import * as XLSX from 'xlsx';
-
-export interface ReportClienteItem {
-  Cliente: string;
-  RUC: string;
-  Placa: string;
-  'Marca/Modelo': string;
-  Conductor: string;
-  'Fecha Inicio': string;
-  'Tiempo Transcurrido': string;
-  HasUnits: boolean;
-}
+import { VehiculoService } from '@service/admin/vehiculo.service';
+import { ApiResponse } from 'api/backend.api';
 
 @Component({
   selector: 'app-reportes-clientes',
@@ -27,86 +15,116 @@ export interface ReportClienteItem {
 export class ReportesClientes implements OnInit {
   private clienteService = inject(ClienteService);
   private alquilerService = inject(AlquilerService);
-  private toastService = inject(ToastService);
+  private vehiculoService = inject(VehiculoService);
 
+  clientes = signal<ApiResponse<'clientes', 'findAll'>['data']>([]);
   loading = signal(false);
-  reportData = signal<ReportClienteItem[]>([]);
+  
+  // Paginación
+  currentPage = signal(1);
+  totalPages = signal(1);
+  pageSize = 10;
+
+  selectedClientId = signal<number | null>(null);
+  selectedClient = signal<ApiResponse<'clientes', 'findOne'> | null>(null);
+  
+  // Detalle Data
+  alquileres = signal<ApiResponse<'alquileres', 'findAll'>['data']>([]);
+  vehiculos = signal<ApiResponse<'vehiculos', 'findAll'>['data']>([]);
+  entidades = signal<ApiResponse<'clientes', 'findAllEntidades'>['data']>([]);
+  pasajeros = signal<ApiResponse<'clientes', 'findAllPasajeros'>['data']>([]);
+
+  totalAlquileresCost = computed(() => {
+    return this.alquileres().reduce((acc, current) => {
+      return acc + this.calculateRentalCost(current);
+    }, 0);
+  });
+  
+  loadingDetail = signal(false);
 
   ngOnInit(): void {
-    this.loadReportData();
+    this.loadClientes();
   }
 
-  async loadReportData() {
+  calculateRentalCost(alquiler: ApiResponse<'alquileres', 'findAll'>['data'][number]): number {
+    const start = new Date(alquiler.fechaInicio);
+    const end = alquiler.fechaFin ? new Date(alquiler.fechaFin) : new Date();
+    
+    // Calcular diferencia en días (mínimo 1 día)
+    const diffTime = Math.abs(end.getTime() - start.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 1;
+    
+    return diffDays * (alquiler.montoPorDia || 0);
+  }
+
+  async loadClientes(append = false) {
+    if (this.loading()) return;
+    
     this.loading.set(true);
     try {
-      const clientsResponse = await this.clienteService.findAll({ limit: 100 });
-      const clients: ClienteListDto[] = clientsResponse.data;
-
-      const rentalsResponse = await this.alquilerService.findAll({ 
-        estado: 'activo', 
-        limit: 100 
+      const response = await this.clienteService.findAll({
+        page: this.currentPage(),
+        limit: this.pageSize
       });
-      const rentals: AlquilerItemDto[] = rentalsResponse.data;
 
-      const results: ReportClienteItem[] = [];
-      clients.forEach(client => {
-        const clientRentals = rentals.filter(r => r.clienteId === client.id);
-        if (clientRentals.length === 0) {
-          results.push({
-            'Cliente': client.razonSocial || client.nombreCompleto || '—',
-            'RUC': client.ruc || client.dni || '—',
-            'Placa': 'Sin unidades',
-            'Marca/Modelo': '—',
-            'Conductor': '—',
-            'Fecha Inicio': '—',
-            'Tiempo Transcurrido': '—',
-            'HasUnits': false
-          });
-        } else {
-          clientRentals.forEach(rental => {
-            const fechaInicio = new Date(rental.fechaInicio);
-            const hoy = new Date();
-            const diffTime = Math.abs(hoy.getTime() - fechaInicio.getTime());
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            
-            const vehiculo = rental.vehiculo;
-            const conductor = rental.conductor;
+      if (append) {
+        this.clientes.update(prev => [...prev, ...response.data]);
+      } else {
+        this.clientes.set(response.data);
+      }
 
-            results.push({
-              'Cliente': client.razonSocial || client.nombreCompleto || '—',
-              'RUC': client.ruc || client.dni || '—',
-              'Placa': vehiculo?.placa || '—',
-              'Marca/Modelo': `${vehiculo?.marca || ''} ${vehiculo?.modelo || ''}`.trim() || '—',
-              'Conductor': conductor?.nombreCompleto || '—',
-              'Fecha Inicio': fechaInicio.toLocaleDateString(),
-              'Tiempo Transcurrido': `${diffDays} días`,
-              'HasUnits': true
-            });
-          });
-        }
-      });
-      this.reportData.set(results);
+      this.totalPages.set(response.meta.totalPages);
     } catch (error) {
-      console.error('Error loading report data:', error);
-      this.toastService.error('Error al cargar datos del reporte');
+      console.error('Error loading clientes for report:', error);
     } finally {
       this.loading.set(false);
     }
   }
 
-  downloadExcel() {
-    if (this.reportData().length === 0) {
-      this.toastService.warning('No hay datos para exportar');
-      return;
+  loadMore() {
+    if (this.currentPage() < this.totalPages() && !this.loading()) {
+      this.currentPage.update(p => p + 1);
+      this.loadClientes(true);
     }
+  }
+
+  onListScroll(event: Event) {
+    const element = event.target as HTMLElement;
+    const pos = element.scrollTop + element.offsetHeight;
+    const max = element.scrollHeight;
     
-    // Remove internal flag for Excel
-    const excelData = this.reportData().map(({ HasUnits, ...rest }) => rest);
+    // Si estamos al 85% del final del contenedor, cargar más
+    if (pos > max * 0.85) {
+      this.loadMore();
+    }
+  }
+
+  async selectClient(id: number) {
+    if (this.selectedClientId() === id) return;
     
-    const ws = XLSX.utils.json_to_sheet(excelData);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Reporte Clientes');
-    XLSX.writeFile(wb, `Reporte_Clientes_Unidades_${new Date().toISOString().split('T')[0]}.xlsx`);
-    this.toastService.success('Excel descargado exitosamente');
+    this.selectedClientId.set(id);
+    this.loadingDetail.set(true);
+    
+    try {
+      // Fetch everything in parallel
+      const [client, alquileresRes, vehiculosRes, entidadesRes, pasajerosRes] = await Promise.all([
+        this.clienteService.findOne(id),
+        this.alquilerService.findAll({ clienteId: id, limit: 100 }).catch(() => ({ data: [] })),
+        this.vehiculoService.findAll({ propietarioId: id, limit: 100 }).catch(() => ({ data: [] })),
+        this.clienteService.findAllEntidades({ clienteId: id, limit: 100 }).catch(() => ({ data: [] })),
+        this.clienteService.findAllPasajeros({ clienteId: id, limit: 100 }).catch(() => ({ data: [] }))
+      ]);
+
+      this.selectedClient.set(client);
+      this.alquileres.set(alquileresRes.data);
+      this.vehiculos.set(vehiculosRes.data);
+      this.entidades.set(entidadesRes.data);
+      this.pasajeros.set(pasajerosRes.data);
+
+    } catch (error) {
+      console.error('Error loading client details:', error);
+    } finally {
+      this.loadingDetail.set(false);
+    }
   }
 }

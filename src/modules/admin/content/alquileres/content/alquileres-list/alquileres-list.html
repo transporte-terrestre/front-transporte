@@ -281,9 +281,9 @@
                 <td class="px-4 py-3 whitespace-nowrap">
                   <div class="flex flex-col gap-0.5">
                     <span class="text-xs font-inter-medium text-text">
-                      {{ alquiler.fechaInicio | date: 'dd/MM/yyyy' }}
+                      {{ alquiler.fechaInicio | date: 'dd/MM/yyyy':'UTC' }}
                       @if (alquiler.fechaFin) {
-                        - {{ alquiler.fechaFin | date: 'dd/MM/yyyy' }}
+                        - {{ alquiler.fechaFin | date: 'dd/MM/yyyy':'UTC' }}
                       }
                     </span>
                     @if (alquiler.fechaFin) {

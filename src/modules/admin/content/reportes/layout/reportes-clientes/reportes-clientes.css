@@ -1,52 +1,30 @@
-:host {
-  display: block;
-  animation: fadeIn 0.4s ease-out;
+@keyframes card-appear {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.group {
+  animation: card-appear 0.4s ease-out forwards;
 }
 
-.font-anton {
-  font-family: 'Anton', sans-serif;
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
 }
 
-.font-inter-regular {
-  font-family: 'Inter', sans-serif;
-  font-weight: 400;
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
 }
 
-.font-inter-medium {
-  font-family: 'Inter', sans-serif;
-  font-weight: 500;
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(var(--text-rgb), 0.1);
+  border-radius: 10px;
 }
 
-.font-inter-semibold {
-  font-family: 'Inter', sans-serif;
-  font-weight: 600;
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(var(--secondary-rgb), 0.3);
 }
 
-.font-inter-bold {
-  font-family: 'Inter', sans-serif;
-  font-weight: 700;
-}
-
-table {
-  border-collapse: separate;
-  border-spacing: 0;
-}
-
-tr:last-child td:first-child {
-  border-bottom-left-radius: 1rem;
-}
-
-tr:last-child td:last-child {
-  border-bottom-right-radius: 1rem;
+.border-primary {
+  background-color: rgba(var(--primary-rgb), 0.02);
+  box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.05);
 }
