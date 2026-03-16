@@ -325,7 +325,7 @@ export class ViajeForm implements OnInit {
     });
 
     // Auto-set horasContrato based on Cliente and fetch Entidades
-    this.viajeForm.get('cliente')?.valueChanges.subscribe(async (cliente) => {
+    this.viajeForm.get('cliente')?.valueChanges.subscribe((cliente) => {
       this.viajeForm.patchValue({ entidad: null }, { emitEvent: false }); // Reset entidad always when cliente changes
 
       if (cliente && typeof cliente === 'object') {

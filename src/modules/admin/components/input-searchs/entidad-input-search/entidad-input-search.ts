@@ -18,7 +18,14 @@ import {
 } from '@angular/forms';
 import { ClienteService } from '@service/admin/cliente.service';
 import { ApiResponse } from 'api/backend.api';
-import { debounceTime, distinctUntilChanged, switchMap, tap, finalize } from 'rxjs/operators';
+import {
+  debounceTime,
+  distinctUntilChanged,
+  switchMap,
+  tap,
+  finalize,
+  startWith,
+} from 'rxjs/operators';
 import { of, from } from 'rxjs';
 
 @Component({
@@ -62,18 +69,38 @@ export class EntidadInputSearch implements ControlValueAccessor, OnChanges {
   onTouched: () => void = () => {};
 
   constructor() {
+    // React to clienteId changes - clear selection and reload entidades when cliente changes
+    effect(() => {
+      const currentClienteId = this.clienteId();
+      const currentEntidad = this.selectedEntidad();
+
+      // Clear selection if client changes and current entity doesn't belong to it
+      if (currentEntidad && currentClienteId !== null && currentEntidad.clienteId !== currentClienteId) {
+        this.selectedEntidad.set(null);
+        this.onChange(null);
+        this.entidades.set([]);
+      } else if (!currentClienteId) {
+        this.entidades.set([]);
+        this.selectedEntidad.set(null);
+        this.onChange(null);
+      }
+
+      // Pre-load entidades for the current client and reset search control silently
+      if (currentClienteId) {
+        this.searchControl.setValue('', { emitEvent: false });
+        this.loadEntidadesForCliente(currentClienteId);
+      }
+    });
+
     this.searchControl.valueChanges
       .pipe(
+        startWith(this.searchControl.value || ''),
         debounceTime(300),
         distinctUntilChanged(),
         tap(() => this.loading.set(true)),
         switchMap((term) => {
           const currentClienteId = this.clienteId();
-          if (
-            (!term && term !== '') ||
-            currentClienteId === undefined ||
-            currentClienteId === null
-          ) {
+          if (currentClienteId === undefined || currentClienteId === null) {
             return of<ApiResponse<'clientes', 'findAllEntidades'>>({
               data: [],
               meta: {
@@ -105,23 +132,30 @@ export class EntidadInputSearch implements ControlValueAccessor, OnChanges {
           this.loading.set(false);
         },
       });
-
-    effect(() => {
-      const cId = this.clienteId();
-      // Reset selection and options when target dependencies change
-      if (cId !== undefined && cId !== null && this.isOpen()) {
-        this.searchControl.setValue('');
-      } else if (!cId) {
-        this.entidades.set([]);
-      }
-    });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['clienteId'] && !changes['clienteId'].firstChange) {
-      if (this.selectedEntidad()) {
-        this.clearSelection();
-      }
+    // We handle changes in the effect above
+  }
+
+  isBlocked(): boolean {
+    return !this.clienteId() || this.disabled();
+  }
+
+  async loadEntidadesForCliente(clienteId: number) {
+    this.loading.set(true);
+    try {
+      const response = await this.clienteService.findAllEntidades({
+        search: '',
+        clienteId,
+        limit: 10,
+      });
+      this.entidades.set(response.data);
+    } catch (err) {
+      console.error('Error loading entidades for cliente:', err);
+      this.entidades.set([]);
+    } finally {
+      this.loading.set(false);
     }
   }
 
@@ -160,13 +194,12 @@ export class EntidadInputSearch implements ControlValueAccessor, OnChanges {
 
   // UI Actions
   toggleDropdown() {
-    if (this.disabled()) return;
+    if (this.isBlocked()) return;
     this.isOpen.update((v) => !v);
     if (this.isOpen()) {
-      if (this.entidades().length === 0 && this.clienteId()) {
+      // Only trigger initial search if we have no data and are not already loading
+      if (this.entidades().length === 0 && !this.loading() && this.clienteId()) {
         this.searchControl.setValue('');
-      } else if (!this.clienteId()) {
-        this.entidades.set([]);
       }
     } else {
       this.onTouched();
@@ -197,6 +230,7 @@ export class EntidadInputSearch implements ControlValueAccessor, OnChanges {
   }
 
   getDisplayText(): string {
+    if (!this.clienteId()) return 'Bloqueado';
     const e = this.selectedEntidad();
     if (!e) return 'Seleccionar entidad...';
     return e.nombreServicio;

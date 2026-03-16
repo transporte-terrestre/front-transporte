@@ -8,7 +8,14 @@ import {
 } from '@angular/forms';
 import { VehiculoService } from '@service/admin/vehiculo.service';
 import { ApiResponse } from 'api/backend.api';
-import { debounceTime, distinctUntilChanged, switchMap, tap, finalize } from 'rxjs/operators';
+import {
+  debounceTime,
+  distinctUntilChanged,
+  switchMap,
+  tap,
+  finalize,
+  startWith,
+} from 'rxjs/operators';
 import { of, from } from 'rxjs';
 
 @Component({
@@ -60,14 +67,16 @@ export class ModeloInputSearch implements ControlValueAccessor {
         this.modelos.set([]);
       }
 
-      // Cargar modelos para la marca actual
+      // Cargar modelos para la marca actual y resetear control de búsqueda silenciosamente
       if (currentMarcaId) {
+        this.searchControl.setValue('', { emitEvent: false });
         this.loadModelsForMarca(currentMarcaId);
       }
     });
 
     this.searchControl.valueChanges
       .pipe(
+        startWith(this.searchControl.value || ''),
         debounceTime(300),
         distinctUntilChanged(),
         tap(() => this.loading.set(true)),
@@ -140,7 +149,7 @@ export class ModeloInputSearch implements ControlValueAccessor {
     if (this.isBlocked()) return;
     this.isOpen.update((v) => !v);
     if (this.isOpen()) {
-      if (this.modelos().length === 0) {
+      if (this.modelos().length === 0 && !this.loading()) {
         this.searchControl.setValue('');
       }
     } else {

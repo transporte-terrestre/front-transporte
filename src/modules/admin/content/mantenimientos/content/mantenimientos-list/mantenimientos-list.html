@@ -32,11 +32,10 @@
         @if (viewMode() === 'calendar' || viewMode() === 'list') {
           <button
             (click)="showFilters.set(!showFilters())"
-            class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 xl:px-4 py-2 bg-text/10 text-text rounded-lg text-sm font-inter-semibold hover:bg-text/20 transition-all self-stretch"
+            class="flex-1 sm:flex-none flex items-center justify-center px-3 xl:px-4 py-2 bg-text/10 text-text rounded-lg text-sm font-inter-semibold hover:bg-text/20 transition-all self-stretch"
             title="Filtros"
           >
             <i class="fas fa-filter text-xs"></i>
-            <span class="hidden xl:inline">Filtros</span>
           </button>
         }
         <button
