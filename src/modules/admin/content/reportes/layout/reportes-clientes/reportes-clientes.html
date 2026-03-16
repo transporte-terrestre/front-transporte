@@ -1,107 +1,314 @@
-<div class="space-y-6">
-  <!-- Top Bar: Title and Excel Action -->
-  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-    <div class="flex items-center gap-3">
-      <div class="w-12 h-12 bg-info/10 rounded-xl flex items-center justify-center">
-        <i class="fas fa-building text-2xl text-info"></i>
-      </div>
-      <div>
-        <h2 class="text-base font-inter-bold text-text">Reporte de Clientes y Unidades</h2>
-        <p class="text-[10px] text-text/50 font-inter-regular">Listado general de clientes con sus unidades vinculadas y tiempo de servicio</p>
-      </div>
-    </div>
+<div class="flex flex-col xl:flex-row gap-6 min-h-[400px] h-auto mb-10">
+  <!-- Left Side: Scrollable List -->
+  <div
+    class="w-full xl:w-1/3 min-w-[320px] min-h-[400px] max-h-[800px] overflow-y-auto pr-2 custom-scrollbar"
+    (scroll)="onListScroll($event)"
+  >
+    <div class="flex flex-col gap-4 pb-10">
+      @for (cliente of clientes(); track cliente.id) {
+        <div
+          class="group relative bg-background border border-text/10 rounded-xl p-4 transition-all duration-300 hover:shadow-lg hover:border-secondary/30 cursor-pointer"
+          [class.border-secondary]="selectedClientId() === cliente.id"
+          (click)="selectClient(cliente.id)"
+        >
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-text/5 rounded-lg flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform overflow-hidden border border-text/5">
+              @if (cliente.imagenes && cliente.imagenes.length > 0) {
+                <img [src]="cliente.imagenes[0]" class="w-full h-full object-cover" alt="Logo Cliente">
+              } @else {
+                <i class="fas fa-building text-lg text-text/20"></i>
+              }
+            </div>
+            <div class="flex-1 min-w-0">
+              <h3 class="text-xs font-inter-bold text-text truncate">
+                {{ cliente.razonSocial || cliente.nombreCompleto }}
+              </h3>
+              <p class="text-[10px] text-text/50 font-inter-medium">{{ cliente.ruc || cliente.dni || '—' }}</p>
+            </div>
+          </div>
+        </div>
+      }
 
-    <button
-      (click)="downloadExcel()"
-      [disabled]="loading() || reportData().length === 0"
-      class="flex items-center justify-center gap-2 px-6 py-2.5 bg-success text-white rounded-xl text-sm font-inter-semibold hover:bg-success/90 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-    >
-      <i class="fas fa-file-excel"></i>
-      <span>Exportar Excel</span>
-    </button>
+      @if (loading()) {
+        <div class="flex justify-center p-4">
+          <i class="fas fa-circle-notch fa-spin text-secondary opacity-50"></i>
+        </div>
+      }
+
+      @if (!loading() && currentPage() >= totalPages() && clientes().length > 0) {
+        <div class="text-center p-4">
+          <span class="text-[9px] text-text/20 uppercase font-inter-bold tracking-widest">Fin de la lista</span>
+        </div>
+      }
+    </div>
   </div>
 
-  <!-- Loading State -->
-  @if (loading() && reportData().length === 0) {
-    <div class="bg-background border border-text/10 rounded-2xl p-12 flex flex-col items-center justify-center space-y-3">
-      <i class="fas fa-spinner fa-spin text-3xl text-secondary"></i>
-      <p class="text-text/60 font-inter-medium">Cargando datos del reporte...</p>
-    </div>
-  }
+  <!-- Right Side: Details Section -->
+  <div class="w-full xl:flex-1 min-h-[400px] h-auto bg-background border border-text/10 rounded-2xl overflow-hidden flex flex-col relative">
+    @if (selectedClientId()) {
+      @if (loadingDetail()) {
+        <div class="absolute inset-0 bg-background/80 z-50 flex flex-col items-center justify-center">
+          <div class="relative">
+            <div class="w-12 h-12 border-4 border-secondary/20 border-t-secondary rounded-full animate-spin"></div>
+            <div class="absolute inset-0 flex items-center justify-center">
+              <i class="fas fa-user text-secondary text-xs animate-pulse"></i>
+            </div>
+          </div>
+          <span class="mt-4 text-xs font-inter-bold text-text/40 animate-pulse uppercase tracking-widest">Cargando Reporte...</span>
+        </div>
+      }
 
-  <!-- Empty State -->
-  @else if (!loading() && reportData().length === 0) {
-    <div class="bg-background border border-text/10 rounded-2xl p-12 flex flex-col items-center justify-center text-center">
-      <i class="fas fa-folder-open text-5xl text-text/10 mb-4"></i>
-      <p class="text-text/60 font-inter-semibold">No se encontraron datos</p>
-      <button (click)="loadReportData()" class="mt-4 text-secondary text-sm font-inter-bold hover:underline">
-        Reintentar carga
-      </button>
-    </div>
-  }
+      <!-- Detail Header -->
+      @if (selectedClient(); as client) {
+        <div class="p-4 md:p-6 border-b border-text/5">
+          <div class="flex items-center gap-4 md:gap-6">
+            <div class="w-12 h-12 md:w-16 md:h-16 bg-text/5 rounded-xl md:rounded-2xl flex items-center justify-center shrink-0 border border-text/5 shadow-sm overflow-hidden">
+              @if (client.imagenes && client.imagenes.length > 0) {
+                <img [src]="client.imagenes[0]" class="w-full h-full object-cover" alt="Logo">
+              } @else {
+                <i class="fas fa-building text-xl md:text-2xl text-text/20"></i>
+              }
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-3 mb-1">
+                <h2 class="text-base md:text-lg font-inter-bold text-text truncate">
+                  {{ client.razonSocial || client.nombreCompleto }}
+                </h2>
+              </div>
+              <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-[10px] md:text-xs text-text/50 font-inter-medium">
+                <span class="flex items-center gap-1.5">
+                  <i class="fas fa-id-card opacity-50 text-[10px]"></i>
+                  {{ client.ruc || client.dni || '—' }}
+                </span>
+                <span class="hidden md:inline w-1 h-1 bg-text/10 rounded-full"></span>
+                <span class="flex items-center gap-1.5">
+                  <i class="fas fa-envelope opacity-50 text-[10px]"></i>
+                  {{ client.email || 'No asignado' }}
+                </span>
+                <span class="hidden md:inline w-1 h-1 bg-text/10 rounded-full"></span>
+                <span class="flex items-center gap-1.5">
+                  <i class="fas fa-phone opacity-50 text-[10px]"></i>
+                  {{ client.telefono || '—' }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
 
-  <!-- Table View -->
-  @else {
-    <div class="bg-background border border-text/10 rounded-2xl shadow-sm overflow-hidden">
-      <div class="overflow-x-auto">
-        <table class="w-full">
-          <thead>
-            <tr class="bg-text/5 border-b border-text/10">
-              <th class="px-4 py-3 text-left text-[10px] font-inter-bold text-text/40 uppercase tracking-wider">Cliente / RUC</th>
-              <th class="px-4 py-3 text-left text-[10px] font-inter-bold text-text/40 uppercase tracking-wider">Unidad (Placa)</th>
-              <th class="px-4 py-3 text-left text-[10px] font-inter-bold text-text/40 uppercase tracking-wider">Marca / Modelo</th>
-              <th class="px-4 py-3 text-left text-[10px] font-inter-bold text-text/40 uppercase tracking-wider">Conductor</th>
-              <th class="px-4 py-3 text-[10px] font-inter-bold text-text/40 uppercase tracking-wider text-center">Fecha Inicio</th>
-              <th class="px-4 py-3 text-[10px] font-inter-bold text-text/40 uppercase tracking-wider text-right">Tiempo</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-text/10">
-            @for (item of reportData(); track $index) {
-              <tr class="hover:bg-text/2 transition-colors">
-                <td class="px-4 py-2.5">
-                  <div class="flex flex-col">
-                    <span class="text-xs font-inter-bold text-text">{{ item.Cliente }}</span>
-                    <span class="text-[9px] text-text/50 tracking-tight">{{ item.RUC }}</span>
-                  </div>
-                </td>
-                <td class="px-4 py-2.5">
-                  <span 
-                    class="px-2 py-0.5 rounded-lg text-[10px] font-inter-bold"
-                    [class]="item.HasUnits ? 'bg-secondary/10 text-secondary border border-secondary/20' : 'bg-text/5 text-text/30'"
-                  >
-                    {{ item.Placa }}
-                  </span>
-                </td>
-                <td class="px-4 py-2.5">
-                  <span class="text-xs text-text/80 font-inter-medium">{{ item['Marca/Modelo'] }}</span>
-                </td>
-                <td class="px-4 py-2.5">
-                  <div class="flex items-center gap-2">
-                    @if (item.HasUnits) {
-                      <div class="w-5 h-5 rounded-full bg-text/5 flex items-center justify-center">
-                        <i class="fas fa-user-tie text-[9px] text-text/40"></i>
+      <!-- Detail Content -->
+      <div class="flex-1 overflow-y-auto p-4 md:p-6 custom-scrollbar">
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-4 md:gap-6">
+
+          <!-- Section: Autos Alquilados -->
+          <div class="bg-background rounded-2xl border border-text/5 p-5 flex flex-col min-h-[300px]">
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 bg-secondary/10 rounded-lg flex items-center justify-center text-secondary">
+                  <i class="fas fa-key text-sm"></i>
+                </div>
+                <h4 class="text-xs font-inter-bold text-text/70 uppercase tracking-wider">Vehículos Alquilados</h4>
+              </div>
+              <span class="text-[10px] font-inter-black text-text/30 bg-text/5 px-2 py-0.5 rounded-full">
+                {{ alquileres().length }}
+              </span>
+            </div>
+
+            <div class="flex-1">
+              @if (alquileres().length > 0) {
+                <div class="flex flex-col gap-2">
+                  @for (alquiler of alquileres(); track alquiler.id) {
+                    <div class="flex items-center justify-between p-3 rounded-xl border border-text/5 hover:bg-text/[0.02] transition-colors">
+                      <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 bg-text/5 rounded-lg flex items-center justify-center">
+                          <i class="fas fa-car text-xs text-text/40"></i>
+                        </div>
+                        <div>
+                          <p class="text-[11px] font-inter-bold text-text">{{ alquiler.vehiculo?.placa || '—' }}</p>
+                          <p class="text-[9px] text-text/40 font-inter-medium">{{ alquiler.vehiculo?.marca }} {{ alquiler.vehiculo?.modelo }}</p>
+                        </div>
                       </div>
-                    }
-                    <span class="text-xs text-text/70">{{ item.Conductor }}</span>
-                  </div>
-                </td>
-                <td class="px-4 py-2.5 text-center">
-                  <span class="text-[10px] text-text/60">{{ item['Fecha Inicio'] }}</span>
-                </td>
-                <td class="px-4 py-2.5 text-right">
-                  @if (item.HasUnits) {
-                    <span class="text-[10px] font-inter-bold text-success bg-success/10 px-2.5 py-0.5 rounded-full uppercase tracking-tighter">
-                      {{ item['Tiempo Transcurrido'] }}
-                    </span>
-                  } @else {
-                    <span class="text-text/20">—</span>
+                      <div class="text-right">
+                        <p class="text-[11px] font-inter-black text-secondary">{{ calculateRentalCost(alquiler) | currency:'S/.' }}</p>
+                        <div class="flex items-center justify-end gap-1 text-[8px] text-text/30 font-inter-medium">
+                          <i class="far fa-calendar-alt text-[7px]"></i>
+                          <span>{{ alquiler.fechaInicio | date:'dd/MM/yyyy':'UTC' }} - {{ (alquiler.fechaFin | date:'dd/MM/yyyy':'UTC') || 'En curso' }}</span>
+                        </div>
+                      </div>
+                    </div>
                   }
-                </td>
-              </tr>
+                </div>
+              } @else {
+                <div class="flex flex-col items-center justify-center h-full text-text/10 py-4">
+                  <i class="fas fa-calendar-minus text-2xl mb-2"></i>
+                  <p class="text-[10px] font-inter-medium italic text-text/20">Sin alquileres activos</p>
+                </div>
+              }
+            </div>
+
+            @if (alquileres().length > 0) {
+              <div class="mt-4 pt-4 border-t border-text/5 flex items-center justify-between">
+                <span class="text-[10px] font-inter-bold text-text/40 uppercase tracking-widest">Inversión Total Estimada</span>
+                <span class="text-sm font-inter-black text-secondary">{{ totalAlquileresCost() | currency:'S/.' }}</span>
+              </div>
             }
-          </tbody>
-        </table>
+          </div>
+
+          <!-- Section: Autos Propios -->
+          <div class="bg-background rounded-2xl border border-text/5 p-5 flex flex-col min-h-[300px]">
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 bg-secondary/10 rounded-lg flex items-center justify-center text-secondary">
+                  <i class="fas fa-car-side text-sm"></i>
+                </div>
+                <h4 class="text-xs font-inter-bold text-text/70 uppercase tracking-wider">Vehículos Propios</h4>
+              </div>
+              <span class="text-[10px] font-inter-black text-text/30 bg-text/5 px-2 py-0.5 rounded-full">
+                {{ vehiculos().length }}
+              </span>
+            </div>
+
+            <div class="flex-1">
+              @if (vehiculos().length > 0) {
+                <div class="flex flex-col gap-2">
+                  @for (vehiculo of vehiculos(); track vehiculo.id) {
+                    <div class="flex items-center justify-between p-3 rounded-xl border border-text/5 hover:bg-text/[0.02] transition-colors">
+                      <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 bg-text/5 rounded-lg flex items-center justify-center">
+                          <i class="fas fa-truck text-xs text-text/40"></i>
+                        </div>
+                        <div>
+                          <p class="text-[11px] font-inter-bold text-text">{{ vehiculo.placa }}</p>
+                          <p class="text-[9px] text-text/40 font-inter-medium">{{ vehiculo.marca }} {{ vehiculo.modelo }}</p>
+                        </div>
+                      </div>
+                      <div class="text-right">
+                        <div class="px-2 py-0.5 rounded text-[8px] font-inter-black uppercase"
+                             [class.bg-secondary/10]="vehiculo.estado === 'disponible'"
+                             [class.text-secondary]="vehiculo.estado === 'disponible'"
+                             [class.bg-text/5]="vehiculo.estado !== 'disponible'"
+                             [class.text-text/40]="vehiculo.estado !== 'disponible'">
+                          {{ vehiculo.estado }}
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </div>
+              } @else {
+                <div class="flex flex-col items-center justify-center h-full text-text/10 py-4">
+                  <i class="fas fa-ghost text-2xl mb-2"></i>
+                  <p class="text-[10px] font-inter-medium italic text-text/20">Sin vehículos registrados</p>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Section: Pasajeros -->
+          <div class="bg-background rounded-2xl border border-text/5 p-5 flex flex-col min-h-[200px]">
+             <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 bg-emerald-500/10 rounded-lg flex items-center justify-center text-emerald-500">
+                  <i class="fas fa-users text-sm"></i>
+                </div>
+                <h4 class="text-xs font-inter-bold text-text/70 uppercase tracking-wider">Pasajeros Vinculados</h4>
+              </div>
+              <span class="text-[10px] font-inter-black text-text/30 bg-text/5 px-2 py-0.5 rounded-full">
+                {{ pasajeros().length }}
+              </span>
+            </div>
+
+            <div class="flex-1">
+              @if (pasajeros().length > 0) {
+                <div class="flex flex-col gap-2">
+                  @for (pasajero of pasajeros(); track pasajero.id) {
+                    <div class="flex items-center justify-between p-3 rounded-xl border border-text/5 hover:bg-text/[0.02] transition-colors">
+                      <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 bg-text/5 rounded-full flex items-center justify-center">
+                          <i class="fas fa-user-check text-[10px] text-text/40"></i>
+                        </div>
+                        <div>
+                          <p class="text-[11px] font-inter-bold text-text">{{ pasajero.nombres }} {{ pasajero.apellidos }}</p>
+                          <p class="text-[9px] text-text/40 font-inter-medium">DNI: {{ pasajero.dni }}</p>
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </div>
+              } @else {
+                <div class="flex flex-col items-center justify-center h-full text-text/10 py-4">
+                  <i class="fas fa-user-slash text-2xl mb-2"></i>
+                  <p class="text-[10px] font-inter-medium italic text-text/20">Sin pasajeros registrados</p>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Section: Entidades Relacionadas -->
+          <div class="bg-background rounded-2xl border border-text/5 p-5 flex flex-col min-h-[200px]">
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 bg-purple-500/10 rounded-lg flex items-center justify-center text-purple-500">
+                  <i class="fas fa-project-diagram text-sm"></i>
+                </div>
+                <h4 class="text-xs font-inter-bold text-text/70 uppercase tracking-wider">Entidades Relacionadas</h4>
+              </div>
+              <span class="text-[10px] font-inter-black text-text/30 bg-text/5 px-2 py-0.5 rounded-full">
+                {{ entidades().length }}
+              </span>
+            </div>
+
+            <div class="flex-1">
+              @if (entidades().length > 0) {
+                <div class="flex flex-col gap-2">
+                  @for (entidad of entidades(); track entidad.id) {
+                    <div class="flex items-center gap-3 p-3 rounded-xl border border-text/5 bg-text/[0.01] hover:bg-text/[0.02] transition-all">
+                      <div class="w-8 h-8 bg-text/5 rounded-lg flex items-center justify-center shrink-0">
+                        <i class="fas fa-link text-[10px] text-text/40"></i>
+                      </div>
+                      <div class="min-w-0">
+                        <p class="text-[11px] font-inter-bold text-text truncate mb-0.5">{{ entidad.nombreServicio }}</p>
+                        <p class="text-[9px] text-text/40 font-inter-medium">Entidad Corporativa</p>
+                      </div>
+                    </div>
+                  }
+                </div>
+              } @else {
+                <div class="flex flex-col items-center justify-center h-full text-text/10 py-4">
+                  <i class="fas fa-network-wired text-2xl mb-2"></i>
+                  <p class="text-[10px] font-inter-medium italic text-text/20">Sin entidades vinculadas</p>
+                </div>
+              }
+            </div>
+          </div>
+
+        </div>
       </div>
-    </div>
-  }
+    } @else {
+      <!-- Empty State -->
+      <div class="absolute inset-0 flex flex-col items-center justify-center p-12 text-center overflow-hidden">
+        <!-- Abstract Design Background -->
+        <div class="absolute top-0 right-0 w-80 h-80 bg-primary/5 rounded-full blur-3xl -mr-40 -mt-40"></div>
+        <div class="absolute bottom-0 left-0 w-80 h-80 bg-secondary/5 rounded-full blur-3xl -ml-40 -mb-40"></div>
+
+        <div class="relative z-10 flex flex-col items-center">
+          <div class="w-24 h-24 bg-text/5 rounded-3xl flex items-center justify-center mb-8 transform rotate-6 border border-text/5 shadow-inner">
+            <i class="fas fa-user-tie text-4xl text-text/10"></i>
+          </div>
+          <h3 class="text-xl font-inter-bold text-text/40 mb-3">Expediente de Cliente</h3>
+          <p class="text-xs text-text/30 max-w-[320px] leading-relaxed mb-8">
+            Selecciona un cliente de la lista lateral para visualizar su perfil completo, flota propia, servicios contratados y entidades vinculadas.
+          </p>
+
+          <div class="flex items-center gap-3 px-5 py-2.5 bg-text/[0.02] border border-text/5 rounded-2xl">
+            <div class="flex -space-x-2">
+              <div class="w-6 h-6 rounded-full border-2 border-background bg-text/5 flex items-center justify-center"><i class="fas fa-car text-[8px] text-text/30"></i></div>
+              <div class="w-6 h-6 rounded-full border-2 border-background bg-text/5 flex items-center justify-center"><i class="fas fa-building text-[8px] text-text/30"></i></div>
+              <div class="w-6 h-6 rounded-full border-2 border-background bg-text/5 flex items-center justify-center"><i class="fas fa-history text-[8px] text-text/30"></i></div>
+            </div>
+            <span class="text-[10px] uppercase tracking-widest font-inter-bold text-text/20">Módulos de Reporte Activos</span>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
 </div>

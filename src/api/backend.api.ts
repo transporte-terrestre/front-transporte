@@ -3529,7 +3529,7 @@ export interface DocumentoItemDto {
   observacion?: string;
   /**
    * Fecha de Vencimiento Inicial/Por defecto
-   * @example "2026-03-13T12:44:44.052Z"
+   * @example "2026-03-16T01:48:09.395Z"
    */
   fechaVencimiento?: string;
 }
@@ -3712,17 +3712,17 @@ export interface BotiquinItemDto {
   habilitado: boolean;
   /**
    * Fecha de Vencimiento actual
-   * @example "2026-03-13T12:44:44.055Z"
+   * @example "2026-03-16T01:48:09.397Z"
    */
   fechaVencimiento?: string;
   /**
    * Fecha de Salida
-   * @example "2026-03-13T12:44:44.055Z"
+   * @example "2026-03-16T01:48:09.397Z"
    */
   fechaSalida?: string;
   /**
    * Fecha de Reposición
-   * @example "2026-03-13T12:44:44.055Z"
+   * @example "2026-03-16T01:48:09.397Z"
    */
   fechaReposicion?: string;
 }
@@ -9880,6 +9880,8 @@ export interface VehiculosFindAllParams {
   estado?: "disponible" | "circulacion" | "taller" | "retirado" | "alquilado";
   /** Filtrar por ID de marca */
   marcaId?: number;
+  /** Filtrar por ID de propietario */
+  propietarioId?: number;
 }
 
 export type VehiculosFindAllData = PaginatedVehiculoResultDto;
@@ -12347,6 +12349,8 @@ export namespace Vehiculos {
         | "alquilado";
       /** Filtrar por ID de marca */
       marcaId?: number;
+      /** Filtrar por ID de propietario */
+      propietarioId?: number;
     };
     export type RequestBody = never;
     export type RequestHeaders = {};
