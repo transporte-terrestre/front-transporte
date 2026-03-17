@@ -1,10 +1,11 @@
-import { Component, effect, inject, input, output } from '@angular/core';
+import { Component, effect, inject, input, output, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators, FormControl } from '@angular/forms';
 import { ApiBody, ApiResponse } from 'api/backend.api';
 import { ClienteInputSearch } from '../../../../components/input-searchs/cliente-input-search/cliente-input-search';
 import { ConductorInputSearch } from '../../../../components/input-searchs/conductor-input-search/conductor-input-search';
 import { VehiculoInputSearch } from '../../../../components/input-searchs/vehiculo-input-search/vehiculo-input-search';
+import { AlquilerService } from '@service/admin/alquiler.service';
 
 @Component({
   selector: 'app-alquiler-form',
@@ -12,13 +13,17 @@ import { VehiculoInputSearch } from '../../../../components/input-searchs/vehicu
   templateUrl: './alquiler-form.html',
   styleUrl: './alquiler-form.css',
 })
-export class AlquilerForm {
+export class AlquilerForm implements OnInit {
   private fb = inject(FormBuilder);
+  private alquilerService = inject(AlquilerService);
 
   editMode = input<boolean>(false);
   initialData = input<ApiResponse<'alquileres', 'findOne'> | null>(null);
 
   onSubmitForm = output<ApiBody<'alquileres', 'create'> | ApiBody<'alquileres', 'update'>>();
+
+  vehiculoValidacionMsg = signal<{ status: boolean; message: string } | null>(null);
+  private checkAvailabilityTimeout: ReturnType<typeof setTimeout> | null = null;
 
   form = this.fb.group({
     clienteId: this.fb.control<ApiResponse<'clientes', 'findAll'>['data'][number] | number | null>(
@@ -93,7 +98,69 @@ export class AlquilerForm {
     });
   }
 
+  ngOnInit() {
+    // Escuchar cambios para validación de disponibilidad y auto-completar kilometraje
+    this.form.get('vehiculoId')?.valueChanges.subscribe((vehiculo) => {
+      this.checkAvailability();
+
+      // Auto-completar kilometraje inicial si es un nuevo alquiler
+      if (!this.editMode() && vehiculo && typeof vehiculo === 'object') {
+        const v = vehiculo as ApiResponse<'vehiculos', 'findAll'>['data'][number];
+        if (v.kilometraje != null) {
+          this.form.patchValue({
+            kilometrajeInicial: Number(v.kilometraje),
+          });
+        }
+      }
+    });
+
+    const validateKeys = ['fechaInicio', 'fechaFin'];
+    validateKeys.forEach((k) => {
+      this.form.get(k)?.valueChanges.subscribe(() => {
+        this.checkAvailability();
+      });
+    });
+
+    // Validar inicialmente si hay datos
+    if (this.initialData()) {
+      this.checkAvailability();
+    }
+  }
+
+  checkAvailability() {
+    if (this.checkAvailabilityTimeout) {
+      clearTimeout(this.checkAvailabilityTimeout);
+    }
+    this.checkAvailabilityTimeout = setTimeout(() => {
+      const fv = this.form.value;
+      const vehiculoId = this.resolveEntityId(fv.vehiculoId);
+      const fechaInicio = fv.fechaInicio;
+
+      if (!vehiculoId || !fechaInicio) {
+        this.vehiculoValidacionMsg.set(null);
+        return;
+      }
+
+      this.alquilerService
+        .validarVehiculo({
+          vehiculoId,
+          fechaInicio: new Date(fechaInicio).toISOString(),
+          fechaFin: fv.fechaFin ? new Date(fv.fechaFin).toISOString() : undefined,
+          alquilerId: this.initialData()?.id,
+        })
+        .then((res) => {
+          this.vehiculoValidacionMsg.set(res || null);
+        })
+        .catch(() => this.vehiculoValidacionMsg.set(null));
+    }, 400);
+  }
+
   submitForm() {
+    if (this.vehiculoValidacionMsg() && !this.vehiculoValidacionMsg()?.status) {
+      // Si la validacion falló, no permitir guardar
+      return;
+    }
+
     if (this.form.valid) {
       const rawValue = this.form.value;
 

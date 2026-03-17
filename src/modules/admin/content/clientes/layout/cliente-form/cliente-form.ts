@@ -1,4 +1,4 @@
-import { Component, inject, input, output, OnInit, effect, signal } from '@angular/core';
+import { Component, inject, input, output, OnInit, effect, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ApiResponse, ApiBody, ApiField, ClienteDocumentoResultDto, DocumentosAgrupadosClienteDto } from 'api/backend.api';
@@ -69,6 +69,14 @@ export class ClienteForm implements OnInit {
 
   searchingDni = signal(false);
   searchingRuc = signal(false);
+  validateDocuments = signal(false);
+  tipoDocSelected = signal<'DNI' | 'RUC'>('DNI');
+
+  requiredDocumentTypes = computed(() => {
+    if (this.editMode()) return [];
+    const tipo = this.tipoDocSelected();
+    return ['ficha_ruc', tipo === 'DNI' ? 'dni' : 'ruc'] as (keyof DocumentosAgrupadosClienteDto)[];
+  });
 
   clienteForm: FormGroup = this.fb.group({
     tipoDocumento: ['DNI', [Validators.required]],
@@ -81,6 +89,7 @@ export class ClienteForm implements OnInit {
     telefono: ['', [Validators.maxLength(20)]],
     direccion: ['', [Validators.maxLength(255)]],
     horasContrato: ['', []],
+    tipo: ['personal', [Validators.required]],
   });
 
   documentTypes: {
@@ -113,13 +122,15 @@ export class ClienteForm implements OnInit {
           telefono: clienteData.telefono || '',
           direccion: clienteData.direccion || '',
           horasContrato: clienteData.horasContrato || '',
+          tipo: clienteData.tipo || 'personal',
         });
+        this.tipoDocSelected.set(clienteData.tipoDocumento as 'DNI' | 'RUC');
         this.imagenes.set(clienteData.imagenes || []);
         this.localDocuments.set(JSON.parse(JSON.stringify(clienteData.documentos)));
         this.loadPasajeros(clienteData.id);
         this.loadEntidades(clienteData.id);
       } else {
-        this.clienteForm.reset({ tipoDocumento: 'DNI' });
+        this.clienteForm.reset({ tipoDocumento: 'DNI', tipo: 'personal' });
         this.imagenes.set([]);
         this.localDocuments.set({} as DocumentosAgrupadosClienteDto);
         this.pendingDocuments.set([]);
@@ -130,6 +141,7 @@ export class ClienteForm implements OnInit {
   ngOnInit() {
     // Suscribirse a cambios en tipoDocumento para validaciones
     this.clienteForm.get('tipoDocumento')?.valueChanges.subscribe((tipo) => {
+      this.tipoDocSelected.set(tipo);
       const dniControl = this.clienteForm.get('dni');
       const rucControl = this.clienteForm.get('ruc');
       const nombresControl = this.clienteForm.get('nombres');
@@ -219,6 +231,7 @@ export class ClienteForm implements OnInit {
       });
   }
 
+
   onImagesChange(images: string[]) {
     this.imagenes.set(images);
   }
@@ -229,10 +242,32 @@ export class ClienteForm implements OnInit {
       return;
     }
 
+    if (!this.editMode()) {
+      const docs = this.pendingDocuments();
+      const required = this.requiredDocumentTypes();
+      const missing = required.filter(r => !docs.some(d => d.tipo === r));
+
+      if (missing.length > 0) {
+        this.validateDocuments.set(true);
+        const missingLabels = missing
+          .map(m => this.documentTypes.find(dt => dt.value === m)?.label)
+          .join(' y ');
+
+        this.alertService.showSimple(
+          'warning',
+          'Documentos requeridos',
+          `Para registrar un cliente debe adjuntar obligatoriamente: ${missingLabels}.`,
+          'Entendido'
+        );
+        return;
+      }
+    }
+
     const formDataValue = this.clienteForm.value;
 
     const cleanData: ClienteFormSubmitData = {
       tipoDocumento: formDataValue.tipoDocumento,
+      tipo: formDataValue.tipo,
       imagenes: this.imagenes(),
     } as ClienteFormSubmitData;
 

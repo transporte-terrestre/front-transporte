@@ -45,16 +45,48 @@
         </div>
       </div>
 
-      <!-- Conductor y Vehículo (Solo Creación) -->
+      <!-- Conductor y Vehículo (Solo Creación) cada uno en su propia fila -->
       @if (!editMode()) {
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div class="space-y-4">
           <div>
-            <label class="text-xs font-inter-semibold text-text mb-1.5"> Conductor </label>
+            <label class="text-xs font-inter-semibold text-text mb-1.5 block"> Conductor </label>
             <app-conductor-input-search formControlName="conductor"></app-conductor-input-search>
+            @if (conductorValidacionMsg(); as cMsg) {
+              <div
+                class="flex items-start gap-2 p-2 rounded-md mt-1.5 border text-[10px] font-inter-medium transition-colors"
+                [ngClass]="
+                  cMsg.status
+                    ? 'bg-success/5 border-success/10 text-success'
+                    : 'bg-danger/5 border-danger/10 text-danger'
+                "
+              >
+                <i
+                  class="fas mt-0.5"
+                  [ngClass]="cMsg.status ? 'fa-check-circle' : 'fa-exclamation-circle'"
+                ></i>
+                <span>{{ cMsg.message }}</span>
+              </div>
+            }
           </div>
           <div>
-            <label class="text-xs font-inter-semibold text-text mb-1.5"> Vehículo </label>
+            <label class="text-xs font-inter-semibold text-text mb-1.5 block"> Vehículo </label>
             <app-vehiculo-input-search formControlName="vehiculo"></app-vehiculo-input-search>
+            @if (vehiculoValidacionMsg(); as vMsg) {
+              <div
+                class="flex items-start gap-2 p-2 rounded-md mt-1.5 border text-[10px] font-inter-medium transition-colors"
+                [ngClass]="
+                  vMsg.status
+                    ? 'bg-success/5 border-success/10 text-success'
+                    : 'bg-danger/5 border-danger/10 text-danger'
+                "
+              >
+                <i
+                  class="fas mt-0.5"
+                  [ngClass]="vMsg.status ? 'fa-check-circle' : 'fa-exclamation-circle'"
+                ></i>
+                <span>{{ vMsg.message }}</span>
+              </div>
+            }
           </div>
         </div>
       }
@@ -99,7 +131,7 @@
                   "
                 />
                 <div
-                  class="relative w-7 h-4 bg-text/10 peer-focus:outline-none rounded-full peer peer-checked:bg-secondary after:content-[''] after:absolute after:top-0.5 after:start-0.5 after:bg-background after:border-text/20 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:after:translate-x-3 peer-checked:after:border-background"
+                  class="relative w-7 h-4 bg-text/10 peer-focus:outline-none rounded-full peer peer-checked:bg-secondary after:content-[''] after:absolute after:top-0.5 after:inset-s-0.5 after:bg-background after:border-text/20 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:after:translate-x-3 peer-checked:after:border-background"
                 ></div>
               </label>
             </div>
@@ -308,43 +340,6 @@
         </div>
       }
 
-      <!-- Validation Msgs -->
-      @if (vehiculoValidacionMsg() || conductorValidacionMsg()) {
-        <div class="space-y-2 mt-2">
-          @if (vehiculoValidacionMsg(); as vMsg) {
-            <div
-              class="flex items-start gap-2 p-2.5 rounded-lg border text-xs font-inter-medium transition-colors"
-              [ngClass]="
-                vMsg.status
-                  ? 'bg-success/10 border-success/20 text-success'
-                  : 'bg-danger/10 border-danger/20 text-danger'
-              "
-            >
-              <i
-                class="fas mt-0.5"
-                [ngClass]="vMsg.status ? 'fa-check-circle' : 'fa-exclamation-circle'"
-              ></i>
-              <span>{{ vMsg.message }}</span>
-            </div>
-          }
-          @if (conductorValidacionMsg(); as cMsg) {
-            <div
-              class="flex items-start gap-2 p-2.5 rounded-lg border text-xs font-inter-medium transition-colors"
-              [ngClass]="
-                cMsg.status
-                  ? 'bg-success/10 border-success/20 text-success'
-                  : 'bg-danger/10 border-danger/20 text-danger'
-              "
-            >
-              <i
-                class="fas mt-0.5"
-                [ngClass]="cMsg.status ? 'fa-check-circle' : 'fa-exclamation-circle'"
-              ></i>
-              <span>{{ cMsg.message }}</span>
-            </div>
-          }
-        </div>
-      }
 
       <!-- Spacer for Dropdowns (Sólo para rutas fijas) -->
       @if (!editMode() && viajeForm.get('tipoRuta')?.value === 'fija') {

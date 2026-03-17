@@ -39,8 +39,8 @@ export class ClientesList implements OnInit, OnDestroy {
 
   // Filtros
   searchTerm = signal('');
-  fechaInicio = signal('');
-  fechaFin = signal('');
+  tipo = signal<string>('');
+  tipoDocumento = signal<string>('');
 
   clienteFormComponent = viewChild<ClienteForm>(ClienteForm);
 
@@ -65,8 +65,8 @@ export class ClientesList implements OnInit, OnDestroy {
         page: this.currentPage(),
         limit: this.pageSize(),
         search: this.searchTerm() || undefined,
-        fechaInicio: this.fechaInicio() || undefined,
-        fechaFin: this.fechaFin() || undefined,
+        tipo: (this.tipo() as "personal" | "corporativo") || undefined,
+        tipoDocumento: (this.tipoDocumento() as "DNI" | "RUC") || undefined,
       })
       .then((response) => {
         this.clientes.set(response.data);
@@ -85,10 +85,6 @@ export class ClientesList implements OnInit, OnDestroy {
     this.searchSubject.next(value);
   }
 
-  onDateChange() {
-    this.currentPage.set(1);
-    this.loadClientes();
-  }
 
   onPageChange(page: number) {
     this.currentPage.set(page);
@@ -102,8 +98,8 @@ export class ClientesList implements OnInit, OnDestroy {
 
   clearFilters() {
     this.searchTerm.set('');
-    this.fechaInicio.set('');
-    this.fechaFin.set('');
+    this.tipo.set('');
+    this.tipoDocumento.set('');
     this.currentPage.set(1);
     this.loadClientes();
   }

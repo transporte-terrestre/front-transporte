@@ -15,6 +15,16 @@ import { MantenimientoService } from '@service/admin/mantenimiento.service';
 import { ToastService } from '@service/toast.service';
 import { getErrorMessage } from '@helper/error.helper';
 
+export interface PendingMantenimientoDocument {
+  tipo: keyof ApiResponse<'mantenimientos', 'findOne'>['documentos'];
+  data: DocumentWithDate;
+  tempId: number;
+}
+
+export type MantenimientoFormSubmitData =
+  | (ApiBody<'mantenimientos', 'create'> & { documentos?: PendingMantenimientoDocument[] })
+  | ApiBody<'mantenimientos', 'update'>;
+
 @Component({
   selector: 'app-mantenimiento-form',
   imports: [
@@ -39,14 +49,14 @@ export class MantenimientoForm implements OnInit {
   selectedDate = input<Date | null>(null);
 
   // Outputs
-  onSubmitForm = output<
-    ApiBody<'mantenimientos', 'create'> | ApiBody<'mantenimientos', 'update'>
-  >();
+  onSubmitForm = output<MantenimientoFormSubmitData>();
   onDataChange = output<void>();
 
   // State
-  localDocuments = signal<ApiResponse<'mantenimientos', 'findOne'>['documentos'] | null>(null);
+  localDocuments = signal<ApiResponse<'mantenimientos', 'findOne'>['documentos'] | null>({} as any);
+  pendingDocuments = signal<PendingMantenimientoDocument[]>([]);
   selectedTallerId = signal<number | null>(null);
+  private tempIdCounter = 0;
 
   mantenimientoForm: FormGroup = this.fb.group({
     vehiculo: [null, [Validators.required]],
@@ -145,7 +155,8 @@ export class MantenimientoForm implements OnInit {
           fechaSalidaDate: exitDate.toISOString().split('T')[0],
           fechaSalidaTime: '00:00',
         });
-        this.localDocuments.set(null);
+        this.localDocuments.set({} as any);
+        this.pendingDocuments.set([]);
       }
     });
 
@@ -156,7 +167,7 @@ export class MantenimientoForm implements OnInit {
           kilometraje?: number;
           kilometrajeMantenimiento?: number;
         };
-        
+
         const kmActual = vehiculoData.kilometraje ?? 0;
         const kmIntervalo = vehiculoData.kilometrajeMantenimiento ?? 0;
 
@@ -189,7 +200,7 @@ export class MantenimientoForm implements OnInit {
     }
 
     const formValue = this.mantenimientoForm.getRawValue();
-    const formData: ApiBody<'mantenimientos', 'create'> = {
+    const formData: MantenimientoFormSubmitData = {
       vehiculoId: formValue.vehiculo?.id
         ? Number(formValue.vehiculo.id)
         : Number(formValue.vehiculo),
@@ -212,6 +223,7 @@ export class MantenimientoForm implements OnInit {
       kilometrajeProximoMantenimiento: Number(formValue.kilometrajeProximoMantenimiento),
       estado: formValue.estado,
       marcarEnTaller: formValue.marcarEnTaller || false,
+      documentos: !this.editMode() ? this.pendingDocuments() : undefined,
     };
 
     this.onSubmitForm.emit(formData);
@@ -222,6 +234,19 @@ export class MantenimientoForm implements OnInit {
     event: DocumentWithDate,
     tipo: keyof ApiField<'mantenimientos', 'findOne', 'documentos'>,
   ) {
+    if (!this.editMode()) {
+      // Creation mode: save locally with a temporary ID
+      const tempId = --this.tempIdCounter;
+      const doc = {
+        ...event,
+        id: tempId,
+        tipo: tipo,
+      } as any;
+      this.addDocumentToLocalList(doc);
+      this.pendingDocuments.update((prev) => [...prev, { tipo, data: event, tempId }]);
+      return;
+    }
+
     if (!this.mantenimiento()) return;
 
     const documento: ApiBody<'mantenimientos', 'createDocumento'> = {
@@ -237,7 +262,7 @@ export class MantenimientoForm implements OnInit {
       .createDocumento(documento)
       .then((doc) => {
         this.toastService.success('Documento guardado exitosamente');
-        this.addDocumentToLocalList(doc);
+        this.addDocumentToLocalList(doc as any);
       })
       .catch((err) => {
         console.error('Error al guardar documento:', err);
@@ -246,6 +271,45 @@ export class MantenimientoForm implements OnInit {
   }
 
   handleDocumentUpdate(event: { id: number; fechaEmision: string; fechaExpiracion: string }) {
+    if (event.id < 0) {
+      // Pending document in creation mode
+      this.pendingDocuments.update((prev) =>
+        prev.map((d) =>
+          d.tempId === event.id
+            ? {
+                ...d,
+                data: {
+                  ...d.data,
+                  fechaEmision: event.fechaEmision,
+                  fechaExpiracion: event.fechaExpiracion,
+                },
+              }
+            : d,
+        ),
+      );
+      // Also update local list for UI
+      const docs = this.localDocuments();
+      if (docs) {
+        const newDocs = { ...docs };
+        for (const tipo in newDocs) {
+          const t = tipo as keyof ApiField<'mantenimientos', 'findOne', 'documentos'>;
+          if (newDocs[t]) {
+            newDocs[t] = (newDocs[t] as any[]).map((d) =>
+              d.id === event.id
+                ? {
+                    ...d,
+                    fechaEmision: event.fechaEmision,
+                    fechaExpiracion: event.fechaExpiracion,
+                  }
+                : d,
+            ) as any;
+          }
+        }
+        this.localDocuments.set(newDocs);
+      }
+      return;
+    }
+
     this.mantenimientoService
       .updateDocumento(event.id, {
         fechaEmision: event.fechaEmision,
@@ -253,7 +317,7 @@ export class MantenimientoForm implements OnInit {
       })
       .then((doc) => {
         this.toastService.success('Documento actualizado exitosamente');
-        this.updateDocumentInLocalList(doc);
+        this.updateDocumentInLocalList(doc as any);
       })
       .catch((err) => {
         console.error('Error al actualizar documento:', err);
@@ -262,6 +326,13 @@ export class MantenimientoForm implements OnInit {
   }
 
   deleteDocument(id: number, tipo: keyof ApiField<'mantenimientos', 'findOne', 'documentos'>) {
+    if (id < 0) {
+      // Pending document in creation mode
+      this.pendingDocuments.update((prev) => prev.filter((d) => d.tempId !== id));
+      this.removeDocumentFromLocalList(id, tipo);
+      return;
+    }
+
     this.mantenimientoService
       .deleteDocumento(id)
       .then(() => {

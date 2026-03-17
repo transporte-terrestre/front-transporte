@@ -33,32 +33,34 @@
         />
       </div>
 
-      <!-- Fecha Inicio -->
+      <!-- Filtro Tipo de Documento -->
       <div class="relative sm:col-span-2 lg:col-span-1">
-        <i
-          class="fas fa-calendar absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"
-        ></i>
-        <input
-          type="date"
-          [ngModel]="fechaInicio()"
-          (ngModelChange)="fechaInicio.set($event); onDateChange()"
-          placeholder="Fecha inicio"
-          class="w-full pl-10 pr-4 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all"
-        />
+        <i class="fas fa-id-card absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"></i>
+        <select
+          [ngModel]="tipoDocumento()"
+          (ngModelChange)="tipoDocumento.set($event); loadClientes()"
+          class="w-full pl-10 pr-4 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all appearance-none cursor-pointer"
+        >
+          <option value="">Todos los documentos</option>
+          <option value="DNI">DNI</option>
+          <option value="RUC">RUC</option>
+        </select>
+        <i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-text/40 text-xs pointer-events-none"></i>
       </div>
 
-      <!-- Fecha Fin -->
+      <!-- Filtro Tipo de Cliente -->
       <div class="relative sm:col-span-2 lg:col-span-1">
-        <i
-          class="fas fa-calendar absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"
-        ></i>
-        <input
-          type="date"
-          [ngModel]="fechaFin()"
-          (ngModelChange)="fechaFin.set($event); onDateChange()"
-          placeholder="Fecha fin"
-          class="w-full pl-10 pr-4 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all"
-        />
+        <i class="fas fa-users absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"></i>
+        <select
+          [ngModel]="tipo()"
+          (ngModelChange)="tipo.set($event); loadClientes()"
+          class="w-full pl-10 pr-4 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all appearance-none cursor-pointer"
+        >
+          <option value="">Todos los tipos</option>
+          <option value="personal">Personal</option>
+          <option value="corporativo">Corporativo</option>
+        </select>
+        <i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-text/40 text-xs pointer-events-none"></i>
       </div>
     </div>
   </div>
@@ -92,6 +94,11 @@
               class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
             >
               Doc
+            </th>
+            <th
+              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+            >
+              Tipo
             </th>
             <th
               class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
@@ -139,6 +146,15 @@
                 [class.bg-secondary/10]="cliente.tipoDocumento === 'RUC'"
                 [class.text-secondary]="cliente.tipoDocumento === 'RUC'"
               >{{ cliente.tipoDocumento }}</span>
+            </td>
+            <td class="px-4 py-3 whitespace-nowrap">
+              <span
+                class="px-1.5 py-0.5 rounded text-[10px] font-inter-bold uppercase"
+                [class.bg-info/10]="cliente.tipo === 'personal'"
+                [class.text-info]="cliente.tipo === 'personal'"
+                [class.bg-success/10]="cliente.tipo === 'corporativo'"
+                [class.text-success]="cliente.tipo === 'corporativo'"
+              >{{ cliente.tipo }}</span>
             </td>
             <td class="px-4 py-3 whitespace-nowrap">
               <span class="text-xs font-inter-medium text-text/70">{{ cliente.tipoDocumento === 'DNI' ? cliente.dni : cliente.ruc }}</span>

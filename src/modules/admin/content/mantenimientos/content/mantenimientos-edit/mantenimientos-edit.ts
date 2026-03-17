@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { MantenimientoService } from '@service/admin/mantenimiento.service';
 import { ApiResponse, ApiBody } from 'api/backend.api';
 import { ToastService } from '@service/toast.service';
-import { MantenimientoForm } from '../../layout/mantenimiento-form/mantenimiento-form';
+import { MantenimientoForm, MantenimientoFormSubmitData } from '../../layout/mantenimiento-form/mantenimiento-form';
 import { PATH, buildPath } from '@route/path.route';
 import { getErrorMessage } from '@helper/error.helper';
 
@@ -62,13 +62,15 @@ export class MantenimientosEdit implements OnInit {
       });
   }
 
-  handleFormSubmit(data: ApiBody<'mantenimientos', 'update'>) {
+  handleFormSubmit(data: MantenimientoFormSubmitData) {
     const m = this.mantenimiento();
     if (!m) return;
 
     this.loading.set(true);
+    // En edición siempre es un update
+    const updateData = data as ApiBody<'mantenimientos', 'update'>;
     this.mantenimientoService
-      .update(m.id, data)
+      .update(m.id, updateData)
       .then(() => {
         this.toastService.success('Mantenimiento actualizado exitosamente');
         this.loading.set(false);

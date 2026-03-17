@@ -16,10 +16,18 @@
       <label class="block text-xs font-inter-semibold text-text mb-1.5">Vehículo</label>
       <app-vehiculo-input-search
         formControlName="vehiculoId"
-        [class.border-danger]="isFieldInvalid('vehiculoId')"
+        [class.border-danger]="isFieldInvalid('vehiculoId') || (vehiculoValidacionMsg() && !vehiculoValidacionMsg()?.status)"
       />
       @if (isFieldInvalid('vehiculoId')) {
         <p class="text-danger text-xs font-inter-medium mt-1">Vehículo requerido</p>
+      }
+      @if (vehiculoValidacionMsg()) {
+        <div class="mt-1 flex items-start gap-1.5 p-2 rounded-md" [class.bg-danger/5]="!vehiculoValidacionMsg()?.status" [class.bg-success/5]="vehiculoValidacionMsg()?.status">
+          <i class="fas" [class.fa-exclamation-circle]="!vehiculoValidacionMsg()?.status" [class.text-danger]="!vehiculoValidacionMsg()?.status" [class.fa-check-circle]="vehiculoValidacionMsg()?.status" [class.text-success]="vehiculoValidacionMsg()?.status"></i>
+          <p class="text-[10px] font-inter-medium" [class.text-danger]="!vehiculoValidacionMsg()?.status" [class.text-success]="vehiculoValidacionMsg()?.status">
+            {{ vehiculoValidacionMsg()?.message }}
+          </p>
+        </div>
       }
     </div>
   </div>

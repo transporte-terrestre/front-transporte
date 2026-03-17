@@ -3529,7 +3529,7 @@ export interface DocumentoItemDto {
   observacion?: string;
   /**
    * Fecha de Vencimiento Inicial/Por defecto
-   * @example "2026-03-16T01:48:09.395Z"
+   * @example "2026-03-17T17:05:58.629Z"
    */
   fechaVencimiento?: string;
 }
@@ -3712,17 +3712,17 @@ export interface BotiquinItemDto {
   habilitado: boolean;
   /**
    * Fecha de Vencimiento actual
-   * @example "2026-03-16T01:48:09.397Z"
+   * @example "2026-03-17T17:05:58.632Z"
    */
   fechaVencimiento?: string;
   /**
    * Fecha de Salida
-   * @example "2026-03-16T01:48:09.397Z"
+   * @example "2026-03-17T17:05:58.632Z"
    */
   fechaSalida?: string;
   /**
    * Fecha de Reposición
-   * @example "2026-03-16T01:48:09.397Z"
+   * @example "2026-03-17T17:05:58.632Z"
    */
   fechaReposicion?: string;
 }
@@ -5690,6 +5690,11 @@ export interface ClienteViajeDto {
    */
   tipoDocumento: "DNI" | "RUC";
   /**
+   * Tipo de cliente
+   * @example "personal"
+   */
+  tipo: "personal" | "corporativo";
+  /**
    * DNI del cliente
    * @example "12345678"
    */
@@ -6365,6 +6370,11 @@ export interface ClienteViajeResultDto {
    * @example "DNI"
    */
   tipoDocumento: "DNI" | "RUC";
+  /**
+   * Tipo de cliente
+   * @example "personal"
+   */
+  tipo: "personal" | "corporativo";
   /**
    * DNI del cliente
    * @example "12345678"
@@ -7704,6 +7714,11 @@ export interface ClienteListDto {
    */
   tipoDocumento: "DNI" | "RUC";
   /**
+   * Tipo de cliente
+   * @example "personal"
+   */
+  tipo: "personal" | "corporativo";
+  /**
    * RUC del cliente
    * @example "20123456789"
    */
@@ -7851,6 +7866,11 @@ export interface ClienteResultDto {
    */
   tipoDocumento: "DNI" | "RUC";
   /**
+   * Tipo de cliente
+   * @example "personal"
+   */
+  tipo: "personal" | "corporativo";
+  /**
    * DNI del cliente
    * @example "12345678"
    */
@@ -7928,6 +7948,11 @@ export interface ClienteCreateDto {
    */
   tipoDocumento: "DNI" | "RUC";
   /**
+   * Tipo de cliente
+   * @default "personal"
+   */
+  tipo: "personal" | "corporativo";
+  /**
    * DNI del cliente
    * @example "12345678"
    */
@@ -7985,6 +8010,11 @@ export interface ClienteUpdateDto {
    * @default "DNI"
    */
   tipoDocumento?: "DNI" | "RUC";
+  /**
+   * Tipo de cliente
+   * @default "personal"
+   */
+  tipo?: "personal" | "corporativo";
   /**
    * DNI del cliente
    * @example "12345678"
@@ -9477,6 +9507,19 @@ export interface AlquilerPaginationMetaDto {
 export interface AlquilerListDto {
   data: AlquilerItemDto[];
   meta: AlquilerPaginationMetaDto;
+}
+
+export interface ValidacionAlquilerResultDto {
+  /**
+   * Indica si el vehículo está habilitado y disponible para alquiler
+   * @example true
+   */
+  status: boolean;
+  /**
+   * Mensaje detallando el resultado de la validación
+   * @example "El vehículo está disponible para este alquiler."
+   */
+  message: string;
 }
 
 export interface AlquilerResultDto {
@@ -11160,6 +11203,11 @@ export interface ClientesFindAllParams {
    * @example "DNI"
    */
   tipoDocumento?: "DNI" | "RUC";
+  /**
+   * Filtrar por tipo de cliente
+   * @example "personal"
+   */
+  tipo?: "personal" | "corporativo";
 }
 
 export type ClientesFindAllData = PaginatedClienteResultDto;
@@ -11625,7 +11673,26 @@ export interface AlquileresFindAllParams {
 
 export type AlquileresFindAllData = AlquilerListDto;
 
-export type AlquileresCreateData = any;
+export type AlquileresCreateData = AlquilerResultDto;
+
+export interface AlquileresValidarVehiculoParams {
+  /** ID del vehículo a validar */
+  vehiculoId: number;
+  /**
+   * Fecha de inicio del alquiler
+   * @format date-time
+   */
+  fechaInicio: string;
+  /**
+   * Fecha de fin del alquiler
+   * @format date-time
+   */
+  fechaFin?: string;
+  /** ID del alquiler actual (para excluirlo de la validación de cruces) */
+  alquilerId?: number;
+}
+
+export type AlquileresValidarVehiculoData = ValidacionAlquilerResultDto;
 
 export interface AlquileresFindOneParams {
   id: number;
@@ -11637,7 +11704,7 @@ export interface AlquileresUpdateParams {
   id: number;
 }
 
-export type AlquileresUpdateData = any;
+export type AlquileresUpdateData = AlquilerResultDto;
 
 export interface AlquileresDeleteParams {
   id: number;
@@ -11649,7 +11716,7 @@ export interface AlquileresTerminarParams {
   id: number;
 }
 
-export type AlquileresTerminarData = any;
+export type AlquileresTerminarData = AlquilerResultDto;
 
 export interface AlquileresFindDocumentoParams {
   id: number;
@@ -15350,6 +15417,11 @@ export namespace Clientes {
        * @example "DNI"
        */
       tipoDocumento?: "DNI" | "RUC";
+      /**
+       * Filtrar por tipo de cliente
+       * @example "personal"
+       */
+      tipo?: "personal" | "corporativo";
     };
     export type RequestBody = never;
     export type RequestHeaders = {};
@@ -16585,6 +16657,38 @@ export namespace Alquileres {
     export type RequestBody = AlquilerCreateDto;
     export type RequestHeaders = {};
     export type ResponseBody = AlquileresCreateData;
+  }
+
+  /**
+   * No description
+   * @tags alquileres
+   * @name AlquileresValidarVehiculo
+   * @summary Validar disponibilidad y estado del vehículo para alquiler
+   * @request GET:/admin/alquileres/validar-vehiculo
+   * @secure
+   * @response `200` `AlquileresValidarVehiculoData`
+   */
+  export namespace AlquileresValidarVehiculo {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /** ID del vehículo a validar */
+      vehiculoId: number;
+      /**
+       * Fecha de inicio del alquiler
+       * @format date-time
+       */
+      fechaInicio: string;
+      /**
+       * Fecha de fin del alquiler
+       * @format date-time
+       */
+      fechaFin?: string;
+      /** ID del alquiler actual (para excluirlo de la validación de cruces) */
+      alquilerId?: number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = AlquileresValidarVehiculoData;
   }
 
   /**
@@ -21951,6 +22055,30 @@ export class Api<SecurityDataType extends unknown> {
         body: data,
         secure: true,
         type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags alquileres
+     * @name AlquileresValidarVehiculo
+     * @summary Validar disponibilidad y estado del vehículo para alquiler
+     * @request GET:/admin/alquileres/validar-vehiculo
+     * @secure
+     * @response `200` `AlquileresValidarVehiculoData`
+     */
+    validarVehiculo: (
+      query: AlquileresValidarVehiculoParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<AlquileresValidarVehiculoData, any>({
+        path: `/admin/alquileres/validar-vehiculo`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
         ...params,
       }),
 
@@ -21997,6 +22125,7 @@ export class Api<SecurityDataType extends unknown> {
         body: data,
         secure: true,
         type: ContentType.Json,
+        format: "json",
         ...params,
       }),
 
@@ -22042,6 +22171,7 @@ export class Api<SecurityDataType extends unknown> {
         body: data,
         secure: true,
         type: ContentType.Json,
+        format: "json",
         ...params,
       }),
 
