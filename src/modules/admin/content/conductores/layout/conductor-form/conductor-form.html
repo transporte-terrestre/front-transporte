@@ -23,15 +23,22 @@
       <label class="block text-xs font-inter-semibold text-text mb-1.5">
         {{ conductorForm.get('tipoDocumento')?.value === 'DNI' ? 'DNI' : 'Nro. Documento' }}
       </label>
-      <input
-        type="text"
-        formControlName="dni"
-        [maxlength]="conductorForm.get('tipoDocumento')?.value === 'DNI' ? 8 : 20"
-        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-        [placeholder]="
-          conductorForm.get('tipoDocumento')?.value === 'DNI' ? '12345678' : 'Número de documento'
-        "
-      />
+      <div class="relative">
+        <input
+          type="text"
+          formControlName="dni"
+          [maxlength]="conductorForm.get('tipoDocumento')?.value === 'DNI' ? 8 : 20"
+          class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+          [placeholder]="
+            conductorForm.get('tipoDocumento')?.value === 'DNI' ? '12345678' : 'Número de documento'
+          "
+        />
+        @if (searchingDni()) {
+        <div class="absolute right-3 top-1/2 -translate-y-1/2">
+          <i class="fas fa-circle-notch fa-spin text-secondary text-xs"></i>
+        </div>
+        }
+      </div>
       @if (conductorForm.get('dni')?.touched && conductorForm.get('dni')?.errors) {
         <p class="text-danger text-xs font-inter-medium mt-1">
           {{
@@ -218,18 +225,20 @@
   </div>
 
   <!-- Documentos -->
-  @if (editMode() && conductor()) {
+  @if (!editMode() || (editMode() && conductor())) {
     <div class="space-y-4 mt-6">
       <div class="flex items-center justify-between mb-4">
         <h3 class="text-sm font-inter-bold text-text">Documentos</h3>
-        <button
-          type="button"
-          (click)="downloadAllDocuments()"
-          class="flex items-center gap-2 px-3 py-1.5 text-xs font-inter-medium text-secondary border border-secondary/20 rounded-lg hover:bg-secondary/5 transition-colors"
-        >
-          <i class="fas fa-download"></i>
-          Descargar todo (.zip)
-        </button>
+        @if (editMode()) {
+          <button
+            type="button"
+            (click)="downloadAllDocuments()"
+            class="flex items-center gap-2 px-3 py-1.5 text-xs font-inter-medium text-secondary border border-secondary/20 rounded-lg hover:bg-secondary/5 transition-colors"
+          >
+            <i class="fas fa-download"></i>
+            Descargar todo (.zip)
+          </button>
+        }
       </div>
       <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
         @for (docType of documentTypes; track docType.value) {

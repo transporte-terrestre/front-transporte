@@ -52,12 +52,19 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
       <div>
         <label class="block text-xs font-inter-semibold text-text mb-1.5">DNI</label>
-        <input
-          type="text"
-          formControlName="dni"
-          class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-          placeholder="12345678"
-        />
+        <div class="relative">
+          <input
+            type="text"
+            formControlName="dni"
+            class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+            placeholder="12345678"
+          />
+          @if (searchingDni()) {
+            <div class="absolute right-3 top-1/2 -translate-y-1/2">
+              <i class="fas fa-circle-notch fa-spin text-secondary text-xs"></i>
+            </div>
+          }
+        </div>
         @if (clienteForm.get('dni')?.touched && clienteForm.get('dni')?.errors) {
           <p class="text-danger text-xs font-inter-medium mt-1">
             El DNI es requerido (máx. 20 caracteres)
@@ -112,12 +119,19 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
       <div>
         <label class="block text-xs font-inter-semibold text-text mb-1.5">RUC</label>
-        <input
-          type="text"
-          formControlName="ruc"
-          class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-          placeholder="20123456789"
-        />
+        <div class="relative">
+          <input
+            type="text"
+            formControlName="ruc"
+            class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+            placeholder="20123456789"
+          />
+          @if (searchingRuc()) {
+            <div class="absolute right-3 top-1/2 -translate-y-1/2">
+              <i class="fas fa-circle-notch fa-spin text-secondary text-xs"></i>
+            </div>
+          }
+        </div>
         @if (clienteForm.get('ruc')?.touched && clienteForm.get('ruc')?.errors) {
           <p class="text-danger text-xs font-inter-medium mt-1">
             El RUC es requerido (máx. 20 caracteres)
@@ -337,7 +351,7 @@
   }
 
   <!-- Documentos -->
-  @if (editMode() && cliente()) {
+  @if (!editMode() || (editMode() && cliente())) {
     <div class="space-y-4 mt-6">
       <h3 class="text-sm font-inter-bold text-text mb-4">Documentos</h3>
       <div class="grid grid-cols-1 gap-4">

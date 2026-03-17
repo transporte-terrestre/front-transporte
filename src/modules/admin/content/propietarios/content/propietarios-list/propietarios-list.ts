@@ -9,7 +9,7 @@ import { ApiResponse, ApiBody } from 'api/backend.api';
 import { ToastService } from '@service/toast.service';
 import { AlertService } from '@service/alert.service';
 import { ModalForm } from '../../../../components/modal-form/modal-form';
-import { PropietarioForm } from '../../layout/propietario-form/propietario-form';
+import { PropietarioForm, PropietarioFormSubmitData, PendingPropietarioDocument } from '../../layout/propietario-form/propietario-form';
 import { PaginationComponent } from '../../../../components/pagination/pagination';
 import { PATH, buildPath } from '@route/path.route';
 import { getErrorMessage } from '@helper/error.helper';
@@ -122,28 +122,48 @@ export class PropietariosList implements OnInit, OnDestroy {
     this.showModal.set(false);
   }
 
-  handleFormSubmit(data: ApiBody<'propietarios', 'create'> | ApiBody<'propietarios', 'update'>) {
-    this.createPropietario(data as ApiBody<'propietarios', 'create'>);
+  handleFormSubmit(data: PropietarioFormSubmitData) {
+    this.createPropietario(data);
   }
 
   handleModalSubmit() {
     this.propietarioFormComponent()?.submitForm();
   }
 
-  createPropietario(data: ApiBody<'propietarios', 'create'>) {
+  async createPropietario(data: PropietarioFormSubmitData) {
     this.loading.set(true);
-    this.propietarioService
-      .create(data)
-      .then(() => {
-        this.toastService.success('Propietario creado exitosamente');
-        this.loadPropietarios();
-        this.closeModal();
-      })
-      .catch((error) => {
-        console.error('Error al crear propietario:', error);
-        this.toastService.error(getErrorMessage(error, 'Error al crear propietario'));
-        this.loading.set(false);
-      });
+    try {
+      const creationData = data as (ApiBody<'propietarios', 'create'> & { documentos?: PendingPropietarioDocument[] });
+      const { documentos, ...propietarioData } = creationData;
+      const newPropietario = await this.propietarioService.create(propietarioData);
+
+      // Si hay documentos adjuntos, los creamos uno por uno
+      if (documentos && documentos.length > 0) {
+        for (const doc of documentos) {
+          try {
+            await this.propietarioService.createDocumento({
+              propietarioId: newPropietario.id,
+              tipo: doc.tipo as any,
+              nombre: doc.data.nombre,
+              url: doc.data.url,
+              fechaEmision: doc.data.fechaEmision,
+              fechaExpiracion: doc.data.fechaExpiracion,
+            });
+          } catch (docError) {
+            console.error(`Error al subir documento ${doc.tipo}:`, docError);
+            this.toastService.error(`No se pudo subir el documento: ${doc.tipo}`);
+          }
+        }
+      }
+
+      this.toastService.success('Propietario creado exitosamente');
+      this.loadPropietarios();
+      this.closeModal();
+    } catch (error) {
+      console.error('Error al crear propietario:', error);
+      this.toastService.error(getErrorMessage(error, 'Error al crear propietario'));
+      this.loading.set(false);
+    }
   }
 
   deletePropietario(id: number) {

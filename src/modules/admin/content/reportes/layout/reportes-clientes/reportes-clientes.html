@@ -118,7 +118,7 @@
               @if (alquileres().length > 0) {
                 <div class="flex flex-col gap-2">
                   @for (alquiler of alquileres(); track alquiler.id) {
-                    <div class="flex items-center justify-between p-3 rounded-xl border border-text/5 hover:bg-text/[0.02] transition-colors">
+                    <div class="flex items-center justify-between p-3 rounded-xl border border-text/5 hover:bg-text/2 transition-colors">
                       <div class="flex items-center gap-3">
                         <div class="w-8 h-8 bg-text/5 rounded-lg flex items-center justify-center">
                           <i class="fas fa-car text-xs text-text/40"></i>
@@ -172,7 +172,7 @@
               @if (vehiculos().length > 0) {
                 <div class="flex flex-col gap-2">
                   @for (vehiculo of vehiculos(); track vehiculo.id) {
-                    <div class="flex items-center justify-between p-3 rounded-xl border border-text/5 hover:bg-text/[0.02] transition-colors">
+                    <div class="flex items-center justify-between p-3 rounded-xl border border-text/5 hover:bg-text/2 transition-colors">
                       <div class="flex items-center gap-3">
                         <div class="w-8 h-8 bg-text/5 rounded-lg flex items-center justify-center">
                           <i class="fas fa-truck text-xs text-text/40"></i>
@@ -221,7 +221,7 @@
               @if (pasajeros().length > 0) {
                 <div class="flex flex-col gap-2">
                   @for (pasajero of pasajeros(); track pasajero.id) {
-                    <div class="flex items-center justify-between p-3 rounded-xl border border-text/5 hover:bg-text/[0.02] transition-colors">
+                    <div class="flex items-center justify-between p-3 rounded-xl border border-text/5 hover:bg-text/2 transition-colors">
                       <div class="flex items-center gap-3">
                         <div class="w-8 h-8 bg-text/5 rounded-full flex items-center justify-center">
                           <i class="fas fa-user-check text-[10px] text-text/40"></i>
@@ -261,7 +261,7 @@
               @if (entidades().length > 0) {
                 <div class="flex flex-col gap-2">
                   @for (entidad of entidades(); track entidad.id) {
-                    <div class="flex items-center gap-3 p-3 rounded-xl border border-text/5 bg-text/[0.01] hover:bg-text/[0.02] transition-all">
+                    <div class="flex items-center gap-3 p-3 rounded-xl border border-text/5 bg-text/1 hover:bg-text/2 transition-all">
                       <div class="w-8 h-8 bg-text/5 rounded-lg flex items-center justify-center shrink-0">
                         <i class="fas fa-link text-[10px] text-text/40"></i>
                       </div>
@@ -299,7 +299,7 @@
             Selecciona un cliente de la lista lateral para visualizar su perfil completo, flota propia, servicios contratados y entidades vinculadas.
           </p>
 
-          <div class="flex items-center gap-3 px-5 py-2.5 bg-text/[0.02] border border-text/5 rounded-2xl">
+          <div class="flex items-center gap-3 px-5 py-2.5 bg-text/2 border border-text/5 rounded-2xl">
             <div class="flex -space-x-2">
               <div class="w-6 h-6 rounded-full border-2 border-background bg-text/5 flex items-center justify-center"><i class="fas fa-car text-[8px] text-text/30"></i></div>
               <div class="w-6 h-6 rounded-full border-2 border-background bg-text/5 flex items-center justify-center"><i class="fas fa-building text-[8px] text-text/30"></i></div>

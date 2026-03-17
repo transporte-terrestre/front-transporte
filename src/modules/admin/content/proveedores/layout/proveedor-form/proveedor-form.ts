@@ -1,7 +1,7 @@
 import { Component, inject, input, output, OnInit, effect, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ApiResponse, ApiBody, ApiField } from 'api/backend.api';
+import { ApiResponse, ApiBody, ApiField, ProveedorDocumentoResultDto, DocumentosAgrupadosProveedorDto } from 'api/backend.api';
 import { ImagesUpload } from '@module/admin/components/images-upload/images-upload';
 import {
   DocumentsDateUpload,
@@ -10,6 +10,18 @@ import {
 import { ProveedorService } from '@service/admin/proveedor.service';
 import { ToastService } from '@service/toast.service';
 import { getErrorMessage } from '@helper/error.helper';
+import { debounceTime, distinctUntilChanged, filter } from 'rxjs/operators';
+import { ApisPeruService } from '@service/out/apisperu.service';
+
+export interface PendingProveedorDocument {
+  tipo: keyof DocumentosAgrupadosProveedorDto;
+  data: DocumentWithDate;
+  tempId: number;
+}
+
+export type ProveedorFormSubmitData =
+  | (ApiBody<'proveedores', 'create'> & { documentos?: PendingProveedorDocument[] })
+  | ApiBody<'proveedores', 'update'>;
 
 @Component({
   selector: 'app-proveedor-form',
@@ -22,17 +34,23 @@ export class ProveedorForm implements OnInit {
   private fb = inject(FormBuilder);
   private proveedorService = inject(ProveedorService);
   private toastService = inject(ToastService);
+  private apisPeruService = inject(ApisPeruService);
 
   // Inputs
   proveedor = input<ApiResponse<'proveedores', 'findOne'> | null>(null);
   editMode = input<boolean>(false);
 
   // Outputs
-  onSubmitForm = output<ApiBody<'proveedores', 'create'> | ApiBody<'proveedores', 'update'>>();
+  onSubmitForm = output<ProveedorFormSubmitData>();
 
   // State
   imagenes = signal<string[]>([]);
-  localDocuments = signal<ApiResponse<'proveedores', 'findOne'>['documentos'] | null>(null);
+  localDocuments = signal<DocumentosAgrupadosProveedorDto | null>({} as DocumentosAgrupadosProveedorDto);
+  pendingDocuments = signal<PendingProveedorDocument[]>([]);
+  private tempIdCounter = 0;
+
+  searchingDni = signal(false);
+  searchingRuc = signal(false);
 
   proveedorForm: FormGroup = this.fb.group({
     tipoDocumento: ['DNI', [Validators.required]],
@@ -47,7 +65,7 @@ export class ProveedorForm implements OnInit {
   });
 
   documentTypes: {
-    value: keyof ApiField<'proveedores', 'findOne', 'documentos'>;
+    value: keyof DocumentosAgrupadosProveedorDto;
     label: string;
   }[] = [
     { value: 'dni', label: 'DNI' },
@@ -78,7 +96,8 @@ export class ProveedorForm implements OnInit {
       } else {
         this.proveedorForm.reset({ tipoDocumento: 'DNI' });
         this.imagenes.set([]);
-        this.localDocuments.set(null);
+        this.localDocuments.set({} as DocumentosAgrupadosProveedorDto);
+        this.pendingDocuments.set([]);
       }
     });
   }
@@ -113,6 +132,66 @@ export class ProveedorForm implements OnInit {
       apellidosControl?.updateValueAndValidity();
       razonSocialControl?.updateValueAndValidity();
     });
+
+    // Autocompletado DNI
+    this.proveedorForm
+      .get('dni')
+      ?.valueChanges.pipe(
+        debounceTime(500),
+        distinctUntilChanged(),
+        filter(
+          (value) =>
+            value && value.length === 8 && this.proveedorForm.get('tipoDocumento')?.value === 'DNI',
+        ),
+      )
+      .subscribe(async (dni) => {
+        try {
+          this.searchingDni.set(true);
+          const data = await this.apisPeruService.getDni(dni);
+          if (data.success) {
+            this.proveedorForm.patchValue({
+              nombres: data.nombres,
+              apellidos: `${data.apellidoPaterno} ${data.apellidoMaterno}`,
+            });
+            this.toastService.success('DNI encontrado');
+          }
+        } catch (error) {
+          console.error('Error al consultar DNI:', error);
+          this.toastService.error('Error al consultar DNI');
+        } finally {
+          this.searchingDni.set(false);
+        }
+      });
+
+    // Autocompletado RUC
+    this.proveedorForm
+      .get('ruc')
+      ?.valueChanges.pipe(
+        debounceTime(500),
+        distinctUntilChanged(),
+        filter(
+          (value) =>
+            value && value.length === 11 && this.proveedorForm.get('tipoDocumento')?.value === 'RUC',
+        ),
+      )
+      .subscribe(async (ruc) => {
+        try {
+          this.searchingRuc.set(true);
+          const data = await this.apisPeruService.getRuc(ruc);
+          if (data && data.razonSocial) {
+            this.proveedorForm.patchValue({
+              razonSocial: data.razonSocial,
+              direccion: data.direccion || this.proveedorForm.get('direccion')?.value,
+            });
+            this.toastService.success('RUC encontrado');
+          }
+        } catch (error) {
+          console.error('Error al consultar RUC:', error);
+          this.toastService.error('Error al consultar RUC');
+        } finally {
+          this.searchingRuc.set(false);
+        }
+      });
   }
 
   onImagesChange(images: string[]) {
@@ -125,41 +204,55 @@ export class ProveedorForm implements OnInit {
       return;
     }
 
-    const formData = this.proveedorForm.value;
+    const formDataValue = this.proveedorForm.value;
     const cleanData: any = {
-      tipoDocumento: formData.tipoDocumento,
+      tipoDocumento: formDataValue.tipoDocumento,
       imagenes: this.imagenes(),
     };
 
-    if (formData.tipoDocumento === 'DNI') {
-      cleanData.dni = formData.dni;
-      cleanData.nombres = formData.nombres;
-      cleanData.apellidos = formData.apellidos;
+    if (formDataValue.tipoDocumento === 'DNI') {
+      cleanData.dni = formDataValue.dni;
+      cleanData.nombres = formDataValue.nombres;
+      cleanData.apellidos = formDataValue.apellidos;
     } else {
-      cleanData.ruc = formData.ruc;
-      cleanData.razonSocial = formData.razonSocial;
+      cleanData.ruc = formDataValue.ruc;
+      cleanData.razonSocial = formDataValue.razonSocial;
     }
 
-    if (formData.email) cleanData.email = formData.email;
-    if (formData.telefono) cleanData.telefono = formData.telefono;
-    if (formData.direccion) cleanData.direccion = formData.direccion;
+    if (formDataValue.email) cleanData.email = formDataValue.email;
+    if (formDataValue.telefono) cleanData.telefono = formDataValue.telefono;
+    if (formDataValue.direccion) cleanData.direccion = formDataValue.direccion;
 
-    if (this.editMode()) {
-      this.onSubmitForm.emit(cleanData as ApiBody<'proveedores', 'update'>);
-    } else {
-      this.onSubmitForm.emit(cleanData as ApiBody<'proveedores', 'create'>);
+    // Documents for creation mode
+    if (!this.editMode()) {
+      cleanData.documentos = this.pendingDocuments();
     }
+
+    this.onSubmitForm.emit(cleanData as ProveedorFormSubmitData);
   }
 
-  handleDocumentUpload(
+  async handleDocumentUpload(
     event: DocumentWithDate,
-    tipo: keyof ApiField<'proveedores', 'findOne', 'documentos'>
+    tipo: keyof DocumentosAgrupadosProveedorDto
   ) {
+    if (!this.editMode()) {
+      // Creation mode: save locally with a temporary ID
+      const tempId = --this.tempIdCounter;
+      const doc: ProveedorDocumentoResultDto = {
+        ...event,
+        id: tempId,
+        tipo: tipo,
+      } as ProveedorDocumentoResultDto;
+      this.addDocumentToLocalList(doc);
+      this.pendingDocuments.update((prev) => [...prev, { tipo, data: event, tempId }]);
+      return;
+    }
+
     if (!this.proveedor()) return;
 
     const documento: ApiBody<'proveedores', 'createDocumento'> = {
       proveedorId: this.proveedor()!.id,
-      tipo: tipo,
+      tipo: tipo as "dni" | "ruc" | "contrato" | "otros",
       nombre: event.nombre,
       url: event.url,
       fechaEmision: event.fechaEmision,
@@ -178,23 +271,67 @@ export class ProveedorForm implements OnInit {
       });
   }
 
-  handleDocumentUpdate(event: { id: number; fechaEmision: string; fechaExpiracion: string }) {
-    this.proveedorService
-      .updateDocumento(event.id, {
+  async handleDocumentUpdate(event: { id: number; fechaEmision: string; fechaExpiracion: string }) {
+    if (event.id < 0) {
+      // Pending document in creation mode
+      this.pendingDocuments.update((prev) =>
+        prev.map((d) =>
+          d.tempId === event.id
+            ? {
+                ...d,
+                data: {
+                  ...d.data,
+                  fechaEmision: event.fechaEmision,
+                  fechaExpiracion: event.fechaExpiracion,
+                },
+              }
+            : d
+        )
+      );
+      // Also update local list for UI
+      const docs = this.localDocuments();
+      if (docs) {
+        const newDocs = { ...docs };
+        for (const tipo in newDocs) {
+          const t = tipo as keyof DocumentosAgrupadosProveedorDto;
+          if (newDocs[t]) {
+            newDocs[t] = (newDocs[t] as Array<ProveedorDocumentoResultDto>).map((d) =>
+              d.id === event.id
+                ? ({
+                    ...d,
+                    fechaEmision: event.fechaEmision,
+                    fechaExpiracion: event.fechaExpiracion,
+                  } as ProveedorDocumentoResultDto)
+                : d
+            );
+          }
+        }
+        this.localDocuments.set(newDocs);
+      }
+      return;
+    }
+
+    try {
+      const doc = await this.proveedorService.updateDocumento(event.id, {
         fechaEmision: event.fechaEmision,
         fechaExpiracion: event.fechaExpiracion,
-      })
-      .then((doc) => {
-        this.toastService.success('Documento actualizado exitosamente');
-        this.updateDocumentInLocalList(doc);
-      })
-      .catch((err) => {
-        console.error('Error al actualizar documento:', err);
-        this.toastService.error(getErrorMessage(err, 'Error al actualizar documento'));
       });
+      this.toastService.success('Documento actualizado exitosamente');
+      this.updateDocumentInLocalList(doc);
+    } catch (err) {
+      console.error('Error al actualizar documento:', err);
+      this.toastService.error(getErrorMessage(err, 'Error al actualizar documento'));
+    }
   }
 
-  deleteDocument(id: number, tipo: keyof ApiField<'proveedores', 'findOne', 'documentos'>) {
+  deleteDocument(id: number, tipo: keyof DocumentosAgrupadosProveedorDto) {
+    if (id < 0) {
+      // Pending document in creation mode
+      this.pendingDocuments.update((prev) => prev.filter((d) => d.tempId !== id));
+      this.removeDocumentFromLocalList(id, tipo);
+      return;
+    }
+
     this.proveedorService
       .deleteDocumento(id)
       .then(() => {
@@ -207,9 +344,7 @@ export class ProveedorForm implements OnInit {
       });
   }
 
-  private addDocumentToLocalList(
-    doc: ApiField<'proveedores', 'findOne', 'documentos'>['dni'][number]
-  ) {
+  private addDocumentToLocalList(doc: ProveedorDocumentoResultDto) {
     const docs = this.localDocuments();
     if (docs) {
       const tipo = doc.tipo;
@@ -222,9 +357,7 @@ export class ProveedorForm implements OnInit {
     }
   }
 
-  private updateDocumentInLocalList(
-    doc: ApiField<'proveedores', 'findOne', 'documentos'>['dni'][number]
-  ) {
+  private updateDocumentInLocalList(doc: ProveedorDocumentoResultDto) {
     const docs = this.localDocuments();
     if (docs) {
       const tipo = doc.tipo;
@@ -236,10 +369,7 @@ export class ProveedorForm implements OnInit {
     }
   }
 
-  private removeDocumentFromLocalList(
-    id: number,
-    tipo: keyof ApiField<'proveedores', 'findOne', 'documentos'>
-  ) {
+  private removeDocumentFromLocalList(id: number, tipo: keyof DocumentosAgrupadosProveedorDto) {
     const docs = this.localDocuments();
     if (docs) {
       if (docs[tipo]) {
@@ -250,11 +380,9 @@ export class ProveedorForm implements OnInit {
     }
   }
 
-  getDocuments(
-    tipo: keyof ApiField<'proveedores', 'findOne', 'documentos'>
-  ): ApiField<'proveedores', 'findOne', 'documentos'>['dni'] {
+  getDocuments(tipo: keyof DocumentosAgrupadosProveedorDto): ProveedorDocumentoResultDto[] {
     const docs = this.localDocuments();
     if (!docs) return [];
-    return docs[tipo] || [];
+    return (docs[tipo] as ProveedorDocumentoResultDto[]) || [];
   }
 }

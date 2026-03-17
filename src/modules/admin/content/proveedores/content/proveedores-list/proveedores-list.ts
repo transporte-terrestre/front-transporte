@@ -9,7 +9,7 @@ import { ApiResponse, ApiBody } from 'api/backend.api';
 import { ToastService } from '@service/toast.service';
 import { AlertService } from '@service/alert.service';
 import { ModalForm } from '../../../../components/modal-form/modal-form';
-import { ProveedorForm } from '../../layout/proveedor-form/proveedor-form';
+import { ProveedorForm, ProveedorFormSubmitData, PendingProveedorDocument } from '../../layout/proveedor-form/proveedor-form';
 import { PaginationComponent } from '../../../../components/pagination/pagination';
 import { PATH, buildPath } from '@route/path.route';
 import { getErrorMessage } from '@helper/error.helper';
@@ -122,28 +122,48 @@ export class ProveedoresList implements OnInit, OnDestroy {
     this.showModal.set(false);
   }
 
-  handleFormSubmit(data: ApiBody<'proveedores', 'create'> | ApiBody<'proveedores', 'update'>) {
-    this.createProveedor(data as ApiBody<'proveedores', 'create'>);
+  handleFormSubmit(data: ProveedorFormSubmitData) {
+    this.createProveedor(data);
   }
 
   handleModalSubmit() {
     this.proveedorFormComponent()?.submitForm();
   }
 
-  createProveedor(data: ApiBody<'proveedores', 'create'>) {
+  async createProveedor(data: ProveedorFormSubmitData) {
     this.loading.set(true);
-    this.proveedorService
-      .create(data)
-      .then(() => {
-        this.toastService.success('Proveedor creado exitosamente');
-        this.loadProveedores();
-        this.closeModal();
-      })
-      .catch((error) => {
-        console.error('Error al crear proveedor:', error);
-        this.toastService.error(getErrorMessage(error, 'Error al crear proveedor'));
-        this.loading.set(false);
-      });
+    try {
+      const creationData = data as (ApiBody<'proveedores', 'create'> & { documentos?: PendingProveedorDocument[] });
+      const { documentos, ...proveedorData } = creationData;
+      const newProveedor = await this.proveedorService.create(proveedorData);
+
+      // Si hay documentos adjuntos, los creamos uno por uno
+      if (documentos && documentos.length > 0) {
+        for (const doc of documentos) {
+          try {
+            await this.proveedorService.createDocumento({
+              proveedorId: newProveedor.id,
+              tipo: doc.tipo as any,
+              nombre: doc.data.nombre,
+              url: doc.data.url,
+              fechaEmision: doc.data.fechaEmision,
+              fechaExpiracion: doc.data.fechaExpiracion,
+            });
+          } catch (docError) {
+            console.error(`Error al subir documento ${doc.tipo}:`, docError);
+            this.toastService.error(`No se pudo subir el documento: ${doc.tipo}`);
+          }
+        }
+      }
+
+      this.toastService.success('Proveedor creado exitosamente');
+      this.loadProveedores();
+      this.closeModal();
+    } catch (error) {
+      console.error('Error al crear proveedor:', error);
+      this.toastService.error(getErrorMessage(error, 'Error al crear proveedor'));
+      this.loading.set(false);
+    }
   }
 
   deleteProveedor(id: number) {

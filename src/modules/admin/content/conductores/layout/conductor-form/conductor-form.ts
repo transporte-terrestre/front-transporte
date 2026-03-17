@@ -1,7 +1,7 @@
 import { Component, inject, input, output, OnInit, effect, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ApiResponse, ApiBody, ApiField } from 'api/backend.api';
+import { ApiResponse, ApiBody, ApiField, ConductorDocumentoResultDto, DocumentosAgrupadosConductorDto } from 'api/backend.api';
 import { ImagesUpload } from '@module/admin/components/images-upload/images-upload';
 import {
   DocumentsDateUpload,
@@ -10,6 +10,18 @@ import {
 import { ConductorService } from '@service/admin/conductor.service';
 import { ToastService } from '@service/toast.service';
 import { getErrorMessage } from '@helper/error.helper';
+import { debounceTime, distinctUntilChanged, filter } from 'rxjs/operators';
+import { ApisPeruService } from '@service/out/apisperu.service';
+
+export interface PendingConductorDocument {
+  tipo: keyof DocumentosAgrupadosConductorDto;
+  data: DocumentWithDate;
+  tempId: number;
+}
+
+export type ConductorFormSubmitData =
+  | (ApiBody<'conductores', 'create'> & { documentos?: PendingConductorDocument[] })
+  | ApiBody<'conductores', 'update'>;
 
 @Component({
   selector: 'app-conductor-form',
@@ -21,17 +33,22 @@ export class ConductorForm implements OnInit {
   private fb = inject(FormBuilder);
   private conductorService = inject(ConductorService);
   private toastService = inject(ToastService);
+  private apisPeruService = inject(ApisPeruService);
 
   // Inputs
   conductor = input<ApiResponse<'conductores', 'findOne'> | null>(null);
   editMode = input<boolean>(false);
 
   // Outputs
-  onSubmitForm = output<ApiBody<'conductores', 'create'> | ApiBody<'conductores', 'update'>>();
+  onSubmitForm = output<ConductorFormSubmitData>();
 
   // State
   imagenes = signal<string[]>([]);
-  localDocuments = signal<ApiResponse<'conductores', 'findOne'>['documentos'] | null>(null);
+  localDocuments = signal<DocumentosAgrupadosConductorDto | null>({} as DocumentosAgrupadosConductorDto);
+  pendingDocuments = signal<PendingConductorDocument[]>([]);
+  private tempIdCounter = 0;
+
+  searchingDni = signal(false);
 
   conductorForm: FormGroup = this.fb.group({
     tipoDocumento: ['DNI', [Validators.required]],
@@ -79,7 +96,7 @@ export class ConductorForm implements OnInit {
   };
 
   documentTypes: {
-    value: keyof ApiField<'conductores', 'findOne', 'documentos'>;
+    value: keyof DocumentosAgrupadosConductorDto;
     label: string;
   }[] = [
     { value: 'dni', label: 'DNI' },
@@ -152,7 +169,8 @@ export class ConductorForm implements OnInit {
         this.conductorForm.get('contrasenia')?.updateValueAndValidity();
 
         this.imagenes.set([]);
-        this.localDocuments.set(null);
+        this.localDocuments.set({} as DocumentosAgrupadosConductorDto);
+        this.pendingDocuments.set([]);
         this.updateDniValidators('DNI');
       }
     });
@@ -167,6 +185,36 @@ export class ConductorForm implements OnInit {
     this.conductorForm.get('claseLicencia')?.valueChanges.subscribe((clase) => {
       this.updateCategorias(clase);
     });
+
+    // Autocompletado DNI
+    this.conductorForm
+      .get('dni')
+      ?.valueChanges.pipe(
+        debounceTime(500),
+        distinctUntilChanged(),
+        filter(
+          (value) =>
+            value && value.length === 8 && this.conductorForm.get('tipoDocumento')?.value === 'DNI',
+        ),
+      )
+      .subscribe(async (dni) => {
+        try {
+          this.searchingDni.set(true);
+          const data = await this.apisPeruService.getDni(dni);
+          if (data.success) {
+            this.conductorForm.patchValue({
+              nombres: data.nombres,
+              apellidos: `${data.apellidoPaterno} ${data.apellidoMaterno}`,
+            });
+            this.toastService.success('DNI encontrado');
+          }
+        } catch (error) {
+          console.error('Error al consultar DNI:', error);
+          this.toastService.error('Error al consultar DNI');
+        } finally {
+          this.searchingDni.set(false);
+        }
+      });
   }
 
   updateCategorias(clase: string) {
@@ -205,35 +253,47 @@ export class ConductorForm implements OnInit {
       return;
     }
 
+    const formValue = this.conductorForm.value;
     const formData = {
-      ...this.conductorForm.value,
+      ...formValue,
       fotocheck: this.imagenes(),
-      documentosNoAplicables: this.conductorForm.value.documentosNoAplicables || [],
-    };
+      documentosNoAplicables: formValue.documentosNoAplicables || [],
+      // Documents for creation mode
+      documentos: !this.editMode() ? this.pendingDocuments() : undefined,
+    } as ConductorFormSubmitData;
 
     // Remove empty password if edit
-    if (this.editMode() && !formData.contrasenia) {
-      delete formData.contrasenia;
+    if (this.editMode() && !(formData as ApiBody<'conductores', 'update'>).contrasenia) {
+      delete (formData as ApiBody<'conductores', 'update'>).contrasenia;
     }
 
-    if (this.editMode()) {
-      this.onSubmitForm.emit(formData as ApiBody<'conductores', 'update'>);
-    } else {
-      this.onSubmitForm.emit(formData as ApiBody<'conductores', 'create'>);
-    }
+    this.onSubmitForm.emit(formData);
   }
 
   // Document Management
-  handleDocumentUpload(
+  async handleDocumentUpload(
     event: DocumentWithDate,
-    tipo: keyof ApiField<'conductores', 'findOne', 'documentos'>,
+    tipo: keyof DocumentosAgrupadosConductorDto,
   ) {
+    if (!this.editMode()) {
+      // Creation mode: save locally with a temporary ID
+      const tempId = --this.tempIdCounter;
+      const doc: ConductorDocumentoResultDto = {
+        ...event,
+        id: tempId,
+        tipo: tipo,
+      } as ConductorDocumentoResultDto;
+      this.addDocumentToLocalList(doc);
+      this.pendingDocuments.update((prev) => [...prev, { tipo, data: event, tempId }]);
+      return;
+    }
+
     if (!this.conductor()) return;
 
     // URL now comes directly from the event (already uploaded to Cloudinary)
     const documento: ApiBody<'conductores', 'createDocumento'> = {
       conductorId: this.conductor()!.id,
-      tipo: tipo,
+      tipo: tipo as "dni" | "licencia_mtc" | "seguro_vida_ley" | "sctr" | "examen_medico" | "examen_medico_temporal" | "psicosensometrico" | "induccion_general" | "induccion_visita" | "manejo_defensivo" | "licencia_interna" | "autoriza_ssgg" | "curso_seguridad_portuaria" | "curso_mercancias_peligrosas" | "curso_basico_pbip" | "em_visita" | "pase_conduc" | "foto_funcionario",
       nombre: event.nombre,
       url: event.url,
       fechaEmision: event.fechaEmision,
@@ -252,20 +312,57 @@ export class ConductorForm implements OnInit {
       });
   }
 
-  handleDocumentUpdate(event: { id: number; fechaEmision: string; fechaExpiracion: string }) {
-    this.conductorService
-      .updateDocumento(event.id, {
+  async handleDocumentUpdate(event: { id: number; fechaEmision: string; fechaExpiracion: string }) {
+    if (event.id < 0) {
+      // Pending document in creation mode
+      this.pendingDocuments.update((prev) =>
+        prev.map((d) =>
+          d.tempId === event.id
+            ? {
+                ...d,
+                data: {
+                  ...d.data,
+                  fechaEmision: event.fechaEmision,
+                  fechaExpiracion: event.fechaExpiracion,
+                },
+              }
+            : d,
+        ),
+      );
+      // Also update local list for UI
+      const docs = this.localDocuments();
+      if (docs) {
+        const newDocs = { ...docs };
+        for (const tipo in newDocs) {
+          const t = tipo as keyof DocumentosAgrupadosConductorDto;
+          if (newDocs[t]) {
+            newDocs[t] = (newDocs[t] as Array<ConductorDocumentoResultDto>).map((d) =>
+              d.id === event.id
+                ? ({
+                    ...d,
+                    fechaEmision: event.fechaEmision,
+                    fechaExpiracion: event.fechaExpiracion,
+                  } as ConductorDocumentoResultDto)
+                : d,
+            );
+          }
+        }
+        this.localDocuments.set(newDocs);
+      }
+      return;
+    }
+
+    try {
+      const doc = await this.conductorService.updateDocumento(event.id, {
         fechaEmision: event.fechaEmision,
         fechaExpiracion: event.fechaExpiracion,
-      })
-      .then((doc) => {
-        this.toastService.success('Documento actualizado exitosamente');
-        this.updateDocumentInLocalList(doc);
-      })
-      .catch((err) => {
-        console.error('Error al actualizar documento:', err);
-        this.toastService.error(getErrorMessage(err, 'Error al actualizar documento'));
       });
+      this.toastService.success('Documento actualizado exitosamente');
+      this.updateDocumentInLocalList(doc);
+    } catch (err) {
+      console.error('Error al actualizar documento:', err);
+      this.toastService.error(getErrorMessage(err, 'Error al actualizar documento'));
+    }
   }
 
   downloadAllDocuments() {
@@ -275,7 +372,14 @@ export class ConductorForm implements OnInit {
     }
   }
 
-  deleteDocument(id: number, tipo: keyof ApiField<'conductores', 'findOne', 'documentos'>) {
+  deleteDocument(id: number, tipo: keyof DocumentosAgrupadosConductorDto) {
+    if (id < 0) {
+      // Pending document in creation mode
+      this.pendingDocuments.update((prev) => prev.filter((d) => d.tempId !== id));
+      this.removeDocumentFromLocalList(id, tipo);
+      return;
+    }
+
     this.conductorService
       .deleteDocumento(id)
       .then(() => {
@@ -288,9 +392,7 @@ export class ConductorForm implements OnInit {
       });
   }
 
-  private addDocumentToLocalList(
-    doc: ApiField<'conductores', 'findOne', 'documentos'>['dni'][number],
-  ) {
+  private addDocumentToLocalList(doc: ConductorDocumentoResultDto) {
     const docs = this.localDocuments();
     if (docs) {
       const tipo = doc.tipo;
@@ -303,9 +405,7 @@ export class ConductorForm implements OnInit {
     }
   }
 
-  private updateDocumentInLocalList(
-    doc: ApiField<'conductores', 'findOne', 'documentos'>['dni'][number],
-  ) {
+  private updateDocumentInLocalList(doc: ConductorDocumentoResultDto) {
     const docs = this.localDocuments();
     if (docs) {
       const tipo = doc.tipo;
@@ -317,10 +417,7 @@ export class ConductorForm implements OnInit {
     }
   }
 
-  private removeDocumentFromLocalList(
-    id: number,
-    tipo: keyof ApiField<'conductores', 'findOne', 'documentos'>,
-  ) {
+  private removeDocumentFromLocalList(id: number, tipo: keyof DocumentosAgrupadosConductorDto) {
     const docs = this.localDocuments();
     if (docs) {
       if (docs[tipo]) {
@@ -331,12 +428,10 @@ export class ConductorForm implements OnInit {
     }
   }
 
-  getDocuments(
-    tipo: keyof ApiField<'conductores', 'findOne', 'documentos'>,
-  ): ApiField<'conductores', 'findOne', 'documentos'>['dni'] {
+  getDocuments(tipo: keyof DocumentosAgrupadosConductorDto): ConductorDocumentoResultDto[] {
     const docs = this.localDocuments();
     if (!docs) return [];
-    return docs[tipo] || [];
+    return (docs[tipo] as ConductorDocumentoResultDto[]) || [];
   }
 
   isNoAplica(docType: string): boolean {

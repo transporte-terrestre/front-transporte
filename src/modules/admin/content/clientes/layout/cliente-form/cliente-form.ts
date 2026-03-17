@@ -1,7 +1,7 @@
 import { Component, inject, input, output, OnInit, effect, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ApiResponse, ApiBody, ApiField } from 'api/backend.api';
+import { ApiResponse, ApiBody, ApiField, ClienteDocumentoResultDto, DocumentosAgrupadosClienteDto } from 'api/backend.api';
 import { ImagesUpload } from '@module/admin/components/images-upload/images-upload';
 import {
   DocumentsDateUpload,
@@ -11,6 +11,18 @@ import { ClienteService } from '@service/admin/cliente.service';
 import { ToastService } from '@service/toast.service';
 import { getErrorMessage } from '@helper/error.helper';
 import { AlertService } from '@service/alert.service';
+import { debounceTime, distinctUntilChanged, filter } from 'rxjs/operators';
+import { ApisPeruService } from '@service/out/apisperu.service';
+
+export interface PendingClienteDocument {
+  tipo: keyof DocumentosAgrupadosClienteDto;
+  data: DocumentWithDate;
+  tempId: number;
+}
+
+export type ClienteFormSubmitData =
+  | (ApiBody<'clientes', 'create'> & { documentos?: PendingClienteDocument[] })
+  | ApiBody<'clientes', 'update'>;
 
 import { PasajeroForm, PasajeroData } from './layout/pasajero-form/pasajero-form';
 import { EntidadForm, EntidadData } from './layout/entidad-form/entidad-form';
@@ -33,17 +45,20 @@ export class ClienteForm implements OnInit {
   private clienteService = inject(ClienteService);
   private toastService = inject(ToastService);
   private alertService = inject(AlertService);
+  private apisPeruService = inject(ApisPeruService);
 
   // Inputs
   cliente = input<ApiResponse<'clientes', 'findOne'> | null>(null);
   editMode = input<boolean>(false);
 
   // Outputs
-  onSubmitForm = output<ApiBody<'clientes', 'create'> | ApiBody<'clientes', 'update'>>();
+  onSubmitForm = output<ClienteFormSubmitData>();
 
   // State
   imagenes = signal<string[]>([]);
-  localDocuments = signal<ApiResponse<'clientes', 'findOne'>['documentos'] | null>(null);
+  localDocuments = signal<DocumentosAgrupadosClienteDto | null>({} as DocumentosAgrupadosClienteDto);
+  pendingDocuments = signal<PendingClienteDocument[]>([]);
+  private tempIdCounter = 0;
   pasajeros = signal<PasajeroData[]>([]);
   showPasajeroModal = signal(false);
   selectedPasajero = signal<PasajeroData | null>(null);
@@ -51,6 +66,9 @@ export class ClienteForm implements OnInit {
   entidades = signal<EntidadData[]>([]);
   showEntidadModal = signal(false);
   selectedEntidad = signal<EntidadData | null>(null);
+
+  searchingDni = signal(false);
+  searchingRuc = signal(false);
 
   clienteForm: FormGroup = this.fb.group({
     tipoDocumento: ['DNI', [Validators.required]],
@@ -66,7 +84,7 @@ export class ClienteForm implements OnInit {
   });
 
   documentTypes: {
-    value: keyof ApiField<'clientes', 'findOne', 'documentos'>;
+    value: keyof DocumentosAgrupadosClienteDto;
     label: string;
   }[] = [
     { value: 'dni', label: 'DNI' },
@@ -103,7 +121,8 @@ export class ClienteForm implements OnInit {
       } else {
         this.clienteForm.reset({ tipoDocumento: 'DNI' });
         this.imagenes.set([]);
-        this.localDocuments.set(null);
+        this.localDocuments.set({} as DocumentosAgrupadosClienteDto);
+        this.pendingDocuments.set([]);
       }
     });
   }
@@ -139,6 +158,65 @@ export class ClienteForm implements OnInit {
       apellidosControl?.updateValueAndValidity();
       razonSocialControl?.updateValueAndValidity();
     });
+
+    // Autocompletado DNI
+    this.clienteForm
+      .get('dni')
+      ?.valueChanges.pipe(
+        debounceTime(500),
+        distinctUntilChanged(),
+        filter(
+          (value) => value && value.length === 8 && this.clienteForm.get('tipoDocumento')?.value === 'DNI',
+        ),
+      )
+      .subscribe(async (dni) => {
+        try {
+          this.searchingDni.set(true);
+          const data = await this.apisPeruService.getDni(dni);
+          if (data.success) {
+            this.clienteForm.patchValue({
+              nombres: data.nombres,
+              apellidos: `${data.apellidoPaterno} ${data.apellidoMaterno}`,
+            });
+            this.toastService.success('DNI encontrado');
+          }
+        } catch (error) {
+          console.error('Error al consultar DNI:', error);
+          this.toastService.error('Error al consultar DNI');
+        } finally {
+          this.searchingDni.set(false);
+        }
+      });
+
+    // Autocompletado RUC
+    this.clienteForm
+      .get('ruc')
+      ?.valueChanges.pipe(
+        debounceTime(500),
+        distinctUntilChanged(),
+        filter(
+          (value) =>
+            value && value.length === 11 && this.clienteForm.get('tipoDocumento')?.value === 'RUC',
+        ),
+      )
+      .subscribe(async (ruc) => {
+        try {
+          this.searchingRuc.set(true);
+          const data = await this.apisPeruService.getRuc(ruc);
+          if (data && data.razonSocial) {
+            this.clienteForm.patchValue({
+              razonSocial: data.razonSocial,
+              direccion: data.direccion || this.clienteForm.get('direccion')?.value,
+            });
+            this.toastService.success('RUC encontrado');
+          }
+        } catch (error) {
+          console.error('Error al consultar RUC:', error);
+          this.toastService.error('Error al consultar RUC');
+        } finally {
+          this.searchingRuc.set(false);
+        }
+      });
   }
 
   onImagesChange(images: string[]) {
@@ -151,46 +229,59 @@ export class ClienteForm implements OnInit {
       return;
     }
 
-    const formData = this.clienteForm.value;
+    const formDataValue = this.clienteForm.value;
 
-    // Limpiar campos vacíos
-    const cleanData: any = {
-      tipoDocumento: formData.tipoDocumento,
+    const cleanData: ClienteFormSubmitData = {
+      tipoDocumento: formDataValue.tipoDocumento,
       imagenes: this.imagenes(),
-    };
+    } as ClienteFormSubmitData;
 
-    if (formData.tipoDocumento === 'DNI') {
-      cleanData.dni = formData.dni;
-      cleanData.nombres = formData.nombres;
-      cleanData.apellidos = formData.apellidos;
+    if (formDataValue.tipoDocumento === 'DNI') {
+      (cleanData as any).dni = formDataValue.dni;
+      (cleanData as any).nombres = formDataValue.nombres;
+      (cleanData as any).apellidos = formDataValue.apellidos;
     } else {
-      cleanData.ruc = formData.ruc;
-      cleanData.razonSocial = formData.razonSocial;
+      (cleanData as any).ruc = formDataValue.ruc;
+      (cleanData as any).razonSocial = formDataValue.razonSocial;
     }
 
-    if (formData.email) cleanData.email = formData.email;
-    if (formData.telefono) cleanData.telefono = formData.telefono;
-    if (formData.direccion) cleanData.direccion = formData.direccion;
-    if (formData.horasContrato) cleanData.horasContrato = formData.horasContrato;
+    if (formDataValue.email) (cleanData as any).email = formDataValue.email;
+    if (formDataValue.telefono) (cleanData as any).telefono = formDataValue.telefono;
+    if (formDataValue.direccion) (cleanData as any).direccion = formDataValue.direccion;
+    if (formDataValue.horasContrato) (cleanData as any).horasContrato = formDataValue.horasContrato;
 
-    if (this.editMode()) {
-      this.onSubmitForm.emit(cleanData as ApiBody<'clientes', 'update'>);
-    } else {
-      this.onSubmitForm.emit(cleanData as ApiBody<'clientes', 'create'>);
+    // Documents for creation mode
+    if (!this.editMode()) {
+      (cleanData as any).documentos = this.pendingDocuments();
     }
+
+    this.onSubmitForm.emit(cleanData);
   }
 
   // Document Management
-  handleDocumentUpload(
+  async handleDocumentUpload(
     event: DocumentWithDate,
-    tipo: keyof ApiField<'clientes', 'findOne', 'documentos'>,
+    tipo: keyof DocumentosAgrupadosClienteDto,
   ) {
+    if (!this.editMode()) {
+      // Creation mode: save locally with a temporary ID
+      const tempId = --this.tempIdCounter;
+      const doc: ClienteDocumentoResultDto = {
+        ...event,
+        id: tempId,
+        tipo: tipo,
+      } as ClienteDocumentoResultDto;
+      this.addDocumentToLocalList(doc);
+      this.pendingDocuments.update((prev) => [...prev, { tipo, data: event, tempId }]);
+      return;
+    }
+
     if (!this.cliente()) return;
 
     // URL now comes directly from the event (already uploaded to Cloudinary)
     const documento: ApiBody<'clientes', 'createDocumento'> = {
       clienteId: this.cliente()!.id,
-      tipo: tipo,
+      tipo: tipo as "dni" | "ruc" | "contrato" | "carta_compromiso" | "ficha_ruc" | "otros",
       nombre: event.nombre,
       url: event.url,
       fechaEmision: event.fechaEmision,
@@ -209,23 +300,67 @@ export class ClienteForm implements OnInit {
       });
   }
 
-  handleDocumentUpdate(event: { id: number; fechaEmision: string; fechaExpiracion: string }) {
-    this.clienteService
-      .updateDocumento(event.id, {
+  async handleDocumentUpdate(event: { id: number; fechaEmision: string; fechaExpiracion: string }) {
+    if (event.id < 0) {
+      // Pending document in creation mode
+      this.pendingDocuments.update((prev) =>
+        prev.map((d) =>
+          d.tempId === event.id
+            ? {
+                ...d,
+                data: {
+                  ...d.data,
+                  fechaEmision: event.fechaEmision,
+                  fechaExpiracion: event.fechaExpiracion,
+                },
+              }
+            : d
+        )
+      );
+      // Also update local list for UI
+      const docs = this.localDocuments();
+      if (docs) {
+        const newDocs = { ...docs };
+        for (const tipo in newDocs) {
+          const t = tipo as keyof DocumentosAgrupadosClienteDto;
+          if (newDocs[t]) {
+            newDocs[t] = (newDocs[t] as Array<ClienteDocumentoResultDto>).map((d) =>
+              d.id === event.id
+                ? ({
+                    ...d,
+                    fechaEmision: event.fechaEmision,
+                    fechaExpiracion: event.fechaExpiracion,
+                  } as ClienteDocumentoResultDto)
+                : d
+            );
+          }
+        }
+        this.localDocuments.set(newDocs);
+      }
+      return;
+    }
+
+    try {
+      const doc = await this.clienteService.updateDocumento(event.id, {
         fechaEmision: event.fechaEmision,
         fechaExpiracion: event.fechaExpiracion,
-      })
-      .then((doc) => {
-        this.toastService.success('Documento actualizado exitosamente');
-        this.updateDocumentInLocalList(doc);
-      })
-      .catch((err) => {
-        console.error('Error al actualizar documento:', err);
-        this.toastService.error(getErrorMessage(err, 'Error al actualizar documento'));
       });
+      this.toastService.success('Documento actualizado exitosamente');
+      this.updateDocumentInLocalList(doc);
+    } catch (err) {
+      console.error('Error al actualizar documento:', err);
+      this.toastService.error(getErrorMessage(err, 'Error al actualizar documento'));
+    }
   }
 
-  deleteDocument(id: number, tipo: keyof ApiField<'clientes', 'findOne', 'documentos'>) {
+  deleteDocument(id: number, tipo: keyof DocumentosAgrupadosClienteDto) {
+    if (id < 0) {
+      // Pending document in creation mode
+      this.pendingDocuments.update((prev) => prev.filter((d) => d.tempId !== id));
+      this.removeDocumentFromLocalList(id, tipo);
+      return;
+    }
+
     this.clienteService
       .deleteDocumento(id)
       .then(() => {
@@ -238,9 +373,7 @@ export class ClienteForm implements OnInit {
       });
   }
 
-  private addDocumentToLocalList(
-    doc: ApiField<'clientes', 'findOne', 'documentos'>['dni'][number],
-  ) {
+  private addDocumentToLocalList(doc: ClienteDocumentoResultDto) {
     const docs = this.localDocuments();
     if (docs) {
       const tipo = doc.tipo;
@@ -253,9 +386,7 @@ export class ClienteForm implements OnInit {
     }
   }
 
-  private updateDocumentInLocalList(
-    doc: ApiField<'clientes', 'findOne', 'documentos'>['dni'][number],
-  ) {
+  private updateDocumentInLocalList(doc: ClienteDocumentoResultDto) {
     const docs = this.localDocuments();
     if (docs) {
       const tipo = doc.tipo;
@@ -267,10 +398,7 @@ export class ClienteForm implements OnInit {
     }
   }
 
-  private removeDocumentFromLocalList(
-    id: number,
-    tipo: keyof ApiField<'clientes', 'findOne', 'documentos'>,
-  ) {
+  private removeDocumentFromLocalList(id: number, tipo: keyof DocumentosAgrupadosClienteDto) {
     const docs = this.localDocuments();
     if (docs) {
       if (docs[tipo]) {
@@ -281,12 +409,10 @@ export class ClienteForm implements OnInit {
     }
   }
 
-  getDocuments(
-    tipo: keyof ApiField<'clientes', 'findOne', 'documentos'>,
-  ): ApiField<'clientes', 'findOne', 'documentos'>['dni'] {
+  getDocuments(tipo: keyof DocumentosAgrupadosClienteDto): ClienteDocumentoResultDto[] {
     const docs = this.localDocuments();
     if (!docs) return [];
-    return docs[tipo] || [];
+    return (docs[tipo] as ClienteDocumentoResultDto[]) || [];
   }
 
   // Pasajeros Management

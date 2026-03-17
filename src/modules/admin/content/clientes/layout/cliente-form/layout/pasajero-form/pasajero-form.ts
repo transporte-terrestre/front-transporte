@@ -1,8 +1,11 @@
-import { Component, inject, input, output, effect } from '@angular/core';
+import { Component, inject, input, output, effect, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ApiBody } from 'api/backend.api';
 import { ModalForm } from '../../../../../../components/modal-form/modal-form';
+import { debounceTime, distinctUntilChanged, filter } from 'rxjs/operators';
+import { ApisPeruService } from '@service/out/apisperu.service';
+import { ToastService } from '@service/toast.service';
 
 export interface PasajeroData {
   id?: number;
@@ -19,8 +22,12 @@ export interface PasajeroData {
   templateUrl: './pasajero-form.html',
   styleUrl: './pasajero-form.css',
 })
-export class PasajeroForm {
+export class PasajeroForm implements OnInit {
   private fb = inject(FormBuilder);
+  private apisPeruService = inject(ApisPeruService);
+  private toastService = inject(ToastService);
+
+  searchingDni = signal(false);
 
   pasajero = input<PasajeroData | null>(null);
   clienteId = input.required<number>();
@@ -47,6 +54,34 @@ export class PasajeroForm {
         this.form.reset();
       }
     });
+  }
+
+  ngOnInit() {
+    this.form
+      .get('dni')
+      ?.valueChanges.pipe(
+        debounceTime(500),
+        distinctUntilChanged(),
+        filter((value) => value && value.length === 8),
+      )
+      .subscribe(async (dni) => {
+        try {
+          this.searchingDni.set(true);
+          const data = await this.apisPeruService.getDni(dni);
+          if (data.success) {
+            this.form.patchValue({
+              nombres: data.nombres,
+              apellidos: `${data.apellidoPaterno} ${data.apellidoMaterno}`,
+            });
+            this.toastService.success('DNI encontrado');
+          }
+        } catch (error) {
+          console.error('Error al consultar DNI:', error);
+          this.toastService.error('Error al consultar DNI');
+        } finally {
+          this.searchingDni.set(false);
+        }
+      });
   }
 
   submit() {
