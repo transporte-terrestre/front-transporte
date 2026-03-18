@@ -1,0 +1,671 @@
+<div class="space-y-6">
+  <!-- Filters & Entity Selection unified inside one card -->
+  <div class="bg-background border border-text/10 rounded-b-2xl border-t-0 shadow-sm">
+    <div class="p-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
+      <!-- Entity Search Input (2 cols) -->
+      <div class="lg:col-span-2">
+        <label
+          class="text-xs font-inter-bold text-text/60 uppercase tracking-wider mb-2 flex items-center gap-1"
+        >
+          <i class="fas fa-building text-success"></i> Seleccionar Cliente
+        </label>
+
+                  <app-cliente-input-search
+            [ngModel]="selectedCliente()"
+            (ngModelChange)="onClienteSelected($event)"
+          ></app-cliente-input-search>
+      </div>
+
+      <!-- Mes -->
+      <div class="flex flex-col gap-2 relative group">
+        <label
+          class="text-xs font-inter-bold text-text/60 uppercase tracking-wider flex items-center gap-1"
+        >
+          <i class="fas fa-calendar-alt"></i> Mes
+        </label>
+        <div class="relative w-full">
+          <input
+            type="month"
+            [ngModel]="mesSeleccionado()"
+            (ngModelChange)="onMonthChange($event)"
+            class="w-full bg-text/5 border-2 border-transparent rounded-xl pl-4 pr-4 py-2.5 text-sm font-inter-medium text-text focus:outline-none focus:border-secondary transition-all"
+          />
+          @if (mesSeleccionado()) {
+            <button
+              (click)="onMonthChange('')"
+              class="absolute right-10 inset-y-0 flex items-center text-text/30 hover:text-danger transition-colors p-1"
+              title="Limpiar mes"
+            >
+              <i class="fas fa-times text-xs"></i>
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Día Específico -->
+      <div class="flex flex-col gap-2 relative group">
+        <label
+          class="text-xs font-inter-bold text-text/60 uppercase tracking-wider flex items-center gap-1"
+        >
+          <i class="fas fa-calendar-day"></i> Día Exacto
+        </label>
+        <div class="relative w-full">
+          <input
+            type="date"
+            [ngModel]="fechaDia()"
+            (ngModelChange)="onDiaChange($event)"
+            class="w-full bg-text/5 border-2 border-transparent rounded-xl pl-4 pr-4 py-2.5 text-sm font-inter-medium text-text focus:outline-none focus:border-secondary transition-all"
+          />
+          @if (fechaDia()) {
+            <button
+              (click)="onDiaChange('')"
+              class="absolute right-10 inset-y-0 flex items-center text-text/30 hover:text-danger transition-colors p-1"
+              title="Limpiar día"
+            >
+              <i class="fas fa-times text-xs"></i>
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Buscar Button -->
+      <div class="flex flex-col gap-2">
+        <label
+          class="text-xs font-inter-bold text-transparent uppercase tracking-wider hidden lg:block"
+        >
+          Action
+        </label>
+        <button
+          (click)="generarReporte()"
+          [disabled]="loading()"
+          class="w-full py-2.5 bg-secondary text-background rounded-xl text-sm font-inter-bold shadow-lg shadow-secondary/20 hover:shadow-secondary/40 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          @if (loading()) {
+            <i class="fas fa-spinner fa-spin"></i>
+          } @else {
+            <i class="fas fa-search"></i>
+          }
+          <span>Buscar</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Extra Filters & Advanced Toggle -->
+  @if (viajes().length > 0) {
+    <div class="px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-text/5">
+      <div class="flex items-center gap-4">
+        <button
+          (click)="showAdvancedFilters.set(!showAdvancedFilters())"
+          class="flex items-center gap-2 text-sm font-inter-medium transition-colors"
+          [class]="showAdvancedFilters() ? 'text-secondary font-inter-bold' : 'text-text/60 hover:text-text'"
+        >
+          <i class="fas fa-filter" [class.text-secondary]="showAdvancedFilters()"></i>
+          <span>{{ showAdvancedFilters() ? 'Ocultar filtros avanzados' : 'Mostrar filtros avanzados' }}</span>
+          <i class="fas fa-chevron-up text-[10px] transition-transform" [class.rotate-180]="!showAdvancedFilters()"></i>
+        </button>
+
+        <!-- Filtered count info -->
+        @if (filteredViajes().length !== viajes().length) {
+          <div class="hidden sm:flex items-center gap-1.5 text-[10px] font-inter-medium text-text/50 whitespace-nowrap">
+            <span class="text-text/20">|</span>
+            Mostrando {{ filteredViajes().length }} de {{ viajes().length }}
+          </div>
+        }
+      </div>
+
+      <!-- Column Selector -->
+      <div class="relative min-w-[130px]">
+        <button
+          (click)="toggleColumnSelector()"
+          class="w-full flex items-center justify-between gap-2 bg-text/5 px-3 py-2 rounded-xl text-xs font-inter-bold transition-all border-2"
+          [class]="showColumnSelector() ? 'bg-secondary/10 text-secondary border-secondary/30' : 'border-transparent hover:border-text/20'"
+        >
+          <div class="flex items-center gap-2">
+            <i class="fas fa-columns"></i>
+            <span class="truncate">Columnas ({{ visibleColumns().size }})</span>
+          </div>
+        </button>
+
+        <!-- Column Selector Dropdown -->
+        @if (showColumnSelector()) {
+          <div class="absolute right-0 top-full mt-2 w-[340px] bg-background border border-text/10 rounded-xl shadow-xl z-50 overflow-hidden">
+            <!-- Header -->
+            <div class="px-4 py-3 border-b border-text/10 bg-text/2 flex items-center justify-between">
+              <span class="text-xs font-inter-bold text-text">Columnas visibles</span>
+              <div class="flex items-center gap-2">
+                <button
+                  (click)="selectAllColumns()"
+                  class="text-[10px] font-inter-bold text-secondary hover:text-secondary/80 transition-colors"
+                >
+                  Todas
+                </button>
+                <span class="text-text/20">|</span>
+                <button
+                  (click)="deselectAllColumns()"
+                  class="text-[10px] font-inter-bold text-danger hover:text-danger/80 transition-colors"
+                >
+                  Mínimo
+                </button>
+              </div>
+            </div>
+
+            <!-- Groups -->
+            <div class="max-h-[320px] overflow-y-auto p-2 space-y-2">
+              @for (group of columnGroups(); track group.key) {
+                <div class="space-y-1">
+                  <div class="flex items-center gap-1.5 px-2 pt-1">
+                    <i class="fas {{ group.icon }} text-[10px] text-secondary/60"></i>
+                    <span class="text-[10px] font-inter-bold text-text/50 uppercase tracking-wider">{{ group.label }}</span>
+                  </div>
+                  @for (col of group.columns; track col.key) {
+                    <label
+                      class="flex items-center gap-2.5 px-2 py-1.5 rounded-lg cursor-pointer transition-all"
+                      [class]="isColumnVisible(col.key) ? 'bg-secondary/5 hover:bg-secondary/10' : 'hover:bg-text/5'"
+                      (click)="toggleColumn(col.key)"
+                    >
+                      <div
+                        class="w-4 h-4 rounded border-2 flex items-center justify-center transition-all shrink-0"
+                        [class]="isColumnVisible(col.key) ? 'bg-secondary border-secondary' : 'border-text/20'"
+                      >
+                        @if (isColumnVisible(col.key)) {
+                          <i class="fas fa-check text-[8px] text-background"></i>
+                        }
+                      </div>
+                      <span class="text-xs font-inter-medium text-text">{{ col.label }}</span>
+                    </label>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Advanced Filters Row -->
+    @if (showAdvancedFilters()) {
+      <div class="p-6 pt-0">
+        <div class="flex flex-col lg:flex-row gap-3 items-start lg:items-center">
+          <!-- Estado Filter -->
+          <div class="flex flex-col gap-1.5 flex-1 w-full lg:w-auto">
+            <label class="text-[10px] font-inter-bold text-text/50 uppercase tracking-wider pl-1">Estado</label>
+            <div class="relative w-full">
+              <select
+                [ngModel]="filtroEstado()"
+                (ngModelChange)="filtroEstado.set($event)"
+                class="w-full pl-3 pr-8 py-2 bg-text/5 border-2 border-transparent rounded-xl text-xs font-inter-medium text-text focus:outline-none focus:border-secondary/50 transition-all appearance-none cursor-pointer"
+              >
+                <option value="">Todos los estados</option>
+                @for (estado of uniqueEstados(); track estado) {
+                  <option [value]="estado">{{ getEstadoLabel(estado) }}</option>
+                }
+              </select>
+              <i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-text/30 text-[9px] pointer-events-none"></i>
+            </div>
+          </div>
+
+          <!-- Modalidad Filter -->
+          <div class="flex flex-col gap-1.5 flex-1 w-full lg:w-auto">
+            <label class="text-[10px] font-inter-bold text-text/50 uppercase tracking-wider pl-1">Modalidad</label>
+            <div class="relative w-full">
+              <select
+                [ngModel]="filtroModalidad()"
+                (ngModelChange)="filtroModalidad.set($event)"
+                class="w-full pl-3 pr-8 py-2 bg-text/5 border-2 border-transparent rounded-xl text-xs font-inter-medium text-text focus:outline-none focus:border-secondary/50 transition-all appearance-none cursor-pointer"
+              >
+                <option value="">Todas las modalidades</option>
+                @for (mod of uniqueModalidades(); track mod) {
+                  <option [value]="mod">{{ getModalidadLabel(mod) | titlecase }}</option>
+                }
+              </select>
+              <i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-text/30 text-[9px] pointer-events-none"></i>
+            </div>
+          </div>
+
+          <!-- Tipo Ruta Filter -->
+          <div class="flex flex-col gap-1.5 flex-1 w-full lg:w-auto">
+            <label class="text-[10px] font-inter-bold text-text/50 uppercase tracking-wider pl-1">Tipo de Ruta</label>
+            <div class="relative w-full">
+              <select
+                [ngModel]="filtroTipoRuta()"
+                (ngModelChange)="filtroTipoRuta.set($event)"
+                class="w-full pl-3 pr-8 py-2 bg-text/5 border-2 border-transparent rounded-xl text-xs font-inter-medium text-text focus:outline-none focus:border-secondary/50 transition-all appearance-none cursor-pointer"
+              >
+                <option value="">Todos los tipos</option>
+                @for (tipo of uniqueTiposRuta(); track tipo) {
+                  <option [value]="tipo">{{ getTipoRutaLabel(tipo) }}</option>
+                }
+              </select>
+              <i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-text/30 text-[9px] pointer-events-none"></i>
+            </div>
+          </div>
+
+          <!-- Sentido Filter -->
+          <div class="flex flex-col gap-1.5 flex-1 w-full lg:w-auto">
+            <label class="text-[10px] font-inter-bold text-text/50 uppercase tracking-wider pl-1">Sentido</label>
+            <div class="relative w-full">
+              <select
+                [ngModel]="filtroSentido()"
+                (ngModelChange)="filtroSentido.set($event)"
+                class="w-full pl-3 pr-8 py-2 bg-text/5 border-2 border-transparent rounded-xl text-xs font-inter-medium text-text focus:outline-none focus:border-secondary/50 transition-all appearance-none cursor-pointer"
+              >
+                <option value="">Todos los sentidos</option>
+                @for (s of uniqueSentidos(); track s) {
+                  <option [value]="s">{{ s | uppercase }}</option>
+                }
+              </select>
+              <i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-text/30 text-[9px] pointer-events-none"></i>
+            </div>
+          </div>
+
+          <!-- Turno Filter -->
+          <div class="flex flex-col gap-1.5 flex-1 w-full lg:w-auto">
+            <label class="text-[10px] font-inter-bold text-text/50 uppercase tracking-wider pl-1">Turno</label>
+            <div class="relative w-full">
+              <select
+                [ngModel]="filtroTurno()"
+                (ngModelChange)="filtroTurno.set($event)"
+                class="w-full pl-3 pr-8 py-2 bg-text/5 border-2 border-transparent rounded-xl text-xs font-inter-medium text-text focus:outline-none focus:border-secondary/50 transition-all appearance-none cursor-pointer"
+              >
+                <option value="">Todos los turnos</option>
+                @for (t of uniqueTurnos(); track t) {
+                  <option [value]="t">{{ t | titlecase }}</option>
+                }
+              </select>
+              <i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-text/30 text-[9px] pointer-events-none"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  }
+
+  <!-- Results -->
+  <div
+    class="bg-background border border-text/5 rounded-2xl shadow-sm overflow-hidden min-h-[300px]"
+  >
+    @if (loading()) {
+      <div class="flex flex-col items-center justify-center py-16 gap-4">
+        <div
+          class="w-12 h-12 rounded-full border-4 border-secondary/20 border-t-secondary animate-spin"
+        ></div>
+        <p class="text-text/40 font-inter-medium">Generando reporte...</p>
+      </div>
+    } @else if (viajes().length === 0) {
+      <div class="flex flex-col items-center justify-center py-16 gap-4">
+        <div class="w-20 h-20 rounded-full bg-text/5 flex items-center justify-center">
+          <i class="fas fa-file-alt text-text/20 text-3xl"></i>
+        </div>
+        <div class="text-center">
+          <p class="text-text/60 font-inter-semibold">Sin resultados</p>
+          <p class="text-text/40 text-sm font-inter-regular">
+            Selecciona una entidad y haz clic en "Buscar" para generar el reporte
+          </p>
+        </div>
+      </div>
+    } @else if (filteredViajes().length === 0) {
+      <div class="flex flex-col items-center justify-center py-16 gap-4">
+        <div class="w-16 h-16 rounded-full bg-warning/10 flex items-center justify-center">
+          <i class="fas fa-filter text-warning text-2xl"></i>
+        </div>
+        <div class="text-center">
+          <p class="text-text/60 font-inter-semibold">Sin coincidencias</p>
+          <p class="text-text/40 text-sm font-inter-regular">
+            Los filtros aplicados no coinciden con ningún viaje
+          </p>
+        </div>
+      </div>
+    } @else {
+      <!-- Results Header -->
+      <div class="px-6 py-4 border-b border-text/5 bg-text/2 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <span class="text-sm font-inter-bold text-text"
+            >{{ filteredViajes().length }} viajes encontrados</span
+          >
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-text/5 border-b border-text/10 sticky top-0 z-10">
+            <tr>
+              @for (col of visibleColumnsList(); track col.key) {
+                <th
+                  class="px-4 py-3 text-xs font-inter-bold text-text/60 uppercase tracking-wider whitespace-nowrap"
+                  [class.text-left]="col.align === 'left'"
+                  [class.text-right]="col.align === 'right'"
+                  [class.text-center]="col.align === 'center'"
+                  [style.min-width]="col.minWidth"
+                >
+                  {{ col.shortLabel }}
+                </th>
+              }
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-text/5">
+            @for (row of processedRows(); track row.viaje.id) {
+              <tr class="group hover:bg-text/5 transition-colors">
+                @for (col of visibleColumnsList(); track col.key) {
+                  <!-- Circuito ID (rowspan) -->
+                  @if (col.key === 'circuitoId') {
+                    @if (row.isFirst) {
+                      <td
+                        [attr.rowspan]="row.rowSpan"
+                        class="px-4 py-3 align-middle bg-background border-r border-b border-text/5 text-center"
+                      >
+                        <div class="flex flex-col gap-1 items-center justify-center">
+                          <span class="text-xs font-inter-bold text-text">#{{ row.circuitoId }}</span>
+                        </div>
+                      </td>
+                    }
+                  }
+
+                  <!-- Sentido -->
+                  @else if (col.key === 'sentido') {
+                    <td class="px-4 py-3 whitespace-nowrap">
+                      <span
+                        class="px-2 py-0.5 text-[10px] font-inter-bold rounded-full flex items-center gap-1.5 w-fit"
+                        [class]="getSentidoBadgeClass(row.viaje.sentido)"
+                      >
+                        <i class="fas text-[9px]" [class]="getSentidoIcon(row.viaje.sentido)"></i>
+                        {{ getSentidoLabel(row.viaje.sentido) }}
+                      </span>
+                    </td>
+                  }
+
+                  <!-- Ruta -->
+                  @else if (col.key === 'ruta') {
+                    <td class="px-4 py-3 whitespace-nowrap">
+                      <div class="flex items-center gap-2">
+                        <i class="fas fa-route text-text/30 text-xs"></i>
+                        <span class="text-xs font-inter-medium text-text">{{
+                          getRutaDisplay(row.viaje)
+                        }}</span>
+                      </div>
+                    </td>
+                  }
+
+                  <!-- Modalidad -->
+                  @else if (col.key === 'modalidadServicio') {
+                    <td
+                      class="px-4 py-3 whitespace-nowrap text-xs font-inter-regular text-text/70 capitalize"
+                    >
+                      {{ getModalidadLabel(row.viaje.modalidadServicio) }}
+                    </td>
+                  }
+
+                  <!-- Estado -->
+                  @else if (col.key === 'estado') {
+                    <td class="px-4 py-3 whitespace-nowrap">
+                      <span
+                        class="px-2 py-0.5 rounded-full text-xs font-inter-semibold"
+                        [class]="getEstadoClass(row.viaje.estado)"
+                      >
+                        {{ getEstadoLabel(row.viaje.estado) }}
+                      </span>
+                    </td>
+                  }
+
+                  <!-- Turno -->
+                  @else if (col.key === 'turno') {
+                    <td class="px-4 py-3 whitespace-nowrap">
+                      <div class="flex items-center gap-1.5">
+                        <i class="fas text-[10px] text-text/40" [class]="getTurnoIcon(row.viaje.turno)"></i>
+                        <span class="text-xs font-inter-medium text-text/70">{{ getTurnoLabel(row.viaje.turno) }}</span>
+                      </div>
+                    </td>
+                  }
+
+                  <!-- Nro. Vale -->
+                  @else if (col.key === 'numeroVale') {
+                    <td class="px-4 py-3 whitespace-nowrap">
+                      @if (row.viaje.numeroVale) {
+                        <span class="text-xs font-inter-medium text-text">{{ row.viaje.numeroVale }}</span>
+                      } @else {
+                        <span class="text-xs text-text/30">—</span>
+                      }
+                    </td>
+                  }
+
+                  <!-- Km Estimados -->
+                  @else if (col.key === 'distanciaEstimada') {
+                    <td class="px-4 py-3 whitespace-nowrap text-right">
+                      @if (row.viaje.distanciaEstimada) {
+                        <span class="text-xs font-inter-semibold text-text">{{
+                          row.viaje.distanciaEstimada | number: '1.0-0'
+                        }}</span>
+                        <span class="text-[10px] text-text/40"> km</span>
+                      } @else {
+                        <span class="text-xs text-text/30">—</span>
+                      }
+                    </td>
+                  }
+
+                  <!-- Km Final -->
+                  @else if (col.key === 'distanciaFinal') {
+                    <td class="px-4 py-3 whitespace-nowrap text-right">
+                      @if (row.viaje.distanciaFinal) {
+                        <span class="text-xs font-inter-semibold text-text">{{
+                          row.viaje.distanciaFinal | number: '1.0-0'
+                        }}</span>
+                        <span class="text-[10px] text-text/40"> km</span>
+                      } @else {
+                        <span class="text-xs text-text/30">—</span>
+                      }
+                    </td>
+                  }
+
+                  <!-- Diferencia -->
+                  @else if (col.key === 'diferencia') {
+                    <td class="px-4 py-3 whitespace-nowrap text-right">
+                      @if (row.viaje.diferencia !== 0) {
+                        <span
+                          class="text-xs font-inter-bold"
+                          [class.text-success]="row.viaje.diferencia < 0"
+                          [class.text-danger]="row.viaje.diferencia > 0"
+                        >
+                          @if (row.viaje.diferencia > 0) {
+                            <i class="fas fa-arrow-up text-[10px]"></i>
+                          } @else {
+                            <i class="fas fa-arrow-down text-[10px]"></i>
+                          }
+                          {{
+                            row.viaje.diferencia > 0
+                              ? row.viaje.diferencia
+                              : (-row.viaje.diferencia | number: '1.0-0')
+                          }}
+                        </span>
+                        <span
+                          class="text-[10px]"
+                          [class.text-success]="row.viaje.diferencia < 0"
+                          [class.text-danger]="row.viaje.diferencia > 0"
+                        >
+                          km</span
+                        >
+                      } @else {
+                        <span class="text-xs text-text/30">0</span>
+                        <span class="text-[10px] text-text/30"> km</span>
+                      }
+                    </td>
+                  }
+
+                  <!-- Fecha Salida -->
+                  @else if (col.key === 'fechaSalida') {
+                    <td class="px-4 py-3 whitespace-nowrap text-xs font-inter-regular text-text/60">
+                      {{ row.viaje.fechaSalida ? (row.viaje.fechaSalida | date: 'dd/MM/yyyy HH:mm') : '—' }}
+                    </td>
+                  }
+
+                  <!-- Fecha Llegada -->
+                  @else if (col.key === 'fechaLlegada') {
+                    <td class="px-4 py-3 whitespace-nowrap text-xs font-inter-regular text-text/60">
+                      {{
+                        row.viaje.fechaLlegada
+                          ? (row.viaje.fechaLlegada | date: 'dd/MM/yyyy HH:mm')
+                          : '—'
+                      }}
+                    </td>
+                  }
+
+                  <!-- Fecha Salida Programada -->
+                  @else if (col.key === 'fechaSalidaProgramada') {
+                    <td class="px-4 py-3 whitespace-nowrap text-xs font-inter-regular text-text/60">
+                      {{ row.viaje.fechaSalidaProgramada | date: 'dd/MM/yyyy HH:mm' }}
+                    </td>
+                  }
+
+                  <!-- Fecha Llegada Programada -->
+                  @else if (col.key === 'fechaLlegadaProgramada') {
+                    <td class="px-4 py-3 whitespace-nowrap text-xs font-inter-regular text-text/60">
+                      {{
+                        row.viaje.fechaLlegadaProgramada
+                          ? (row.viaje.fechaLlegadaProgramada | date: 'dd/MM/yyyy HH:mm')
+                          : '—'
+                      }}
+                    </td>
+                  }
+
+                  <!-- Horas Contrato -->
+                  @else if (col.key === 'horasContrato') {
+                    <td class="px-4 py-3 whitespace-nowrap text-right">
+                      @if (row.viaje.horasContrato) {
+                        <span class="text-xs font-inter-semibold text-secondary">{{
+                          formatDecimalHours(row.viaje.horasContrato)
+                        }}</span>
+                      } @else {
+                        <span class="text-xs text-secondary/30">—</span>
+                      }
+                    </td>
+                  }
+
+                  <!-- Horas Totales -->
+                  @else if (col.key === 'horasTotales') {
+                    <td class="px-4 py-3 whitespace-nowrap text-right">
+                      @if (row.viaje.horasTotales) {
+                        <span class="text-xs font-inter-semibold text-text">{{
+                          formatDecimalHours(row.viaje.horasTotales)
+                        }}</span>
+                      } @else {
+                        <span class="text-xs text-text/30">—</span>
+                      }
+                    </td>
+                  }
+
+                  <!-- Horas Excedidas -->
+                  @else if (col.key === 'horasExcedidas') {
+                    <td class="px-4 py-3 whitespace-nowrap text-right">
+                      @if (row.viaje.horasExcedidas && row.viaje.horasExcedidas > 0) {
+                        <span class="text-xs font-inter-bold text-danger">
+                          +{{ formatDecimalHours(row.viaje.horasExcedidas) }}
+                        </span>
+                      } @else {
+                        <span class="text-xs text-text/30">—</span>
+                      }
+                    </td>
+                  }
+
+                  <!-- Vehículo -->
+                  @else if (col.key === 'vehiculo') {
+                    <td class="px-4 py-3 whitespace-nowrap">
+                      @if (row.viaje.vehiculoPlaca) {
+                        <div class="flex flex-col">
+                          <span class="text-xs font-inter-bold text-text">{{ row.viaje.vehiculoPlaca }}</span>
+                          <span class="text-[10px] text-text/40">{{ row.viaje.vehiculoMarca }} {{ row.viaje.vehiculoModelo }}</span>
+                        </div>
+                      } @else {
+                        <span class="text-xs text-text/30">—</span>
+                      }
+                    </td>
+                  }
+
+                  <!-- Conductor -->
+                  @else if (col.key === 'conductor') {
+                    <td class="px-4 py-3 whitespace-nowrap">
+                      @if (row.viaje.conductorNombre) {
+                        <div class="flex flex-col">
+                          <span class="text-xs font-inter-medium text-text">{{ row.viaje.conductorNombre }}</span>
+                          @if (row.viaje.conductorDni) {
+                            <span class="text-[10px] text-text/40">DNI: {{ row.viaje.conductorDni }}</span>
+                          }
+                        </div>
+                      } @else {
+                        <span class="text-xs text-text/30">—</span>
+                      }
+                    </td>
+                  }
+
+                  <!-- Cliente -->
+                  @else if (col.key === 'cliente') {
+                    <td class="px-4 py-3 whitespace-nowrap">
+                      @if (row.viaje.clienteNombre) {
+                        <div class="flex flex-col">
+                          <span class="text-xs font-inter-medium text-text">{{ row.viaje.clienteNombre }}</span>
+                          @if (row.viaje.clienteDocumento) {
+                            <span class="text-[10px] text-text/40">{{ row.viaje.clienteDocumento }}</span>
+                          }
+                        </div>
+                      } @else {
+                        <span class="text-xs text-text/30">—</span>
+                      }
+                    </td>
+                  }
+
+                  <!-- Entidad -->
+                  @else if (col.key === 'entidad') {
+                    <td class="px-4 py-3 whitespace-nowrap">
+                      @if (row.viaje.entidadNombre) {
+                        <span class="text-xs font-inter-medium text-text">{{ row.viaje.entidadNombre }}</span>
+                      } @else {
+                        <span class="text-xs text-text/30">—</span>
+                      }
+                    </td>
+                  }
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Summary Footer -->
+      <div
+        class="px-4 py-3 border-t border-text/10 bg-secondary/5 flex flex-wrap items-center justify-between gap-3"
+      >
+        <div class="flex flex-wrap items-center gap-4">
+          <div class="flex items-center gap-2">
+            <i class="fas fa-road text-secondary text-xs"></i>
+            <span class="text-xs font-inter-medium text-text">Total Recorrido:</span>
+            <span class="text-sm font-inter-bold text-secondary">
+              {{ getTotalKilometrosFinales() | number: '1.0-0' }} km
+            </span>
+          </div>
+          <div class="flex items-center gap-2">
+            <i class="fas fa-clock text-info text-xs"></i>
+            <span class="text-xs font-inter-medium text-text">Total Horas:</span>
+            <span class="text-sm font-inter-bold text-info">
+              {{ formatDecimalHours(getTotalHorasTotales()) }}
+            </span>
+          </div>
+          <div class="flex items-center gap-2">
+            <i class="fas fa-exclamation-circle text-danger text-xs"></i>
+            <span class="text-xs font-inter-medium text-text">Horas Excedidas:</span>
+            <span class="text-sm font-inter-bold text-danger">
+              {{ formatDecimalHours(getTotalHorasExcedidas()) }}
+            </span>
+          </div>
+        </div>
+        <button
+          (click)="descargarPdf()"
+          class="flex items-center gap-1.5 px-3 py-1.5 bg-danger/10 text-danger rounded-lg text-xs font-inter-bold hover:bg-danger/20 transition-all border border-danger/20"
+          title="Descargar PDF"
+        >
+          <i class="fas fa-file-pdf text-xs"></i>
+          <span>Descargar PDF</span>
+        </button>
+      </div>
+    }
+  </div>
+</div>

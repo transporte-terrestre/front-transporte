@@ -25,6 +25,7 @@ export type ClienteFormSubmitData =
   | ApiBody<'clientes', 'update'>;
 
 import { PasajeroForm, PasajeroData } from './layout/pasajero-form/pasajero-form';
+import { EncargadoForm, EncargadoData } from './layout/encargado-form/encargado-form';
 import { EntidadForm, EntidadData } from './layout/entidad-form/entidad-form';
 
 @Component({
@@ -35,6 +36,7 @@ import { EntidadForm, EntidadData } from './layout/entidad-form/entidad-form';
     ImagesUpload,
     DocumentsDateUpload,
     PasajeroForm,
+    EncargadoForm,
     EntidadForm,
   ],
   templateUrl: './cliente-form.html',
@@ -62,6 +64,10 @@ export class ClienteForm implements OnInit {
   pasajeros = signal<PasajeroData[]>([]);
   showPasajeroModal = signal(false);
   selectedPasajero = signal<PasajeroData | null>(null);
+
+  encargados = signal<EncargadoData[]>([]);
+  showEncargadoModal = signal(false);
+  selectedEncargado = signal<EncargadoData | null>(null);
 
   entidades = signal<EntidadData[]>([]);
   showEntidadModal = signal(false);
@@ -128,6 +134,7 @@ export class ClienteForm implements OnInit {
         this.imagenes.set(clienteData.imagenes || []);
         this.localDocuments.set(JSON.parse(JSON.stringify(clienteData.documentos)));
         this.loadPasajeros(clienteData.id);
+        this.loadEncargados(clienteData.id);
         this.loadEntidades(clienteData.id);
       } else {
         this.clienteForm.reset({ tipoDocumento: 'DNI', tipo: 'personal' });
@@ -265,32 +272,33 @@ export class ClienteForm implements OnInit {
 
     const formDataValue = this.clienteForm.value;
 
-    const cleanData: ClienteFormSubmitData = {
+    const baseData = {
       tipoDocumento: formDataValue.tipoDocumento,
       tipo: formDataValue.tipo,
       imagenes: this.imagenes(),
-    } as ClienteFormSubmitData;
+      email: formDataValue.email || undefined,
+      telefono: formDataValue.telefono || undefined,
+      direccion: formDataValue.direccion || undefined,
+      horasContrato: formDataValue.horasContrato || undefined,
+    };
+
+    let cleanData: Record<string, unknown> = { ...baseData };
 
     if (formDataValue.tipoDocumento === 'DNI') {
-      (cleanData as any).dni = formDataValue.dni;
-      (cleanData as any).nombres = formDataValue.nombres;
-      (cleanData as any).apellidos = formDataValue.apellidos;
+      cleanData['dni'] = formDataValue.dni;
+      cleanData['nombres'] = formDataValue.nombres;
+      cleanData['apellidos'] = formDataValue.apellidos;
     } else {
-      (cleanData as any).ruc = formDataValue.ruc;
-      (cleanData as any).razonSocial = formDataValue.razonSocial;
+      cleanData['ruc'] = formDataValue.ruc;
+      cleanData['razonSocial'] = formDataValue.razonSocial;
     }
-
-    if (formDataValue.email) (cleanData as any).email = formDataValue.email;
-    if (formDataValue.telefono) (cleanData as any).telefono = formDataValue.telefono;
-    if (formDataValue.direccion) (cleanData as any).direccion = formDataValue.direccion;
-    if (formDataValue.horasContrato) (cleanData as any).horasContrato = formDataValue.horasContrato;
 
     // Documents for creation mode
     if (!this.editMode()) {
-      (cleanData as any).documentos = this.pendingDocuments();
+      cleanData['documentos'] = this.pendingDocuments();
     }
 
-    this.onSubmitForm.emit(cleanData);
+    this.onSubmitForm.emit(cleanData as unknown as ClienteFormSubmitData);
   }
 
   // Document Management
@@ -507,6 +515,68 @@ export class ClienteForm implements OnInit {
           .catch((err) => {
             console.error('Error al eliminar pasajero:', err);
             this.toastService.error('Error al eliminar pasajero');
+          });
+      },
+    );
+  }
+
+  // Encargados Management
+  loadEncargados(clienteId: number) {
+    this.clienteService
+      .findAllEncargados({ clienteId, limit: 100, page: 1 })
+      .then((res) => {
+        this.encargados.set(res.data);
+      })
+      .catch((err) => {
+        console.error('Error al cargar encargados:', err);
+      });
+  }
+
+  openEncargadoModal(encargado: EncargadoData | null = null) {
+    this.selectedEncargado.set(encargado);
+    this.showEncargadoModal.set(true);
+  }
+
+  closeEncargadoModal() {
+    this.showEncargadoModal.set(false);
+    this.selectedEncargado.set(null);
+  }
+
+  handleSaveEncargado(data: EncargadoData) {
+    const promise = data.id
+      ? this.clienteService.updateEncargado(data.id, data)
+      : this.clienteService.createEncargado(data);
+
+    promise
+      .then(() => {
+        this.toastService.success(
+          data.id ? 'Encargado actualizado exitosamente' : 'Encargado creado exitosamente',
+        );
+        this.loadEncargados(this.cliente()!.id);
+        this.closeEncargadoModal();
+      })
+      .catch((err) => {
+        console.error('Error al guardar encargado:', err);
+        this.toastService.error('Error al guardar encargado');
+      });
+  }
+
+  deleteEncargado(id: number | undefined) {
+    if (!id) return;
+
+    this.alertService.delete(
+      'Eliminar encargado',
+      '¿Estás seguro de eliminar este encargado?',
+      () => {
+        this.clienteService
+          .deleteEncargado(id)
+          .then(() => {
+            this.toastService.success('Encargado eliminado exitosamente');
+            this.loadEncargados(this.cliente()!.id);
+          })
+          .catch((err) => {
+            console.error('Error al eliminar encargado:', err);
+            this.toastService.error('Error al eliminar encargado');
           });
       },
     );

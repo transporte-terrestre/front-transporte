@@ -106,6 +106,7 @@ export class MantenimientoForm implements OnInit {
     { value: 'informe_tecnico', label: 'Informe Técnico' },
     { value: 'cotizacion', label: 'Cotización' },
     { value: 'fotos', label: 'Fotos' },
+    { value: 'cartilla', label: 'Cartilla' },
     { value: 'otros', label: 'Otros' },
   ];
 

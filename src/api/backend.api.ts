@@ -3529,7 +3529,7 @@ export interface DocumentoItemDto {
   observacion?: string;
   /**
    * Fecha de Vencimiento Inicial/Por defecto
-   * @example "2026-03-17T17:05:58.629Z"
+   * @example "2026-03-18T18:01:53.578Z"
    */
   fechaVencimiento?: string;
 }
@@ -3712,17 +3712,17 @@ export interface BotiquinItemDto {
   habilitado: boolean;
   /**
    * Fecha de Vencimiento actual
-   * @example "2026-03-17T17:05:58.632Z"
+   * @example "2026-03-18T18:01:53.580Z"
    */
   fechaVencimiento?: string;
   /**
    * Fecha de Salida
-   * @example "2026-03-17T17:05:58.632Z"
+   * @example "2026-03-18T18:01:53.580Z"
    */
   fechaSalida?: string;
   /**
    * Fecha de Reposición
-   * @example "2026-03-17T17:05:58.632Z"
+   * @example "2026-03-18T18:01:53.580Z"
    */
   fechaReposicion?: string;
 }
@@ -4490,6 +4490,7 @@ export interface MantenimientoDocumentoResultDto {
     | "informe_tecnico"
     | "cotizacion"
     | "fotos"
+    | "cartilla"
     | "otros";
   nombre: string;
   url: string;
@@ -4507,6 +4508,7 @@ export interface DocumentosAgrupadosMantenimientoDto {
   informe_tecnico: MantenimientoDocumentoResultDto[];
   cotizacion: MantenimientoDocumentoResultDto[];
   fotos: MantenimientoDocumentoResultDto[];
+  cartilla: MantenimientoDocumentoResultDto[];
   otros: MantenimientoDocumentoResultDto[];
 }
 
@@ -4902,6 +4904,7 @@ export interface MantenimientoDocumentoCreateDto {
     | "informe_tecnico"
     | "cotizacion"
     | "fotos"
+    | "cartilla"
     | "otros";
   /**
    * Nombre del documento
@@ -4941,6 +4944,7 @@ export interface MantenimientoDocumentoUpdateDto {
     | "informe_tecnico"
     | "cotizacion"
     | "fotos"
+    | "cartilla"
     | "otros";
   /**
    * Nombre del documento
@@ -5654,6 +5658,8 @@ export interface VehiculoViajeDto {
    * @example "1.90"
    */
   ancho?: string;
+  /** List of owners */
+  propietarios: PropietarioVehiculoDto[];
   /**
    * Lista de URLs de imágenes del vehículo
    * @example ["https://res.cloudinary.com/xxx/image.jpg"]
@@ -6280,6 +6286,8 @@ export interface ViajeVehiculoDetalleDto {
    * @example "1.90"
    */
   ancho?: string;
+  /** List of owners */
+  propietarios: PropietarioVehiculoDto[];
   /**
    * Lista de URLs de imágenes del vehículo
    * @example ["https://res.cloudinary.com/xxx/image.jpg"]
@@ -8197,6 +8205,74 @@ export interface PasajeroUpdateDto {
   apellidos?: string;
 }
 
+export interface EncargadoResultDto {
+  /** @example 1 */
+  id: number;
+  /** @example 1 */
+  clienteId: number;
+  /** @example "12345678" */
+  dni: string;
+  /** @example "Juan" */
+  nombres: string;
+  /** @example "Pérez" */
+  apellidos: string;
+  /** @format date-time */
+  creadoEn: string;
+  /** @format date-time */
+  actualizadoEn: string;
+}
+
+export interface PaginatedEncargadoResultDto {
+  data: EncargadoResultDto[];
+  meta: object;
+}
+
+export interface EncargadoCreateDto {
+  /**
+   * ID del cliente propietario
+   * @example 1
+   */
+  clienteId: number;
+  /**
+   * DNI del encargado
+   * @example "12345678"
+   */
+  dni: string;
+  /**
+   * Nombres del encargado
+   * @example "Juan"
+   */
+  nombres: string;
+  /**
+   * Apellidos del encargado
+   * @example "Pérez"
+   */
+  apellidos: string;
+}
+
+export interface EncargadoUpdateDto {
+  /**
+   * ID del cliente propietario
+   * @example 1
+   */
+  clienteId?: number;
+  /**
+   * DNI del encargado
+   * @example "12345678"
+   */
+  dni?: string;
+  /**
+   * Nombres del encargado
+   * @example "Juan"
+   */
+  nombres?: string;
+  /**
+   * Apellidos del encargado
+   * @example "Pérez"
+   */
+  apellidos?: string;
+}
+
 export interface PaginatedEntidadResultDto {
   data: EntidadResultDto[];
   meta: object;
@@ -8459,6 +8535,10 @@ export interface ViajeDetalladoDto {
   horasExcedidas: number;
   estado: string;
   modalidadServicio: string;
+  /** Turno del viaje: día o noche */
+  turno: string | null;
+  /** Número de vale de combustible */
+  numeroVale: string | null;
   /** @format date-time */
   fechaSalidaProgramada: string;
   /** @format date-time */
@@ -8471,6 +8551,22 @@ export interface ViajeDetalladoDto {
   circuitoId: number | null;
   /** Sentido del viaje */
   sentido: string;
+  /** Placa del vehículo principal */
+  vehiculoPlaca: string | null;
+  /** Marca del vehículo principal */
+  vehiculoMarca: string | null;
+  /** Modelo del vehículo principal */
+  vehiculoModelo: string | null;
+  /** Nombre completo del conductor principal */
+  conductorNombre: string | null;
+  /** DNI del conductor principal */
+  conductorDni: string | null;
+  /** Nombre del cliente */
+  clienteNombre: string;
+  /** Documento del cliente (RUC o DNI) */
+  clienteDocumento: string | null;
+  /** Nombre del servicio/entidad */
+  entidadNombre: string | null;
 }
 
 export interface MantenimientoDetalladoVehiculoDto {
@@ -11302,6 +11398,51 @@ export interface ClientesDeletePasajeroParams {
 }
 
 export type ClientesDeletePasajeroData = PasajeroResultDto;
+
+export interface ClientesFindAllEncargadosParams {
+  /**
+   * Número de página
+   * @example 1
+   */
+  page?: number;
+  /**
+   * Límite de items por página
+   * @example 10
+   */
+  limit?: number;
+  /** Término de búsqueda (DNI, nombres, apellidos) */
+  search?: string;
+  /**
+   * ID del cliente para filtrar
+   * @example 1
+   */
+  clienteId?: number;
+}
+
+export type ClientesFindAllEncargadosData = PaginatedEncargadoResultDto;
+
+export interface ClientesFindEncargadoParams {
+  /** ID del encargado */
+  id: number;
+}
+
+export type ClientesFindEncargadoData = EncargadoResultDto;
+
+export type ClientesCreateEncargadoData = EncargadoResultDto;
+
+export interface ClientesUpdateEncargadoParams {
+  /** ID del encargado */
+  id: number;
+}
+
+export type ClientesUpdateEncargadoData = EncargadoResultDto;
+
+export interface ClientesDeleteEncargadoParams {
+  /** ID del encargado */
+  id: number;
+}
+
+export type ClientesDeleteEncargadoData = EncargadoResultDto;
 
 export interface ClientesFindAllEntidadesParams {
   /**
@@ -15692,6 +15833,118 @@ export namespace Clientes {
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = ClientesDeletePasajeroData;
+  }
+
+  /**
+   * No description
+   * @tags clientes
+   * @name ClientesFindAllEncargados
+   * @summary Obtener encargados con paginación, búsqueda y filtro por cliente
+   * @request GET:/cliente/encargado/find-all
+   * @secure
+   * @response `200` `ClientesFindAllEncargadosData`
+   */
+  export namespace ClientesFindAllEncargados {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /**
+       * Número de página
+       * @example 1
+       */
+      page?: number;
+      /**
+       * Límite de items por página
+       * @example 10
+       */
+      limit?: number;
+      /** Término de búsqueda (DNI, nombres, apellidos) */
+      search?: string;
+      /**
+       * ID del cliente para filtrar
+       * @example 1
+       */
+      clienteId?: number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ClientesFindAllEncargadosData;
+  }
+
+  /**
+   * No description
+   * @tags clientes
+   * @name ClientesFindEncargado
+   * @summary Obtener un encargado por ID
+   * @request GET:/cliente/encargado/find-one/{id}
+   * @secure
+   * @response `200` `ClientesFindEncargadoData`
+   */
+  export namespace ClientesFindEncargado {
+    export type RequestParams = {
+      /** ID del encargado */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ClientesFindEncargadoData;
+  }
+
+  /**
+   * No description
+   * @tags clientes
+   * @name ClientesCreateEncargado
+   * @summary Crear un nuevo encargado
+   * @request POST:/cliente/encargado/create
+   * @secure
+   * @response `201` `ClientesCreateEncargadoData`
+   */
+  export namespace ClientesCreateEncargado {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = EncargadoCreateDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = ClientesCreateEncargadoData;
+  }
+
+  /**
+   * No description
+   * @tags clientes
+   * @name ClientesUpdateEncargado
+   * @summary Actualizar un encargado
+   * @request PATCH:/cliente/encargado/update/{id}
+   * @secure
+   * @response `200` `ClientesUpdateEncargadoData`
+   */
+  export namespace ClientesUpdateEncargado {
+    export type RequestParams = {
+      /** ID del encargado */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = EncargadoUpdateDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = ClientesUpdateEncargadoData;
+  }
+
+  /**
+   * No description
+   * @tags clientes
+   * @name ClientesDeleteEncargado
+   * @summary Eliminar un encargado
+   * @request DELETE:/cliente/encargado/delete/{id}
+   * @secure
+   * @response `200` `ClientesDeleteEncargadoData`
+   */
+  export namespace ClientesDeleteEncargado {
+    export type RequestParams = {
+      /** ID del encargado */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ClientesDeleteEncargadoData;
   }
 
   /**
@@ -21073,6 +21326,122 @@ export class Api<SecurityDataType extends unknown> {
     ) =>
       this.http.request<ClientesDeletePasajeroData, any>({
         path: `/cliente/pasajero/delete/${id}`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags clientes
+     * @name ClientesFindAllEncargados
+     * @summary Obtener encargados con paginación, búsqueda y filtro por cliente
+     * @request GET:/cliente/encargado/find-all
+     * @secure
+     * @response `200` `ClientesFindAllEncargadosData`
+     */
+    findAllEncargados: (
+      query: ClientesFindAllEncargadosParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ClientesFindAllEncargadosData, any>({
+        path: `/cliente/encargado/find-all`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags clientes
+     * @name ClientesFindEncargado
+     * @summary Obtener un encargado por ID
+     * @request GET:/cliente/encargado/find-one/{id}
+     * @secure
+     * @response `200` `ClientesFindEncargadoData`
+     */
+    findEncargado: (
+      { id, ...query }: ClientesFindEncargadoParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ClientesFindEncargadoData, any>({
+        path: `/cliente/encargado/find-one/${id}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags clientes
+     * @name ClientesCreateEncargado
+     * @summary Crear un nuevo encargado
+     * @request POST:/cliente/encargado/create
+     * @secure
+     * @response `201` `ClientesCreateEncargadoData`
+     */
+    createEncargado: (
+      data: EncargadoCreateDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ClientesCreateEncargadoData, any>({
+        path: `/cliente/encargado/create`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags clientes
+     * @name ClientesUpdateEncargado
+     * @summary Actualizar un encargado
+     * @request PATCH:/cliente/encargado/update/{id}
+     * @secure
+     * @response `200` `ClientesUpdateEncargadoData`
+     */
+    updateEncargado: (
+      { id, ...query }: ClientesUpdateEncargadoParams,
+      data: EncargadoUpdateDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ClientesUpdateEncargadoData, any>({
+        path: `/cliente/encargado/update/${id}`,
+        method: "PATCH",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags clientes
+     * @name ClientesDeleteEncargado
+     * @summary Eliminar un encargado
+     * @request DELETE:/cliente/encargado/delete/{id}
+     * @secure
+     * @response `200` `ClientesDeleteEncargadoData`
+     */
+    deleteEncargado: (
+      { id, ...query }: ClientesDeleteEncargadoParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ClientesDeleteEncargadoData, any>({
+        path: `/cliente/encargado/delete/${id}`,
         method: "DELETE",
         secure: true,
         format: "json",
