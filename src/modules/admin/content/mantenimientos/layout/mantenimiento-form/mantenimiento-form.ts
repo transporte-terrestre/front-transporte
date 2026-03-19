@@ -100,14 +100,16 @@ export class MantenimientoForm implements OnInit {
   documentTypes: {
     value: keyof ApiField<'mantenimientos', 'findOne', 'documentos'>;
     label: string;
+    requireIssue?: boolean;
+    requireExpiration?: boolean;
   }[] = [
-    { value: 'factura', label: 'Factura' },
-    { value: 'guia_remision', label: 'Guía de Remisión' },
-    { value: 'informe_tecnico', label: 'Informe Técnico' },
-    { value: 'cotizacion', label: 'Cotización' },
-    { value: 'fotos', label: 'Fotos' },
-    { value: 'cartilla', label: 'Cartilla' },
-    { value: 'otros', label: 'Otros' },
+    { value: 'factura', label: 'Factura', requireIssue: false, requireExpiration: false },
+    { value: 'guia_remision', label: 'Guía de Remisión', requireIssue: false, requireExpiration: false },
+    { value: 'informe_tecnico', label: 'Informe Técnico', requireIssue: false, requireExpiration: false },
+    { value: 'cotizacion', label: 'Cotización', requireIssue: false, requireExpiration: false },
+    { value: 'fotos', label: 'Fotos', requireIssue: false, requireExpiration: false },
+    { value: 'cartilla', label: 'Cartilla', requireIssue: false, requireExpiration: false },
+    { value: 'otros', label: 'Otros', requireIssue: false, requireExpiration: false },
   ];
 
   constructor() {
@@ -252,11 +254,11 @@ export class MantenimientoForm implements OnInit {
 
     const documento: ApiBody<'mantenimientos', 'createDocumento'> = {
       mantenimientoId: this.mantenimiento()!.id,
-      tipo: tipo,
+      tipo: tipo as any,
       nombre: event.nombre,
       url: event.url,
-      fechaEmision: event.fechaEmision,
-      fechaExpiracion: event.fechaExpiracion,
+      ...(event.fechaEmision ? { fechaEmision: event.fechaEmision } : {}),
+      ...(event.fechaExpiracion ? { fechaExpiracion: event.fechaExpiracion } : {}),
     };
 
     this.mantenimientoService
@@ -313,8 +315,8 @@ export class MantenimientoForm implements OnInit {
 
     this.mantenimientoService
       .updateDocumento(event.id, {
-        fechaEmision: event.fechaEmision,
-        fechaExpiracion: event.fechaExpiracion,
+        ...(event.fechaEmision ? { fechaEmision: event.fechaEmision } : {}),
+        ...(event.fechaExpiracion ? { fechaExpiracion: event.fechaExpiracion } : {}),
       })
       .then((doc) => {
         this.toastService.success('Documento actualizado exitosamente');

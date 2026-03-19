@@ -1,4 +1,4 @@
-import { Component, input, inject, signal, effect, AfterViewInit } from '@angular/core';
+import { Component, input, inject, signal, effect, AfterViewInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ViajeService } from '@service/admin/viaje.service';
 import { ApiResponse } from 'api/backend.api';
@@ -32,10 +32,54 @@ export class ViajeDetail implements AfterViewInit {
   viaje = input<ViajeIndividual | null>(null);
   hojaRuta = signal<ViajeHojaRutaResultDto | null>(null);
   loading = signal(false);
+  hiddenTramoIndexes = signal<Set<number>>(new Set());
 
   private viajeService = inject(ViajeService);
 
   puntosTrayecto = signal<ViajePuntoTrayectoDto[]>([]);
+
+  hojaRutaDisplay = computed(() => {
+    const hr = this.hojaRuta();
+    if (!hr) return null;
+
+    const indexes = this.hiddenTramoIndexes();
+    if (indexes.size === 0) return hr;
+
+    const filteredTramos = hr.tramos.filter((_, index) => !indexes.has(index));
+
+    // Recalculate totals
+    let totalKm = 0;
+    let totalMinutes = 0;
+
+    filteredTramos.forEach((t) => {
+      // Parse KM
+      const kmStr = t.kilometrajeRecorrido || '';
+      const kmValue = parseFloat(kmStr.replace(/[^\d.]/g, '')) || 0;
+      totalKm += kmValue;
+
+      // Parse Time
+      const timeStr = t.tiempoRecorrido || '';
+      if (timeStr.includes('h')) {
+        const parts = timeStr.split('h');
+        const hours = parseInt(parts[0]) || 0;
+        const mins = parseInt(parts[1]?.split('min')[0]) || 0;
+        totalMinutes += hours * 60 + mins;
+      } else {
+        const mins = parseInt(timeStr.split('min')[0]) || 0;
+        totalMinutes += mins;
+      }
+    });
+
+    return {
+      ...hr,
+      tramos: filteredTramos,
+      kilometrajeTotal: `${totalKm.toFixed(0)} KM`,
+      tiempoTotal:
+        totalMinutes >= 60
+          ? `${Math.floor(totalMinutes / 60)}h ${totalMinutes % 60}min`
+          : `${totalMinutes} min`,
+    };
+  });
 
   private map: L.Map | undefined;
   private markers: L.Marker[] = [];
@@ -44,9 +88,13 @@ export class ViajeDetail implements AfterViewInit {
   constructor() {
     effect(() => {
       const v = this.viaje();
-      if (v && v.id) {
-        this.loadHojaRuta(v.id);
-        setTimeout(() => this.updateMap(), 0);
+      if (v) {
+        // Reset and load
+        this.hiddenTramoIndexes.set(new Set());
+        if (v.id) {
+          this.loadHojaRuta(v.id);
+          setTimeout(() => this.updateMap(), 0);
+        }
       }
     });
   }
@@ -194,7 +242,6 @@ export class ViajeDetail implements AfterViewInit {
   private createMarker(p: ViajePuntoTrayectoDto, index: number, total: number): L.Marker | null {
     if (p.latitud == null || p.longitud == null) return null;
 
-    let iconHtml = '';
     let colorClass = p.completado ? 'bg-info' : 'bg-slate-400';
     let iconClass = 'fa-map-marker-alt';
 
@@ -206,7 +253,7 @@ export class ViajeDetail implements AfterViewInit {
       iconClass = 'fa-flag-checkered';
     }
 
-    iconHtml = `
+    const iconHtml = `
       <div class="flex items-center justify-center">
         <div class="w-7 h-7 ${colorClass} text-white rounded-full flex items-center justify-center border-2 border-white shadow-lg relative z-10 transition-all">
           ${
@@ -250,9 +297,25 @@ export class ViajeDetail implements AfterViewInit {
 
   descargarReporteDiario() {
     const data = this.viaje();
-    const hr = this.hojaRuta();
-    if (!data) return;
+    const hr = this.hojaRutaDisplay();
+    if (!data || !hr) return;
     generateReporteDiarioPdf(data as any, hr);
+  }
+
+  toggleTramoVisibility(index: number) {
+    this.hiddenTramoIndexes.update((prev) => {
+      const next = new Set(prev);
+      if (next.has(index)) {
+        next.delete(index);
+      } else {
+        next.add(index);
+      }
+      return next;
+    });
+  }
+
+  isTramoHidden(index: number): boolean {
+    return this.hiddenTramoIndexes().has(index);
   }
 
   getClienteDisplay(v: ViajeIndividual): string {

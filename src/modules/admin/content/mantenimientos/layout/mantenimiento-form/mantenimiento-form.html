@@ -283,6 +283,8 @@
               [label]="docType.label"
               [documents]="getDocuments(docType.value)"
               [maxDocuments]="10"
+              [requireIssueDate]="docType.requireIssue ?? false"
+              [requireExpirationDate]="docType.requireExpiration ?? false"
               (onUpload)="handleDocumentUpload($event, docType.value)"
               (onUpdate)="handleDocumentUpdate($event)"
               (onDelete)="deleteDocument($event, docType.value)"

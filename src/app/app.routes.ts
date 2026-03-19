@@ -227,28 +227,6 @@ export const routes: Routes = [
         ],
       },
       {
-        path: getPath(PATH.admin.sucursales),
-        loadComponent: () =>
-          import('@module/admin/content/sucursales/sucursales').then((m) => m.Sucursales),
-        children: [
-          {
-            path: getPath(PATH.admin.sucursales.list),
-            loadComponent: () =>
-              import('@module/admin/content/sucursales/content/sucursales-list/sucursales-list').then(
-                (m) => m.SucursalesList,
-              ),
-          },
-          {
-            path: getPath(PATH.admin.sucursales.edit),
-            loadComponent: () =>
-              import('@module/admin/content/sucursales/content/sucursales-edit/sucursales-edit').then(
-                (m) => m.SucursalesEdit,
-              ),
-          },
-          { path: '**', redirectTo: getPath(PATH.admin.sucursales.list), pathMatch: 'full' },
-        ],
-      },
-      {
         path: getPath(PATH.admin.alquileres),
         loadComponent: () =>
           import('@module/admin/content/alquileres/alquileres').then((m) => m.Alquileres),

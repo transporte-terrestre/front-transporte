@@ -3529,7 +3529,7 @@ export interface DocumentoItemDto {
   observacion?: string;
   /**
    * Fecha de Vencimiento Inicial/Por defecto
-   * @example "2026-03-18T18:01:53.578Z"
+   * @example "2026-03-19T15:30:24.595Z"
    */
   fechaVencimiento?: string;
 }
@@ -3712,17 +3712,17 @@ export interface BotiquinItemDto {
   habilitado: boolean;
   /**
    * Fecha de Vencimiento actual
-   * @example "2026-03-18T18:01:53.580Z"
+   * @example "2026-03-19T15:30:24.599Z"
    */
   fechaVencimiento?: string;
   /**
    * Fecha de Salida
-   * @example "2026-03-18T18:01:53.580Z"
+   * @example "2026-03-19T15:30:24.599Z"
    */
   fechaSalida?: string;
   /**
    * Fecha de Reposición
-   * @example "2026-03-18T18:01:53.580Z"
+   * @example "2026-03-19T15:30:24.599Z"
    */
   fechaReposicion?: string;
 }
@@ -4030,17 +4030,11 @@ export interface VehiculoMantenimientoListDto {
 
 export interface SucursalDetalleResDto {
   /** @example 1 */
-  sucursalId: number;
-  /** @example 1 */
   id: number;
-  /** @example "Lima" */
-  departamento: string;
-  /** @example "Lima" */
-  provincia: string;
   /** @example "Miraflores" */
   distrito: string;
   /** @example "Av. Direccion Exacta 123" */
-  direccion: string;
+  ubicacionExacta: string;
 }
 
 export interface TallerResultDto {
@@ -4395,20 +4389,20 @@ export interface SucursalResultDto {
    */
   id: number;
   /**
-   * Departamento de la sucursal
-   * @example "Lima"
+   * ID del taller al que pertenece
+   * @example 1
    */
-  departamento: string;
-  /**
-   * Provincia
-   * @example "Lima"
-   */
-  provincia: string;
+  tallerId: number;
   /**
    * Distrito
    * @example "Miraflores"
    */
   distrito: string;
+  /**
+   * Ubicación exacta
+   * @example "Av. Larco 123"
+   */
+  ubicacionExacta: string;
   /**
    * Fecha de creación
    * @format date-time
@@ -8304,17 +8298,17 @@ export interface EntidadUpdateDto {
   nombreServicio?: string;
 }
 
-export interface SucursalTallerDto {
+export interface TallerSucursalNestedDto {
   /**
-   * ID de la sucursal
-   * @example 1
+   * Distrito de la sucursal
+   * @example "San Isidro"
    */
-  sucursalId: number;
+  distrito: string;
   /**
-   * Direccion exacta del taller en esta sucursal
-   * @example "Av. Direccion Exacta 123"
+   * Ubicación exacta de la sucursal
+   * @example "Av. Juan de Arona 123"
    */
-  direccion: string;
+  ubicacionExacta: string;
 }
 
 export interface TallerCreateDto {
@@ -8348,8 +8342,8 @@ export interface TallerCreateDto {
    * @example "contacto@taller.com"
    */
   email?: string;
-  /** Lista de sucursales a vincular con su dirección */
-  sucursales?: SucursalTallerDto[];
+  /** Lista de sucursales del taller */
+  sucursales?: TallerSucursalNestedDto[];
 }
 
 export interface TallerListDto {
@@ -8441,26 +8435,26 @@ export interface TallerUpdateDto {
    * @example "contacto@taller.com"
    */
   email?: string;
-  /** Lista de sucursales a vincular con su dirección */
-  sucursales?: SucursalTallerDto[];
+  /** Lista de sucursales del taller */
+  sucursales?: TallerSucursalNestedDto[];
 }
 
 export interface SucursalCreateDto {
   /**
-   * Departamento de la sucursal
-   * @example "Lima"
+   * ID del taller al que pertenece la sucursal
+   * @example 1
    */
-  departamento: string;
-  /**
-   * Provincia de la sucursal
-   * @example "Lima"
-   */
-  provincia: string;
+  tallerId: number;
   /**
    * Distrito de la sucursal
    * @example "San Isidro"
    */
   distrito: string;
+  /**
+   * Ubicación exacta / dirección de la sucursal
+   * @example "Av. Juan de Arona 123"
+   */
+  ubicacionExacta: string;
 }
 
 export interface SucursalListDto {
@@ -8470,20 +8464,20 @@ export interface SucursalListDto {
    */
   id: number;
   /**
-   * Departamento de la sucursal
-   * @example "Lima"
+   * ID del taller al que pertenece
+   * @example 1
    */
-  departamento: string;
-  /**
-   * Provincia
-   * @example "Lima"
-   */
-  provincia: string;
+  tallerId: number;
   /**
    * Distrito
    * @example "Miraflores"
    */
   distrito: string;
+  /**
+   * Ubicación exacta
+   * @example "Av. Larco 123"
+   */
+  ubicacionExacta: string;
   /**
    * Fecha de creación
    * @format date-time
@@ -8499,20 +8493,20 @@ export interface PaginatedSucursalResultDto {
 
 export interface SucursalUpdateDto {
   /**
-   * Departamento de la sucursal
-   * @example "Lima"
+   * ID del taller al que pertenece la sucursal
+   * @example 1
    */
-  departamento?: string;
-  /**
-   * Provincia de la sucursal
-   * @example "Lima"
-   */
-  provincia?: string;
+  tallerId?: number;
   /**
    * Distrito de la sucursal
    * @example "San Isidro"
    */
   distrito?: string;
+  /**
+   * Ubicación exacta / dirección de la sucursal
+   * @example "Av. Juan de Arona 123"
+   */
+  ubicacionExacta?: string;
 }
 
 export interface ViajeDetalladoDto {
