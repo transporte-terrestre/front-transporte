@@ -54,7 +54,8 @@ export class ReportesClientes implements OnInit {
     const diffTime = Math.abs(end.getTime() - start.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 1;
     
-    return diffDays * (alquiler.montoPorDia || 0);
+    const numVehiculos = (alquiler.detalles?.length || 0);
+    return diffDays * (alquiler.montoPorDia || 0) * (numVehiculos || 1);
   }
 
   async loadClientes(append = false) {

@@ -265,20 +265,22 @@ export class AlquileresList implements OnInit {
       return;
     }
 
-    const data = this.alquileres().map((a) => {
+    const data = this.alquileres().map((a: any) => {
+      const placas = a.detalles?.map((d: any) => d.vehiculo?.placa).filter(Boolean).join(', ') || '—';
+      const conductores = a.detalles?.map((d: any) => d.conductor?.nombreCompleto).filter(Boolean).join(', ') || '—';
+      const tipo = a.detalles?.[0]?.tipo === 'maquina_operada' ? 'Máquina Operada' : 'Máquina Seca';
+      
       return {
         ID: a.id,
-        Cliente: (a.cliente as any)?.razonSocial || (a.cliente as any)?.nombreCompleto || '—',
-        Tipo: a.tipo === 'maquina_operada' ? 'Máquina Operada' : 'Máquina Seca',
-        Vehículo: `${(a.vehiculo as any)?.marca || ''} ${(a.vehiculo as any)?.modelo || ''} - ${(a.vehiculo as any)?.placa || ''}`.trim() || (a.vehiculo as any)?.placa || '—',
-        Conductor: (a.conductor as any)?.nombreCompleto || '—',
+        Cliente: a.cliente?.razonSocial || a.cliente?.nombreCompleto || '—',
+        Tipo: tipo,
+        Vehículos: placas,
+        Conductores: conductores,
         'Fecha Inicio': a.fechaInicio ? new Date(a.fechaInicio).toLocaleDateString() : '—',
         'Fecha Fin': a.fechaFin ? new Date(a.fechaFin).toLocaleDateString() : '—',
-        Días: a.fechaFin ? this.getDiffDias(a.fechaInicio, a.fechaFin) : '—',
-        'Km Inicial': a.kilometrajeInicial,
-        'Km Final': a.kilometrajeFinal ?? '—',
+        'Es Indefinido': a.esIndefinido ? 'Sí' : 'No',
         'Monto por Día': `S/ ${a.montoPorDia}`,
-        'Monto Total': a.montoTotalFinal ? `S/ ${a.montoTotalFinal}` : '—',
+        'Monto Total Final': a.montoTotalFinal ? `S/ ${a.montoTotalFinal}` : '—',
         Estado: this.getEstadoLabel(a.estado),
       };
     });

@@ -3529,7 +3529,7 @@ export interface DocumentoItemDto {
   observacion?: string;
   /**
    * Fecha de Vencimiento Inicial/Por defecto
-   * @example "2026-03-19T15:30:24.595Z"
+   * @example "2026-03-19T17:16:29.904Z"
    */
   fechaVencimiento?: string;
 }
@@ -3712,17 +3712,17 @@ export interface BotiquinItemDto {
   habilitado: boolean;
   /**
    * Fecha de Vencimiento actual
-   * @example "2026-03-19T15:30:24.599Z"
+   * @example "2026-03-19T17:16:29.908Z"
    */
   fechaVencimiento?: string;
   /**
    * Fecha de Salida
-   * @example "2026-03-19T15:30:24.599Z"
+   * @example "2026-03-19T17:16:29.908Z"
    */
   fechaSalida?: string;
   /**
    * Fecha de Reposición
-   * @example "2026-03-19T15:30:24.599Z"
+   * @example "2026-03-19T17:16:29.908Z"
    */
   fechaReposicion?: string;
 }
@@ -9531,11 +9531,29 @@ export interface AlquilerConductorDto {
   dni?: string;
 }
 
-export interface AlquilerProveedorDto {
+export interface AlquilerDetalleResultDto {
   id: number;
-  nombreCompleto: string;
-  dni: string;
-  ruc?: string;
+  alquilerId: number;
+  vehiculoId: number;
+  conductorId?: number;
+  tipo: "maquina_seca" | "maquina_operada";
+  kilometrajeInicial: number;
+  kilometrajeFinal?: number;
+  vehiculo?: AlquilerVehiculoDto;
+  conductor?: AlquilerConductorDto;
+}
+
+export interface AlquilerHistorialResultDto {
+  id: number;
+  alquilerId: number;
+  vehiculoId?: number;
+  tipoAccion: string;
+  montoAnterior?: number;
+  montoNuevo?: number;
+  motivo?: string;
+  /** @format date-time */
+  fechaAccion: string;
+  vehiculo?: AlquilerVehiculoDto;
 }
 
 export interface AlquilerDocumentoResultDto {
@@ -9559,11 +9577,6 @@ export interface AlquilerDocumentoResultDto {
 export interface AlquilerItemDto {
   id: number;
   clienteId: number;
-  vehiculoId: number;
-  conductorId?: number;
-  tipo: "maquina_seca" | "maquina_operada";
-  kilometrajeInicial: number;
-  kilometrajeFinal?: number;
   montoPorDia: number;
   montoTotalFinal?: number;
   razon?: string;
@@ -9571,7 +9584,7 @@ export interface AlquilerItemDto {
   fechaInicio: string;
   /** @format date-time */
   fechaFin?: string;
-  monto?: string;
+  esIndefinido: boolean;
   observaciones?: string;
   estado: "activo" | "finalizado" | "cancelado";
   /** @format date-time */
@@ -9579,9 +9592,8 @@ export interface AlquilerItemDto {
   /** @format date-time */
   actualizadoEn: string;
   cliente?: AlquilerClienteDto;
-  vehiculo?: AlquilerVehiculoDto;
-  conductor?: AlquilerConductorDto;
-  proveedor?: AlquilerProveedorDto;
+  detalles?: AlquilerDetalleResultDto[];
+  historial?: AlquilerHistorialResultDto[];
   documentos?: AlquilerDocumentoResultDto[];
 }
 
@@ -9615,11 +9627,6 @@ export interface ValidacionAlquilerResultDto {
 export interface AlquilerResultDto {
   id: number;
   clienteId: number;
-  vehiculoId: number;
-  conductorId?: number;
-  tipo: "maquina_seca" | "maquina_operada";
-  kilometrajeInicial: number;
-  kilometrajeFinal?: number;
   montoPorDia: number;
   montoTotalFinal?: number;
   razon?: string;
@@ -9627,7 +9634,7 @@ export interface AlquilerResultDto {
   fechaInicio: string;
   /** @format date-time */
   fechaFin?: string;
-  monto?: string;
+  esIndefinido: boolean;
   observaciones?: string;
   estado: "activo" | "finalizado" | "cancelado";
   /** @format date-time */
@@ -9635,58 +9642,63 @@ export interface AlquilerResultDto {
   /** @format date-time */
   actualizadoEn: string;
   cliente?: AlquilerClienteDto;
-  vehiculo?: AlquilerVehiculoDto;
-  conductor?: AlquilerConductorDto;
-  proveedor?: AlquilerProveedorDto;
+  detalles?: AlquilerDetalleResultDto[];
+  historial?: AlquilerHistorialResultDto[];
   documentos?: AlquilerDocumentoResultDto[];
 }
 
-export interface AlquilerCreateDto {
-  clienteId: number;
+export interface AlquilerVehiculoDetalleDto {
   vehiculoId: number;
   /** @example "maquina_seca" */
   tipo: "maquina_seca" | "maquina_operada";
   /** Conductor requerido cuando el tipo es maquina_operada */
-  conductorId: number;
+  conductorId?: number;
   /** @example 15234.5 */
   kilometrajeInicial: number;
+}
+
+export interface AlquilerCreateDto {
+  clienteId: number;
   /** @example 450 */
   montoPorDia: number;
   /** Razón o motivo del alquiler */
   razon?: string;
   /** @format date-time */
   fechaInicio: string;
+  /** @format date-time */
+  fechaFin?: string;
+  /** @default false */
+  esIndefinido: boolean;
   observaciones?: string;
-  /** Si es true, el vehículo cambiará su estado a alquilado. */
+  vehiculos: AlquilerVehiculoDetalleDto[];
+  /** Si es true, los vehículos cambiarán su estado a alquilado. */
   marcarComoAlquilado?: boolean;
 }
 
 export interface AlquilerUpdateDto {
   clienteId?: number;
-  vehiculoId?: number;
-  /** @example "maquina_seca" */
-  tipo?: "maquina_seca" | "maquina_operada";
-  /** Conductor requerido cuando el tipo es maquina_operada */
-  conductorId?: number;
-  /** @example 15234.5 */
-  kilometrajeInicial?: number;
   /** @example 450 */
   montoPorDia?: number;
   /** Razón o motivo del alquiler */
   razon?: string;
   /** @format date-time */
   fechaInicio?: string;
-  observaciones?: string;
-  /** Si es true, el vehículo cambiará su estado a alquilado. */
-  marcarComoAlquilado?: boolean;
-  estado?: "activo" | "finalizado" | "cancelado";
   /** @format date-time */
   fechaFin?: string;
+  /** @default false */
+  esIndefinido?: boolean;
+  observaciones?: string;
+  vehiculos?: AlquilerVehiculoDetalleDto[];
+  /** Si es true, los vehículos cambiarán su estado a alquilado. */
+  marcarComoAlquilado?: boolean;
+  estado?: "activo" | "finalizado" | "cancelado";
   kilometrajeFinal?: number;
   montoTotalFinal?: number;
 }
 
 export interface AlquilerTerminarDto {
+  /** ID del detalle del alquiler a finalizar. Si no se envía se finaliza todo el contrato (maestro). */
+  detalleId?: number;
   /** @format date-time */
   fechaFin: string;
   /** @example 15820.5 */

@@ -82,7 +82,7 @@
                       {{ vehiculo.placa }} - {{ vehiculo.modelo }}
                     </span>
                     <!-- Status Badge -->
-                    <span 
+                    <span
                       class="text-[9px] font-inter-bold px-1.5 py-0.5 rounded uppercase"
                       [class.bg-info/10]="vehiculo.estado === 'disponible'"
                       [class.text-info]="vehiculo.estado === 'disponible'"
@@ -90,8 +90,12 @@
                       [class.text-success]="vehiculo.estado === 'circulacion'"
                       [class.bg-warning/10]="vehiculo.estado === 'alquilado'"
                       [class.text-warning]="vehiculo.estado === 'alquilado'"
-                      [class.bg-danger/10]="vehiculo.estado === 'taller' || vehiculo.estado === 'retirado'"
-                      [class.text-danger]="vehiculo.estado === 'taller' || vehiculo.estado === 'retirado'"
+                      [class.bg-danger/10]="
+                        vehiculo.estado === 'taller' || vehiculo.estado === 'retirado'
+                      "
+                      [class.text-danger]="
+                        vehiculo.estado === 'taller' || vehiculo.estado === 'retirado'
+                      "
                     >
                       {{ vehiculo.estado }}
                     </span>
