@@ -50,10 +50,18 @@
           }
         }
       </div>
-      @if (clienteForm.get('tipoDocumento')?.value === 'DNI' && clienteForm.get('dni')?.touched && clienteForm.get('dni')?.errors) {
+      @if (
+        clienteForm.get('tipoDocumento')?.value === 'DNI' &&
+        clienteForm.get('dni')?.touched &&
+        clienteForm.get('dni')?.errors
+      ) {
         <p class="text-danger text-xs font-inter-medium mt-1">DNI requerido</p>
       }
-      @if (clienteForm.get('tipoDocumento')?.value === 'RUC' && clienteForm.get('ruc')?.touched && clienteForm.get('ruc')?.errors) {
+      @if (
+        clienteForm.get('tipoDocumento')?.value === 'RUC' &&
+        clienteForm.get('ruc')?.touched &&
+        clienteForm.get('ruc')?.errors
+      ) {
         <p class="text-danger text-xs font-inter-medium mt-1">RUC requerido</p>
       }
     </div>
@@ -375,13 +383,19 @@
     <div class="space-y-4 mt-6">
       <h3 class="text-sm font-inter-bold text-text mb-4">Documentos</h3>
       <div class="grid grid-cols-1 gap-4">
-        @for (docType of documentTypes; track docType.value) {
+        @for (docType of visibleDocumentTypes(); track docType.value) {
           @let isRequired = requiredDocumentTypes().includes(docType.value);
-          <div 
+          <div
             class="bg-background rounded-lg p-4 border transition-colors"
-            [class.border-text/10]="!isRequired || !validateDocuments() || getDocuments(docType.value).length > 0"
-            [class.border-danger/50]="isRequired && validateDocuments() && getDocuments(docType.value).length === 0"
-            [class.bg-danger/5] ="isRequired && validateDocuments() && getDocuments(docType.value).length === 0"
+            [class.border-text/10]="
+              !isRequired || !validateDocuments() || getDocuments(docType.value).length > 0
+            "
+            [class.border-danger/50]="
+              isRequired && validateDocuments() && getDocuments(docType.value).length === 0
+            "
+            [class.bg-danger/5]="
+              isRequired && validateDocuments() && getDocuments(docType.value).length === 0
+            "
           >
             <div class="flex items-center justify-between mb-2">
               <span class="text-xs font-inter-semibold text-text/80">
@@ -395,7 +409,7 @@
               }
             </div>
             <app-documents-date-upload
-              [label]="docType.label"
+              [label]="''"
               [documents]="getDocuments(docType.value)"
               [maxDocuments]="10"
               (onUpload)="handleDocumentUpload($event, docType.value)"

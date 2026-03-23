@@ -58,3 +58,10 @@
     }
   </div>
 </div>
+
+@if (showSignatureModal()) {
+  <app-user-signature-select-modal
+    (onSelected)="handleSignatureSelected($event)"
+    (onClose)="handleSignatureClose()"
+  />
+}

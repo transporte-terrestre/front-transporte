@@ -1,7 +1,13 @@
-import { Component, inject, input, output, OnInit, effect, signal } from '@angular/core';
+import { Component, inject, input, output, OnInit, effect, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ApiResponse, ApiBody, ApiField, PropietarioDocumentoResultDto, DocumentosAgrupadosPropietarioDto } from 'api/backend.api';
+import {
+  ApiResponse,
+  ApiBody,
+  ApiField,
+  PropietarioDocumentoResultDto,
+  DocumentosAgrupadosPropietarioDto,
+} from 'api/backend.api';
 import { ImagesUpload } from '@module/admin/components/images-upload/images-upload';
 import {
   DocumentsDateUpload,
@@ -45,12 +51,31 @@ export class PropietarioForm implements OnInit {
 
   // State
   imagenes = signal<string[]>([]);
-  localDocuments = signal<DocumentosAgrupadosPropietarioDto | null>({} as DocumentosAgrupadosPropietarioDto);
+  localDocuments = signal<DocumentosAgrupadosPropietarioDto | null>(
+    {} as DocumentosAgrupadosPropietarioDto,
+  );
   pendingDocuments = signal<PendingPropietarioDocument[]>([]);
   private tempIdCounter = 0;
 
   searchingDni = signal(false);
   searchingRuc = signal(false);
+  tipoDocSelected = signal<'DNI' | 'RUC'>('DNI');
+
+  requiredDocumentTypes = computed(() => {
+    if (this.editMode()) return [];
+    const tipo = this.tipoDocSelected();
+    return [tipo === 'DNI' ? 'dni' : 'ruc'] as (keyof DocumentosAgrupadosPropietarioDto)[];
+  });
+
+  visibleDocumentTypes = computed(() => {
+    const tipo = this.tipoDocSelected();
+    return this.documentTypes.filter((dt) => {
+      // Ocultar DNI si se elige RUC y viceversa
+      if (tipo === 'DNI' && dt.value === 'ruc') return false;
+      if (tipo === 'RUC' && dt.value === 'dni') return false;
+      return true;
+    });
+  });
 
   propietarioForm: FormGroup = this.fb.group({
     tipoDocumento: ['DNI', [Validators.required]],
@@ -91,10 +116,12 @@ export class PropietarioForm implements OnInit {
           telefono: propietarioData.telefono || '',
           direccion: propietarioData.direccion || '',
         });
+        this.tipoDocSelected.set(propietarioData.tipoDocumento as 'DNI' | 'RUC');
         this.imagenes.set(propietarioData.imagenes || []);
         this.localDocuments.set(JSON.parse(JSON.stringify(propietarioData.documentos)));
       } else {
         this.propietarioForm.reset({ tipoDocumento: 'DNI' });
+        this.tipoDocSelected.set('DNI');
         this.imagenes.set([]);
         this.localDocuments.set({} as DocumentosAgrupadosPropietarioDto);
         this.pendingDocuments.set([]);
@@ -104,6 +131,7 @@ export class PropietarioForm implements OnInit {
 
   ngOnInit() {
     this.propietarioForm.get('tipoDocumento')?.valueChanges.subscribe((tipo) => {
+      this.tipoDocSelected.set(tipo);
       const dniControl = this.propietarioForm.get('dni');
       const rucControl = this.propietarioForm.get('ruc');
       const nombresControl = this.propietarioForm.get('nombres');
@@ -141,7 +169,9 @@ export class PropietarioForm implements OnInit {
         distinctUntilChanged(),
         filter(
           (value) =>
-            value && value.length === 8 && this.propietarioForm.get('tipoDocumento')?.value === 'DNI',
+            value &&
+            value.length === 8 &&
+            this.propietarioForm.get('tipoDocumento')?.value === 'DNI',
         ),
       )
       .subscribe(async (dni) => {
@@ -171,7 +201,9 @@ export class PropietarioForm implements OnInit {
         distinctUntilChanged(),
         filter(
           (value) =>
-            value && value.length === 11 && this.propietarioForm.get('tipoDocumento')?.value === 'RUC',
+            value &&
+            value.length === 11 &&
+            this.propietarioForm.get('tipoDocumento')?.value === 'RUC',
         ),
       )
       .subscribe(async (ruc) => {
@@ -235,7 +267,7 @@ export class PropietarioForm implements OnInit {
 
   async handleDocumentUpload(
     event: DocumentWithDate,
-    tipo: keyof DocumentosAgrupadosPropietarioDto
+    tipo: keyof DocumentosAgrupadosPropietarioDto,
   ) {
     if (!this.editMode()) {
       // Creation mode: save locally with a temporary ID
@@ -254,11 +286,11 @@ export class PropietarioForm implements OnInit {
 
     const documento: ApiBody<'propietarios', 'createDocumento'> = {
       propietarioId: this.propietario()!.id,
-      tipo: tipo as "dni" | "ruc" | "contrato" | "otros",
+      tipo: tipo as 'dni' | 'ruc' | 'contrato' | 'otros',
       nombre: event.nombre,
       url: event.url,
-      fechaEmision: event.fechaEmision,
-      fechaExpiracion: event.fechaExpiracion,
+      ...(event.fechaEmision ? { fechaEmision: event.fechaEmision } : {}),
+      ...(event.fechaExpiracion ? { fechaExpiracion: event.fechaExpiracion } : {}),
     };
 
     this.propietarioService
@@ -273,7 +305,11 @@ export class PropietarioForm implements OnInit {
       });
   }
 
-  async handleDocumentUpdate(event: { id: number; fechaEmision: string; fechaExpiracion: string }) {
+  async handleDocumentUpdate(event: {
+    id: number;
+    fechaEmision?: string;
+    fechaExpiracion?: string;
+  }) {
     if (event.id < 0) {
       // Pending document in creation mode
       this.pendingDocuments.update((prev) =>
@@ -283,12 +319,12 @@ export class PropietarioForm implements OnInit {
                 ...d,
                 data: {
                   ...d.data,
-                  fechaEmision: event.fechaEmision,
-                  fechaExpiracion: event.fechaExpiracion,
+                  ...(event.fechaEmision ? { fechaEmision: event.fechaEmision } : {}),
+                  ...(event.fechaExpiracion ? { fechaExpiracion: event.fechaExpiracion } : {}),
                 },
               }
-            : d
-        )
+            : d,
+        ),
       );
       // Also update local list for UI
       const docs = this.localDocuments();
@@ -301,10 +337,10 @@ export class PropietarioForm implements OnInit {
               d.id === event.id
                 ? ({
                     ...d,
-                    fechaEmision: event.fechaEmision,
-                    fechaExpiracion: event.fechaExpiracion,
+                    ...(event.fechaEmision ? { fechaEmision: event.fechaEmision } : {}),
+                    ...(event.fechaExpiracion ? { fechaExpiracion: event.fechaExpiracion } : {}),
                   } as PropietarioDocumentoResultDto)
-                : d
+                : d,
             );
           }
         }
@@ -314,10 +350,11 @@ export class PropietarioForm implements OnInit {
     }
 
     try {
-      const doc = await this.propietarioService.updateDocumento(event.id, {
-        fechaEmision: event.fechaEmision,
-        fechaExpiracion: event.fechaExpiracion,
-      });
+      const payload: ApiBody<'propietarios', 'updateDocumento'> = {
+        ...(event.fechaEmision ? { fechaEmision: event.fechaEmision } : {}),
+        ...(event.fechaExpiracion ? { fechaExpiracion: event.fechaExpiracion } : {}),
+      };
+      const doc = await this.propietarioService.updateDocumento(event.id, payload);
       this.toastService.success('Documento actualizado exitosamente');
       this.updateDocumentInLocalList(doc);
     } catch (err) {

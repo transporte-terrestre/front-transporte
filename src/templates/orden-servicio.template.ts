@@ -2,7 +2,17 @@ import { ApiResponse } from 'api/backend.api';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
-export const generateOrdenServicioPdf = (mantenimiento: ApiResponse<'mantenimientos', 'findOne'>) => {
+export interface SignatureSelection {
+  userId: number;
+  nombreCompleto: string;
+  firmaUrl: string;
+  rolEnDocumento: 'planner' | 'supervisor';
+}
+
+export const generateOrdenServicioPdf = async (
+  mantenimiento: ApiResponse<'mantenimientos', 'findOne'>,
+  selectedSignatures?: SignatureSelection[],
+) => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.width;
   const margin = 14;
@@ -15,7 +25,33 @@ export const generateOrdenServicioPdf = (mantenimiento: ApiResponse<'mantenimien
     const labelWidth = doc.getTextWidth(label);
 
     doc.setFont('helvetica', 'normal');
-    doc.text(value, x + labelWidth + 2, currentY);
+    doc.text(value || '---', x + labelWidth + 2, currentY);
+  };
+
+  const addImageFromUrl = (
+    url: string,
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+  ): Promise<void> => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.crossOrigin = 'Anonymous';
+      img.src = url;
+      img.onload = () => {
+        try {
+          doc.addImage(img, 'PNG', x, y, w, h);
+        } catch (e) {
+          console.error('Error adding image to PDF', e);
+        }
+        resolve();
+      };
+      img.onerror = () => {
+        console.error('Error loading image', url);
+        resolve();
+      };
+    });
   };
 
   // --- Header ---
@@ -42,13 +78,13 @@ export const generateOrdenServicioPdf = (mantenimiento: ApiResponse<'mantenimien
     'Taller:',
     mantenimiento.taller?.nombreComercial || mantenimiento.taller?.razonSocial || '---',
     margin,
-    y
+    y,
   );
   drawField(
     'Tipo Mantenimiento:',
     mantenimiento.tipo === 'preventivo' ? 'Preventivo-Man' : 'Correctivo-Man',
     col2X,
-    y
+    y,
   );
   y += 6;
 
@@ -130,23 +166,32 @@ export const generateOrdenServicioPdf = (mantenimiento: ApiResponse<'mantenimien
   doc.line(margin, y, pageWidth - margin, y);
   y += 7;
   doc.line(margin, y, pageWidth - margin, y);
-  y += 25;
+  y += 20;
 
   // --- Signatures ---
-  const sigY = y;
+  const sigY = y + 15;
   const sigWidth = 60;
-
-  // Left Signature
-  doc.line(margin, sigY, margin + sigWidth, sigY);
   doc.setFontSize(7);
-  doc.text('NESTOR YONATHAN ARI HEREDIA', margin + 5, sigY + 4);
+
+  const planner = selectedSignatures?.find((s) => s.rolEnDocumento === 'planner');
+  const supervisor = selectedSignatures?.find((s) => s.rolEnDocumento === 'supervisor');
+
+  // Left Signature (Planner)
+  if (planner?.firmaUrl) {
+    await addImageFromUrl(planner.firmaUrl, margin + 10, sigY - 18, 40, 18);
+  }
+  doc.line(margin, sigY, margin + sigWidth, sigY);
+  doc.text(planner?.nombreCompleto || 'PLANNER DE MANTENIMIENTO', margin + 5, sigY + 4);
   doc.text('PLANNER DE MANTENIMIENTO', margin + 8, sigY + 7);
   doc.text('TRANSPORTES LINEA S.A.', margin + 10, sigY + 10);
 
-  // Right Signature
+  // Right Signature (Supervisor)
   const rightSigX = pageWidth - margin - sigWidth;
+  if (supervisor?.firmaUrl) {
+    await addImageFromUrl(supervisor.firmaUrl, rightSigX + 10, sigY - 18, 40, 18);
+  }
   doc.line(rightSigX, sigY, pageWidth - margin, sigY);
-  doc.text('CARLOS ZUNIGA RAMIREZ', rightSigX + 10, sigY + 4);
+  doc.text(supervisor?.nombreCompleto || 'SUPERVISOR DE MANTENIMIENTO', rightSigX + 10, sigY + 4);
   doc.text('SUPERVISOR DE MANTENIMIENTO', rightSigX + 5, sigY + 7);
 
   doc.save(`OrdenServicio_${mantenimiento.codigoOrden}.pdf`);

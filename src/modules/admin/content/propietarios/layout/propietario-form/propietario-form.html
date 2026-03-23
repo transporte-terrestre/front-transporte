@@ -49,94 +49,98 @@
   </div>
 
   @if (propietarioForm.get('tipoDocumento')?.value === 'DNI') {
-  <div>
-    <label class="block text-xs font-inter-semibold text-text mb-1.5">DNI</label>
-    <div class="relative">
-      <input
-        type="text"
-        formControlName="dni"
-        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-        placeholder="12345678"
-      />
-      @if (searchingDni()) {
-      <div class="absolute right-3 top-1/2 -translate-y-1/2">
-        <i class="fas fa-circle-notch fa-spin text-secondary text-xs"></i>
+    <div>
+      <label class="block text-xs font-inter-semibold text-text mb-1.5">DNI</label>
+      <div class="relative">
+        <input
+          type="text"
+          formControlName="dni"
+          class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+          placeholder="12345678"
+        />
+        @if (searchingDni()) {
+          <div class="absolute right-3 top-1/2 -translate-y-1/2">
+            <i class="fas fa-circle-notch fa-spin text-secondary text-xs"></i>
+          </div>
+        }
       </div>
-      }
-    </div>
-    @if (propietarioForm.get('dni')?.touched && propietarioForm.get('dni')?.errors) {
-    <p class="text-danger text-xs font-inter-medium mt-1">
-      El DNI es requerido (máx. 20 caracteres)
-    </p>
-    }
-  </div>
-
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-    <div>
-      <label class="block text-xs font-inter-semibold text-text mb-1.5">Nombres</label>
-      <input
-        type="text"
-        formControlName="nombres"
-        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-        placeholder="Juan"
-      />
-      @if (propietarioForm.get('nombres')?.touched && propietarioForm.get('nombres')?.errors) {
-      <p class="text-danger text-xs font-inter-medium mt-1">
-        El nombre es requerido (mín. 2 caracteres)
-      </p>
+      @if (propietarioForm.get('dni')?.touched && propietarioForm.get('dni')?.errors) {
+        <p class="text-danger text-xs font-inter-medium mt-1">
+          El DNI es requerido (máx. 20 caracteres)
+        </p>
       }
     </div>
 
-    <div>
-      <label class="block text-xs font-inter-semibold text-text mb-1.5">Apellidos</label>
-      <input
-        type="text"
-        formControlName="apellidos"
-        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-        placeholder="Pérez"
-      />
-      @if (propietarioForm.get('apellidos')?.touched && propietarioForm.get('apellidos')?.errors) {
-      <p class="text-danger text-xs font-inter-medium mt-1">
-        El apellido es requerido (mín. 2 caracteres)
-      </p>
-      }
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div>
+        <label class="block text-xs font-inter-semibold text-text mb-1.5">Nombres</label>
+        <input
+          type="text"
+          formControlName="nombres"
+          class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+          placeholder="Juan"
+        />
+        @if (propietarioForm.get('nombres')?.touched && propietarioForm.get('nombres')?.errors) {
+          <p class="text-danger text-xs font-inter-medium mt-1">
+            El nombre es requerido (mín. 2 caracteres)
+          </p>
+        }
+      </div>
+
+      <div>
+        <label class="block text-xs font-inter-semibold text-text mb-1.5">Apellidos</label>
+        <input
+          type="text"
+          formControlName="apellidos"
+          class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+          placeholder="Pérez"
+        />
+        @if (
+          propietarioForm.get('apellidos')?.touched && propietarioForm.get('apellidos')?.errors
+        ) {
+          <p class="text-danger text-xs font-inter-medium mt-1">
+            El apellido es requerido (mín. 2 caracteres)
+          </p>
+        }
+      </div>
     </div>
-  </div>
   } @else {
-  <div>
-    <label class="block text-xs font-inter-semibold text-text mb-1.5">RUC</label>
-    <div class="relative">
-      <input
-        type="text"
-        formControlName="ruc"
-        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-        placeholder="20123456789"
-      />
-      @if (searchingRuc()) {
-      <div class="absolute right-3 top-1/2 -translate-y-1/2">
-        <i class="fas fa-circle-notch fa-spin text-secondary text-xs"></i>
+    <div>
+      <label class="block text-xs font-inter-semibold text-text mb-1.5">RUC</label>
+      <div class="relative">
+        <input
+          type="text"
+          formControlName="ruc"
+          class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+          placeholder="20123456789"
+        />
+        @if (searchingRuc()) {
+          <div class="absolute right-3 top-1/2 -translate-y-1/2">
+            <i class="fas fa-circle-notch fa-spin text-secondary text-xs"></i>
+          </div>
+        }
       </div>
+      @if (propietarioForm.get('ruc')?.touched && propietarioForm.get('ruc')?.errors) {
+        <p class="text-danger text-xs font-inter-medium mt-1">
+          El RUC es requerido (máx. 20 caracteres)
+        </p>
       }
     </div>
-    @if (propietarioForm.get('ruc')?.touched && propietarioForm.get('ruc')?.errors) {
-    <p class="text-danger text-xs font-inter-medium mt-1">
-      El RUC es requerido (máx. 20 caracteres)
-    </p>
-    }
-  </div>
 
-  <div>
-    <label class="block text-xs font-inter-semibold text-text mb-1.5">Razón Social</label>
-    <input
-      type="text"
-      formControlName="razonSocial"
-      class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-      placeholder="Empresa S.A.C."
-    />
-    @if (propietarioForm.get('razonSocial')?.touched && propietarioForm.get('razonSocial')?.errors) {
-    <p class="text-danger text-xs font-inter-medium mt-1">La razón social es requerida</p>
-    }
-  </div>
+    <div>
+      <label class="block text-xs font-inter-semibold text-text mb-1.5">Razón Social</label>
+      <input
+        type="text"
+        formControlName="razonSocial"
+        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+        placeholder="Empresa S.A.C."
+      />
+      @if (
+        propietarioForm.get('razonSocial')?.touched && propietarioForm.get('razonSocial')?.errors
+      ) {
+        <p class="text-danger text-xs font-inter-medium mt-1">La razón social es requerida</p>
+      }
+    </div>
   }
 
   <div>
@@ -148,7 +152,7 @@
       placeholder="juan.perez@example.com"
     />
     @if (propietarioForm.get('email')?.touched && propietarioForm.get('email')?.errors) {
-    <p class="text-danger text-xs font-inter-medium mt-1">Email inválido</p>
+      <p class="text-danger text-xs font-inter-medium mt-1">Email inválido</p>
     }
   </div>
 
@@ -162,9 +166,9 @@
         placeholder="987654321"
       />
       @if (propietarioForm.get('telefono')?.touched && propietarioForm.get('telefono')?.errors) {
-      <p class="text-danger text-xs font-inter-medium mt-1">
-        Teléfono inválido (máx. 20 caracteres)
-      </p>
+        <p class="text-danger text-xs font-inter-medium mt-1">
+          Teléfono inválido (máx. 20 caracteres)
+        </p>
       }
     </div>
 
@@ -177,9 +181,9 @@
         placeholder="Av. Principal 123"
       />
       @if (propietarioForm.get('direccion')?.touched && propietarioForm.get('direccion')?.errors) {
-      <p class="text-danger text-xs font-inter-medium mt-1">
-        Dirección inválida (máx. 255 caracteres)
-      </p>
+        <p class="text-danger text-xs font-inter-medium mt-1">
+          Dirección inválida (máx. 255 caracteres)
+        </p>
       }
     </div>
   </div>
@@ -195,22 +199,37 @@
 
   <!-- Documentos -->
   @if (!editMode() || (editMode() && propietario())) {
-  <div class="space-y-4 mt-6">
-    <h3 class="text-sm font-inter-bold text-text mb-4">Documentos</h3>
-    <div class="grid grid-cols-1 gap-4">
-      @for (docType of documentTypes; track docType.value) {
-      <div class="bg-background rounded-lg p-4 border border-text/10">
-        <app-documents-date-upload
-          [label]="docType.label"
-          [documents]="getDocuments(docType.value)"
-          [maxDocuments]="10"
-          (onUpload)="handleDocumentUpload($event, docType.value)"
-          (onUpdate)="handleDocumentUpdate($event)"
-          (onDelete)="deleteDocument($event, docType.value)"
-        ></app-documents-date-upload>
+    <div class="space-y-4 mt-6">
+      <h3 class="text-sm font-inter-bold text-text mb-4">Documentos</h3>
+      <div class="grid grid-cols-1 gap-4">
+        @for (docType of visibleDocumentTypes(); track docType.value) {
+          @let isRequired = requiredDocumentTypes().includes(docType.value);
+          <div
+            class="bg-background rounded-lg p-4 border transition-colors border-text/10"
+          >
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-inter-semibold text-text/80">
+                {{ docType.label }}
+                @if (isRequired) {
+                  <span class="text-danger">*</span>
+                }
+              </span>
+
+              @if (isRequired && getDocuments(docType.value).length === 0) {
+                <span class="text-[10px] font-inter-bold text-danger uppercase">Requerido</span>
+              }
+            </div>
+            <app-documents-date-upload
+              [label]="''"
+              [documents]="getDocuments(docType.value)"
+              [maxDocuments]="10"
+              (onUpload)="handleDocumentUpload($event, docType.value)"
+              (onUpdate)="handleDocumentUpdate($event)"
+              (onDelete)="deleteDocument($event, docType.value)"
+            ></app-documents-date-upload>
+          </div>
+        }
       </div>
-      }
     </div>
-  </div>
   }
 </form>

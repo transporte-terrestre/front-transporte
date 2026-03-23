@@ -273,7 +273,7 @@ export class MantenimientoForm implements OnInit {
       });
   }
 
-  handleDocumentUpdate(event: { id: number; fechaEmision: string; fechaExpiracion: string }) {
+  handleDocumentUpdate(event: { id: number; fechaEmision?: string; fechaExpiracion?: string }) {
     if (event.id < 0) {
       // Pending document in creation mode
       this.pendingDocuments.update((prev) =>
@@ -283,8 +283,8 @@ export class MantenimientoForm implements OnInit {
                 ...d,
                 data: {
                   ...d.data,
-                  fechaEmision: event.fechaEmision,
-                  fechaExpiracion: event.fechaExpiracion,
+                  ...(event.fechaEmision ? { fechaEmision: event.fechaEmision } : {}),
+                  ...(event.fechaExpiracion ? { fechaExpiracion: event.fechaExpiracion } : {}),
                 },
               }
             : d,
@@ -301,8 +301,8 @@ export class MantenimientoForm implements OnInit {
               d.id === event.id
                 ? {
                     ...d,
-                    fechaEmision: event.fechaEmision,
-                    fechaExpiracion: event.fechaExpiracion,
+                    ...(event.fechaEmision ? { fechaEmision: event.fechaEmision } : {}),
+                    ...(event.fechaExpiracion ? { fechaExpiracion: event.fechaExpiracion } : {}),
                   }
                 : d,
             ) as any;
@@ -313,11 +313,13 @@ export class MantenimientoForm implements OnInit {
       return;
     }
 
+    const payload: ApiBody<'mantenimientos', 'updateDocumento'> = {
+      ...(event.fechaEmision ? { fechaEmision: event.fechaEmision } : {}),
+      ...(event.fechaExpiracion ? { fechaExpiracion: event.fechaExpiracion } : {}),
+    };
+
     this.mantenimientoService
-      .updateDocumento(event.id, {
-        ...(event.fechaEmision ? { fechaEmision: event.fechaEmision } : {}),
-        ...(event.fechaExpiracion ? { fechaExpiracion: event.fechaExpiracion } : {}),
-      })
+      .updateDocumento(event.id, payload)
       .then((doc) => {
         this.toastService.success('Documento actualizado exitosamente');
         this.updateDocumentInLocalList(doc as any);

@@ -336,7 +336,8 @@ export interface UsuarioDocumentoResultDto {
     | "seguro_vida_ley"
     | "sctr"
     | "examen_medico"
-    | "induccion_general";
+    | "induccion_general"
+    | "firma";
   /**
    * Nombre del documento
    * @example "Documento 1"
@@ -377,6 +378,7 @@ export interface DocumentosAgrupadosDto {
   sctr: UsuarioDocumentoResultDto[];
   examen_medico: UsuarioDocumentoResultDto[];
   induccion_general: UsuarioDocumentoResultDto[];
+  firma: UsuarioDocumentoResultDto[];
 }
 
 export interface UsuarioResultDto {
@@ -508,7 +510,8 @@ export interface UsuarioDocumentoCreateDto {
     | "seguro_vida_ley"
     | "sctr"
     | "examen_medico"
-    | "induccion_general";
+    | "induccion_general"
+    | "firma";
   /**
    * Nombre del documento
    * @example "Documento 1"
@@ -541,7 +544,8 @@ export interface UsuarioDocumentoUpdateDto {
     | "seguro_vida_ley"
     | "sctr"
     | "examen_medico"
-    | "induccion_general";
+    | "induccion_general"
+    | "firma";
   /**
    * URL del documento
    * @example "https://storage.example.com/documentos/dni-12345678.pdf"
@@ -1142,12 +1146,12 @@ export interface ConductorDocumentoCreateDto {
    * Fecha de expiración del documento
    * @example "2025-12-31"
    */
-  fechaExpiracion: string;
+  fechaExpiracion?: string;
   /**
    * Fecha de emisión del documento
    * @example "2023-01-15"
    */
-  fechaEmision: string;
+  fechaEmision?: string;
 }
 
 export interface ConductorDocumentoUpdateDto {
@@ -3529,7 +3533,7 @@ export interface DocumentoItemDto {
   observacion?: string;
   /**
    * Fecha de Vencimiento Inicial/Por defecto
-   * @example "2026-03-19T17:16:29.904Z"
+   * @example "2026-03-20T17:14:01.188Z"
    */
   fechaVencimiento?: string;
 }
@@ -3712,17 +3716,17 @@ export interface BotiquinItemDto {
   habilitado: boolean;
   /**
    * Fecha de Vencimiento actual
-   * @example "2026-03-19T17:16:29.908Z"
+   * @example "2026-03-20T17:14:01.198Z"
    */
   fechaVencimiento?: string;
   /**
    * Fecha de Salida
-   * @example "2026-03-19T17:16:29.908Z"
+   * @example "2026-03-20T17:14:01.198Z"
    */
   fechaSalida?: string;
   /**
    * Fecha de Reposición
-   * @example "2026-03-19T17:16:29.908Z"
+   * @example "2026-03-20T17:14:01.198Z"
    */
   fechaReposicion?: string;
 }
@@ -9702,7 +9706,7 @@ export interface AlquilerTerminarDto {
   /** @format date-time */
   fechaFin: string;
   /** @example 15820.5 */
-  kilometrajeFinal: number;
+  kilometrajeFinal?: number;
   /** @example 2500 */
   montoTotalFinal: number;
   /** Observaciones finales del cierre del alquiler */
@@ -9847,6 +9851,13 @@ export interface UsuariosRemoveParams {
 }
 
 export type UsuariosRemoveData = UsuarioResultDto;
+
+export interface UsuariosFindFirmasParams {
+  /** User ID */
+  id: number;
+}
+
+export type UsuariosFindFirmasData = UsuarioDocumentoResultDto[];
 
 export interface UsuariosFindDocumentoParams {
   /** ID del documento */
@@ -12072,6 +12083,26 @@ export namespace Usuarios {
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = UsuariosRemoveData;
+  }
+
+  /**
+   * No description
+   * @tags usuarios
+   * @name UsuariosFindFirmas
+   * @summary Obtener las firmas de un usuario
+   * @request GET:/usuario/find-firmas/{id}
+   * @secure
+   * @response `200` `UsuariosFindFirmasData`
+   */
+  export namespace UsuariosFindFirmas {
+    export type RequestParams = {
+      /** User ID */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = UsuariosFindFirmasData;
   }
 
   /**
@@ -17576,6 +17607,28 @@ export class Api<SecurityDataType extends unknown> {
       this.http.request<UsuariosRemoveData, any>({
         path: `/usuario/delete/${id}`,
         method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags usuarios
+     * @name UsuariosFindFirmas
+     * @summary Obtener las firmas de un usuario
+     * @request GET:/usuario/find-firmas/{id}
+     * @secure
+     * @response `200` `UsuariosFindFirmasData`
+     */
+    findFirmas: (
+      { id, ...query }: UsuariosFindFirmasParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<UsuariosFindFirmasData, any>({
+        path: `/usuario/find-firmas/${id}`,
+        method: "GET",
         secure: true,
         format: "json",
         ...params,

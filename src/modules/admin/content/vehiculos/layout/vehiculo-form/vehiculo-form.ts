@@ -478,7 +478,7 @@ export class VehiculoForm implements OnInit {
     }
   }
 
-  async handleDocumentUpdate(event: { id: number; fechaEmision: string; fechaExpiracion: string }) {
+  async handleDocumentUpdate(event: { id: number; fechaEmision?: string; fechaExpiracion?: string }) {
     if (event.id < 0) {
       // Pending document in creation mode
       this.pendingDocuments.update((prev) =>

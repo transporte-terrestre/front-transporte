@@ -255,8 +255,8 @@ export class ProveedorForm implements OnInit {
       tipo: tipo as "dni" | "ruc" | "contrato" | "otros",
       nombre: event.nombre,
       url: event.url,
-      fechaEmision: event.fechaEmision,
-      fechaExpiracion: event.fechaExpiracion,
+      ...(event.fechaEmision ? { fechaEmision: event.fechaEmision } : {}),
+      ...(event.fechaExpiracion ? { fechaExpiracion: event.fechaExpiracion } : {}),
     };
 
     this.proveedorService
@@ -271,7 +271,7 @@ export class ProveedorForm implements OnInit {
       });
   }
 
-  async handleDocumentUpdate(event: { id: number; fechaEmision: string; fechaExpiracion: string }) {
+  async handleDocumentUpdate(event: { id: number; fechaEmision?: string; fechaExpiracion?: string }) {
     if (event.id < 0) {
       // Pending document in creation mode
       this.pendingDocuments.update((prev) =>
@@ -281,8 +281,8 @@ export class ProveedorForm implements OnInit {
                 ...d,
                 data: {
                   ...d.data,
-                  fechaEmision: event.fechaEmision,
-                  fechaExpiracion: event.fechaExpiracion,
+                  ...(event.fechaEmision ? { fechaEmision: event.fechaEmision } : {}),
+                  ...(event.fechaExpiracion ? { fechaExpiracion: event.fechaExpiracion } : {}),
                 },
               }
             : d
@@ -299,8 +299,8 @@ export class ProveedorForm implements OnInit {
               d.id === event.id
                 ? ({
                     ...d,
-                    fechaEmision: event.fechaEmision,
-                    fechaExpiracion: event.fechaExpiracion,
+                    ...(event.fechaEmision ? { fechaEmision: event.fechaEmision } : {}),
+                    ...(event.fechaExpiracion ? { fechaExpiracion: event.fechaExpiracion } : {}),
                   } as ProveedorDocumentoResultDto)
                 : d
             );
@@ -312,10 +312,11 @@ export class ProveedorForm implements OnInit {
     }
 
     try {
-      const doc = await this.proveedorService.updateDocumento(event.id, {
-        fechaEmision: event.fechaEmision,
-        fechaExpiracion: event.fechaExpiracion,
-      });
+      const payload: ApiBody<'proveedores', 'updateDocumento'> = {
+        ...(event.fechaEmision ? { fechaEmision: event.fechaEmision } : {}),
+        ...(event.fechaExpiracion ? { fechaExpiracion: event.fechaExpiracion } : {}),
+      };
+      const doc = await this.proveedorService.updateDocumento(event.id, payload);
       this.toastService.success('Documento actualizado exitosamente');
       this.updateDocumentInLocalList(doc);
     } catch (err) {

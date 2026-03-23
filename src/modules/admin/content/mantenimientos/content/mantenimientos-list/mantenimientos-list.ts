@@ -18,6 +18,7 @@ import { PATH, buildPath } from '@route/path.route';
 import { getErrorMessage } from '@helper/error.helper';
 import { TallerInputSearch } from '../../../../components/input-searchs/taller-input-search/taller-input-search';
 import { VehiculoInputSearch } from '../../../../components/input-searchs/vehiculo-input-search/vehiculo-input-search';
+import { UserSignatureSelectModal, SignatureSelection } from '../../../../components/user-signature-select-modal/user-signature-select-modal';
 import * as XLSX from 'xlsx';
 
 interface CalendarDay {
@@ -38,6 +39,7 @@ interface CalendarDay {
     PaginationComponent,
     TallerInputSearch,
     VehiculoInputSearch,
+    UserSignatureSelectModal,
   ],
   templateUrl: './mantenimientos-list.html',
   styleUrl: './mantenimientos-list.css',
@@ -53,6 +55,29 @@ export class MantenimientosList implements OnInit {
   loading = signal(false);
   showModal = signal(false);
   selectedDate = signal<Date | null>(null);
+
+  // Firma Modal
+  showSignatureModal = signal(false);
+  selectedMantenimientoForSignature = signal<ApiResponse<'mantenimientos', 'findAll'>['data'][number] | null>(null);
+
+  downloadOrdenServicioList(mantenimiento: ApiResponse<'mantenimientos', 'findAll'>['data'][number]) {
+    this.selectedMantenimientoForSignature.set(mantenimiento);
+    this.showSignatureModal.set(true);
+  }
+
+  handleSignatureSelected(signatures: SignatureSelection[]) {
+    const m = this.selectedMantenimientoForSignature();
+    if (m) {
+      this.mantenimientoService.generateOrdenServicio(m as any, signatures);
+      this.showSignatureModal.set(false);
+      this.selectedMantenimientoForSignature.set(null);
+    }
+  }
+
+  handleSignatureClose() {
+    this.showSignatureModal.set(false);
+    this.selectedMantenimientoForSignature.set(null);
+  }
 
   // Paginación
   currentPage = signal(1);

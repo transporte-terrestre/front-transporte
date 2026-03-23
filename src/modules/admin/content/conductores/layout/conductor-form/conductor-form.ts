@@ -293,11 +293,11 @@ export class ConductorForm implements OnInit {
     // URL now comes directly from the event (already uploaded to Cloudinary)
     const documento: ApiBody<'conductores', 'createDocumento'> = {
       conductorId: this.conductor()!.id,
-      tipo: tipo as "dni" | "licencia_mtc" | "seguro_vida_ley" | "sctr" | "examen_medico" | "examen_medico_temporal" | "psicosensometrico" | "induccion_general" | "induccion_visita" | "manejo_defensivo" | "licencia_interna" | "autoriza_ssgg" | "curso_seguridad_portuaria" | "curso_mercancias_peligrosas" | "curso_basico_pbip" | "em_visita" | "pase_conduc" | "foto_funcionario",
+      tipo: tipo as any,
       nombre: event.nombre,
       url: event.url,
-      fechaEmision: event.fechaEmision,
-      fechaExpiracion: event.fechaExpiracion,
+      ...(event.fechaEmision ? { fechaEmision: event.fechaEmision } : {}),
+      ...(event.fechaExpiracion ? { fechaExpiracion: event.fechaExpiracion } : {}),
     };
 
     this.conductorService
@@ -312,7 +312,7 @@ export class ConductorForm implements OnInit {
       });
   }
 
-  async handleDocumentUpdate(event: { id: number; fechaEmision: string; fechaExpiracion: string }) {
+  async handleDocumentUpdate(event: { id: number; fechaEmision?: string; fechaExpiracion?: string }) {
     if (event.id < 0) {
       // Pending document in creation mode
       this.pendingDocuments.update((prev) =>
@@ -322,8 +322,8 @@ export class ConductorForm implements OnInit {
                 ...d,
                 data: {
                   ...d.data,
-                  fechaEmision: event.fechaEmision,
-                  fechaExpiracion: event.fechaExpiracion,
+                  ...(event.fechaEmision ? { fechaEmision: event.fechaEmision } : {}),
+                  ...(event.fechaExpiracion ? { fechaExpiracion: event.fechaExpiracion } : {}),
                 },
               }
             : d,
@@ -340,8 +340,8 @@ export class ConductorForm implements OnInit {
               d.id === event.id
                 ? ({
                     ...d,
-                    fechaEmision: event.fechaEmision,
-                    fechaExpiracion: event.fechaExpiracion,
+                    ...(event.fechaEmision ? { fechaEmision: event.fechaEmision } : {}),
+                    ...(event.fechaExpiracion ? { fechaExpiracion: event.fechaExpiracion } : {}),
                   } as ConductorDocumentoResultDto)
                 : d,
             );
@@ -353,10 +353,11 @@ export class ConductorForm implements OnInit {
     }
 
     try {
-      const doc = await this.conductorService.updateDocumento(event.id, {
-        fechaEmision: event.fechaEmision,
-        fechaExpiracion: event.fechaExpiracion,
-      });
+      const payload: ApiBody<'conductores', 'updateDocumento'> = {
+        ...(event.fechaEmision ? { fechaEmision: event.fechaEmision } : {}),
+        ...(event.fechaExpiracion ? { fechaExpiracion: event.fechaExpiracion } : {}),
+      };
+      const doc = await this.conductorService.updateDocumento(event.id, payload);
       this.toastService.success('Documento actualizado exitosamente');
       this.updateDocumentInLocalList(doc);
     } catch (err) {

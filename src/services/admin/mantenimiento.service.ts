@@ -91,7 +91,10 @@ export class MantenimientoService {
   async deleteDocumento(id: ApiParam<'mantenimientos', 'deleteDocumento', 'id'>) {
     return await this.api.mantenimientos.deleteDocumento({ id }).then((response) => response.data);
   }
-  generateOrdenServicio(mantenimiento: ApiResponse<'mantenimientos', 'findOne'>): void {
-    generateOrdenServicioPdf(mantenimiento);
+  async generateOrdenServicio(
+    mantenimiento: ApiResponse<'mantenimientos', 'findOne'>,
+    signatures?: any[]
+  ) {
+    await generateOrdenServicioPdf(mantenimiento, signatures);
   }
 }

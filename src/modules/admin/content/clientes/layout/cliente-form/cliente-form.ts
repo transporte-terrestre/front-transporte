@@ -1,7 +1,13 @@
 import { Component, inject, input, output, OnInit, effect, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ApiResponse, ApiBody, ApiField, ClienteDocumentoResultDto, DocumentosAgrupadosClienteDto } from 'api/backend.api';
+import {
+  ApiResponse,
+  ApiBody,
+  ApiField,
+  ClienteDocumentoResultDto,
+  DocumentosAgrupadosClienteDto,
+} from 'api/backend.api';
 import { ImagesUpload } from '@module/admin/components/images-upload/images-upload';
 import {
   DocumentsDateUpload,
@@ -58,7 +64,9 @@ export class ClienteForm implements OnInit {
 
   // State
   imagenes = signal<string[]>([]);
-  localDocuments = signal<DocumentosAgrupadosClienteDto | null>({} as DocumentosAgrupadosClienteDto);
+  localDocuments = signal<DocumentosAgrupadosClienteDto | null>(
+    {} as DocumentosAgrupadosClienteDto,
+  );
   pendingDocuments = signal<PendingClienteDocument[]>([]);
   private tempIdCounter = 0;
   pasajeros = signal<PasajeroData[]>([]);
@@ -82,6 +90,16 @@ export class ClienteForm implements OnInit {
     if (this.editMode()) return [];
     const tipo = this.tipoDocSelected();
     return ['ficha_ruc', tipo === 'DNI' ? 'dni' : 'ruc'] as (keyof DocumentosAgrupadosClienteDto)[];
+  });
+
+  visibleDocumentTypes = computed(() => {
+    const tipo = this.tipoDocSelected();
+    return this.documentTypes.filter((dt) => {
+      // Ocultar el tipo de documento opuesto al seleccionado
+      if (tipo === 'DNI' && dt.value === 'ruc') return false;
+      if (tipo === 'RUC' && dt.value === 'dni') return false;
+      return true;
+    });
   });
 
   clienteForm: FormGroup = this.fb.group({
@@ -185,7 +203,8 @@ export class ClienteForm implements OnInit {
         debounceTime(500),
         distinctUntilChanged(),
         filter(
-          (value) => value && value.length === 8 && this.clienteForm.get('tipoDocumento')?.value === 'DNI',
+          (value) =>
+            value && value.length === 8 && this.clienteForm.get('tipoDocumento')?.value === 'DNI',
         ),
       )
       .subscribe(async (dni) => {
@@ -238,7 +257,6 @@ export class ClienteForm implements OnInit {
       });
   }
 
-
   onImagesChange(images: string[]) {
     this.imagenes.set(images);
   }
@@ -252,19 +270,19 @@ export class ClienteForm implements OnInit {
     if (!this.editMode()) {
       const docs = this.pendingDocuments();
       const required = this.requiredDocumentTypes();
-      const missing = required.filter(r => !docs.some(d => d.tipo === r));
+      const missing = required.filter((r) => !docs.some((d) => d.tipo === r));
 
       if (missing.length > 0) {
         this.validateDocuments.set(true);
         const missingLabels = missing
-          .map(m => this.documentTypes.find(dt => dt.value === m)?.label)
+          .map((m) => this.documentTypes.find((dt) => dt.value === m)?.label)
           .join(' y ');
 
         this.alertService.showSimple(
           'warning',
           'Documentos requeridos',
           `Para registrar un cliente debe adjuntar obligatoriamente: ${missingLabels}.`,
-          'Entendido'
+          'Entendido',
         );
         return;
       }
@@ -302,10 +320,7 @@ export class ClienteForm implements OnInit {
   }
 
   // Document Management
-  async handleDocumentUpload(
-    event: DocumentWithDate,
-    tipo: keyof DocumentosAgrupadosClienteDto,
-  ) {
+  async handleDocumentUpload(event: DocumentWithDate, tipo: keyof DocumentosAgrupadosClienteDto) {
     if (!this.editMode()) {
       // Creation mode: save locally with a temporary ID
       const tempId = --this.tempIdCounter;
@@ -324,11 +339,11 @@ export class ClienteForm implements OnInit {
     // URL now comes directly from the event (already uploaded to Cloudinary)
     const documento: ApiBody<'clientes', 'createDocumento'> = {
       clienteId: this.cliente()!.id,
-      tipo: tipo as "dni" | "ruc" | "contrato" | "carta_compromiso" | "ficha_ruc" | "otros",
+      tipo: tipo as 'dni' | 'ruc' | 'contrato' | 'carta_compromiso' | 'ficha_ruc' | 'otros',
       nombre: event.nombre,
       url: event.url,
-      fechaEmision: event.fechaEmision,
-      fechaExpiracion: event.fechaExpiracion,
+      ...(event.fechaEmision ? { fechaEmision: event.fechaEmision } : {}),
+      ...(event.fechaExpiracion ? { fechaExpiracion: event.fechaExpiracion } : {}),
     };
 
     this.clienteService
@@ -343,7 +358,11 @@ export class ClienteForm implements OnInit {
       });
   }
 
-  async handleDocumentUpdate(event: { id: number; fechaEmision: string; fechaExpiracion: string }) {
+  async handleDocumentUpdate(event: {
+    id: number;
+    fechaEmision?: string;
+    fechaExpiracion?: string;
+  }) {
     if (event.id < 0) {
       // Pending document in creation mode
       this.pendingDocuments.update((prev) =>
@@ -353,12 +372,12 @@ export class ClienteForm implements OnInit {
                 ...d,
                 data: {
                   ...d.data,
-                  fechaEmision: event.fechaEmision,
-                  fechaExpiracion: event.fechaExpiracion,
+                  ...(event.fechaEmision ? { fechaEmision: event.fechaEmision } : {}),
+                  ...(event.fechaExpiracion ? { fechaExpiracion: event.fechaExpiracion } : {}),
                 },
               }
-            : d
-        )
+            : d,
+        ),
       );
       // Also update local list for UI
       const docs = this.localDocuments();
@@ -371,10 +390,10 @@ export class ClienteForm implements OnInit {
               d.id === event.id
                 ? ({
                     ...d,
-                    fechaEmision: event.fechaEmision,
-                    fechaExpiracion: event.fechaExpiracion,
+                    ...(event.fechaEmision ? { fechaEmision: event.fechaEmision } : {}),
+                    ...(event.fechaExpiracion ? { fechaExpiracion: event.fechaExpiracion } : {}),
                   } as ClienteDocumentoResultDto)
-                : d
+                : d,
             );
           }
         }
@@ -384,10 +403,11 @@ export class ClienteForm implements OnInit {
     }
 
     try {
-      const doc = await this.clienteService.updateDocumento(event.id, {
-        fechaEmision: event.fechaEmision,
-        fechaExpiracion: event.fechaExpiracion,
-      });
+      const payload: ApiBody<'clientes', 'updateDocumento'> = {
+        ...(event.fechaEmision ? { fechaEmision: event.fechaEmision } : {}),
+        ...(event.fechaExpiracion ? { fechaExpiracion: event.fechaExpiracion } : {}),
+      };
+      const doc = await this.clienteService.updateDocumento(event.id, payload);
       this.toastService.success('Documento actualizado exitosamente');
       this.updateDocumentInLocalList(doc);
     } catch (err) {

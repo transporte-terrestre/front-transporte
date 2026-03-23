@@ -7,10 +7,11 @@ import { ToastService } from '@service/toast.service';
 import { MantenimientoForm, MantenimientoFormSubmitData } from '../../layout/mantenimiento-form/mantenimiento-form';
 import { PATH, buildPath } from '@route/path.route';
 import { getErrorMessage } from '@helper/error.helper';
+import { UserSignatureSelectModal, SignatureSelection } from '../../../../components/user-signature-select-modal/user-signature-select-modal';
 
 @Component({
   selector: 'app-mantenimientos-edit',
-  imports: [CommonModule, MantenimientoForm],
+  imports: [CommonModule, MantenimientoForm, UserSignatureSelectModal],
   templateUrl: './mantenimientos-edit.html',
   styleUrl: './mantenimientos-edit.css',
 })
@@ -21,12 +22,25 @@ export class MantenimientosEdit implements OnInit {
   private toastService = inject(ToastService);
 
   mantenimiento = signal<ApiResponse<'mantenimientos', 'findOne'> | null>(null);
+  showSignatureModal = signal(false);
 
   downloadOrdenServicio() {
     if (this.mantenimiento()) {
-      this.mantenimientoService.generateOrdenServicio(this.mantenimiento()!);
+      this.showSignatureModal.set(true);
     }
   }
+
+  handleSignatureSelected(signatures: SignatureSelection[]) {
+    if (this.mantenimiento()) {
+      this.mantenimientoService.generateOrdenServicio(this.mantenimiento()!, signatures);
+      this.showSignatureModal.set(false);
+    }
+  }
+
+  handleSignatureClose() {
+    this.showSignatureModal.set(false);
+  }
+
   loading = signal(false);
 
   mantenimientoFormComponent = viewChild<MantenimientoForm>(MantenimientoForm);
