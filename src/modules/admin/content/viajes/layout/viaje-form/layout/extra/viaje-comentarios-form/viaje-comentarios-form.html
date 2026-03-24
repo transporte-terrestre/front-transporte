@@ -26,9 +26,15 @@
             {{ c.usuarioNombreCompleto }}
           </span>
         </div>
-        <span class="text-xs text-text/40 font-inter-regular">{{
-          c.creadoEn | date : 'short'
-        }}</span>
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-text/40 font-inter-regular">{{ c.creadoEn | date : 'short' }}</span>
+          <button type="button" (click)="openAddComentario(c)" title="Editar" class="text-text/40 hover:text-secondary px-1 transition-colors">
+            <i class="fas fa-edit text-xs"></i>
+          </button>
+          <button type="button" (click)="deleteComentario(c.id)" title="Eliminar" class="text-text/40 hover:text-danger px-1 transition-colors">
+            <i class="fas fa-trash text-xs"></i>
+          </button>
+        </div>
       </div>
       <p class="text-sm text-text/60 italic mb-2 pl-11">"{{ c.comentario }}"</p>
       <div class="flex items-center gap-2 pl-11">
@@ -63,7 +69,7 @@
     (click)="$event.stopPropagation()"
   >
     <div class="px-6 py-4 border-b border-text/10 flex justify-between items-center bg-text/5">
-      <h3 class="text-lg font-anton text-text lowercase">Agregar Comentario</h3>
+      <h3 class="text-lg font-anton text-text lowercase">{{ editingComentarioId() ? 'Editar Comentario' : 'Agregar Comentario' }}</h3>
       <button type="button" (click)="closeAddComentario()" class="text-text/40 hover:text-text">
         <i class="fas fa-times"></i>
       </button>

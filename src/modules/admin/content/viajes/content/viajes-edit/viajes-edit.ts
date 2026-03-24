@@ -67,16 +67,23 @@ export class ViajesEdit implements OnInit {
     }
   }
 
-  async loadViaje(id: number) {
-    this.loading.set(true);
+  async loadViaje(id: number, silent: boolean = false) {
+    if (!silent) {
+      this.loading.set(true);
+    }
     try {
       const viaje = await this.viajeService.findOne(id);
       this.viaje.set(viaje);
-      this.loading.set(false);
+      if (!silent) {
+        this.loading.set(false);
+      }
     } catch (error) {
       console.error('Error al cargar viaje:', error);
       this.toastService.error('Error al cargar viaje');
       this.router.navigate([buildPath(PATH.admin.viajes.list)]);
+      if (!silent) {
+        this.loading.set(false);
+      }
     }
   }
 
@@ -97,7 +104,7 @@ export class ViajesEdit implements OnInit {
 
   reloadViaje() {
     if (this.viaje()) {
-      this.loadViaje(this.viaje()!.id);
+      this.loadViaje(this.viaje()!.id, true);
     }
   }
 
