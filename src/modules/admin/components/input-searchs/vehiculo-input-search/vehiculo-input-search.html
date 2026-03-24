@@ -76,10 +76,30 @@
                 </div>
 
                 <!-- Info -->
-                <div class="flex flex-col overflow-hidden">
-                  <span class="text-sm font-inter-medium text-text truncate">
-                    {{ vehiculo.placa }} - {{ vehiculo.modelo }}
-                  </span>
+                <div class="flex flex-col flex-1 overflow-hidden">
+                  <div class="flex items-center justify-between">
+                    <span class="text-sm font-inter-medium text-text truncate">
+                      {{ vehiculo.placa }} - {{ vehiculo.modelo }}
+                    </span>
+                    <!-- Status Badge -->
+                    <span
+                      class="text-[9px] font-inter-bold px-1.5 py-0.5 rounded uppercase"
+                      [class.bg-info/10]="vehiculo.estado === 'disponible'"
+                      [class.text-info]="vehiculo.estado === 'disponible'"
+                      [class.bg-success/10]="vehiculo.estado === 'circulacion'"
+                      [class.text-success]="vehiculo.estado === 'circulacion'"
+                      [class.bg-warning/10]="vehiculo.estado === 'alquilado'"
+                      [class.text-warning]="vehiculo.estado === 'alquilado'"
+                      [class.bg-danger/10]="
+                        vehiculo.estado === 'taller' || vehiculo.estado === 'retirado'
+                      "
+                      [class.text-danger]="
+                        vehiculo.estado === 'taller' || vehiculo.estado === 'retirado'
+                      "
+                    >
+                      {{ vehiculo.estado }}
+                    </span>
+                  </div>
                   <span class="text-xs text-text/50 truncate">
                     {{ vehiculo.marca }} - {{ vehiculo.anio }}
                   </span>

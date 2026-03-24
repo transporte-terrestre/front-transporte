@@ -56,4 +56,9 @@ export class AlquilerService {
     const { data } = await this.api.alquileres.delete({ id });
     return data;
   }
+
+  async validarVehiculo(query: ApiQuery<'alquileres', 'validarVehiculo'>) {
+    const { data } = await this.api.alquileres.validarVehiculo(query);
+    return data;
+  }
 }

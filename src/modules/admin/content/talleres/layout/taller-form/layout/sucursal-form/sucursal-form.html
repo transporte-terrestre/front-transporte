@@ -1,0 +1,38 @@
+<app-modal-form
+  [title]="sucursal() ? 'Editar Sucursal' : 'Nueva Sucursal'"
+  submitText="Guardar"
+  cancelText="Cancelar"
+  [maxWidth]="'sm'"
+  (onSubmit)="submit()"
+  (onClose)="cancel()"
+>
+  <form [formGroup]="form" class="space-y-4 p-4">
+    <!-- Distrito -->
+    <div>
+      <label class="block text-xs font-inter-semibold text-text mb-1.5">Distrito</label>
+      <input
+        type="text"
+        formControlName="distrito"
+        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+        placeholder="Ej: San Isidro, Miraflores..."
+      />
+      @if (form.get('distrito')?.touched && form.get('distrito')?.errors) {
+        <p class="text-danger text-xs font-inter-medium mt-1">El distrito es requerido</p>
+      }
+    </div>
+
+    <!-- Ubicación Exacta -->
+    <div>
+      <label class="block text-xs font-inter-semibold text-text mb-1.5">Ubicación Exacta / Dirección</label>
+      <input
+        type="text"
+        formControlName="ubicacionExacta"
+        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+        placeholder="Ej: Av. Principal 123..."
+      />
+      @if (form.get('ubicacionExacta')?.touched && form.get('ubicacionExacta')?.errors) {
+        <p class="text-danger text-xs font-inter-medium mt-1">La ubicación exacta es requerida</p>
+      }
+    </div>
+  </form>
+</app-modal-form>

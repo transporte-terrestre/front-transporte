@@ -15,21 +15,20 @@
     />
   </div>
 
-  <!-- Vehículo y Kilometraje -->
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-    <div>
-      <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
-        <i class="fas fa-car text-secondary"></i>
-        Vehículo
-      </label>
-      <app-vehiculo-input-search formControlName="vehiculo" />
-      @if (
-        mantenimientoForm.get('vehiculo')?.touched && mantenimientoForm.get('vehiculo')?.errors
-      ) {
-        <p class="text-danger text-xs font-inter-medium mt-1">El vehículo es requerido</p>
-      }
-    </div>
+  <!-- Vehículo -->
+  <div>
+    <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+      <i class="fas fa-car text-secondary"></i>
+      Vehículo
+    </label>
+    <app-vehiculo-input-search formControlName="vehiculo" />
+    @if (mantenimientoForm.get('vehiculo')?.touched && mantenimientoForm.get('vehiculo')?.errors) {
+      <p class="text-danger text-xs font-inter-medium mt-1">El vehículo es requerido</p>
+    }
+  </div>
 
+  <!-- Kilometraje -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
     <div>
       <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
         <i class="fas fa-tachometer-alt text-secondary"></i>
@@ -44,8 +43,7 @@
         placeholder="Se autocompleta"
       />
       @if (
-        mantenimientoForm.get('kilometraje')?.touched &&
-        mantenimientoForm.get('kilometraje')?.errors
+        mantenimientoForm.get('kilometraje')?.touched && mantenimientoForm.get('kilometraje')?.errors
       ) {
         <p class="text-danger text-xs font-inter-medium mt-1">El kilometraje es requerido</p>
       }
@@ -165,7 +163,9 @@
   </div>
 
   <!-- Fechas -->
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-background p-4 rounded-xl border border-text/10">
+  <div
+    class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-background p-4 rounded-xl border border-text/10"
+  >
     <!-- Ingreso -->
     <div>
       <h4 class="text-xs font-inter-semibold text-text mb-2 flex items-center gap-2">
@@ -190,8 +190,10 @@
           />
         </div>
         @if (
-          (mantenimientoForm.get('fechaIngresoDate')?.touched || mantenimientoForm.get('fechaIngresoTime')?.touched) &&
-          (mantenimientoForm.get('fechaIngresoDate')?.errors || mantenimientoForm.get('fechaIngresoTime')?.errors)
+          (mantenimientoForm.get('fechaIngresoDate')?.touched ||
+            mantenimientoForm.get('fechaIngresoTime')?.touched) &&
+          (mantenimientoForm.get('fechaIngresoDate')?.errors ||
+            mantenimientoForm.get('fechaIngresoTime')?.errors)
         ) {
           <p class="text-danger text-[10px] font-inter-medium mt-1">Requerido</p>
         }
@@ -260,8 +262,8 @@
   </div>
 
   <!-- SECCIONES DE EDICIÓN (Tareas, Documentos) -->
-  @if (editMode() && mantenimiento()) {
-    <div class="col-span-1 md:col-span-2 border-t border-text/10 pt-4 mt-2 space-y-6">
+  <div class="col-span-1 md:col-span-2 border-t border-text/10 pt-4 mt-2 space-y-6">
+    @if (editMode() && mantenimiento()) {
       <div>
         <!-- Tareas -->
         <app-mantenimiento-tareas-form
@@ -269,25 +271,27 @@
           (onDataChange)="onDataChange.emit()"
         ></app-mantenimiento-tareas-form>
       </div>
+    }
 
-      <!-- Documentos -->
-      <div class="space-y-4 pt-4 border-t border-text/10">
-        <h3 class="text-sm font-inter-bold text-text mb-4">Documentos Adjuntos</h3>
-        <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
-          @for (docType of documentTypes; track docType.value) {
-            <div class="bg-background rounded-xl p-4 border border-text/10 shadow-sm">
-              <app-documents-date-upload
-                [label]="docType.label"
-                [documents]="getDocuments(docType.value)"
-                [maxDocuments]="10"
-                (onUpload)="handleDocumentUpload($event, docType.value)"
-                (onUpdate)="handleDocumentUpdate($event)"
-                (onDelete)="deleteDocument($event, docType.value)"
-              ></app-documents-date-upload>
-            </div>
-          }
-        </div>
+    <!-- Documentos -->
+    <div class="space-y-4 pt-4" [class.border-t]="editMode() && mantenimiento()" [class.border-text/10]="editMode() && mantenimiento()">
+      <h3 class="text-sm font-inter-bold text-text mb-4">Documentos Adjuntos</h3>
+      <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
+        @for (docType of documentTypes; track docType.value) {
+          <div class="bg-background rounded-xl p-4 border border-text/10 shadow-sm">
+            <app-documents-date-upload
+              [label]="docType.label"
+              [documents]="getDocuments(docType.value)"
+              [maxDocuments]="10"
+              [requireIssueDate]="docType.requireIssue ?? false"
+              [requireExpirationDate]="docType.requireExpiration ?? false"
+              (onUpload)="handleDocumentUpload($event, docType.value)"
+              (onUpdate)="handleDocumentUpdate($event)"
+              (onDelete)="deleteDocument($event, docType.value)"
+            ></app-documents-date-upload>
+          </div>
+        }
       </div>
     </div>
-  }
+  </div>
 </form>

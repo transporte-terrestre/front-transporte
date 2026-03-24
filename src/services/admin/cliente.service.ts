@@ -88,4 +88,30 @@ export class ClienteService {
   async deleteEntidad(id: ApiParam<'clientes', 'deleteEntidad', 'id'>) {
     return await this.api.clientes.deleteEntidad({ id }).then((response) => response.data);
   }
+
+  // Encargados
+  async findAllEncargados(query: ApiQuery<'clientes', 'findAllEncargados'>) {
+    return await this.api.clientes.findAllEncargados(query).then((response) => response.data);
+  }
+
+  async findEncargado(id: ApiParam<'clientes', 'findEncargado', 'id'>) {
+    return await this.api.clientes.findEncargado({ id }).then((response) => response.data);
+  }
+
+  async createEncargado(encargado: ApiBody<'clientes', 'createEncargado'>) {
+    return await this.api.clientes.createEncargado(encargado).then((response) => response.data);
+  }
+
+  async updateEncargado(
+    id: ApiParam<'clientes', 'updateEncargado', 'id'>,
+    encargado: ApiBody<'clientes', 'updateEncargado'>,
+  ) {
+    return await this.api.clientes
+      .updateEncargado({ id }, encargado)
+      .then((response) => response.data);
+  }
+
+  async deleteEncargado(id: ApiParam<'clientes', 'deleteEncargado', 'id'>) {
+    return await this.api.clientes.deleteEncargado({ id }).then((response) => response.data);
+  }
 }

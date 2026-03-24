@@ -8,12 +8,17 @@ import { ApiResponse, ApiBody, ApiField } from 'api/backend.api';
 import { ToastService } from '@service/toast.service';
 import { AlertService } from '@service/alert.service';
 import { ModalForm } from '../../../../components/modal-form/modal-form';
-import { MantenimientoForm } from '../../layout/mantenimiento-form/mantenimiento-form';
+import {
+  MantenimientoForm,
+  MantenimientoFormSubmitData,
+  PendingMantenimientoDocument,
+} from '../../layout/mantenimiento-form/mantenimiento-form';
 import { PaginationComponent } from '../../../../components/pagination/pagination';
 import { PATH, buildPath } from '@route/path.route';
 import { getErrorMessage } from '@helper/error.helper';
 import { TallerInputSearch } from '../../../../components/input-searchs/taller-input-search/taller-input-search';
 import { VehiculoInputSearch } from '../../../../components/input-searchs/vehiculo-input-search/vehiculo-input-search';
+import { UserSignatureSelectModal, SignatureSelection } from '../../../../components/user-signature-select-modal/user-signature-select-modal';
 import * as XLSX from 'xlsx';
 
 interface CalendarDay {
@@ -34,6 +39,7 @@ interface CalendarDay {
     PaginationComponent,
     TallerInputSearch,
     VehiculoInputSearch,
+    UserSignatureSelectModal,
   ],
   templateUrl: './mantenimientos-list.html',
   styleUrl: './mantenimientos-list.css',
@@ -49,6 +55,29 @@ export class MantenimientosList implements OnInit {
   loading = signal(false);
   showModal = signal(false);
   selectedDate = signal<Date | null>(null);
+
+  // Firma Modal
+  showSignatureModal = signal(false);
+  selectedMantenimientoForSignature = signal<ApiResponse<'mantenimientos', 'findAll'>['data'][number] | null>(null);
+
+  downloadOrdenServicioList(mantenimiento: ApiResponse<'mantenimientos', 'findAll'>['data'][number]) {
+    this.selectedMantenimientoForSignature.set(mantenimiento);
+    this.showSignatureModal.set(true);
+  }
+
+  handleSignatureSelected(signatures: SignatureSelection[]) {
+    const m = this.selectedMantenimientoForSignature();
+    if (m) {
+      this.mantenimientoService.generateOrdenServicio(m as any, signatures);
+      this.showSignatureModal.set(false);
+      this.selectedMantenimientoForSignature.set(null);
+    }
+  }
+
+  handleSignatureClose() {
+    this.showSignatureModal.set(false);
+    this.selectedMantenimientoForSignature.set(null);
+  }
 
   // Paginación
   currentPage = signal(1);
@@ -398,29 +427,51 @@ export class MantenimientosList implements OnInit {
     this.selectedDate.set(null);
   }
 
-  handleFormSubmit(data: any) {
-    this.createMantenimiento(data as ApiBody<'mantenimientos', 'create'>);
+  handleFormSubmit(data: MantenimientoFormSubmitData) {
+    this.createMantenimiento(data);
   }
 
   handleModalSubmit() {
     this.mantenimientoFormComponent()?.submitForm();
   }
 
-  createMantenimiento(data: ApiBody<'mantenimientos', 'create'>) {
+  async createMantenimiento(data: MantenimientoFormSubmitData) {
     this.loading.set(true);
-    this.mantenimientoService
-      .create(data)
-      .then(() => {
-        this.toastService.success('Mantenimiento registrado exitosamente');
-        this.loadMantenimientos();
-        this.closeModal();
-        this.closeDayDetails();
-      })
-      .catch((error) => {
-        console.error('Error al crear mantenimiento:', error);
-        this.toastService.error(getErrorMessage(error, 'Error al registrar mantenimiento'));
-        this.loading.set(false);
-      });
+    try {
+      const creationData = data as ApiBody<'mantenimientos', 'create'> & {
+        documentos?: PendingMantenimientoDocument[];
+      };
+      const { documentos, ...mantenimientoData } = creationData;
+      const result = await this.mantenimientoService.create(mantenimientoData);
+
+      // Si hay documentos adjuntos, los creamos uno por uno
+      if (documentos && documentos.length > 0) {
+        for (const doc of documentos) {
+          try {
+            await this.mantenimientoService.createDocumento({
+              mantenimientoId: result.id,
+              tipo: doc.tipo,
+              nombre: doc.data.nombre,
+              url: doc.data.url,
+              fechaEmision: doc.data.fechaEmision,
+              fechaExpiracion: doc.data.fechaExpiracion,
+            });
+          } catch (docError) {
+            console.error(`Error al subir documento ${doc.tipo}:`, docError);
+            this.toastService.error(`No se pudo subir el documento: ${doc.tipo}`);
+          }
+        }
+      }
+
+      this.toastService.success('Mantenimiento registrado exitosamente');
+      this.loadMantenimientos();
+      this.closeModal();
+      this.closeDayDetails();
+    } catch (error) {
+      console.error('Error al crear mantenimiento:', error);
+      this.toastService.error(getErrorMessage(error, 'Error al registrar mantenimiento'));
+      this.loading.set(false);
+    }
   }
 
   deleteMantenimiento(id: number) {

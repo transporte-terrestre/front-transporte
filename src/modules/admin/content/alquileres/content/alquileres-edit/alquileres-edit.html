@@ -1,4 +1,4 @@
-<div class="space-y-6">
+<div class="space-y-6 pb-12">
   <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
     <div>
       <h1 class="text-2xl font-anton text-text lowercase">Editar Alquiler</h1>
@@ -55,6 +55,56 @@
         </button>
       </div>
     </div>
+
+    <!-- Historial de Movimientos -->
+    @if (alquilerData()?.historial?.length) {
+      <div class="bg-background border border-text/10 rounded-xl shadow-sm overflow-hidden mt-6">
+        <div class="px-4 py-3 bg-text/5 border-b border-text/10 flex items-center gap-2">
+          <i class="fas fa-history text-secondary text-sm"></i>
+          <h3 class="text-xs font-inter-bold text-text/80 uppercase tracking-widest">Historial de Movimientos</h3>
+        </div>
+        <div class="p-4">
+          <div class="relative space-y-4 before:absolute before:inset-0 before:ml-5 before:h-full before:w-0.5 before:bg-text/5 before:content-['']">
+            @for (h of alquilerData()?.historial; track h.id) {
+              <div class="relative flex items-center gap-4">
+                <div class="z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-4 border-background"
+                  [class.bg-success]="h.tipoAccion === 'ALTA_VEHICULO'"
+                  [class.bg-danger]="h.tipoAccion === 'BAJA_VEHICULO'"
+                  [class.bg-info]="h.tipoAccion === 'CAMBIO_PRECIO'">
+                  <i class="fas text-[10px] text-white"
+                    [class.fa-plus]="h.tipoAccion === 'ALTA_VEHICULO'"
+                    [class.fa-minus]="h.tipoAccion === 'BAJA_VEHICULO'"
+                    [class.fa-dollar-sign]="h.tipoAccion === 'CAMBIO_PRECIO'"></i>
+                </div>
+                <div class="flex-1 rounded-xl bg-text/5 p-3 hover:bg-text/10 transition-colors">
+                  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-1">
+                    <span class="text-xs font-inter-bold text-text uppercase">
+                      {{ h.tipoAccion === 'ALTA_VEHICULO' ? 'Alta de Unidad' : h.tipoAccion === 'BAJA_VEHICULO' ? 'Baja de Unidad' : 'Cambio de Precio' }}
+                    </span>
+                    <span class="text-[10px] font-inter-medium text-text/40">
+                      {{ h.fechaAccion | date:'dd/MM/yyyy HH:mm' }}
+                    </span>
+                  </div>
+                  <p class="text-[11px] text-text/70 font-inter-medium leading-relaxed">
+                    @if (h.vehiculo) {
+                      Unidad <span class="text-secondary font-inter-bold">[{{ h.vehiculo.placa }}]</span>:
+                    }
+                    {{ h.motivo }}
+                  </p>
+                  @if (h.montoAnterior != null) {
+                    <div class="mt-2 flex items-center gap-2 text-[10px] bg-white/50 px-2 py-1 rounded w-fit">
+                      <span class="text-text/40">S/ {{ h.montoAnterior }}</span>
+                      <i class="fas fa-arrow-right text-[8px] text-text/20"></i>
+                      <span class="text-success font-inter-bold">S/ {{ h.montoNuevo }}</span>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    }
   } @else {
     <div
       class="flex flex-col items-center justify-center py-12 bg-background border border-text/10 rounded-xl shadow-sm"

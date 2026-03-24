@@ -9,7 +9,7 @@ import { ApiResponse, ApiBody } from 'api/backend.api';
 import { ToastService } from '@service/toast.service';
 import { AlertService } from '@service/alert.service';
 import { ModalForm } from '../../../../components/modal-form/modal-form';
-import { ClienteForm } from '../../layout/cliente-form/cliente-form';
+import { ClienteForm, ClienteFormSubmitData, PendingClienteDocument } from '../../layout/cliente-form/cliente-form';
 import { PaginationComponent } from '../../../../components/pagination/pagination';
 import { PATH, buildPath } from '@route/path.route';
 import { getErrorMessage } from '@helper/error.helper';
@@ -39,8 +39,8 @@ export class ClientesList implements OnInit, OnDestroy {
 
   // Filtros
   searchTerm = signal('');
-  fechaInicio = signal('');
-  fechaFin = signal('');
+  tipo = signal<string>('');
+  tipoDocumento = signal<string>('');
 
   clienteFormComponent = viewChild<ClienteForm>(ClienteForm);
 
@@ -65,8 +65,8 @@ export class ClientesList implements OnInit, OnDestroy {
         page: this.currentPage(),
         limit: this.pageSize(),
         search: this.searchTerm() || undefined,
-        fechaInicio: this.fechaInicio() || undefined,
-        fechaFin: this.fechaFin() || undefined,
+        tipo: (this.tipo() as "personal" | "corporativo") || undefined,
+        tipoDocumento: (this.tipoDocumento() as "DNI" | "RUC") || undefined,
       })
       .then((response) => {
         this.clientes.set(response.data);
@@ -85,10 +85,6 @@ export class ClientesList implements OnInit, OnDestroy {
     this.searchSubject.next(value);
   }
 
-  onDateChange() {
-    this.currentPage.set(1);
-    this.loadClientes();
-  }
 
   onPageChange(page: number) {
     this.currentPage.set(page);
@@ -102,8 +98,8 @@ export class ClientesList implements OnInit, OnDestroy {
 
   clearFilters() {
     this.searchTerm.set('');
-    this.fechaInicio.set('');
-    this.fechaFin.set('');
+    this.tipo.set('');
+    this.tipoDocumento.set('');
     this.currentPage.set(1);
     this.loadClientes();
   }
@@ -121,28 +117,48 @@ export class ClientesList implements OnInit, OnDestroy {
     this.showModal.set(false);
   }
 
-  handleFormSubmit(data: ApiBody<'clientes', 'create'> | ApiBody<'clientes', 'update'>) {
-    this.createCliente(data as ApiBody<'clientes', 'create'>);
+  handleFormSubmit(data: ClienteFormSubmitData) {
+    this.createCliente(data);
   }
 
   handleModalSubmit() {
     this.clienteFormComponent()?.submitForm();
   }
 
-  createCliente(data: ApiBody<'clientes', 'create'>) {
+  async createCliente(data: ClienteFormSubmitData) {
     this.loading.set(true);
-    this.clienteService
-      .create(data)
-      .then(() => {
-        this.toastService.success('Cliente creado exitosamente');
-        this.loadClientes();
-        this.closeModal();
-      })
-      .catch((error) => {
-        console.error('Error al crear cliente:', error);
-        this.toastService.error(getErrorMessage(error, 'Error al crear cliente'));
-        this.loading.set(false);
-      });
+    try {
+      const creationData = data as (ApiBody<'clientes', 'create'> & { documentos?: PendingClienteDocument[] });
+      const { documentos, ...clienteData } = creationData;
+      const newCliente = await this.clienteService.create(clienteData);
+
+      // Si hay documentos adjuntos, los creamos uno por uno
+      if (documentos && documentos.length > 0) {
+        for (const doc of documentos) {
+          try {
+            await this.clienteService.createDocumento({
+              clienteId: newCliente.id,
+              tipo: doc.tipo as any,
+              nombre: doc.data.nombre,
+              url: doc.data.url,
+              fechaEmision: doc.data.fechaEmision,
+              fechaExpiracion: doc.data.fechaExpiracion,
+            });
+          } catch (docError) {
+            console.error(`Error al subir documento ${doc.tipo}:`, docError);
+            this.toastService.error(`No se pudo subir el documento: ${doc.tipo}`);
+          }
+        }
+      }
+
+      this.toastService.success('Cliente creado exitosamente');
+      this.loadClientes();
+      this.closeModal();
+    } catch (error) {
+      console.error('Error al crear cliente:', error);
+      this.toastService.error(getErrorMessage(error, 'Error al crear cliente'));
+      this.loading.set(false);
+    }
   }
 
   deleteCliente(id: number) {

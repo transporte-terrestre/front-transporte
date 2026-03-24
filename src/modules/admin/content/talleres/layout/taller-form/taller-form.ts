@@ -1,18 +1,28 @@
-import { Component, inject, input, output, OnInit, effect } from '@angular/core';
+import { Component, inject, input, output, OnInit, effect, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ApiResponse, ApiBody } from 'api/backend.api';
 import { TallerService } from '@service/admin/taller.service';
-import { SucursalInputSearch } from '@module/admin/components/input-searchs/sucursal-input-search/sucursal-input-search';
+import { SucursalService } from '@service/admin/sucursal.service';
+import { ToastService } from '@service/toast.service';
+import { AlertService } from '@service/alert.service';
+import { ApisPeruService } from '@service/out/apisperu.service';
+import { debounceTime, distinctUntilChanged, filter } from 'rxjs/operators';
+import { SucursalForm, SucursalData } from './layout/sucursal-form/sucursal-form';
+
 @Component({
   selector: 'app-taller-form',
-  imports: [CommonModule, ReactiveFormsModule, SucursalInputSearch],
+  imports: [CommonModule, ReactiveFormsModule, SucursalForm],
   templateUrl: './taller-form.html',
   styleUrl: './taller-form.css',
 })
 export class TallerForm implements OnInit {
   private fb = inject(FormBuilder);
   private tallerService = inject(TallerService);
+  private sucursalService = inject(SucursalService);
+  private toastService = inject(ToastService);
+  private alertService = inject(AlertService);
+  private apisPeruService = inject(ApisPeruService);
 
   // Inputs
   taller = input<ApiResponse<'talleres', 'findOne'> | null>(null);
@@ -22,10 +32,9 @@ export class TallerForm implements OnInit {
   onSubmitForm = output<ApiBody<'talleres', 'create'> | ApiBody<'talleres', 'update'>>();
 
   tallerForm: FormGroup = this.fb.group({
-    ruc: ['', [Validators.pattern(/^[0-9]{11}$/)]],
+    ruc: ['', [Validators.pattern(/^$|^[0-9]{11}$/)]], // Permitir vacío o 11 dígitos
     razonSocial: ['', [Validators.required, Validators.minLength(2)]],
     nombreComercial: [''],
-    sucursalIds: [[]],
     tipo: ['externo', [Validators.required]],
     telefono: [''],
     email: ['', [Validators.email]],
@@ -36,8 +45,13 @@ export class TallerForm implements OnInit {
     { value: 'externo', label: 'Externo', icon: 'fa-globe' },
   ];
 
-  sucursales: any[] = [];
-  selectedSucursalesDetalle: any[] = [];
+  // State
+  searchingRuc = signal(false);
+
+  // Sucursales Management
+  sucursalesList = signal<SucursalData[]>([]);
+  showSucursalModal = signal(false);
+  selectedSucursal = signal<SucursalData | null>(null);
 
   constructor() {
     effect(() => {
@@ -45,18 +59,13 @@ export class TallerForm implements OnInit {
       const isEditMode = this.editMode();
 
       if (isEditMode && tallerData) {
-        this.selectedSucursalesDetalle = tallerData.sucursales ? [...tallerData.sucursales] : [];
-        // Map id if needed
-        this.selectedSucursalesDetalle.forEach((s) => {
-          if (!s.sucursalId && s.id) s.sucursalId = s.id;
-        });
-
+        this.sucursalesList.set(tallerData.sucursales ? [...tallerData.sucursales] : []);
+        
         this.tallerForm.patchValue(
           {
             ruc: tallerData.ruc,
             razonSocial: tallerData.razonSocial,
             nombreComercial: tallerData.nombreComercial,
-            sucursalIds: tallerData.sucursalIds || [],
             tipo: tallerData.tipo,
             telefono: tallerData.telefono,
             email: tallerData.email,
@@ -64,91 +73,115 @@ export class TallerForm implements OnInit {
           { emitEvent: false },
         );
       } else {
-        // Create mode or loading state
-        this.tallerForm.patchValue(
-          {
-            ruc: '',
-            razonSocial: '',
-            nombreComercial: '',
-            sucursalIds: [],
-            tipo: 'externo',
-            telefono: '',
-            email: '',
-          },
-          { emitEvent: false },
-        );
-        this.selectedSucursalesDetalle = [];
+        this.tallerForm.reset({
+          tipo: 'externo',
+          ruc: '',
+          razonSocial: '',
+          nombreComercial: '',
+          telefono: '',
+          email: '',
+        });
+        this.sucursalesList.set([]);
       }
-
-      // Asegurar que procesamos los detalles si ya tenemos sucursales cargadas
-      if (this.sucursales.length > 0) {
-        this.processSucursalDetails(this.tallerForm.get('sucursalIds')?.value || []);
-      }
-    });
-
-    this.tallerForm.get('sucursalIds')?.valueChanges.subscribe((ids: number[] | null) => {
-      this.processSucursalDetails(ids || []);
     });
   }
 
-  // Cache de sucursales completas recibidas del input-search
-  private cachedSucursalesMap = new Map<number, any>();
-
-  processSucursalDetails(ids: number[]) {
-    const newDetails: any[] = [];
-    ids.forEach((id) => {
-      const numericId = Number(id);
-      let existing = (this.selectedSucursalesDetalle || []).find(
-        (s) => Number(s.sucursalId || s.id) === numericId,
-      );
-
-      // Buscar primero en el cache (datos frescos del input-search), luego en la lista general
-      const sucursalBase =
-        this.cachedSucursalesMap.get(numericId) ||
-        (this.sucursales || []).find((s) => Number(s.id) === numericId);
-
-      if (!existing) {
-        existing = {
-          sucursalId: numericId,
-          departamento: sucursalBase?.departamento || '',
-          provincia: sucursalBase?.provincia || '',
-          distrito: sucursalBase?.distrito || '',
-          direccion: '',
-        };
-      } else if (sucursalBase) {
-        existing.departamento = sucursalBase.departamento;
-        existing.provincia = sucursalBase.provincia;
-        existing.distrito = sucursalBase.distrito;
-        if (!existing.sucursalId) existing.sucursalId = numericId;
-      }
-      newDetails.push(existing);
-    });
-    this.selectedSucursalesDetalle = newDetails;
+  ngOnInit() {
+    // Autocompletado RUC
+    this.tallerForm
+      .get('ruc')
+      ?.valueChanges.pipe(
+        debounceTime(500),
+        distinctUntilChanged(),
+        filter((value) => value && value.length === 11),
+      )
+      .subscribe(async (ruc) => {
+        try {
+          this.searchingRuc.set(true);
+          const data = await this.apisPeruService.getRuc(ruc);
+          if (data && data.razonSocial) {
+            this.tallerForm.patchValue({
+              razonSocial: data.razonSocial,
+            });
+            this.toastService.success('RUC encontrado');
+          }
+        } catch (error) {
+          console.error('Error al consultar RUC:', error);
+          this.toastService.error('Error al consultar RUC');
+        } finally {
+          this.searchingRuc.set(false);
+        }
+      });
   }
 
-  onSucursalesSelectionChange(sucursalesCompletas: any[]) {
-    // Actualizar el cache con los datos completos del input-search
-    (sucursalesCompletas || []).forEach((s) => {
-      this.cachedSucursalesMap.set(Number(s.id), s);
-    });
-    // Re-procesar detalles con los nuevos datos disponibles
-    this.processSucursalDetails(this.tallerForm.get('sucursalIds')?.value || []);
+  // Sucursales Methods
+  loadSucursales() {
+    const t = this.taller();
+    if (!t) return;
+
+    this.tallerService.findSucursalesByTaller(t.id)
+      .then(res => {
+        this.sucursalesList.set(res as SucursalData[]);
+      })
+      .catch(err => {
+        console.error('Error al cargar sucursales:', err);
+      });
   }
 
-  updateDireccion(id: number, event: Event) {
-    const value = (event.target as HTMLInputElement).value;
-    const item = this.selectedSucursalesDetalle.find((s) => s.sucursalId === id || s.id === id);
-    if (item) {
-      item.direccion = value;
+  openSucursalModal(sucursal: SucursalData | null = null) {
+    this.selectedSucursal.set(sucursal);
+    this.showSucursalModal.set(true);
+  }
+
+  closeSucursalModal() {
+    this.showSucursalModal.set(false);
+    this.selectedSucursal.set(null);
+  }
+
+  handleSaveSucursal(data: SucursalData) {
+    if (!this.editMode() || !this.taller()) {
+      // Logic for creation mode (currently hidden according to plan)
+      return;
     }
+
+    const tallerId = this.taller()!.id;
+    const promise = data.id
+      ? this.sucursalService.update(data.id, { ...data, tallerId })
+      : this.sucursalService.create({ ...data, tallerId });
+
+    promise
+      .then(() => {
+        this.toastService.success(
+          data.id ? 'Sucursal actualizada exitosamente' : 'Sucursal creada exitosamente',
+        );
+        this.loadSucursales();
+        this.closeSucursalModal();
+      })
+      .catch((err) => {
+        console.error('Error al guardar sucursal:', err);
+        this.toastService.error('Error al guardar sucursal');
+      });
   }
 
-  async ngOnInit() {
-    this.sucursales = (await this.tallerService.findAllSucursales()) || [];
-    // Llenar el cache con la lista general
-    this.sucursales.forEach((s) => this.cachedSucursalesMap.set(Number(s.id), s));
-    // Re-procesar detalles para llenar labels faltantes
-    this.processSucursalDetails(this.tallerForm.get('sucursalIds')?.value || []);
+  deleteSucursal(id: number | undefined) {
+    if (!id) return;
+
+    this.alertService.delete(
+      'Eliminar sucursal',
+      '¿Estás seguro de eliminar esta sucursal?',
+      () => {
+        this.sucursalService
+          .delete(id)
+          .then(() => {
+            this.toastService.success('Sucursal eliminada exitosamente');
+            this.loadSucursales();
+          })
+          .catch((err) => {
+            console.error('Error al eliminar sucursal:', err);
+            this.toastService.error('Error al eliminar sucursal');
+          });
+      },
+    );
   }
 
   submitForm() {
@@ -157,13 +190,15 @@ export class TallerForm implements OnInit {
       return;
     }
 
-    const formData = { ...this.tallerForm.value };
+    const formData: any = { ...this.tallerForm.value };
 
-    formData.sucursales = this.selectedSucursalesDetalle.map((s) => ({
-      sucursalId: s.sucursalId || s.id,
-      direccion: s.direccion || 'Sin dirección',
-    }));
-    delete formData.sucursalIds;
+    // Clean optional fields: convert empty strings to null
+    const optionalFields = ['ruc', 'nombreComercial', 'telefono', 'email'];
+    optionalFields.forEach((field) => {
+      if (formData[field] === '') {
+        formData[field] = null;
+      }
+    });
 
     if (this.editMode()) {
       this.onSubmitForm.emit(formData as unknown as ApiBody<'talleres', 'update'>);

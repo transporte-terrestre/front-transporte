@@ -9,7 +9,7 @@ import { ApiBody, ApiResponse } from 'api/backend.api';
 import { ToastService } from '@service/toast.service';
 import { AlertService } from '@service/alert.service';
 import { ModalForm } from '../../../../components/modal-form/modal-form';
-import { VehiculoForm } from '../../layout/vehiculo-form/vehiculo-form';
+import { VehiculoForm, VehiculoFormSubmitData, PendingDocument } from '../../layout/vehiculo-form/vehiculo-form';
 import { PaginationComponent } from '../../../../components/pagination/pagination';
 import { PATH, buildPath } from '@route/path.route';
 import { getErrorMessage } from '@helper/error.helper';
@@ -100,7 +100,7 @@ export class VehiculosList implements OnInit, OnDestroy {
 
   // Filtros
   searchTerm = signal('');
-  estado = signal('');
+  estado = signal<ApiBody<'vehiculos', 'update'>['estado'] | ''>('');
   marcaId = signal<number | string>('');
   selectedMarcaForSearch = signal<ApiResponse<'vehiculos', 'findOneMarca'> | null>(null);
 
@@ -188,7 +188,7 @@ export class VehiculosList implements OnInit, OnDestroy {
           page: this.currentPage(),
           limit: this.pageSize(),
           search: this.searchTerm() || undefined,
-          estado: (this.estado() as any) || undefined,
+          estado: this.estado() || undefined,
           marcaId: this.marcaId() ? Number(this.marcaId()) : undefined,
         });
         this.vehiculos.set(response.data);
@@ -332,14 +332,35 @@ export class VehiculosList implements OnInit, OnDestroy {
     this.router.navigate([path]);
   }
 
-  handleFormSubmit(data: ApiBody<'vehiculos', 'create'> | ApiBody<'vehiculos', 'update'>) {
+  handleFormSubmit(data: VehiculoFormSubmitData) {
     this.createVehiculo(data);
   }
 
-  async createVehiculo(data: ApiBody<'vehiculos', 'create'> | ApiBody<'vehiculos', 'update'>) {
+  async createVehiculo(data: VehiculoFormSubmitData) {
     this.loading.set(true);
     try {
-      await this.vehiculoService.create(data as ApiBody<'vehiculos', 'create'>);
+      const creationData = data as (ApiBody<'vehiculos', 'create'> & { documentos?: PendingDocument[] });
+      const { documentos, ...vehiculoData } = creationData;
+      const newVehiculo = await this.vehiculoService.create(vehiculoData);
+
+      // Si hay documentos adjuntos, los creamos uno por uno
+      if (documentos && documentos.length > 0) {
+        for (const doc of documentos) {
+          try {
+            await this.vehiculoService.createDocumento({
+              vehiculoId: newVehiculo.id,
+              tipo: doc.tipo,
+              nombre: doc.data.nombre,
+              url: doc.data.url,
+              fechaEmision: doc.data.fechaEmision,
+              fechaExpiracion: doc.data.fechaExpiracion,
+            });
+          } catch (error) {
+            console.error('Error al crear documento adjunto:', error);
+          }
+        }
+      }
+
       this.toastService.success('Vehículo creado exitosamente');
       this.loadVehiculos();
       this.closeModal();

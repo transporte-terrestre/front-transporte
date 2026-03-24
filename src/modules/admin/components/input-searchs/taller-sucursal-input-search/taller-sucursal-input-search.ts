@@ -73,9 +73,8 @@ export class TallerSucursalInputSearch implements ControlValueAccessor, OnChange
           this.filteredSucursales.set(
             this.sucursales().filter(
               (s) =>
-                s.departamento.toLowerCase().includes(t) ||
-                s.provincia.toLowerCase().includes(t) ||
-                s.distrito.toLowerCase().includes(t),
+                s.distrito.toLowerCase().includes(t) ||
+                s.ubicacionExacta.toLowerCase().includes(t),
             ),
           );
         }
@@ -101,8 +100,8 @@ export class TallerSucursalInputSearch implements ControlValueAccessor, OnChange
     this.tallerService
       .findSucursalesByTaller(tallerId)
       .then((res) => {
-        this.sucursales.set(res || []);
-        this.filteredSucursales.set(res || []);
+        this.sucursales.set((res as any) || []);
+        this.filteredSucursales.set((res as any) || []);
       })
       .catch((err) => {
         console.error('Error fetching sucursales for taller', err);
@@ -193,7 +192,7 @@ export class TallerSucursalInputSearch implements ControlValueAccessor, OnChange
   getDisplayText(): string {
     const s = this.selectedSucursal();
     if (!s) return 'Seleccionar sucursal...';
-    return `${s.distrito}, ${s.provincia}`;
+    return `${s.distrito} - ${s.ubicacionExacta}`;
   }
 
   @HostListener('document:click', ['$event'])

@@ -50,9 +50,9 @@ export class AlquilerTerminarModal {
     this.terminarForm.patchValue({
       fechaFin: fechaFinDefault,
       kilometrajeFinal:
-        alquiler.kilometrajeFinal != null
-          ? Number(alquiler.kilometrajeFinal)
-          : Number(alquiler.kilometrajeInicial || 0),
+        (alquiler as ApiResponse<'alquileres', 'findAll'>['data'][number]).detalles?.[0]?.kilometrajeFinal != null
+          ? Number((alquiler as ApiResponse<'alquileres', 'findAll'>['data'][number]).detalles![0].kilometrajeFinal)
+          : Number((alquiler as ApiResponse<'alquileres', 'findAll'>['data'][number]).detalles?.[0]?.kilometrajeInicial || 0),
       montoTotalFinal:
         alquiler.montoTotalFinal != null
           ? Number(alquiler.montoTotalFinal)

@@ -33,9 +33,15 @@
                 doc.nombre
               }}</span>
               <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] text-text/60">
-                <span>Emisión: {{ doc.fechaEmision | date: 'dd/MM/yyyy' }}</span>
-                <span class="hidden sm:inline">•</span>
-                <span>Expira: {{ doc.fechaExpiracion | date: 'dd/MM/yyyy' }}</span>
+                @if (requireIssueDate()) {
+                  <span>Emisión: {{ doc.fechaEmision | date: 'dd/MM/yyyy' }}</span>
+                }
+                @if (requireIssueDate() && requireExpirationDate()) {
+                  <span class="hidden sm:inline">•</span>
+                }
+                @if (requireExpirationDate()) {
+                  <span>Expira: {{ doc.fechaExpiracion | date: 'dd/MM/yyyy' }}</span>
+                }
               </div>
             </div>
           </div>

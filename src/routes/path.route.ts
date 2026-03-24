@@ -92,23 +92,19 @@ export const PATH = {
       list: { _path: 'list' },
       edit: { _path: 'edit/:id' },
     },
-    propietarios: {
-      _path: 'propietarios',
-      list: { _path: 'list' },
-      edit: { _path: 'edit/:id' },
-    },
+
     proveedores: {
       _path: 'proveedores',
       list: { _path: 'list' },
       edit: { _path: 'edit/:id' },
     },
-    talleres: {
-      _path: 'talleres',
+    propietarios: {
+      _path: 'propietarios',
       list: { _path: 'list' },
       edit: { _path: 'edit/:id' },
     },
-    sucursales: {
-      _path: 'sucursales',
+    talleres: {
+      _path: 'talleres',
       list: { _path: 'list' },
       edit: { _path: 'edit/:id' },
     },
@@ -149,12 +145,10 @@ export const ROUTE_CONFIG = {
     [buildPath(PATH.admin.viajes)]: ['admin', 'empleado'],
     [buildPath(PATH.admin.usuarios)]: ['admin'],
     [buildPath(PATH.admin.clientes)]: ['admin', 'empleado'],
-    [buildPath(PATH.admin.propietarios)]: ['admin', 'empleado'],
+
     [buildPath(PATH.admin.proveedores)]: ['admin', 'empleado'],
     [buildPath(PATH.admin.talleres)]: ['admin', 'empleado'],
     [buildPath(PATH.admin.talleres.edit)]: ['admin', 'empleado'],
-    [buildPath(PATH.admin.sucursales)]: ['admin', 'empleado'],
-    [buildPath(PATH.admin.sucursales.edit)]: ['admin', 'empleado'],
     [buildPath(PATH.admin.alquileres)]: ['admin', 'empleado'],
     [buildPath(PATH.admin.alquileres.edit)]: ['admin', 'empleado'],
     [buildPath(PATH.admin.reportes)]: ['admin', 'empleado'],

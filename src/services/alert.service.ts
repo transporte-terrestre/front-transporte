@@ -10,8 +10,21 @@ export class AlertService {
 
   show(type: AlertType, title: string, message: string, buttons: AlertButton[]) {
     const id = this.alertIdCounter++;
-    const alert: AlertMessage = { id, type, title, message, buttons };
-    this.alert.set(alert);
+    this.alert.set({ id, type, title, message, buttons });
+  }
+
+  showSimple(type: AlertType, title: string, message: string, confirmText: string = 'Entendido', onConfirm?: () => void) {
+    const buttons: AlertButton[] = [
+      {
+        text: confirmText,
+        style: type === 'error' || type === 'delete' ? 'danger' : 'primary',
+        action: () => {
+          this.close();
+          if (onConfirm) onConfirm();
+        },
+      },
+    ];
+    this.show(type, title, message, buttons);
   }
 
   success(title: string, message: string, buttons: AlertButton[]) {

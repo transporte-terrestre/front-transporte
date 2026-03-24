@@ -8,8 +8,8 @@ import { AlertService } from '@service/alert.service';
 export interface DocumentWithDate {
   url: string;
   nombre: string;
-  fechaEmision: string;
-  fechaExpiracion: string;
+  fechaEmision?: string;
+  fechaExpiracion?: string;
 }
 
 export interface DocumentItem {
@@ -43,7 +43,7 @@ export class DocumentsDateUpload {
 
   // Outputs - now emits URL instead of File
   onUpload = output<DocumentWithDate>();
-  onUpdate = output<{ id: number; fechaEmision: string; fechaExpiracion: string }>();
+  onUpdate = output<{ id: number; fechaEmision?: string; fechaExpiracion?: string }>();
   onDelete = output<number>();
 
   // State
@@ -132,8 +132,8 @@ export class DocumentsDateUpload {
       // Update existing document dates only
       this.onUpdate.emit({
         id: this.editingDocId()!,
-        fechaEmision: fechaEmision ? new Date(fechaEmision).toISOString() : '', // Handle empty
-        fechaExpiracion: fechaExpiracion ? new Date(fechaExpiracion).toISOString() : '', // Handle empty
+        ...(fechaEmision ? { fechaEmision: new Date(fechaEmision).toISOString() } : {}),
+        ...(fechaExpiracion ? { fechaExpiracion: new Date(fechaExpiracion).toISOString() } : {}),
       });
       this.cancelUpload();
     } else if (this.pendingFile) {
@@ -147,8 +147,8 @@ export class DocumentsDateUpload {
           this.onUpload.emit({
             url: res.secureUrl,
             nombre: this.pendingFile!.name,
-            fechaEmision: fechaEmision ? new Date(fechaEmision).toISOString() : '',
-            fechaExpiracion: fechaExpiracion ? new Date(fechaExpiracion).toISOString() : '',
+            ...(fechaEmision ? { fechaEmision: new Date(fechaEmision).toISOString() } : {}),
+            ...(fechaExpiracion ? { fechaExpiracion: new Date(fechaExpiracion).toISOString() } : {}),
           });
           // this.toastService.success('Documento subido correctamente');
           this.cancelUpload();

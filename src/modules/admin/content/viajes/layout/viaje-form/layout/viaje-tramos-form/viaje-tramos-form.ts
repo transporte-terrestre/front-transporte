@@ -76,6 +76,50 @@ export class ViajeTramosFormComponent implements AfterViewInit, OnDestroy {
   vistaHojaRuta = signal(false);
   hojaRuta = signal<ViajeHojaRutaResultDto | null>(null);
   loadingHojaRuta = signal(false);
+  hiddenTramoIndexes = signal<Set<number>>(new Set());
+
+  hojaRutaDisplay = computed(() => {
+    const hr = this.hojaRuta();
+    if (!hr) return null;
+
+    const indexes = this.hiddenTramoIndexes();
+    if (indexes.size === 0) return hr;
+
+    const filteredTramos = hr.tramos.filter((_, index) => !indexes.has(index));
+
+    // Recalculate totals
+    let totalKm = 0;
+    let totalMinutes = 0;
+
+    filteredTramos.forEach((t) => {
+      // Parse KM
+      const kmStr = t.kilometrajeRecorrido || '';
+      const kmValue = parseFloat(kmStr.replace(/[^\d.]/g, '')) || 0;
+      totalKm += kmValue;
+
+      // Parse Time
+      const timeStr = t.tiempoRecorrido || '';
+      if (timeStr.includes('h')) {
+        const parts = timeStr.split('h');
+        const hours = parseInt(parts[0]) || 0;
+        const mins = parseInt(parts[1]?.split('min')[0]) || 0;
+        totalMinutes += hours * 60 + mins;
+      } else {
+        const mins = parseInt(timeStr.split('min')[0]) || 0;
+        totalMinutes += mins;
+      }
+    });
+
+    return {
+      ...hr,
+      tramos: filteredTramos,
+      kilometrajeTotal: `${totalKm.toFixed(0)} KM`,
+      tiempoTotal:
+        totalMinutes >= 60
+          ? `${Math.floor(totalMinutes / 60)}h ${totalMinutes % 60}min`
+          : `${totalMinutes} min`,
+    };
+  });
 
   // Map state
   private map: L.Map | null = null;
@@ -309,6 +353,9 @@ export class ViajeTramosFormComponent implements AfterViewInit, OnDestroy {
   async toggleVista() {
     const nextVista = !this.vistaHojaRuta();
     this.vistaHojaRuta.set(nextVista);
+    if (nextVista) {
+      this.hiddenTramoIndexes.set(new Set()); // Reset when switching to report view
+    }
 
     // Si regresamos a la vista de registros, invalidar tamaño del mapa
     if (!nextVista && this.map) {
@@ -452,9 +499,25 @@ export class ViajeTramosFormComponent implements AfterViewInit, OnDestroy {
 
   descargarReporteDiario() {
     const data = this.viaje();
-    const hr = this.hojaRuta();
-    if (!data) return;
+    const hr = this.hojaRutaDisplay();
+    if (!data || !hr) return;
     generateReporteDiarioPdf(data as any, hr);
+  }
+
+  toggleTramoVisibility(index: number) {
+    this.hiddenTramoIndexes.update((prev) => {
+      const next = new Set(prev);
+      if (next.has(index)) {
+        next.delete(index);
+      } else {
+        next.add(index);
+      }
+      return next;
+    });
+  }
+
+  isTramoHidden(index: number): boolean {
+    return this.hiddenTramoIndexes().has(index);
   }
 
   formatSoloFechaUTC(dateStr: string | null | undefined): string {

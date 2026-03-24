@@ -366,6 +366,13 @@
                 <!-- Actions -->
                 <div class="flex items-center gap-2 pl-4 border-l border-text/5">
                   <button
+                    (click)="downloadOrdenServicioList(mant)"
+                    class="w-8 h-8 flex items-center justify-center rounded-lg text-text/60 hover:bg-text/5 hover:text-danger transition-colors"
+                    title="Orden de Servicio"
+                  >
+                    <i class="fas fa-file-pdf text-xs"></i>
+                  </button>
+                  <button
                     (click)="navigateToEdit(mant)"
                     class="w-8 h-8 flex items-center justify-center rounded-lg text-info hover:bg-info/10 transition-colors"
                     title="Editar"
@@ -735,4 +742,11 @@
       (onSubmitForm)="handleFormSubmit($event)"
     />
   </app-modal-form>
+}
+
+@if (showSignatureModal()) {
+  <app-user-signature-select-modal
+    (onSelected)="handleSignatureSelected($event)"
+    (onClose)="handleSignatureClose()"
+  />
 }

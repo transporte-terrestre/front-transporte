@@ -199,7 +199,7 @@
               <th
                 class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
               >
-                Vehículo / Conductor
+                Unidades
               </th>
 
               <th
@@ -245,34 +245,41 @@
                     <span class="text-xs font-inter-bold text-text uppercase">{{
                       $any(alquiler.cliente)?.nombreCompleto || '—'
                     }}</span>
-                    <span
-                      class="text-[10px] font-inter-semibold uppercase"
-                      [class.text-warning]="alquiler.tipo === 'maquina_operada'"
-                      [class.text-info]="alquiler.tipo === 'maquina_seca'"
-                      >{{ alquiler.tipo === 'maquina_operada' ? 'Máquina Operada' : 'Máquina Seca' }}</span
-                    >
+                    @if ($any(alquiler).detalles?.length) {
+                      <span
+                        class="text-[10px] font-inter-semibold uppercase"
+                        [class.text-warning]="$any(alquiler).detalles[0].tipo === 'maquina_operada'"
+                        [class.text-info]="$any(alquiler).detalles[0].tipo === 'maquina_seca'"
+                        >{{ $any(alquiler).detalles[0].tipo === 'maquina_operada' ? 'Máquina Operada' : 'Máquina Seca' }}</span
+                      >
+                    }
                   </div>
                 </td>
 
                 <td class="px-4 py-3 whitespace-nowrap">
                   <div class="flex items-center gap-2">
                     <div
-                      class="w-8 h-8 rounded-lg bg-text/5 border border-text/10 flex items-center justify-center"
+                      class="w-10 h-10 rounded-xl bg-secondary/10 border border-secondary/20 flex flex-col items-center justify-center transition-transform hover:scale-105"
                     >
-                      <i class="fas fa-car text-text/40 text-xs"></i>
+                      <span class="text-xs font-inter-bold text-secondary leading-none">{{ $any(alquiler).detalles?.length || 0 }}</span>
+                      <span class="text-[8px] font-inter-bold text-secondary uppercase leading-none">UND</span>
                     </div>
                     <div class="flex flex-col">
-                      <span class="text-xs font-inter-bold text-text uppercase">{{
-                        $any(alquiler.vehiculo)?.placa
-                      }}</span>
-                      <span class="text-[10px] text-text/60 font-inter-medium"
-                        >{{ $any(alquiler.vehiculo)?.marca }}
-                        {{ $any(alquiler.vehiculo)?.modelo }}</span
-                      >
-                      @if (alquiler.tipo === 'maquina_operada') {
-                        <span class="text-[10px] text-text/60 font-inter-medium"
-                          >Conductor: {{ $any(alquiler.conductor)?.nombreCompleto || '—' }}</span
+                      @if ($any(alquiler).detalles?.length) {
+                        <span class="text-xs font-inter-bold text-text uppercase">{{
+                          $any(alquiler).detalles[0].vehiculo?.placa
+                        }}</span>
+                        @if ($any(alquiler).detalles.length > 1) {
+                          <span class="text-[9px] text-secondary font-inter-bold uppercase"
+                            >+ {{ $any(alquiler).detalles.length - 1 }} Unidades más</span
+                          >
+                        } @else {
+                          <span class="text-[10px] text-text/60 font-inter-medium"
+                          >{{ $any(alquiler).detalles[0].vehiculo?.marca }} {{ $any(alquiler).detalles[0].vehiculo?.modelo }}</span
                         >
+                        }
+                      } @else {
+                        <span class="text-xs font-inter-medium text-text/30 italic">Sin unidades</span>
                       }
                     </div>
                   </div>
@@ -284,6 +291,8 @@
                       {{ alquiler.fechaInicio | date: 'dd/MM/yyyy':'UTC' }}
                       @if (alquiler.fechaFin) {
                         - {{ alquiler.fechaFin | date: 'dd/MM/yyyy':'UTC' }}
+                      } @else if (alquiler.esIndefinido) {
+                        - <span class="text-secondary font-inter-bold italic text-[9px]">Indefinido</span>
                       }
                     </span>
                     @if (alquiler.fechaFin) {
@@ -297,13 +306,17 @@
 
                 <td class="px-4 py-3 whitespace-nowrap text-center">
                   <div class="flex flex-col gap-0.5 items-center">
-                    <span class="text-[10px] text-text/60 font-inter-medium"
-                      >Km Ini: {{ alquiler.kilometrajeInicial }}</span
-                    >
-                    @if (alquiler.kilometrajeFinal != null) {
+                    @if ($any(alquiler).detalles?.length === 1) {
                       <span class="text-[10px] text-text/60 font-inter-medium"
-                        >Km Fin: {{ alquiler.kilometrajeFinal }}</span
-                      >
+                        >Km Ini: {{ $any(alquiler).detalles[0].kilometrajeInicial }}</span>
+                      @if ($any(alquiler).detalles[0].kilometrajeFinal != null) {
+                        <span class="text-[10px] text-text/60 font-inter-medium"
+                          >Km Fin: {{ $any(alquiler).detalles[0].kilometrajeFinal }}</span>
+                      }
+                    } @else if (($any(alquiler).detalles?.length || 0) > 1) {
+                      <span class="text-[10px] text-text/40 font-inter-medium italic">Múltiples lecturas</span>
+                    } @else {
+                      <span class="text-[10px] text-text/20">—</span>
                     }
                   </div>
                 </td>
@@ -380,7 +393,7 @@
   <app-modal-form
     title="Nuevo Alquiler"
     submitText="Registrar"
-    [maxWidth]="'3xl'"
+    [maxWidth]="'5xl'"
     [loading]="loading()"
     (onSubmit)="formComponent.submitForm()"
     (onClose)="closeModal()"
@@ -392,4 +405,3 @@
     />
   </app-modal-form>
 }
-

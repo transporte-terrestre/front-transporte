@@ -9,7 +9,7 @@ import { ApiResponse, ApiBody } from 'api/backend.api';
 import { ToastService } from '@service/toast.service';
 import { AlertService } from '@service/alert.service';
 import { ModalForm } from '../../../../components/modal-form/modal-form';
-import { ConductorForm } from '../../layout/conductor-form/conductor-form';
+import { ConductorForm, ConductorFormSubmitData, PendingConductorDocument } from '../../layout/conductor-form/conductor-form';
 import { PaginationComponent } from '../../../../components/pagination/pagination';
 import { PATH, buildPath } from '@route/path.route';
 import { getErrorMessage } from '@helper/error.helper';
@@ -276,28 +276,48 @@ export class ConductoresList implements OnInit, OnDestroy {
     this.showModal.set(false);
   }
 
-  handleFormSubmit(data: ApiBody<'conductores', 'create'> | ApiBody<'conductores', 'update'>) {
-    this.createConductor(data as ApiBody<'conductores', 'create'>);
+  handleFormSubmit(data: ConductorFormSubmitData) {
+    this.createConductor(data);
   }
 
   handleModalSubmit() {
     this.conductorFormComponent()?.submitForm();
   }
 
-  createConductor(data: ApiBody<'conductores', 'create'>) {
+  async createConductor(data: ConductorFormSubmitData) {
     this.loading.set(true);
-    this.conductorService
-      .create(data)
-      .then(() => {
-        this.toastService.success('Conductor creado exitosamente');
-        this.loadConductores();
-        this.closeModal();
-      })
-      .catch((error) => {
-        console.error('Error al crear conductor:', error);
-        this.toastService.error(getErrorMessage(error, 'Error al crear conductor'));
-        this.loading.set(false);
-      });
+    try {
+      const creationData = data as (ApiBody<'conductores', 'create'> & { documentos?: PendingConductorDocument[] });
+      const { documentos, ...conductorData } = creationData;
+      const newConductor = await this.conductorService.create(conductorData);
+
+      // Si hay documentos adjuntos, los creamos uno por uno
+      if (documentos && documentos.length > 0) {
+        for (const doc of documentos) {
+          try {
+            await this.conductorService.createDocumento({
+              conductorId: newConductor.id,
+              tipo: doc.tipo as any, // Cast to any here as the endpoint expects a specific union
+              nombre: doc.data.nombre,
+              url: doc.data.url,
+              fechaEmision: doc.data.fechaEmision,
+              fechaExpiracion: doc.data.fechaExpiracion,
+            });
+          } catch (docError) {
+            console.error(`Error al subir documento ${doc.tipo}:`, docError);
+            this.toastService.error(`No se pudo subir el documento: ${doc.tipo}`);
+          }
+        }
+      }
+
+      this.toastService.success('Conductor creado exitosamente');
+      this.loadConductores();
+      this.closeModal();
+    } catch (error) {
+      console.error('Error al crear conductor:', error);
+      this.toastService.error(getErrorMessage(error, 'Error al crear conductor'));
+      this.loading.set(false);
+    }
   }
 
   deleteConductor(id: number) {

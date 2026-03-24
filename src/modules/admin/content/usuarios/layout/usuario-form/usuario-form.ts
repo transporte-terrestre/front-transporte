@@ -44,11 +44,22 @@ export class UsuarioForm implements OnInit {
   roles: NonNullable<ApiField<'usuarios', 'findOne', 'roles'>>[number][] = ['admin', 'empleado'];
 
   documentTypes = [
-    { value: 'dni', label: 'DNI' },
-    { value: 'seguro_vida_ley', label: 'Seguro Vida Ley' },
-    { value: 'sctr', label: 'SCTR' },
-    { value: 'examen_medico', label: 'Examen Médico' },
-    { value: 'induccion_general', label: 'Inducción General' },
+    { value: 'dni', label: 'DNI', requireIssueDate: true, requireExpirationDate: true },
+    {
+      value: 'seguro_vida_ley',
+      label: 'Seguro Vida Ley',
+      requireIssueDate: true,
+      requireExpirationDate: true,
+    },
+    { value: 'sctr', label: 'SCTR', requireIssueDate: true, requireExpirationDate: true },
+    { value: 'examen_medico', label: 'Examen Médico', requireIssueDate: true, requireExpirationDate: true },
+    {
+      value: 'induccion_general',
+      label: 'Inducción General',
+      requireIssueDate: true,
+      requireExpirationDate: true,
+    },
+    { value: 'firma', label: 'Firma', requireIssueDate: false, requireExpirationDate: false },
   ];
 
   constructor() {
@@ -130,8 +141,8 @@ export class UsuarioForm implements OnInit {
       tipo: tipo as any,
       nombre: event.nombre,
       url: event.url,
-      fechaEmision: event.fechaEmision,
-      fechaExpiracion: event.fechaExpiracion,
+      ...(event.fechaEmision ? { fechaEmision: event.fechaEmision } : {}),
+      ...(event.fechaExpiracion ? { fechaExpiracion: event.fechaExpiracion } : {}),
     };
 
     this.usuarioService
@@ -146,12 +157,14 @@ export class UsuarioForm implements OnInit {
       });
   }
 
-  handleDocumentUpdate(event: { id: number; fechaEmision: string; fechaExpiracion: string }) {
+  handleDocumentUpdate(event: { id: number; fechaEmision?: string; fechaExpiracion?: string }) {
+    const payload: ApiBody<'usuarios', 'updateDocumento'> = {
+      ...(event.fechaEmision ? { fechaEmision: event.fechaEmision } : {}),
+      ...(event.fechaExpiracion ? { fechaExpiracion: event.fechaExpiracion } : {}),
+    };
+
     this.usuarioService
-      .updateDocumento(event.id, {
-        fechaEmision: event.fechaEmision,
-        fechaExpiracion: event.fechaExpiracion,
-      })
+      .updateDocumento(event.id, payload)
       .then((doc) => {
         this.toastService.success('Documento actualizado exitosamente');
         this.updateDocumentInLocalList(doc);

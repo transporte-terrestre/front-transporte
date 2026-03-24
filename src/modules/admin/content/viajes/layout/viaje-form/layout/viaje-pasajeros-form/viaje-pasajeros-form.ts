@@ -17,6 +17,7 @@ import { ToastService } from '@service/toast.service';
 import { AlertService } from '@service/alert.service';
 import { ApiResponse, ViajePasajeroResultDto, PasajeroResultDto } from 'api/backend.api';
 import * as XLSX from 'xlsx';
+import { generateManifiestoPasajerosPdf } from '../../../../../../../../templates/manifiesto-pasajeros.template';
 
 type ViajeData = ApiResponse<'viajes', 'findOne'>;
 
@@ -348,4 +349,16 @@ export class ViajePasajerosForm {
       this.loading.set(false);
     }
   }
+
+  exportarPDF() {
+    if (!this.viaje()) return;
+    try {
+      generateManifiestoPasajerosPdf(this.viaje(), this.pasajeros());
+      this.toastService.success('PDF generado con éxito');
+    } catch (error) {
+      console.error('Error generando PDF', error);
+      this.toastService.error('Error al generar el PDF');
+    }
+  }
 }
+

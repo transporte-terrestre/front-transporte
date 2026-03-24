@@ -58,11 +58,6 @@ export class Sidebar {
           path: buildPath(PATH.admin.talleres),
           icon: 'fas fa-building',
         },
-        {
-          label: 'Sucursales',
-          path: buildPath(PATH.admin.sucursales),
-          icon: 'fas fa-code-branch',
-        },
       ],
     },
     {

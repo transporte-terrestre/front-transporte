@@ -7,13 +7,33 @@ import {
   Validators,
   FormControl,
 } from '@angular/forms';
-import { ApiResponse, ApiBody, ApiField, VehiculoDocumentoResultDto } from 'api/backend.api';
+import {
+  ApiResponse,
+  ApiBody,
+  ApiField,
+  VehiculoDocumentoResultDto,
+  DocumentosAgrupadosVehiculoDto,
+  PropietarioVehiculoDto,
+  ProveedorVehiculoDto,
+} from 'api/backend.api';
 import { ImagesUpload } from '@module/admin/components/images-upload/images-upload';
 import {
   DocumentsDateUpload,
   DocumentWithDate,
   DocumentItem,
 } from '../../../../components/documents-date-upload/documents-date-upload';
+
+export interface PendingDocument {
+  tipo: keyof DocumentosAgrupadosVehiculoDto;
+  data: DocumentWithDate;
+  tempId: number;
+}
+
+export type VehiculoFormSubmitData =
+  | (ApiBody<'vehiculos', 'create'> & { documentos?: PendingDocument[] })
+  | ApiBody<'vehiculos', 'update'>;
+
+
 import { VehiculoService } from '@service/admin/vehiculo.service';
 import { ToastService } from '@service/toast.service';
 import { MarcaInputSearch } from '../../../../components/input-searchs/marca-input-search/marca-input-search';
@@ -52,12 +72,14 @@ export class VehiculoForm implements OnInit {
   editMode = input<boolean>(false);
 
   // Outputs
-  onSubmitForm = output<ApiBody<'vehiculos', 'create'> | ApiBody<'vehiculos', 'update'>>();
+  onSubmitForm = output<VehiculoFormSubmitData>();
   onDataRefresh = output<void>();
 
   // State
   imagenes = signal<string[]>([]);
-  localDocuments = signal<ApiResponse<'vehiculos', 'findOne'>['documentos'] | null>(null);
+  localDocuments = signal<DocumentosAgrupadosVehiculoDto | null>({} as DocumentosAgrupadosVehiculoDto);
+  pendingDocuments = signal<PendingDocument[]>([]);
+  private tempIdCounter = 0;
   selectedMarcaId = signal<number | null>(null);
 
   vehiculoForm: FormGroup = this.fb.group({
@@ -100,12 +122,12 @@ export class VehiculoForm implements OnInit {
   });
 
   // Temporary control for the search input
-  tempOwnerControl = new FormControl<any>(null);
-  selectedOwners = signal<any[]>([]);
+  tempOwnerControl = new FormControl<PropietarioVehiculoDto | null>(null);
+  selectedOwners = signal<PropietarioVehiculoDto[]>([]);
 
   // Temporary control for providers search input
-  tempProviderControl = new FormControl<any>(null);
-  selectedProviders = signal<any[]>([]);
+  tempProviderControl = new FormControl<ProveedorVehiculoDto | null>(null);
+  selectedProviders = signal<ProveedorVehiculoDto[]>([]);
 
   estados: Array<{
     value: 'disponible' | 'circulacion' | 'taller' | 'retirado';
@@ -263,7 +285,7 @@ export class VehiculoForm implements OnInit {
           ...prev,
           {
             ...owner,
-            nombre: owner.nombre || owner.nombreCompleto, // Normalize for display
+            nombre: owner.nombre,
           },
         ]);
       }
@@ -284,7 +306,7 @@ export class VehiculoForm implements OnInit {
           ...prev,
           {
             ...provider,
-            nombre: provider.nombre || provider.nombreCompleto, // Normalize for display
+            nombre: provider.nombre,
           },
         ]);
       }
@@ -362,7 +384,8 @@ export class VehiculoForm implements OnInit {
         this.selectedOwners.set([]);
         this.selectedProviders.set([]);
         this.imagenes.set([]);
-        this.localDocuments.set(null);
+        this.localDocuments.set({} as DocumentosAgrupadosVehiculoDto);
+        this.pendingDocuments.set([]);
         this.selectedMarcaId.set(null);
       }
     });
@@ -375,7 +398,7 @@ export class VehiculoForm implements OnInit {
     }
 
     const formValue = this.vehiculoForm.value;
-    const formData: ApiBody<'vehiculos', 'create'> = {
+    const formData = {
       placa: formValue.placa,
       placaAnterior: formValue.placaAnterior || undefined,
       modeloId: formValue.modelo?.id ? Number(formValue.modelo.id) : Number(formValue.modelo),
@@ -411,15 +434,29 @@ export class VehiculoForm implements OnInit {
       altura: formValue.altura ? String(formValue.altura) : undefined,
       ancho: formValue.ancho ? String(formValue.ancho) : undefined,
       documentosNoAplicables: formValue.documentosNoAplicables || [],
-    };
+      // Documents for creation mode
+      documentos: !this.editMode() ? this.pendingDocuments() : undefined,
+    } as VehiculoFormSubmitData;
     this.onSubmitForm.emit(formData);
   }
 
-  // Document Management
   async handleDocumentUpload(
     event: DocumentWithDate,
-    tipo: keyof ApiField<'vehiculos', 'findOne', 'documentos'>,
+    tipo: keyof DocumentosAgrupadosVehiculoDto,
   ) {
+    if (!this.editMode()) {
+      // Creation mode: save locally with a temporary ID
+      const tempId = --this.tempIdCounter;
+      const doc: VehiculoDocumentoResultDto = {
+        ...event,
+        id: tempId,
+        tipo: tipo,
+      } as VehiculoDocumentoResultDto;
+      this.addDocumentToLocalList(doc);
+      this.pendingDocuments.update((prev) => [...prev, { tipo, data: event, tempId }]);
+      return;
+    }
+
     if (!this.vehiculo()) return;
 
     const documento: ApiBody<'vehiculos', 'createDocumento'> = {
@@ -441,7 +478,35 @@ export class VehiculoForm implements OnInit {
     }
   }
 
-  async handleDocumentUpdate(event: { id: number; fechaEmision: string; fechaExpiracion: string }) {
+  async handleDocumentUpdate(event: { id: number; fechaEmision?: string; fechaExpiracion?: string }) {
+    if (event.id < 0) {
+      // Pending document in creation mode
+      this.pendingDocuments.update((prev) =>
+        prev.map((d) =>
+          d.tempId === event.id
+            ? { ...d, data: { ...d.data, fechaEmision: event.fechaEmision, fechaExpiracion: event.fechaExpiracion } }
+            : d,
+        ),
+      );
+      // Also update local list for UI
+      const docs = this.localDocuments();
+      if (docs) {
+        const newDocs = { ...docs };
+        for (const tipo in newDocs) {
+          const t = tipo as keyof DocumentosAgrupadosVehiculoDto;
+          if (newDocs[t]) {
+            newDocs[t] = (newDocs[t] as Array<VehiculoDocumentoResultDto>).map((d) =>
+              d.id === event.id
+                ? ({ ...d, fechaEmision: event.fechaEmision, fechaExpiracion: event.fechaExpiracion } as VehiculoDocumentoResultDto)
+                : d,
+            );
+          }
+        }
+        this.localDocuments.set(newDocs);
+      }
+      return;
+    }
+
     const payload: ApiBody<'vehiculos', 'updateDocumento'> = {
       ...(event.fechaEmision ? { fechaEmision: event.fechaEmision } : {}),
       ...(event.fechaExpiracion ? { fechaExpiracion: event.fechaExpiracion } : {}),
@@ -465,6 +530,13 @@ export class VehiculoForm implements OnInit {
   }
 
   async deleteDocument(id: number, tipo: keyof ApiField<'vehiculos', 'findOne', 'documentos'>) {
+    if (id < 0) {
+      // Pending document in creation mode
+      this.pendingDocuments.update((prev) => prev.filter((d) => d.tempId !== id));
+      this.removeDocumentFromLocalList(id, tipo);
+      return;
+    }
+
     try {
       await this.vehiculoService.deleteDocumento(id);
       this.toastService.success('Documento eliminado exitosamente');

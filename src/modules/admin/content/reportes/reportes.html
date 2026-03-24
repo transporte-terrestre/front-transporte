@@ -7,217 +7,132 @@
     </p>
   </div>
 
-  <!-- Mode Selection -->
-  <div class="bg-background border border-text/10 rounded-2xl p-6 shadow-sm">
-    <!-- Category Toggle -->
-    <div class="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-0">
-      <h2 class="text-sm font-inter-bold text-text flex items-center gap-2">
-        <i class="fas fa-sliders-h text-secondary"></i>
-        Tipo de Reporte
-      </h2>
-
-      <!-- Dropdown Select -->
-      <div class="relative w-full md:w-64">
-        <select
-          [ngModel]="reportCategory()"
-          (ngModelChange)="onCategoryChange($any($event))"
-          class="w-full pl-10 pr-10 py-2.5 bg-text/5 border-2 border-transparent focus:border-secondary rounded-xl text-sm text-text font-inter-bold outline-none transition-all appearance-none cursor-pointer"
-        >
-          <option value="viajes">Viajes</option>
-          <option value="mantenimientos">Mantenimientos</option>
-          <option value="conductores">Conductores</option>
-          <option value="clientes">Clientes</option>
-        </select>
-        <!-- Icono Izquierdo Dinámico -->
-        <div class="absolute left-3 top-1/2 -translate-y-1/2 text-secondary">
-          @if (reportCategory() === 'viajes') { <i class="fas fa-route"></i> }
-          @else if (reportCategory() === 'mantenimientos') { <i class="fas fa-tools"></i> }
-          @else if (reportCategory() === 'conductores') { <i class="fas fa-id-card"></i> }
-          @else if (reportCategory() === 'clientes') { <i class="fas fa-building"></i> }
+  <!-- Filters & Child Components Unified Container -->
+  <div class="flex flex-col">
+    <!-- Mode Selection (Header Section) -->
+    <div class="bg-background border border-text/10 rounded-t-2xl border-b border-b-text/5 p-5 px-6">
+      <div class="flex flex-col lg:flex-row items-center justify-between gap-4">
+        <!-- Dropdown Select -->
+        <div class="relative w-full lg:w-48">
+          <select
+            [ngModel]="reportCategory()"
+            (ngModelChange)="onCategoryChange($any($event))"
+            class="w-full pl-10 pr-10 py-2.5 bg-text/5 border-2 border-transparent focus:border-secondary rounded-xl text-sm text-text font-inter-bold outline-none transition-all appearance-none cursor-pointer"
+          >
+            <option value="viajes">Viajes</option>
+            <option value="mantenimientos">Mantenimientos</option>
+            <option value="conductores">Conductores</option>
+            <option value="clientes">Clientes</option>
+          </select>
+          <!-- Icono Izquierdo Dinámico -->
+          <div class="absolute left-3 top-1/2 -translate-y-1/2 text-secondary">
+            @if (reportCategory() === 'viajes') { <i class="fas fa-route"></i> }
+            @else if (reportCategory() === 'mantenimientos') { <i class="fas fa-tools"></i> }
+            @else if (reportCategory() === 'conductores') { <i class="fas fa-id-card"></i> }
+            @else if (reportCategory() === 'clientes') { <i class="fas fa-building"></i> }
+          </div>
+          <!-- Chevron Derecha -->
+          <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-text/40 text-[10px] pointer-events-none"></i>
         </div>
-        <!-- Chevron Derecha -->
-        <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-text/40 text-[10px] pointer-events-none"></i>
+
+        <!-- Viajes Options -->
+        @if (reportCategory() === 'viajes') {
+        <div class="flex flex-col sm:flex-row items-center gap-2 w-full lg:w-auto">
+          <button
+            (click)="onModeChange('vehiculo')"
+            class="w-full sm:w-auto flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-inter-bold transition-all border-2"
+            [class]="
+              activeMode() === 'vehiculo'
+                ? 'bg-info/5 border-info text-info'
+                : 'bg-transparent border-transparent text-text/60 hover:bg-text/5 hover:text-text'
+            "
+          >
+            <i class="fas fa-truck"></i>
+            <span>Por Vehículo</span>
+          </button>
+
+          <button
+            (click)="onModeChange('conductor')"
+            class="w-full sm:w-auto flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-inter-bold transition-all border-2"
+            [class]="
+              activeMode() === 'conductor'
+                ? 'bg-accent/5 border-accent text-accent'
+                : 'bg-transparent border-transparent text-text/60 hover:bg-text/5 hover:text-text'
+            "
+          >
+            <i class="fas fa-user-tie"></i>
+            <span>Por Conductor</span>
+          </button>
+
+          <button
+            (click)="onModeChange('cliente')"
+            class="w-full sm:w-auto flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-inter-bold transition-all border-2"
+            [class]="
+              activeMode() === 'cliente'
+                ? 'bg-success/5 border-success text-success'
+                : 'bg-transparent border-transparent text-text/60 hover:bg-text/5 hover:text-text'
+            "
+          >
+            <i class="fas fa-building"></i>
+            <span>Por Cliente</span>
+          </button>
+        </div>
+        }
+
+        <!-- Mantenimientos Options -->
+        @if (reportCategory() === 'mantenimientos') {
+        <div class="flex flex-col sm:flex-row items-center gap-2 w-full lg:w-auto">
+          <button
+            (click)="onModeChange('mantenimientos-vehiculo')"
+            class="w-full sm:w-auto flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-inter-bold transition-all border-2"
+            [class]="
+              activeMode() === 'mantenimientos-vehiculo'
+                ? 'bg-warning/5 border-warning text-warning'
+                : 'bg-transparent border-transparent text-text/60 hover:bg-text/5 hover:text-text'
+            "
+          >
+            <i class="fas fa-tools"></i>
+            <span>Por Vehículo</span>
+          </button>
+
+          <button
+            (click)="onModeChange('mantenimientos-taller')"
+            class="w-full sm:w-auto flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-inter-bold transition-all border-2"
+            [class]="
+              activeMode() === 'mantenimientos-taller'
+                ? 'bg-danger/5 border-danger text-danger'
+                : 'bg-transparent border-transparent text-text/60 hover:bg-text/5 hover:text-text'
+            "
+          >
+            <i class="fas fa-warehouse"></i>
+            <span>Por Taller</span>
+          </button>
+        </div>
+        }
       </div>
     </div>
 
-    <!-- Viajes Options -->
-    @if (reportCategory() === 'viajes') {
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-5">
-      <!-- Vehículo Card -->
-      <button
-        (click)="onModeChange('vehiculo')"
-        class="p-5 rounded-xl border-2 transition-all duration-300 text-left group"
-        [class]="
-          activeMode() === 'vehiculo'
-            ? 'bg-info/5 border-info'
-            : 'bg-text/5 border-transparent hover:border-text/20'
-        "
-      >
-        <div class="flex items-start gap-4">
-          <div
-            class="w-12 h-12 rounded-xl flex items-center justify-center transition-all"
-            [class]="
-              activeMode() === 'vehiculo'
-                ? 'bg-info text-background'
-                : 'bg-text/10 text-text/60 group-hover:bg-text/20'
-            "
-          >
-            <i class="fas fa-truck text-xl"></i>
-          </div>
-          <div>
-            <h3 class="font-inter-bold text-text text-sm mb-1">Por Vehículo</h3>
-            <p class="text-xs text-text/50 font-inter-regular">
-              Todos los viajes de un vehículo específico
-            </p>
-          </div>
-        </div>
-      </button>
+    <!-- Child Components Container -->
+    <div>
+      <!-- Child Component: Viajes -->
+      @if (reportCategory() === 'viajes') {
+      <app-reportes-viaje [activeMode]="getViajeMode()"></app-reportes-viaje>
+      }
 
-      <!-- Conductor Card -->
-      <button
-        (click)="onModeChange('conductor')"
-        class="p-5 rounded-xl border-2 transition-all duration-300 text-left group"
-        [class]="
-          activeMode() === 'conductor'
-            ? 'bg-accent/5 border-accent'
-            : 'bg-text/5 border-transparent hover:border-text/20'
-        "
-      >
-        <div class="flex items-start gap-4">
-          <div
-            class="w-12 h-12 rounded-xl flex items-center justify-center transition-all"
-            [class]="
-              activeMode() === 'conductor'
-                ? 'bg-accent text-background'
-                : 'bg-text/10 text-text/60 group-hover:bg-text/20'
-            "
-          >
-            <i class="fas fa-user-tie text-xl"></i>
-          </div>
-          <div>
-            <h3 class="font-inter-bold text-text text-sm mb-1">Por Conductor</h3>
-            <p class="text-xs text-text/50 font-inter-regular">
-              Historial de viajes de un conductor
-            </p>
-          </div>
-        </div>
-      </button>
+      <!-- Child Component: Mantenimientos -->
+      @if (reportCategory() === 'mantenimientos') {
+      <app-reportes-mantenimiento [activeMode]="getMantenimientoMode()"></app-reportes-mantenimiento>
+      }
 
-      <!-- Cliente Card -->
-      <button
-        (click)="onModeChange('cliente')"
-        class="p-5 rounded-xl border-2 transition-all duration-300 text-left group"
-        [class]="
-          activeMode() === 'cliente'
-            ? 'bg-success/5 border-success'
-            : 'bg-text/5 border-transparent hover:border-text/20'
-        "
-      >
-        <div class="flex items-start gap-4">
-          <div
-            class="w-12 h-12 rounded-xl flex items-center justify-center transition-all"
-            [class]="
-              activeMode() === 'cliente'
-                ? 'bg-success text-background'
-                : 'bg-text/10 text-text/60 group-hover:bg-text/20'
-            "
-          >
-            <i class="fas fa-building text-xl"></i>
-          </div>
-          <div>
-            <h3 class="font-inter-bold text-text text-sm mb-1">Por Cliente</h3>
-            <p class="text-xs text-text/50 font-inter-regular">
-              Servicios realizados para un cliente
-            </p>
-          </div>
-        </div>
-      </button>
+      <!-- Child Component: Conductores -->
+      @if (reportCategory() === 'conductores') {
+      <app-reportes-conductores></app-reportes-conductores>
+      }
+
+      <!-- Child Component: Clientes -->
+      @if (reportCategory() === 'clientes') {
+      <app-reportes-clientes></app-reportes-clientes>
+      }
     </div>
-    }
-
-    <!-- Mantenimientos Options -->
-    @if (reportCategory() === 'mantenimientos') {
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5">
-      <!-- Mantenimientos Vehiculo Card -->
-      <button
-        (click)="onModeChange('mantenimientos-vehiculo')"
-        class="p-5 rounded-xl border-2 transition-all duration-300 text-left group"
-        [class]="
-          activeMode() === 'mantenimientos-vehiculo'
-            ? 'bg-warning/5 border-warning'
-            : 'bg-text/5 border-transparent hover:border-text/20'
-        "
-      >
-        <div class="flex items-start gap-4">
-          <div
-            class="w-12 h-12 rounded-xl flex items-center justify-center transition-all"
-            [class]="
-              activeMode() === 'mantenimientos-vehiculo'
-                ? 'bg-warning text-background'
-                : 'bg-text/10 text-text/60 group-hover:bg-text/20'
-            "
-          >
-            <i class="fas fa-tools text-xl"></i>
-          </div>
-          <div>
-            <h3 class="font-inter-bold text-text text-sm mb-1">Por Vehículo</h3>
-            <p class="text-xs text-text/50 font-inter-regular">
-              Historial de mantenimientos de un vehículo
-            </p>
-          </div>
-        </div>
-      </button>
-
-      <!-- Mantenimientos Taller Card -->
-      <button
-        (click)="onModeChange('mantenimientos-taller')"
-        class="p-5 rounded-xl border-2 transition-all duration-300 text-left group"
-        [class]="
-          activeMode() === 'mantenimientos-taller'
-            ? 'bg-danger/5 border-danger'
-            : 'bg-text/5 border-transparent hover:border-text/20'
-        "
-      >
-        <div class="flex items-start gap-4">
-          <div
-            class="w-12 h-12 rounded-xl flex items-center justify-center transition-all"
-            [class]="
-              activeMode() === 'mantenimientos-taller'
-                ? 'bg-danger text-background'
-                : 'bg-text/10 text-text/60 group-hover:bg-text/20'
-            "
-          >
-            <i class="fas fa-warehouse text-xl"></i>
-          </div>
-          <div>
-            <h3 class="font-inter-bold text-text text-sm mb-1">Por Taller</h3>
-            <p class="text-xs text-text/50 font-inter-regular">
-              Historial de mantenimientos de un taller
-            </p>
-          </div>
-        </div>
-      </button>
-    </div>
-    }
   </div>
-
-  <!-- Child Component: Viajes -->
-  @if (reportCategory() === 'viajes') {
-  <app-reportes-viaje [activeMode]="getViajeMode()"></app-reportes-viaje>
-  }
-
-  <!-- Child Component: Mantenimientos -->
-  @if (reportCategory() === 'mantenimientos') {
-  <app-reportes-mantenimiento [activeMode]="getMantenimientoMode()"></app-reportes-mantenimiento>
-  }
-
-  <!-- Child Component: Conductores -->
-  @if (reportCategory() === 'conductores') {
-  <app-reportes-conductores></app-reportes-conductores>
-  }
-
-  <!-- Child Component: Clientes -->
-  @if (reportCategory() === 'clientes') {
-  <app-reportes-clientes></app-reportes-clientes>
-  }
 </div>

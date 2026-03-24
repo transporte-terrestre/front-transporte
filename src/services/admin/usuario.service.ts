@@ -33,4 +33,7 @@ export class UsuarioService {
   async deleteDocumento(id: ApiParam<'usuarios', 'deleteDocumento', 'id'>) {
     return await this.api.usuarios.deleteDocumento({ id }).then((response) => response.data);
   }
+  async findFirmas(id: ApiParam<'usuarios', 'findFirmas', 'id'>) {
+    return await this.api.usuarios.findFirmas({ id }).then((response) => response.data);
+  }
 }

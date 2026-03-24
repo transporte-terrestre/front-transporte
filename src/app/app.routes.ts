@@ -181,28 +181,7 @@ export const routes: Routes = [
           { path: '**', redirectTo: getPath(PATH.admin.clientes.list), pathMatch: 'full' },
         ],
       },
-      {
-        path: getPath(PATH.admin.propietarios),
-        loadComponent: () =>
-          import('@module/admin/content/propietarios/propietarios').then((m) => m.Propietarios),
-        children: [
-          {
-            path: getPath(PATH.admin.propietarios.list),
-            loadComponent: () =>
-              import('@module/admin/content/propietarios/content/propietarios-list/propietarios-list').then(
-                (m) => m.PropietariosList,
-              ),
-          },
-          {
-            path: getPath(PATH.admin.propietarios.edit),
-            loadComponent: () =>
-              import('@module/admin/content/propietarios/content/propietarios-edit/propietarios-edit').then(
-                (m) => m.PropietariosEdit,
-              ),
-          },
-          { path: '**', redirectTo: getPath(PATH.admin.propietarios.list), pathMatch: 'full' },
-        ],
-      },
+
       {
         path: getPath(PATH.admin.proveedores),
         loadComponent: () =>
@@ -245,28 +224,6 @@ export const routes: Routes = [
               ),
           },
           { path: '**', redirectTo: getPath(PATH.admin.talleres.list), pathMatch: 'full' },
-        ],
-      },
-      {
-        path: getPath(PATH.admin.sucursales),
-        loadComponent: () =>
-          import('@module/admin/content/sucursales/sucursales').then((m) => m.Sucursales),
-        children: [
-          {
-            path: getPath(PATH.admin.sucursales.list),
-            loadComponent: () =>
-              import('@module/admin/content/sucursales/content/sucursales-list/sucursales-list').then(
-                (m) => m.SucursalesList,
-              ),
-          },
-          {
-            path: getPath(PATH.admin.sucursales.edit),
-            loadComponent: () =>
-              import('@module/admin/content/sucursales/content/sucursales-edit/sucursales-edit').then(
-                (m) => m.SucursalesEdit,
-              ),
-          },
-          { path: '**', redirectTo: getPath(PATH.admin.sucursales.list), pathMatch: 'full' },
         ],
       },
       {
