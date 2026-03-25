@@ -123,9 +123,14 @@ export class ViajeDetail implements AfterViewInit {
       const r = v.ruta;
       const oLat = parseFloat(r.origenLat);
       const oLng = parseFloat(r.origenLng);
-      const dLat = parseFloat(r.destinoLat);
-      const dLng = parseFloat(r.destinoLng);
-      const bounds = L.latLngBounds([oLat, oLng], [dLat, dLng]);
+      const dLat = r.destinoLat ? parseFloat(r.destinoLat) : null;
+      const dLng = r.destinoLng ? parseFloat(r.destinoLng) : null;
+      const hasDestino = dLat != null && dLng != null;
+
+      const points: L.LatLngExpression[] = [[oLat, oLng]];
+      if (hasDestino) points.push([dLat!, dLng!]);
+
+      const bounds = L.latLngBounds(points);
 
       this.markers.forEach((m) => m.remove());
       this.markers = [];
@@ -139,16 +144,22 @@ export class ViajeDetail implements AfterViewInit {
       });
 
       const originMarker = L.marker([oLat, oLng]).addTo(this.map!);
-      const destMarker = L.marker([dLat, dLng]).addTo(this.map!);
-      this.markers.push(originMarker, destMarker);
-      this.polyline = L.polyline(
-        [
-          [oLat, oLng],
-          [dLat, dLng],
-        ],
-        { color: '#0088cc', weight: 4, opacity: 0.3, dashArray: '10, 10' },
-      ).addTo(this.map!);
-      this.map!.fitBounds(bounds.pad(0.2));
+      this.markers.push(originMarker);
+
+      if (hasDestino) {
+        const destMarker = L.marker([dLat!, dLng!]).addTo(this.map!);
+        this.markers.push(destMarker);
+        this.polyline = L.polyline([[oLat, oLng], [dLat!, dLng!]], {
+          color: '#0088cc',
+          weight: 4,
+          opacity: 0.3,
+          dashArray: '10, 10',
+        }).addTo(this.map!);
+      }
+
+      this.map!.fitBounds(hasDestino ? bounds.pad(0.2) : bounds, {
+        maxZoom: 15,
+      });
       return;
     }
 
@@ -320,7 +331,21 @@ export class ViajeDetail implements AfterViewInit {
 
   getClienteDisplay(v: ViajeIndividual): string {
     if (!v.cliente) return '—';
-    return v.cliente.razonSocial || v.cliente.nombreCompleto || '—';
+    const clienteName = v.cliente.razonSocial || v.cliente.nombreCompleto || '—';
+    const entidadName = v.entidad?.nombreServicio;
+
+    let display = clienteName;
+    if (entidadName) display += ` (${entidadName})`;
+    return display;
+  }
+
+  getRutaDisplay(v: ViajeIndividual): string {
+    if (v.nombreRuta) return v.nombreRuta;
+    if (v.ruta) {
+      const { origen, destino } = v.ruta;
+      return destino ? `${origen} → ${destino}` : origen;
+    }
+    return v.rutaOcasional || 'Ruta no especificada';
   }
 
   getVehiculoDisplay(v: ViajeIndividual): string {

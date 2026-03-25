@@ -626,14 +626,14 @@
                   @if (row.viaje) {
                     <div class="flex items-center justify-end gap-1">
                       <button
-                        (click)="navigateToEdit(row.viaje)"
+                        (click)="$event.stopPropagation(); navigateToEdit(row.viaje)"
                         class="p-1.5 text-info hover:bg-info/10 rounded-lg transition-colors"
                         title="Editar Trip"
                       >
                         <i class="fas fa-edit text-xs"></i>
                       </button>
                       <button
-                        (click)="deleteViaje(row.viaje.id)"
+                        (click)="$event.stopPropagation(); deleteViaje(row.viaje.id)"
                         class="p-1.5 text-danger hover:bg-danger/10 rounded-lg transition-colors"
                         title="Eliminar Trip"
                       >

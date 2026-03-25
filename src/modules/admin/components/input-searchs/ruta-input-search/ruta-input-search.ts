@@ -152,7 +152,7 @@ export class RutaInputSearch implements ControlValueAccessor {
   getDisplayText(): string {
     const r = this.selectedRuta();
     if (!r) return 'Seleccionar ruta...';
-    return `${r.origen} - ${r.destino}`;
+    return r.destino ? `${r.origen} - ${r.destino}` : r.origen;
   }
 
   formatTime(minutes: number | string | undefined | null): string {

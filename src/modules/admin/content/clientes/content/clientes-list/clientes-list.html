@@ -134,7 +134,7 @@
         </thead>
         <tbody class="divide-y divide-text/10">
           @for (cliente of clientes(); track cliente.id) {
-          <tr class="hover:bg-text/5 transition-colors">
+          <tr class="hover:bg-text/5 transition-colors cursor-pointer" (click)="viewDetails(cliente.id)">
             <td class="px-4 py-3 whitespace-nowrap">
               <span class="text-xs font-inter-semibold text-text">{{ cliente.id }}</span>
             </td>
@@ -197,14 +197,14 @@
             <td class="px-4 py-3 whitespace-nowrap text-right">
               <div class="flex items-center justify-end gap-1">
                 <button
-                  (click)="navigateToEdit(cliente)"
+                  (click)="navigateToEdit(cliente, $event)"
                   class="p-1.5 text-info hover:bg-info/10 rounded-lg transition-colors text-sm"
                   title="Editar"
                 >
                   <i class="fas fa-edit"></i>
                 </button>
                 <button
-                  (click)="deleteCliente(cliente.id)"
+                  (click)="deleteCliente(cliente.id, $event)"
                   class="p-1.5 text-danger hover:bg-danger/10 rounded-lg transition-colors text-sm"
                   title="Eliminar"
                 >
@@ -243,4 +243,13 @@
 >
   <app-cliente-form [editMode]="false" (onSubmitForm)="handleFormSubmit($event)" />
 </app-modal-form>
+}
+
+<!-- Detail Modal -->
+@if (showDetailModal()) {
+  <app-modal-info title="Detalle del Cliente" maxWidth="4xl" (onClose)="closeDetails()">
+    @if (selectedClienteId()) {
+      <app-cliente-detail [clienteId]="selectedClienteId()!" />
+    }
+  </app-modal-info>
 }

@@ -15,8 +15,8 @@
     <div id="viaje-detail-map" class="w-full h-full"></div>
   </div>
 
-  <!-- Info general (Vehiculo, Conductor, Cliente) -->
-  <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+  <!-- Info general (Vehiculo, Conductor, Cliente, Ruta) -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
     <div class="flex items-center gap-2 p-2 rounded-lg bg-text/5 border border-text/10">
       <div
         class="w-8 h-8 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary"
@@ -32,8 +32,22 @@
         }}</span>
       </div>
     </div>
+
+    <!-- RUTA -->
     <div class="flex items-center gap-2 p-2 rounded-lg bg-text/5 border border-text/10">
       <div class="w-8 h-8 rounded-lg bg-info/10 flex items-center justify-center text-info">
+        <i class="fas fa-route text-xs"></i>
+      </div>
+      <div class="flex flex-col min-w-0">
+        <span class="text-[10px] font-inter-bold text-text/50 uppercase tracking-wider">Ruta</span>
+        <span class="text-xs font-inter-semibold text-text truncate">{{
+          getRutaDisplay(viaje()!)
+        }}</span>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2 p-2 rounded-lg bg-text/5 border border-text/10">
+      <div class="w-8 h-8 rounded-lg bg-success/10 flex items-center justify-center text-success">
         <i class="fas fa-bus text-xs"></i>
       </div>
       <div class="flex flex-col min-w-0">
@@ -46,7 +60,7 @@
       </div>
     </div>
     <div class="flex items-center gap-2 p-2 rounded-lg bg-text/5 border border-text/10">
-      <div class="w-8 h-8 rounded-lg bg-success/10 flex items-center justify-center text-success">
+      <div class="w-8 h-8 rounded-lg bg-warning/10 flex items-center justify-center text-warning">
         <i class="fas fa-id-card text-xs"></i>
       </div>
       <div class="flex flex-col min-w-0">

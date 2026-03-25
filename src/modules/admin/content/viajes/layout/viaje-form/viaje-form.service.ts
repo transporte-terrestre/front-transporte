@@ -9,15 +9,18 @@ type ViajeDetalleType = NonNullable<ApiBody<'viajes', 'create'>['ida']>;
 
 interface CircuitoSelection {
   id?: number | string;
-  rutaIda?: { id: number; distancia: string; tiempoEstimado: number };
-  rutaVuelta?: { id: number; distancia: string; tiempoEstimado: number };
+  nombre?: string;
+  rutaIda?: { id: number; distancia: string; tiempoEstimado: number; origen: string; destino: string };
+  rutaVuelta?: { id: number; distancia: string; tiempoEstimado: number; origen: string; destino: string };
 }
 
 interface ViajeFormValue {
   cliente?: { id?: number | string; horasContrato?: string | number } | number | string;
   entidad?: { id?: number | string } | number | string;
+  encargado?: { id?: number | string } | number | string;
   tipoRuta?: 'fija' | 'ocasional';
   ruta?: CircuitoSelection | number | string;
+  nombreRuta?: string;
   rutaOcasional?: string;
   distanciaEstimada?: string | number;
   distanciaEstimadaVuelta?: string | number;
@@ -54,6 +57,7 @@ export class ViajeFormService {
   hasRutaVuelta = signal<boolean>(false);
   hasRutaSelected = signal<boolean>(false);
   selectedClienteId = signal<number | null>(null);
+  selectedRutaLabel = signal<string>('');
 
   // Validation Signals
   vehiculoValidacionMsg = signal<{ status: boolean; message: string } | null>(null);
@@ -70,8 +74,10 @@ export class ViajeFormService {
     this.viajeForm = this.fb.group({
       cliente: [null, [Validators.required]],
       entidad: [null],
-      tipoRuta: ['ocasional', [Validators.required]],
+      encargado: [null],
+      tipoRuta: ['fija', [Validators.required]],
       ruta: [null, [Validators.required]],
+      nombreRuta: [''],
       rutaOcasional: [''],
       distanciaEstimada: [''],
       distanciaEstimadaVuelta: [''],
@@ -134,7 +140,9 @@ export class ViajeFormService {
     this.viajeForm.patchValue({
       cliente: viajeData.clienteId,
       entidad: viajeData.entidadId || null,
+      encargado: viajeData.encargadoId || null,
       tipoRuta: viajeData.tipoRuta,
+      nombreRuta: viajeData.nombreRuta || '',
       ruta: viajeData.rutaId,
       rutaOcasional: viajeData.rutaOcasional,
       distanciaEstimada: viajeData.distanciaEstimada || '',
@@ -157,6 +165,17 @@ export class ViajeFormService {
       fechaLlegadaVueltaTime: '',
       distanciaEstimadaVuelta: '',
     });
+
+    if (viajeData.ruta) {
+      const c = viajeData.ruta as any;
+      let label = '';
+      if (c.rutaIda) {
+        label = c.rutaIda.origen + (c.rutaIda.destino ? ' → ' + c.rutaIda.destino : '');
+      } else if (c.rutaVuelta) {
+        label = c.rutaVuelta.origen + (c.rutaVuelta.destino ? ' → ' + c.rutaVuelta.destino : '');
+      }
+      this.selectedRutaLabel.set(label);
+    }
 
     if (viajeData.sentido === 'vuelta') this.tipoViaje.set('vuelta');
     else if (viajeData.sentido === 'circuito') this.tipoViaje.set('circuito');
@@ -187,7 +206,9 @@ export class ViajeFormService {
       tipoViaje: 'ida',
       estado: 'programado',
       estadoVuelta: 'programado',
-      tipoRuta: 'ocasional',
+      tipoRuta: 'fija',
+      nombreRuta: '',
+      rutaOcasional: '',
       fechaSalidaDate: this.getTodayDate(),
       fechaSalidaTime: '10:00',
       fechaLlegadaDate: this.getTodayDate(),
@@ -200,6 +221,7 @@ export class ViajeFormService {
     });
 
     this.tipoViaje.set('ida');
+    this.selectedRutaLabel.set('');
     this.updateDistanciaFinalState('programado');
   }
 
@@ -214,6 +236,12 @@ export class ViajeFormService {
         rutaOcasionalControl?.clearValidators();
         rutaOcasionalControl?.setValue('');
         distControl?.clearValidators();
+
+        // Reset sentido if it was 'circuito' (which only exists for occasional)
+        if (this.viajeForm.get('sentido')?.value === 'circuito') {
+          this.viajeForm.get('sentido')?.setValue('ida');
+          this.tipoViaje.set('ida');
+        }
       } else {
         rutaOcasionalControl?.setValidators([Validators.required]);
         rutaControl?.clearValidators();
@@ -234,7 +262,7 @@ export class ViajeFormService {
     });
 
     this.viajeForm.get('cliente')?.valueChanges.subscribe((cliente) => {
-      this.viajeForm.patchValue({ entidad: null }, { emitEvent: false });
+      this.viajeForm.patchValue({ entidad: null, encargado: null }, { emitEvent: false });
       if (cliente && typeof cliente === 'object') {
         this.selectedClienteId.set(cliente.id || null);
         if (cliente.horasContrato !== undefined) {
@@ -267,6 +295,18 @@ export class ViajeFormService {
       this.hasRutaIda.set(!!c.rutaIda);
       this.hasRutaVuelta.set(!!c.rutaVuelta);
       this.hasRutaSelected.set(true);
+
+      if ((c as any).nombre) {
+        this.viajeForm.patchValue({ nombreRuta: (c as any).nombre });
+      }
+
+      let label = '';
+      if (c.rutaIda) {
+        label = c.rutaIda.origen + (c.rutaIda.destino ? ' → ' + c.rutaIda.destino : '');
+      } else if (c.rutaVuelta) {
+        label = c.rutaVuelta.origen + (c.rutaVuelta.destino ? ' → ' + c.rutaVuelta.destino : '');
+      }
+      this.selectedRutaLabel.set(label);
 
       if (c.rutaIda && c.rutaVuelta) this.tipoViaje.set('ambos');
       else if (c.rutaIda && !c.rutaVuelta) this.tipoViaje.set('ida');
@@ -523,10 +563,12 @@ export class ViajeFormService {
   private extractBaseInfo(formValue: ViajeFormValue) {
     const clienteObj = formValue.cliente && typeof formValue.cliente === 'object' ? formValue.cliente : undefined;
     const entidadObj = formValue.entidad && typeof formValue.entidad === 'object' ? formValue.entidad : undefined;
+    const encargadoObj = formValue.encargado && typeof formValue.encargado === 'object' ? formValue.encargado : undefined;
 
     return {
       clienteIdNum: clienteObj ? Number(clienteObj.id) : Number(formValue.cliente),
       entidadIdNum: entidadObj ? Number(entidadObj.id) : formValue.entidad ? Number(formValue.entidad) : undefined,
+      encargadoIdNum: encargadoObj ? Number(encargadoObj.id) : formValue.encargado ? Number(formValue.encargado) : undefined,
       tipoRuta: formValue.tipoRuta || 'ocasional',
       circuito: formValue.ruta,
     };
@@ -546,12 +588,14 @@ export class ViajeFormService {
     estadoVal?: ViajeFormValue['estado'],
     metadataVal?: Record<string, unknown>
   ): NonNullable<ApiBody<'viajes', 'create'>['ida']> {
-    const { clienteIdNum, entidadIdNum, tipoRuta } = this.extractBaseInfo(formValue);
+    const { clienteIdNum, entidadIdNum, encargadoIdNum, tipoRuta } = this.extractBaseInfo(formValue);
 
     const detalle: NonNullable<ApiBody<'viajes', 'create'>['ida']> = {
       clienteId: clienteIdNum,
       entidadId: entidadIdNum,
+      encargadoId: encargadoIdNum,
       tipoRuta: tipoRuta,
+      nombreRuta: formValue.nombreRuta || '',
       metadata: metadataVal || formValue.metadata || undefined,
       modalidadServicio: modalidadServicioVal || formValue.modalidadServicio || 'regular',
       estado: estadoVal || formValue.estado || 'programado',

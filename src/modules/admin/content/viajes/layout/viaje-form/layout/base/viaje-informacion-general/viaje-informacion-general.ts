@@ -9,6 +9,7 @@ import { RutaInputSearch } from '@module/admin/components/input-searchs/ruta-inp
 import { ViajeMapaPreview } from '../viaje-mapa-preview/viaje-mapa-preview';
 import { ConductorInputSearch } from '@module/admin/components/input-searchs/conductor-input-search/conductor-input-search';
 import { VehiculoInputSearch } from '@module/admin/components/input-searchs/vehiculo-input-search/vehiculo-input-search';
+import { EncargadoInputSearch } from '@module/admin/components/input-searchs/encargado-input-search/encargado-input-search';
 
 @Component({
   selector: 'app-viaje-informacion-general',
@@ -22,7 +23,8 @@ import { VehiculoInputSearch } from '@module/admin/components/input-searchs/vehi
     RutaInputSearch,
     ViajeMapaPreview,
     ConductorInputSearch,
-    VehiculoInputSearch
+    VehiculoInputSearch,
+    EncargadoInputSearch
   ],
   templateUrl: './viaje-informacion-general.html',
 })
@@ -59,5 +61,9 @@ export class ViajeInformacionGeneral {
 
   get vehiculoValidacionMsg() {
     return this.viajeContext.vehiculoValidacionMsg;
+  }
+
+  get selectedRutaLabel() {
+    return this.viajeContext.selectedRutaLabel;
   }
 }

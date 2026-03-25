@@ -32,9 +32,10 @@
     </div>
 
     <div>
-      <label class="text-xs font-inter-semibold text-text mb-1 flex items-center gap-2">
+      <label class="text-xs font-inter-semibold text-text mb-1 flex items-center gap-2 truncate">
         <i class="fas fa-clock text-success"></i>
-        Tiempo Estimado (min)
+        <span class="sm:hidden">Tiempo Est. (min)</span>
+        <span class="hidden sm:inline">Tiempo Estimado (min)</span>
       </label>
       <input
         type="number"

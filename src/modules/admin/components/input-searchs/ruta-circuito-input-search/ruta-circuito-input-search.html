@@ -86,7 +86,7 @@
                         <div class="flex items-center gap-1.5">
                           <i class="fas fa-arrow-right text-secondary text-[9px]"></i>
                           <span class="text-[11px] text-text/50 truncate"
-                            >{{ ruta.rutaIda.origen }} → {{ ruta.rutaIda.destino }}</span
+                            >{{ ruta.rutaIda.origen }}{{ ruta.rutaIda.destino ? ' → ' + ruta.rutaIda.destino : '' }}</span
                           >
                         </div>
                       }
@@ -94,7 +94,7 @@
                         <div class="flex items-center gap-1.5">
                           <i class="fas fa-arrow-left text-info text-[9px]"></i>
                           <span class="text-[11px] text-text/50 truncate"
-                            >{{ ruta.rutaVuelta.origen }} → {{ ruta.rutaVuelta.destino }}</span
+                            >{{ ruta.rutaVuelta.origen }}{{ ruta.rutaVuelta.destino ? ' → ' + ruta.rutaVuelta.destino : '' }}</span
                           >
                         </div>
                       }

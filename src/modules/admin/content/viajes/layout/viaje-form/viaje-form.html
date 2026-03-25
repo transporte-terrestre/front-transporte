@@ -31,7 +31,7 @@
                   </div>
                   @if (form.get('ruta')?.value?.rutaIda) {
                     <p class="text-[11px] text-text/50 mt-0.5 truncate w-full">
-                      {{ form.get('ruta')?.value?.rutaIda?.origen }} → {{ form.get('ruta')?.value?.rutaIda?.destino }}
+                      {{ form.get('ruta')?.value?.rutaIda?.origen }}{{ form.get('ruta')?.value?.rutaIda?.destino ? ' → ' + form.get('ruta')?.value?.rutaIda?.destino : '' }}
                     </p>
                   }
                 </div>
@@ -55,7 +55,7 @@
                   </div>
                   @if (form.get('ruta')?.value?.rutaVuelta) {
                     <p class="text-[11px] text-text/50 mt-0.5 truncate w-full">
-                      {{ form.get('ruta')?.value?.rutaVuelta?.origen }} → {{ form.get('ruta')?.value?.rutaVuelta?.destino }}
+                      {{ form.get('ruta')?.value?.rutaVuelta?.origen }}{{ form.get('ruta')?.value?.rutaVuelta?.destino ? ' → ' + form.get('ruta')?.value?.rutaVuelta?.destino : '' }}
                     </p>
                   }
                 </div>
@@ -122,8 +122,8 @@
       @if (editMode() && viaje()) {
         <app-viaje-conductores-form class="block" [viaje]="viaje()!" (onDataChange)="onDataChange.emit()"></app-viaje-conductores-form>
         <app-viaje-vehiculos-form class="block" [viaje]="viaje()!" (onDataChange)="onDataChange.emit()"></app-viaje-vehiculos-form>
-        <app-viaje-tramos-form class="block" [viaje]="viaje()!" (onDataChange)="onDataChange.emit()"></app-viaje-tramos-form>
         <app-viaje-pasajeros-form class="block" [viaje]="viaje()!" (onDataChange)="onDataChange.emit()"></app-viaje-pasajeros-form>
+        <app-viaje-tramos-form class="block" [viaje]="viaje()!" (onDataChange)="onDataChange.emit()"></app-viaje-tramos-form>
         <app-viaje-comentarios-form class="block" [viaje]="viaje()!" (onDataChange)="onDataChange.emit()"></app-viaje-comentarios-form>
       }
     </div>
