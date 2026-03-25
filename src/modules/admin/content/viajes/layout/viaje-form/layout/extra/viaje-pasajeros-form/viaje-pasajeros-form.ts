@@ -17,7 +17,7 @@ import { ToastService } from '@service/toast.service';
 import { AlertService } from '@service/alert.service';
 import { ApiResponse, ViajePasajeroResultDto, PasajeroResultDto } from 'api/backend.api';
 import * as XLSX from 'xlsx';
-import { generateManifiestoPasajerosPdf } from '../../../../../../../../templates/manifiesto-pasajeros.template';
+import { generateManifiestoPasajerosPdf } from '../../../../../../../../../templates/manifiesto-pasajeros.template';
 
 type ViajeData = ApiResponse<'viajes', 'findOne'>;
 

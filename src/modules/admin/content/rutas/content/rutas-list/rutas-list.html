@@ -10,16 +10,6 @@
       </div>
       <div class="flex items-center gap-2 w-full sm:w-auto">
         <button
-          (click)="toggleViewMode()"
-          class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-text/10 text-text rounded-lg text-sm font-inter-semibold hover:bg-text/20 transition-all self-stretch"
-          title="Cambiar vista"
-        >
-          <i
-            [class]="viewMode() === 'grid' ? 'fas fa-list' : 'fas fa-th-large'"
-            class="text-xs"
-          ></i>
-        </button>
-        <button
           (click)="openCreateModal()"
           class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-secondary text-background rounded-lg text-sm font-inter-semibold hover:bg-secondary/90 transition-all shadow-sm hover:shadow-md"
         >
@@ -155,7 +145,7 @@
           </thead>
           <tbody class="divide-y divide-text/10">
             @for (row of processedRows(); track row) {
-              <tr class="hover:bg-text/5 transition-colors group">
+              <tr class="hover:bg-text/5 transition-colors group cursor-pointer" (click)="viewDetails(row.circuito.id)">
                 <!-- Celdas agrupadas (Circuito) -->
                 @if (row.isFirst) {
                   <td
@@ -194,12 +184,14 @@
                   </div>
                 </td>
                 <td class="px-4 py-3 whitespace-nowrap">
-                  <div class="flex items-center gap-2">
-                    <i class="fas fa-flag text-[10px] text-text/40"></i>
-                    <span class="text-xs font-inter-regular text-text">{{
-                      row.ruta?.destino || '-'
-                    }}</span>
-                  </div>
+                  @if (row.ruta?.destino) {
+                    <div class="flex items-center gap-2">
+                      <i class="fas fa-flag text-[10px] text-text/40"></i>
+                      <span class="text-xs font-inter-regular text-text">{{ row.ruta!.destino }}</span>
+                    </div>
+                  } @else {
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-inter-bold bg-amber-500/10 text-amber-600 border border-amber-500/20 uppercase">Ruta Abierta</span>
+                  }
                 </td>
                 <td class="px-4 py-3 whitespace-nowrap">
                   <span class="text-xs font-inter-regular text-text/50"
@@ -207,9 +199,13 @@
                   >
                 </td>
                 <td class="px-4 py-3 whitespace-nowrap">
-                  <span class="text-xs font-inter-regular text-text/50"
-                    >{{ row.ruta?.destinoLat }}, {{ row.ruta?.destinoLng }}</span
-                  >
+                  @if (row.ruta?.destinoLat) {
+                    <span class="text-xs font-inter-regular text-text/50"
+                      >{{ row.ruta!.destinoLat }}, {{ row.ruta!.destinoLng }}</span
+                    >
+                  } @else {
+                    <span class="text-xs font-inter-regular text-text/20 italic">Sin destino</span>
+                  }
                 </td>
                 <td class="px-4 py-3 whitespace-nowrap">
                   <span class="text-xs font-inter-semibold text-text"
@@ -230,14 +226,14 @@
                   >
                     <div class="flex items-center justify-end gap-1">
                       <button
-                        (click)="navigateToEdit(row.circuito)"
+                        (click)="navigateToEdit(row.circuito, $event)"
                         class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-info/10 text-info transition-colors"
                         title="Editar"
                       >
                         <i class="fas fa-edit text-xs"></i>
                       </button>
                       <button
-                        (click)="deleteRuta(row.circuito.id)"
+                        (click)="deleteRuta(row.circuito.id, $event)"
                         class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-danger/10 text-danger transition-colors"
                         title="Eliminar"
                       >
@@ -276,4 +272,13 @@
   >
     <app-ruta-form [editMode]="false" (onSubmitForm)="handleFormSubmit()" />
   </app-modal-form>
+}
+
+<!-- Detail Modal -->
+@if (showDetailModal()) {
+  <app-modal-info title="Detalle de la Ruta" maxWidth="5xl" (onClose)="closeDetails()">
+    @if (selectedCircuitoId()) {
+      <app-ruta-detail [circuitoId]="selectedCircuitoId()!" />
+    }
+  </app-modal-info>
 }

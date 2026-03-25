@@ -87,7 +87,7 @@
           </thead>
           <tbody class="divide-y divide-text/10">
             @for (usuario of usuarios(); track usuario.id) {
-              <tr class="hover:bg-text/5 transition-colors">
+              <tr class="hover:bg-text/5 transition-colors cursor-pointer" (click)="viewDetails(usuario.id)">
                 <td class="px-4 py-3 whitespace-nowrap">
                   <span class="text-xs font-inter-semibold text-text">{{ usuario.id }}</span>
                 </td>
@@ -124,14 +124,14 @@
                 <td class="px-4 py-3 whitespace-nowrap text-right">
                   <div class="flex items-center justify-end gap-1">
                     <button
-                      (click)="navigateToEdit(usuario)"
+                      (click)="navigateToEdit(usuario, $event)"
                       class="p-1.5 text-info hover:bg-info/10 rounded-lg transition-colors text-sm"
                       title="Editar"
                     >
                       <i class="fas fa-edit"></i>
                     </button>
                     <button
-                      (click)="deleteUsuario(usuario.id)"
+                      (click)="deleteUsuario(usuario.id, $event)"
                       class="p-1.5 text-danger hover:bg-danger/10 rounded-lg transition-colors text-sm"
                       title="Eliminar"
                     >
@@ -171,4 +171,13 @@
       (onSubmitForm)="handleFormSubmit($event)"
     />
   </app-modal-form>
+}
+
+<!-- Detail Modal -->
+@if (showDetailModal()) {
+  <app-modal-info title="Detalle del Usuario" maxWidth="4xl" (onClose)="closeDetails()">
+    @if (selectedUsuarioId()) {
+      <app-usuario-detail [usuarioId]="selectedUsuarioId()!" />
+    }
+  </app-modal-info>
 }

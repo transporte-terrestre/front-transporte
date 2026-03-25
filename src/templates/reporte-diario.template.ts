@@ -83,10 +83,14 @@ export const generateReporteDiarioPdf = (
 
   y += 8;
 
-  // Row 3: Cliente
+  // Row 3: Cliente y Encargado
   const cliente = viaje.cliente;
   const clienteName = cliente?.razonSocial || cliente?.nombreCompleto || '';
-  drawFieldLine('CLIENTE:', clienteName.toUpperCase(), margin, y, pageWidth - 2 * margin);
+  drawFieldLine('CLIENTE:', clienteName.toUpperCase(), margin, y, 130);
+
+  const encargadoData = (viaje as any).encargado || {};
+  const encargadoName = encargadoData.nombres ? `${encargadoData.nombres} ${encargadoData.apellidos || ''}` : '';
+  drawFieldLine('ENCARGADO:', encargadoName.toUpperCase(), margin + 140, y, pageWidth - 2 * margin - 140);
 
   y += 8;
 
@@ -101,7 +105,10 @@ export const generateReporteDiarioPdf = (
   doc.text('TRANSVERSAL (   )', svcX + 60, y);
 
   const obra = viaje.entidad?.nombreServicio ? viaje.entidad.nombreServicio.toUpperCase() : '';
-  drawFieldLine('OBRA:', obra, margin + 120, y, pageWidth - 2 * margin - 120);
+  drawFieldLine('OBRA:', obra, margin + 120, y, 70);
+
+  const rutaNombre = (viaje as any).nombreRuta || (viaje.ruta ? (viaje.ruta.destino ? `${viaje.ruta.origen} - ${viaje.ruta.destino}` : viaje.ruta.origen) : (viaje.rutaOcasional || ''));
+  drawFieldLine('RUTA:', rutaNombre.toUpperCase(), margin + 195, y, pageWidth - 2 * margin - 195);
 
   y += 8;
 

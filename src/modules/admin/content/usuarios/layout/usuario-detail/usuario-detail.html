@@ -1,0 +1,129 @@
+@if (loading()) {
+  <div class="h-64 flex flex-col items-center justify-center gap-4">
+    <i class="fas fa-spinner fa-spin text-secondary text-4xl"></i>
+    <span class="text-text/60 font-inter-medium text-sm">Cargando información del usuario...</span>
+  </div>
+} @else if (error()) {
+  <div class="flex flex-col items-center justify-center p-8 text-center">
+    <i class="fas fa-exclamation-circle text-danger text-4xl mb-3"></i>
+    <p class="text-text font-inter-medium">{{ error() }}</p>
+  </div>
+} @else if (usuario()) {
+  <div class="p-4 space-y-4">
+    <!-- Img Principal + Basic Info -->
+    <div class="flex flex-col md:flex-row gap-4 mb-4">
+      <!-- Image / Avatar -->
+      <div class="w-full md:w-1/3 shrink-0">
+        <div class="rounded-xl overflow-hidden shadow-sm relative group bg-text/5 border border-text/10 aspect-square flex items-center justify-center">
+          <div class="w-full h-full flex flex-col items-center justify-center text-secondary bg-secondary/10">
+            <span class="text-6xl font-inter-bold uppercase tracking-widest">
+              {{ usuario()?.nombres?.charAt(0) || 'U' }}{{ usuario()?.apellidos?.charAt(0) || '' }}
+            </span>
+            <span class="text-xs font-inter-medium mt-3 text-secondary/70 uppercase">Avatar Generado</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Info Grid -->
+      <div class="flex-1 space-y-3">
+        
+        <!-- Nombre Completo -->
+        <div class="grid grid-cols-1 gap-3">
+          <div>
+            <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+              <i class="fas fa-user text-secondary"></i> Nombre Completo
+            </label>
+            <div class="w-full px-3 py-2 text-sm bg-text/5 border border-transparent rounded-lg text-text font-inter-bold capitalize">
+              {{ usuario()?.nombres }} {{ usuario()?.apellidos }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Contacto -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+              <i class="fas fa-envelope text-secondary"></i> Correo Electrónico
+            </label>
+            <div class="w-full px-3 py-2 text-sm bg-text/5 border border-transparent rounded-lg text-text font-inter-medium break-all">
+              {{ usuario()?.email || '-' }}
+            </div>
+          </div>
+          <div>
+            <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+              <i class="fas fa-calendar-alt text-secondary"></i> Registrado en
+            </label>
+            <div class="w-full px-3 py-2 text-sm bg-text/5 border border-transparent rounded-lg text-text font-inter-medium">
+              {{ usuario()?.creadoEn | date: 'medium' }}
+            </div>
+          </div>
+        </div>
+        
+        <!-- Roles / Perfiles -->
+        <div class="grid grid-cols-1 gap-3">
+          <div>
+            <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+              <i class="fas fa-id-badge text-secondary"></i> Perfiles / Accesos Asignados
+            </label>
+            <div class="w-full px-3 py-2 text-sm bg-text/5 border border-transparent rounded-lg text-text font-inter-medium flex flex-wrap gap-2">
+              @for (rol of usuario()?.roles; track rol) {
+                <span class="px-2.5 py-1 text-xs font-inter-bold rounded-full capitalize flex items-center gap-1.5 shadow-sm"
+                  [class.bg-danger]="rol === 'admin'"
+                  [class.text-white]="rol === 'admin'"
+                  [class.bg-info]="rol === 'empleado'"
+                  [class.text-white]="rol === 'empleado'"
+                >
+                  @if (rol === 'admin') { <i class="fas fa-shield-alt"></i> }
+                  @if (rol === 'empleado') { <i class="fas fa-user-tie"></i> }
+                  {{ rol }}
+                </span>
+              } @empty {
+                <span class="text-xs italic text-text/40">Sin roles asignados</span>
+              }
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Docs -->
+    <div class="border-t border-text/5 pt-3 mt-4">
+      <label class="text-xs font-inter-semibold text-text mb-3 flex items-center gap-2">
+        <i class="fas fa-file-contract text-secondary"></i> Legajo y Documentos Recopilados
+      </label>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        @for (type of documentTypes; track type.value) {
+          @for (doc of getDocumentosByType(type.value); track doc.id) {
+            <div class="flex items-center justify-between p-3 bg-background border border-text/10 rounded-lg group hover:border-text/30 transition-all shadow-sm">
+              <div class="flex flex-col">
+                <span class="text-xs font-inter-bold text-text">{{ doc.nombre || type.label }}</span>
+                @if (doc.fechaEmision) {
+                  <span class="text-[10px] font-inter-medium text-text/60">
+                    Emisión: {{ doc.fechaEmision | date: 'dd/MM/yy' }}
+                  </span>
+                }
+                @if (doc.fechaExpiracion) {
+                  <span class="text-[10px] font-inter-medium text-text/60">
+                    Vence: {{ doc.fechaExpiracion | date: 'dd/MM/yy' }}
+                  </span>
+                }
+              </div>
+
+              @if (doc.url || doc.urlArchivo) {
+                <a
+                  [href]="doc.url || doc.urlArchivo"
+                  target="_blank"
+                  class="flex items-center gap-2 text-secondary hover:text-primary font-inter-bold text-xs px-3 py-1.5 rounded-md bg-secondary/5 hover:bg-secondary/10 transition-colors"
+                >
+                  <span>Ver</span>
+                  <i class="fas fa-external-link-alt"></i>
+                </a>
+              }
+            </div>
+          }
+        }
+      </div>
+    </div>
+  </div>
+}

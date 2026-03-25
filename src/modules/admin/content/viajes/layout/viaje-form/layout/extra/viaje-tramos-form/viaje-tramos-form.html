@@ -237,14 +237,16 @@
           >Origen</span
         >
       </div>
-      <div
-        class="bg-background/80 backdrop-blur-md px-3 py-1.5 rounded-lg border border-text/5 flex items-center gap-2 shadow-sm"
-      >
-        <div class="w-2 h-2 rounded-full bg-danger"></div>
-        <span class="text-[10px] font-inter-bold text-text/60 uppercase tracking-wider"
-          >Destino</span
+      @if (hasDestinoPlanned()) {
+        <div
+          class="bg-background/80 backdrop-blur-md px-3 py-1.5 rounded-lg border border-text/5 flex items-center gap-2 shadow-sm"
         >
-      </div>
+          <div class="w-2 h-2 rounded-full bg-danger"></div>
+          <span class="text-[10px] font-inter-bold text-text/60 uppercase tracking-wider"
+            >Destino</span
+          >
+        </div>
+      }
     </div>
   </div>
 

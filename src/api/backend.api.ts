@@ -3533,7 +3533,7 @@ export interface DocumentoItemDto {
   observacion?: string;
   /**
    * Fecha de Vencimiento Inicial/Por defecto
-   * @example "2026-03-20T17:14:01.188Z"
+   * @example "2026-03-25T08:22:04.835Z"
    */
   fechaVencimiento?: string;
 }
@@ -3716,17 +3716,17 @@ export interface BotiquinItemDto {
   habilitado: boolean;
   /**
    * Fecha de Vencimiento actual
-   * @example "2026-03-20T17:14:01.198Z"
+   * @example "2026-03-25T08:22:04.846Z"
    */
   fechaVencimiento?: string;
   /**
    * Fecha de Salida
-   * @example "2026-03-20T17:14:01.198Z"
+   * @example "2026-03-25T08:22:04.847Z"
    */
   fechaSalida?: string;
   /**
    * Fecha de Reposición
-   * @example "2026-03-20T17:14:01.198Z"
+   * @example "2026-03-25T08:22:04.847Z"
    */
   fechaReposicion?: string;
 }
@@ -5304,7 +5304,7 @@ export interface RutaCircuitoDetalleDto {
    * Ciudad de destino
    * @example "Ica"
    */
-  destino: string;
+  destino?: string;
   /**
    * Latitud del origen
    * @example "-12.0464"
@@ -5319,12 +5319,12 @@ export interface RutaCircuitoDetalleDto {
    * Latitud del destino
    * @example "-14.0678"
    */
-  destinoLat: string;
+  destinoLat?: string;
   /**
    * Longitud del destino
    * @example "-75.7286"
    */
-  destinoLng: string;
+  destinoLng?: string;
   /**
    * Distancia en km
    * @example "300.5"
@@ -5780,6 +5780,23 @@ export interface EntidadResultDto {
   actualizadoEn: string;
 }
 
+export interface EncargadoResultDto {
+  /** @example 1 */
+  id: number;
+  /** @example 1 */
+  clienteId: number;
+  /** @example "12345678" */
+  dni: string;
+  /** @example "Juan" */
+  nombres: string;
+  /** @example "Pérez" */
+  apellidos: string;
+  /** @format date-time */
+  creadoEn: string;
+  /** @format date-time */
+  actualizadoEn: string;
+}
+
 export interface ViajeListDto {
   /**
    * Trip ID
@@ -5796,6 +5813,11 @@ export interface ViajeListDto {
    * @example "Lima - Arequipa (Ocasional)"
    */
   rutaOcasional?: string;
+  /**
+   * Nombre de la ruta
+   * @example "Lima - Arequipa Especial"
+   */
+  nombreRuta?: string;
   /**
    * Tipo de ruta
    * @example "ocasional"
@@ -5821,6 +5843,11 @@ export interface ViajeListDto {
    * @example 1
    */
   entidadId?: number;
+  /**
+   * ID del encargado
+   * @example 1
+   */
+  encargadoId?: number;
   /**
    * Modalidad de servicio
    * @example "regular"
@@ -5887,6 +5914,7 @@ export interface ViajeListDto {
   vehiculoPrincipal?: VehiculoViajeDto;
   cliente?: ClienteViajeDto;
   entidad?: EntidadResultDto;
+  encargado?: EncargadoResultDto;
   ruta?: RutaResultDto;
 }
 
@@ -6467,6 +6495,11 @@ export interface ViajeResultDto {
    */
   rutaOcasional?: string;
   /**
+   * Nombre de la ruta
+   * @example "Lima - Arequipa Especial"
+   */
+  nombreRuta?: string;
+  /**
    * Tipo de ruta
    * @example "ocasional"
    */
@@ -6491,6 +6524,11 @@ export interface ViajeResultDto {
    * @example 1
    */
   entidadId?: number;
+  /**
+   * ID del encargado
+   * @example 1
+   */
+  encargadoId?: number;
   /**
    * Modalidad de servicio
    * @example "regular"
@@ -6570,6 +6608,7 @@ export interface ViajeResultDto {
   comentarios?: ViajeComentarioDetalleDto[];
   cliente?: ClienteViajeResultDto;
   entidad?: EntidadResultDto;
+  encargado?: EncargadoResultDto;
   ruta?: RutaResultDto;
   /**
    * Indica si el checklist de salida fue validado
@@ -6627,10 +6666,15 @@ export interface ViajeDetalleCreateDto {
    */
   rutaId?: number;
   /**
-   * Descripción de ruta ocasional
-   * @example "Lima - Arequipa (Ocasional)"
+   * Punto de partida para rutas ocasionales
+   * @example "Lima"
    */
   rutaOcasional?: string;
+  /**
+   * Nombre de la ruta
+   * @example "Lima - Arequipa Especial"
+   */
+  nombreRuta?: string;
   /**
    * Distancia estimada del viaje en km
    * @example "450.00"
@@ -6656,6 +6700,11 @@ export interface ViajeDetalleCreateDto {
    * @example 1
    */
   entidadId?: number;
+  /**
+   * ID del encargado (opcional)
+   * @example 1
+   */
+  encargadoId?: number;
   /**
    * Modalidad de servicio
    * @default "regular"
@@ -6732,10 +6781,15 @@ export interface ViajeUpdateDto {
    */
   rutaId?: number;
   /**
-   * Descripción de ruta ocasional
-   * @example "Lima - Arequipa (Ocasional)"
+   * Punto de partida para rutas ocasionales
+   * @example "Lima"
    */
   rutaOcasional?: string;
+  /**
+   * Nombre de la ruta
+   * @example "Lima - Arequipa Especial"
+   */
+  nombreRuta?: string;
   /**
    * Distancia estimada del viaje en km
    * @example "450.00"
@@ -6761,6 +6815,11 @@ export interface ViajeUpdateDto {
    * @example 1
    */
   entidadId?: number;
+  /**
+   * ID del encargado (opcional)
+   * @example 1
+   */
+  encargadoId?: number;
   /**
    * Modalidad de servicio
    * @default "regular"
@@ -8201,23 +8260,6 @@ export interface PasajeroUpdateDto {
    * @example "Pérez"
    */
   apellidos?: string;
-}
-
-export interface EncargadoResultDto {
-  /** @example 1 */
-  id: number;
-  /** @example 1 */
-  clienteId: number;
-  /** @example "12345678" */
-  dni: string;
-  /** @example "Juan" */
-  nombres: string;
-  /** @example "Pérez" */
-  apellidos: string;
-  /** @format date-time */
-  creadoEn: string;
-  /** @format date-time */
-  actualizadoEn: string;
 }
 
 export interface PaginatedEncargadoResultDto {

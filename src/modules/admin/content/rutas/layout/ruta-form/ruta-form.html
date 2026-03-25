@@ -54,8 +54,12 @@
           destinoControlName="destino"
           destinoLatControlName="destinoLat"
           destinoLngControlName="destinoLng"
+          [hasDestino]="hasDestinoIda()"
+          [allowOpenRoute]="tipoTrayecto() !== 'ambos'"
           (onAddParada)="addParada($event.type, $event.index)"
           (onRemoveParada)="removeParada($event.type, $event.index)"
+          (onRemoveDestino)="removeDestino($event.type)"
+          (onToggleDestino)="toggleDestino($event.type, $event.value)"
         ></app-ruta-form-sections>
       </div>
     </div>
@@ -90,8 +94,12 @@
               destinoControlName="destinoVuelta"
               destinoLatControlName="destinoLatVuelta"
               destinoLngControlName="destinoLngVuelta"
+              [hasDestino]="hasDestinoVuelta()"
+              [allowOpenRoute]="tipoTrayecto() !== 'ambos'"
               (onAddParada)="addParada($event.type, $event.index)"
               (onRemoveParada)="removeParada($event.type, $event.index)"
+              (onRemoveDestino)="removeDestino($event.type)"
+              (onToggleDestino)="toggleDestino($event.type, $event.value)"
             ></app-ruta-form-sections>
           </div>
         </div>

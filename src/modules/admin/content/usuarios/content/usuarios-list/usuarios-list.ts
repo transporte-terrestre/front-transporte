@@ -13,10 +13,12 @@ import { UsuarioForm } from '../../layout/usuario-form/usuario-form';
 import { PaginationComponent } from '../../../../components/pagination/pagination';
 import { PATH, buildPath } from '@route/path.route';
 import { getErrorMessage } from '@helper/error.helper';
+import { ModalInfo } from '../../../../components/modal-info/modal-info';
+import { UsuarioDetail } from '../../layout/usuario-detail/usuario-detail';
 
 @Component({
   selector: 'app-usuarios-list',
-  imports: [CommonModule, FormsModule, ModalForm, UsuarioForm, PaginationComponent],
+  imports: [CommonModule, FormsModule, ModalForm, UsuarioForm, PaginationComponent, ModalInfo, UsuarioDetail],
   templateUrl: './usuarios-list.html',
   styleUrl: './usuarios-list.css',
 })
@@ -42,7 +44,21 @@ export class UsuariosList implements OnInit, OnDestroy {
   fechaInicio = signal('');
   fechaFin = signal('');
 
+  // Modal Detalles
+  selectedUsuarioId = signal<number | null>(null);
+  showDetailModal = signal(false);
+
   usuarioFormComponent = viewChild<UsuarioForm>(UsuarioForm);
+
+  viewDetails(id: number) {
+    this.selectedUsuarioId.set(id);
+    this.showDetailModal.set(true);
+  }
+
+  closeDetails() {
+    this.showDetailModal.set(false);
+    this.selectedUsuarioId.set(null);
+  }
 
   ngOnInit() {
     this.loadUsuarios();
@@ -113,7 +129,8 @@ export class UsuariosList implements OnInit, OnDestroy {
     this.showModal.set(true);
   }
 
-  navigateToEdit(usuario: ApiResponse<'usuarios', 'findAll'>['data'][number]) {
+  navigateToEdit(usuario: ApiResponse<'usuarios', 'findAll'>['data'][number], event?: Event) {
+    if (event) event.stopPropagation();
     const path = buildPath(PATH.admin.usuarios.edit).replace(':id', usuario.id.toString());
     this.router.navigate([path]);
   }
@@ -146,7 +163,8 @@ export class UsuariosList implements OnInit, OnDestroy {
       });
   }
 
-  deleteUsuario(id: number) {
+  deleteUsuario(id: number, event?: Event) {
+    if (event) event.stopPropagation();
     this.alertService.delete(
       'Eliminar Usuario',
       '¿Estás seguro de que deseas eliminar este usuario? Esta acción no se puede deshacer.',

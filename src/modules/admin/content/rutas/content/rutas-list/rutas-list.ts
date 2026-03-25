@@ -14,10 +14,12 @@ import { RutaForm } from '../../layout/ruta-form/ruta-form';
 import { PaginationComponent } from '../../../../components/pagination/pagination';
 import { PATH, buildPath } from '@route/path.route';
 import { getErrorMessage } from '@helper/error.helper';
+import { ModalInfo } from '../../../../components/modal-info/modal-info';
+import { RutaDetail } from '../../layout/ruta-detail/ruta-detail';
 
 @Component({
   selector: 'app-rutas-list',
-  imports: [CommonModule, FormsModule, ModalForm, RutaForm, PaginationComponent],
+  imports: [CommonModule, FormsModule, ModalForm, RutaForm, PaginationComponent, ModalInfo, RutaDetail],
   templateUrl: './rutas-list.html',
   styleUrl: './rutas-list.css',
 })
@@ -42,11 +44,26 @@ export class RutasList implements OnInit, OnDestroy {
   meta = signal<ApiResponse<'rutas', 'findAllCircuitos'>['meta'] | null>(null);
 
   // Filtros
+  // Filtros
   searchTerm = signal('');
   fechaInicio = signal('');
   fechaFin = signal('');
 
+  // Detalles View
+  selectedCircuitoId = signal<number | null>(null);
+  showDetailModal = signal(false);
+
   rutaFormComponent = viewChild<RutaForm>(RutaForm);
+
+  viewDetails(id: number) {
+    this.selectedCircuitoId.set(id);
+    this.showDetailModal.set(true);
+  }
+
+  closeDetails() {
+    this.showDetailModal.set(false);
+    this.selectedCircuitoId.set(null);
+  }
 
   ngOnInit() {
     this.loadRutas();
@@ -168,7 +185,8 @@ export class RutasList implements OnInit, OnDestroy {
     this.showModal.set(true);
   }
 
-  navigateToEdit(circuito: ApiResponse<'rutas', 'findAllCircuitos'>['data'][0]) {
+  navigateToEdit(circuito: ApiResponse<'rutas', 'findAllCircuitos'>['data'][0], event?: Event) {
+    if (event) event.stopPropagation();
     const path = buildPath(PATH.admin.rutas.edit).replace(':id', circuito.id.toString());
     this.router.navigate([path]);
   }
@@ -186,7 +204,8 @@ export class RutasList implements OnInit, OnDestroy {
     this.rutaFormComponent()?.submitForm();
   }
 
-  deleteRuta(id: number) {
+  deleteRuta(id: number, event?: Event) {
+    if (event) event.stopPropagation();
     this.alertService.delete(
       'Eliminar Circuito',
       '¿Estás seguro que deseas eliminar este circuito y sus rutas asociadas?',

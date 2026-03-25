@@ -15,6 +15,8 @@ export class RutaFormSections {
   @Input({ required: true }) title!: string;
   @Input({ required: true }) legDistances!: number[];
   @Input() readonly: boolean = false;
+  @Input() hasDestino: boolean = true;
+  @Input() allowOpenRoute: boolean = true;
 
   @Input({ required: true }) origenControlName!: string;
   @Input({ required: true }) origenLatControlName!: string;
@@ -25,6 +27,8 @@ export class RutaFormSections {
 
   @Output() onAddParada = new EventEmitter<{ type: 'ida' | 'vuelta'; index: number }>();
   @Output() onRemoveParada = new EventEmitter<{ type: 'ida' | 'vuelta'; index: number }>();
+  @Output() onRemoveDestino = new EventEmitter<{ type: 'ida' | 'vuelta' }>();
+  @Output() onToggleDestino = new EventEmitter<{ type: 'ida' | 'vuelta', value: boolean }>();
 
   getLegTimeControl(index: number): FormControl {
     if (index < this.paradasArray.controls.length) {
@@ -32,5 +36,9 @@ export class RutaFormSections {
     }
     const destField = this.type === 'ida' ? 'tiempoEstimadoDestino' : 'tiempoEstimadoDestinoVuelta';
     return this.form.get(destField) as FormControl;
+  }
+
+  get showConnections(): boolean {
+    return this.hasDestino || this.paradasArray.controls.length > 0;
   }
 }

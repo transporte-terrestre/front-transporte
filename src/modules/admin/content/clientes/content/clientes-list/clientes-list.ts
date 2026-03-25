@@ -13,10 +13,12 @@ import { ClienteForm, ClienteFormSubmitData, PendingClienteDocument } from '../.
 import { PaginationComponent } from '../../../../components/pagination/pagination';
 import { PATH, buildPath } from '@route/path.route';
 import { getErrorMessage } from '@helper/error.helper';
+import { ModalInfo } from '../../../../components/modal-info/modal-info';
+import { ClienteDetail } from '../../layout/cliente-detail/cliente-detail';
 
 @Component({
   selector: 'app-clientes-list',
-  imports: [CommonModule, FormsModule, ModalForm, ClienteForm, PaginationComponent],
+  imports: [CommonModule, FormsModule, ModalForm, ClienteForm, PaginationComponent, ModalInfo, ClienteDetail],
   templateUrl: './clientes-list.html',
   styleUrl: './clientes-list.css',
 })
@@ -42,7 +44,21 @@ export class ClientesList implements OnInit, OnDestroy {
   tipo = signal<string>('');
   tipoDocumento = signal<string>('');
 
+  // Detail View
+  selectedClienteId = signal<number | null>(null);
+  showDetailModal = signal(false);
+
   clienteFormComponent = viewChild<ClienteForm>(ClienteForm);
+
+  viewDetails(id: number) {
+    this.selectedClienteId.set(id);
+    this.showDetailModal.set(true);
+  }
+
+  closeDetails() {
+    this.showDetailModal.set(false);
+    this.selectedClienteId.set(null);
+  }
 
   ngOnInit() {
     this.loadClientes();
@@ -108,7 +124,8 @@ export class ClientesList implements OnInit, OnDestroy {
     this.showModal.set(true);
   }
 
-  navigateToEdit(cliente: ApiResponse<'clientes', 'findAll'>['data'][number]) {
+  navigateToEdit(cliente: ApiResponse<'clientes', 'findAll'>['data'][number], event?: Event) {
+    if (event) event.stopPropagation();
     const path = buildPath(PATH.admin.clientes.edit).replace(':id', cliente.id.toString());
     this.router.navigate([path]);
   }
@@ -161,7 +178,8 @@ export class ClientesList implements OnInit, OnDestroy {
     }
   }
 
-  deleteCliente(id: number) {
+  deleteCliente(id: number, event?: Event) {
+    if (event) event.stopPropagation();
     this.alertService.delete(
       'Eliminar Cliente',
       '¿Estás seguro de que deseas eliminar este cliente? Esta acción no se puede deshacer.',

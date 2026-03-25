@@ -1,0 +1,125 @@
+<div [formGroup]="form" class="space-y-4">  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
+    <!-- Salida -->
+    <div>
+      <h4 class="text-xs font-inter-semibold text-text mb-1.5">Salida</h4>
+      <div class="space-y-1.5">
+        <div class="flex items-center gap-2">
+          <label class="text-xs font-inter-medium text-text/70 w-10">Fecha</label>
+          <input
+            type="date"
+            [formControlName]="tipo() === 'ida' ? 'fechaSalidaDate' : 'fechaSalidaVueltaDate'"
+            class="flex-1 px-2 py-1.5 text-xs bg-text/5 border border-transparent focus:border-secondary rounded-md text-text font-inter-regular outline-none transition-all"
+          />
+        </div>
+        <div class="flex items-center gap-2">
+          <label class="text-xs font-inter-medium text-text/70 w-10">Hora</label>
+          <input
+            type="time"
+            [formControlName]="tipo() === 'ida' ? 'fechaSalidaTime' : 'fechaSalidaVueltaTime'"
+            class="flex-1 px-2 py-1.5 text-xs bg-text/5 border border-transparent focus:border-secondary rounded-md text-text font-inter-regular outline-none transition-all text-center"
+          />
+        </div>
+      </div>
+    </div>
+    <!-- Llegada -->
+    <div>
+      <h4 class="text-xs font-inter-semibold text-text mb-1.5">Llegada</h4>
+      <div class="space-y-1.5">
+        <div class="flex items-center gap-2">
+          <label class="text-xs font-inter-medium text-text/70 w-10">Fecha</label>
+          <input
+            type="date"
+            [formControlName]="tipo() === 'ida' ? 'fechaLlegadaDate' : 'fechaLlegadaVueltaDate'"
+            class="flex-1 px-2 py-1.5 text-xs bg-text/5 border border-transparent focus:border-secondary rounded-md text-text font-inter-regular outline-none transition-all"
+          />
+        </div>
+        <div class="flex items-center gap-2">
+          <label class="text-xs font-inter-medium text-text/70 w-10">Hora</label>
+          <input
+            type="time"
+            [formControlName]="tipo() === 'ida' ? 'fechaLlegadaTime' : 'fechaLlegadaVueltaTime'"
+            class="flex-1 px-2 py-1.5 text-xs bg-text/5 border border-transparent focus:border-secondary rounded-md text-text font-inter-regular outline-none transition-all text-center"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="grid grid-cols-2 gap-3 pt-2 border-t border-text/5">
+    <div>
+      <label class="text-xs font-inter-semibold text-text mb-1 block">Modalidad</label>
+      <div class="relative">
+        <select
+          [formControlName]="tipo() === 'ida' ? 'modalidadServicio' : 'modalidadServicioVuelta'"
+          class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all appearance-none cursor-pointer"
+        >
+          <option value="regular">Regular</option>
+          <option value="expreso">Expreso</option>
+          <option value="ejecutivo">Ejecutivo</option>
+          <option value="especial">Especial</option>
+          <option value="turismo">Turismo</option>
+          <option value="corporativo">Corporativo</option>
+        </select>
+        <span class="absolute inset-y-0 right-3 flex items-center text-text/60 pointer-events-none">
+          <i class="fas fa-chevron-down text-xs"></i>
+        </span>
+      </div>
+    </div>
+    <div>
+      <label class="text-xs font-inter-semibold text-text mb-1 block">Turno</label>
+      <div class="flex gap-1">
+        <label
+          class="flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg border-2 cursor-pointer transition-all hover:bg-text/5"
+          [class.border-secondary]="form.get(tipo() === 'ida' ? 'turno' : 'turnoVuelta')?.value === 'dia'"
+          [class.border-text/10]="form.get(tipo() === 'ida' ? 'turno' : 'turnoVuelta')?.value !== 'dia'"
+          [class.bg-text/5]="form.get(tipo() === 'ida' ? 'turno' : 'turnoVuelta')?.value === 'dia'"
+        >
+          <input type="radio" value="dia" [formControlName]="tipo() === 'ida' ? 'turno' : 'turnoVuelta'" class="hidden" />
+          <i class="fas fa-sun text-xs" [class.text-secondary]="form.get(tipo() === 'ida' ? 'turno' : 'turnoVuelta')?.value === 'dia'"></i>
+          <span class="hidden sm:inline text-xs font-inter-medium">Día</span>
+        </label>
+        <label
+          class="flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg border-2 cursor-pointer transition-all hover:bg-text/5"
+          [class.border-secondary]="form.get(tipo() === 'ida' ? 'turno' : 'turnoVuelta')?.value === 'noche'"
+          [class.border-text/10]="form.get(tipo() === 'ida' ? 'turno' : 'turnoVuelta')?.value !== 'noche'"
+          [class.bg-text/5]="form.get(tipo() === 'ida' ? 'turno' : 'turnoVuelta')?.value === 'noche'"
+        >
+          <input type="radio" value="noche" [formControlName]="tipo() === 'ida' ? 'turno' : 'turnoVuelta'" class="hidden" />
+          <i class="fas fa-moon text-xs" [class.text-secondary]="form.get(tipo() === 'ida' ? 'turno' : 'turnoVuelta')?.value === 'noche'"></i>
+          <span class="hidden sm:inline text-xs font-inter-medium">Noche</span>
+        </label>
+      </div>
+    </div>
+  </div>
+  
+  <div class="pt-2 border-t border-text/5">
+    <label class="text-xs font-inter-semibold text-text mb-1 block">Estado</label>
+    <div class="relative">
+      <select
+        [formControlName]="tipo() === 'ida' ? 'estado' : 'estadoVuelta'"
+        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all appearance-none cursor-pointer"
+      >
+        <option value="programado">Programado</option>
+        <option value="en_progreso">En Progreso</option>
+        <option value="completado">Completado</option>
+        <option value="cancelado">Cancelado</option>
+      </select>
+      <span class="absolute inset-y-0 right-3 flex items-center text-text/60 pointer-events-none">
+        <i class="fas fa-chevron-down text-xs"></i>
+      </span>
+    </div>
+  </div>
+
+  @if (form.get(tipo() === 'ida' ? 'estado' : 'estadoVuelta')?.value === 'completado') {
+    <div class="pt-2 border-t border-text/5">
+      <label class="text-xs font-inter-semibold text-text mb-1 block">Distancia Final (KM) <span class="text-danger">*</span></label>
+      <input
+        type="number"
+        step="0.01"
+        formControlName="distanciaFinal"
+        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+        placeholder="Ej: 14.50"
+      />
+    </div>
+  }
+</div>

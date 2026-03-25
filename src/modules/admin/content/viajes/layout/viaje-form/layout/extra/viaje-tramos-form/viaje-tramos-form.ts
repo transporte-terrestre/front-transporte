@@ -136,6 +136,7 @@ export class ViajeTramosFormComponent implements AfterViewInit, OnDestroy {
   showPasajeros = signal(false);
   hasSalida = computed(() => this.tramos().some((s) => s.tipo === 'origen'));
   hasLlegada = computed(() => this.tramos().some((s) => s.tipo === 'destino'));
+  hasDestinoPlanned = computed(() => this.puntosTrayecto().some((p) => p.tipo === 'destino'));
 
   selectedTramo = signal<ViajeTramoResultDto | null>(null);
   proximoTramoSugerido = signal<ViajeProximoTramoResultDto | null>(null);

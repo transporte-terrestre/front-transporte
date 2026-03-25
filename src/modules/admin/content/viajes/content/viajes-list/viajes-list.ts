@@ -682,8 +682,10 @@ export class ViajesList implements OnInit, OnDestroy {
   }
 
   getRutaDisplay(viaje: ViajeIndividual): string {
+    if (viaje.nombreRuta) return viaje.nombreRuta;
     if (viaje.ruta) {
-      return `${viaje.ruta.origen} → ${viaje.ruta.destino}`;
+      const { origen, destino } = viaje.ruta;
+      return destino ? `${origen} → ${destino}` : origen;
     }
     return viaje.rutaOcasional || 'Ruta no especificada';
   }
@@ -701,7 +703,12 @@ export class ViajesList implements OnInit, OnDestroy {
   }
 
   getClienteDisplay(viaje: ViajeIndividual): string {
-    return viaje.cliente?.razonSocial || viaje.cliente?.nombreCompleto || 'Sin cliente';
+    const clienteName = viaje.cliente?.razonSocial || viaje.cliente?.nombreCompleto || 'Sin cliente';
+    const entidadName = viaje.entidad?.nombreServicio;
+
+    let display = clienteName;
+    if (entidadName) display += ` (${entidadName})`;
+    return display;
   }
 
   getEstadoBadgeClass(estado: ApiResponse<'viajes', 'findOne'>['estado']): string {
