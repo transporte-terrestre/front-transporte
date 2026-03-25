@@ -116,7 +116,7 @@ export class RutaForm implements OnInit, AfterViewInit, OnDestroy {
     destinoLat: ['', [Validators.pattern(/^-?\d+(\.\d+)?$/)]],
     destinoLng: ['', [Validators.pattern(/^-?\d+(\.\d+)?$/)]],
     distancia: ['', [Validators.required, Validators.pattern(/^\d+(\.\d+)?$/)]],
-    tiempoEstimado: [0, [Validators.required, Validators.min(1)]],
+    tiempoEstimado: [0, [Validators.required, Validators.min(0)]],
     tiempoEstimadoDestino: [0, [Validators.min(0)]],
     paradas: this.fb.array<any>([]),
     // VUELTA
@@ -127,7 +127,7 @@ export class RutaForm implements OnInit, AfterViewInit, OnDestroy {
     destinoLatVuelta: ['', [Validators.pattern(/^-?\d+(\.\d+)?$/)]],
     destinoLngVuelta: ['', [Validators.pattern(/^-?\d+(\.\d+)?$/)]],
     distanciaVuelta: ['', [Validators.pattern(/^\d+(\.\d+)?$/)]],
-    tiempoEstimadoVuelta: [0],
+    tiempoEstimadoVuelta: [0, [Validators.min(0)]],
     tiempoEstimadoDestinoVuelta: [0],
     paradasVuelta: this.fb.array<any>([]),
   });
@@ -794,7 +794,9 @@ export class RutaForm implements OnInit, AfterViewInit, OnDestroy {
       originPt = L.latLng(oLat, oLng);
       this.addMarker(type, 'origin', oLat, oLng);
     }
-    if (!isNaN(dLat) && !isNaN(dLng)) {
+
+    const hasDest = type === 'ida' ? this.hasDestinoIda() : this.hasDestinoVuelta();
+    if (hasDest && !isNaN(dLat) && !isNaN(dLng)) {
       destPt = L.latLng(dLat, dLng);
       this.addMarker(type, 'dest', dLat, dLng);
     }
@@ -815,7 +817,7 @@ export class RutaForm implements OnInit, AfterViewInit, OnDestroy {
     const allPoints: L.LatLng[] = [];
     if (originPt) allPoints.push(originPt);
     allPoints.push(...paradasPts);
-    if (destPt) allPoints.push(destPt);
+    if (destPt && hasDest) allPoints.push(destPt);
 
     if (allPoints.length >= 2) {
       const routeData = await this.getRoadRoute(allPoints);

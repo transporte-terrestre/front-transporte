@@ -3533,7 +3533,7 @@ export interface DocumentoItemDto {
   observacion?: string;
   /**
    * Fecha de Vencimiento Inicial/Por defecto
-   * @example "2026-03-25T19:08:55.100Z"
+   * @example "2026-03-25T21:13:18.303Z"
    */
   fechaVencimiento?: string;
 }
@@ -3716,17 +3716,17 @@ export interface BotiquinItemDto {
   habilitado: boolean;
   /**
    * Fecha de Vencimiento actual
-   * @example "2026-03-25T19:08:55.102Z"
+   * @example "2026-03-25T21:13:18.315Z"
    */
   fechaVencimiento?: string;
   /**
    * Fecha de Salida
-   * @example "2026-03-25T19:08:55.102Z"
+   * @example "2026-03-25T21:13:18.315Z"
    */
   fechaSalida?: string;
   /**
    * Fecha de Reposición
-   * @example "2026-03-25T19:08:55.102Z"
+   * @example "2026-03-25T21:13:18.315Z"
    */
   fechaReposicion?: string;
 }

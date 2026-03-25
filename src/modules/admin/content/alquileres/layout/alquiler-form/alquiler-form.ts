@@ -36,7 +36,7 @@ export class AlquilerForm implements OnInit {
 
     fechaInicio: this.fb.control<string>('', [Validators.required]),
     fechaFin: this.fb.control<string | null>(null),
-    esIndefinido: this.fb.control<boolean>(false),
+    esIndefinido: this.fb.control<boolean>(true),
 
     observaciones: this.fb.control<string>(''),
     marcarComoAlquilado: this.fb.control<boolean>(true),
@@ -87,6 +87,20 @@ export class AlquilerForm implements OnInit {
       } else {
         fechaFinControl?.enable();
       }
+      this.checkAllAvailability();
+    });
+
+    // Estado inicial
+    if (this.form.get('esIndefinido')?.value) {
+      this.form.get('fechaFin')?.disable();
+    }
+
+    this.form.get('fechaInicio')?.valueChanges.subscribe(() => {
+      this.checkAllAvailability();
+    });
+
+    this.form.get('fechaFin')?.valueChanges.subscribe(() => {
+      this.checkAllAvailability();
     });
   }
 
@@ -134,7 +148,7 @@ export class AlquilerForm implements OnInit {
     // Auto-completar KM y validar disponibilidad
     vehiculoGroup.get('vehiculoId')?.valueChanges.subscribe((vehiculo) => {
       const idx = this.vehiculosFormArray.controls.indexOf(vehiculoGroup);
-      this.checkAvailability(idx);
+      if (idx !== -1) this.checkAvailability(idx);
 
       if (vehiculo && typeof vehiculo === 'object' && 'kilometraje' in vehiculo) {
         const km = (vehiculo as any).kilometraje;
@@ -147,6 +161,12 @@ export class AlquilerForm implements OnInit {
     this.vehiculosFormArray.push(vehiculoGroup);
   }
 
+  checkAllAvailability() {
+    for (let i = 0; i < this.vehiculosFormArray.length; i++) {
+      this.checkAvailability(i);
+    }
+  }
+
   removeVehiculo(index: number) {
     if (this.vehiculosFormArray.length > 1) {
       this.vehiculosFormArray.removeAt(index);
@@ -155,22 +175,26 @@ export class AlquilerForm implements OnInit {
 
   checkAvailability(index: number) {
     if (this.checkAvailabilityTimeout) clearTimeout(this.checkAvailabilityTimeout);
-    
+
     this.checkAvailabilityTimeout = setTimeout(() => {
       const group = this.vehiculosFormArray.at(index) as FormGroup;
       const vehiculoId = this.resolveEntityId(group.get('vehiculoId')?.value);
       const fechaInicio = this.form.get('fechaInicio')?.value;
+      const esIndefinido = this.form.get('esIndefinido')?.value;
 
       if (!vehiculoId || !fechaInicio) {
         this.updateValidationMsg(index, null);
         return;
       }
 
+      // Si es indefinido, usamos la fecha de inicio como fin para la validación (al menos que sea vigente hoy)
+      const fechaFin = esIndefinido ? fechaInicio : this.form.get('fechaFin')?.value;
+
       this.alquilerService
         .validarVehiculo({
           vehiculoId,
           fechaInicio: new Date(fechaInicio).toISOString(),
-          fechaFin: this.form.get('fechaFin')?.value ? new Date(this.form.get('fechaFin')?.value!).toISOString() : undefined,
+          fechaFin: fechaFin ? new Date(fechaFin).toISOString() : undefined,
           alquilerId: this.initialData()?.id,
         })
         .then((res) => this.updateValidationMsg(index, res))
