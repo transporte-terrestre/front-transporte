@@ -10,6 +10,8 @@ interface DuplicateDay {
   dateStr: string;
   label: string;
   selected: boolean;
+  status?: 'loading' | 'valid' | 'invalid';
+  message?: string;
 }
 
 @Component({
@@ -85,10 +87,77 @@ export class ViajeDuplicate implements OnInit {
     this.days.set(nextDays);
   }
 
-  toggleDay(index: number) {
+  async toggleDay(index: number) {
     const currentDays = [...this.days()];
-    currentDays[index].selected = !currentDays[index].selected;
+    const day = currentDays[index];
+    day.selected = !day.selected;
+
+    if (day.selected) {
+      this.validateDay(index);
+    } else {
+      day.status = undefined;
+      day.message = undefined;
+    }
+
     this.days.set(currentDays);
+  }
+
+  async validateDay(index: number) {
+    const v = this.viaje();
+    if (!v) return;
+
+    const currentDays = [...this.days()];
+    const day = currentDays[index];
+    day.status = 'loading';
+    this.days.set(currentDays);
+
+    const vehiculoId = v.vehiculos?.find((v) => v.esPrincipal)?.id;
+    const conductorId = v.conductores?.find((c) => c.esPrincipal)?.id;
+
+    if (!vehiculoId || !conductorId) {
+      day.status = 'invalid';
+      day.message = 'No hay vehículo o conductor principal asignado';
+      this.days.set([...currentDays]);
+      return;
+    }
+
+    const replaceDate = (isoStr: string | Date | undefined | null, newDateStr: string) => {
+      const timePart = this.extractTime(isoStr);
+      return `${newDateStr}T${timePart}:00.000Z`;
+    };
+
+    const fechaSalida = replaceDate(v.fechaSalidaProgramada, day.dateStr);
+    const fechaLlegada = replaceDate(v.fechaLlegadaProgramada, day.dateStr);
+
+    try {
+      const [resVeh, resCond] = await Promise.all([
+        this.viajeService.validarVehiculo({
+          vehiculoId,
+          fechaSalida,
+          fechaLlegada,
+        }),
+        this.viajeService.validarConductor({
+          conductorId,
+          fechaSalida,
+          fechaLlegada,
+        }),
+      ]);
+
+      if (!resVeh.status) {
+        day.status = 'invalid';
+        day.message = `Vehículo: ${resVeh.message}`;
+      } else if (!resCond.status) {
+        day.status = 'invalid';
+        day.message = `Conductor: ${resCond.message}`;
+      } else {
+        day.status = 'valid';
+      }
+    } catch (error) {
+      day.status = 'invalid';
+      day.message = 'Error al validar disponibilidad';
+    } finally {
+      this.days.set([...currentDays]);
+    }
   }
 
   formatDateLabel(date: Date): string {
@@ -97,13 +166,17 @@ export class ViajeDuplicate implements OnInit {
     return `${days[date.getDay()]} ${date.getDate()} ${months[date.getMonth()]}`;
   }
 
+  private extractTime(dateTime: string | Date | undefined | null): string {
+    if (!dateTime) return '10:00';
+    const d = new Date(dateTime);
+    const hours = String(d.getUTCHours()).padStart(2, '0');
+    const minutes = String(d.getUTCMinutes()).padStart(2, '0');
+    return `${hours}:${minutes}`;
+  }
+
   formatTimeOnly(date: string | Date | undefined | null): string {
     if (!date) return '--:--';
-    return new Intl.DateTimeFormat('es-PE', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false
-    }).format(new Date(date));
+    return this.extractTime(date);
   }
 
   async duplicate() {
@@ -135,10 +208,9 @@ export class ViajeDuplicate implements OnInit {
   }
 
   private preparePayload(v: ApiResponse<'viajes', 'findOne'>, newDate: string): ApiBody<'viajes', 'create'> {
-    const replaceDate = (isoStr: string | undefined | null, newDateStr: string) => {
-      if (!isoStr) return '';
-      const timePart = isoStr.split('T')[1] || '10:00:00.000Z';
-      return `${newDateStr}T${timePart}`;
+    const replaceDate = (isoStr: string | Date | undefined | null, newDateStr: string) => {
+      const timePart = this.extractTime(isoStr);
+      return `${newDateStr}T${timePart}:00.000Z`;
     };
 
     const detalle: NonNullable<ApiBody<'viajes', 'create'>['ida']> = {
