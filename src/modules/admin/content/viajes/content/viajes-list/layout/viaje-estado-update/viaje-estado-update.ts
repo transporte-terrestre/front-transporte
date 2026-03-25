@@ -1,21 +1,22 @@
 import { Component, inject, input, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { VehiculoService } from '@service/admin/vehiculo.service';
+import { ViajeService } from '@service/admin/viaje.service';
 import { ToastService } from '@service/toast.service';
 import { getErrorMessage } from '@helper/error.helper';
 import { ApiBody } from 'api/backend.api';
 
 @Component({
-  selector: 'app-vehiculo-estado-update',
+  selector: 'app-viaje-status-update',
+  standalone: true,
   imports: [CommonModule],
-  templateUrl: './vehiculo-estado-update.html',
-  styleUrl: './vehiculo-estado-update.css',
+  templateUrl: './viaje-estado-update.html',
+  styleUrl: './viaje-estado-update.css',
 })
-export class VehiculoEstadoUpdate {
-  private vehiculoService = inject(VehiculoService);
+export class ViajeStatusUpdate {
+  private viajeService = inject(ViajeService);
   private toastService = inject(ToastService);
 
-  vehiculoId = input.required<number>();
+  viajeId = input.required<number>();
   estadoActual = input.required<string>();
 
   onStatusUpdated = output<void>();
@@ -25,11 +26,10 @@ export class VehiculoEstadoUpdate {
   dropdownPosition = signal({ top: '0px', left: '0px', transform: 'none' });
 
   estados = [
-    { value: 'disponible', label: 'Disponible', icon: 'fa-check-circle', class: 'text-success' },
-    { value: 'circulacion', label: 'Circulacion', icon: 'fa-road', class: 'text-info' },
-    { value: 'taller', label: 'Taller', icon: 'fa-wrench', class: 'text-warning' },
-    { value: 'alquilado', label: 'Alquilado', icon: 'fa-key', class: 'text-primary' },
-    { value: 'retirado', label: 'Retirado', icon: 'fa-times-circle', class: 'text-danger' },
+    { value: 'programado', label: 'Programado', icon: 'fa-clock', class: 'text-info' },
+    { value: 'en_progreso', label: 'En Progreso', icon: 'fa-truck', class: 'text-warning' },
+    { value: 'completado', label: 'Completado', icon: 'fa-check-circle', class: 'text-success' },
+    { value: 'cancelado', label: 'Cancelado', icon: 'fa-times-circle', class: 'text-danger' },
   ];
 
   toggleDropdown(event: Event) {
@@ -66,14 +66,14 @@ export class VehiculoEstadoUpdate {
 
     this.loading.set(true);
     try {
-      await this.vehiculoService.update(this.vehiculoId(), {
-        estado: estado as ApiBody<'vehiculos', 'update'>['estado'],
+      await this.viajeService.update(this.viajeId(), {
+        estado: estado as ApiBody<'viajes', 'update'>['estado'],
       });
-      this.toastService.success('Estado actualizado correctamente');
+      this.toastService.success('Estado del viaje actualizado correctamente');
       this.onStatusUpdated.emit();
     } catch (error) {
-      console.error('Error al actualizar estado del vehículo:', error);
-      this.toastService.error(getErrorMessage(error, 'Error al actualizar el estado del vehículo'));
+      console.error('Error al actualizar estado del viaje:', error);
+      this.toastService.error(getErrorMessage(error, 'Error al actualizar el estado del viaje'));
     } finally {
       this.loading.set(false);
     }
@@ -81,15 +81,13 @@ export class VehiculoEstadoUpdate {
 
   getEstadoBadgeClass(estado: string): string {
     switch (estado) {
-      case 'disponible':
-        return 'bg-success/10 text-success';
-      case 'circulacion':
+      case 'programado':
         return 'bg-info/10 text-info';
-      case 'taller':
+      case 'en_progreso':
         return 'bg-warning/10 text-warning';
-      case 'alquilado':
-        return 'bg-primary/20 text-text font-inter-bold';
-      case 'retirado':
+      case 'completado':
+        return 'bg-success/10 text-success';
+      case 'cancelado':
         return 'bg-danger/10 text-danger';
       default:
         return 'bg-text/10 text-text';
@@ -98,18 +96,31 @@ export class VehiculoEstadoUpdate {
 
   getEstadoIcon(estado: string): string {
     switch (estado) {
-      case 'disponible':
+      case 'programado':
+        return 'fa-clock';
+      case 'en_progreso':
+        return 'fa-truck';
+      case 'completado':
         return 'fa-check-circle';
-      case 'circulacion':
-        return 'fa-road';
-      case 'taller':
-        return 'fa-wrench';
-      case 'alquilado':
-        return 'fa-key';
-      case 'retirado':
+      case 'cancelado':
         return 'fa-times-circle';
       default:
         return 'fa-circle';
+    }
+  }
+
+  getEstadoLabel(estado: string): string {
+    switch (estado) {
+      case 'programado':
+        return 'Programado';
+      case 'en_progreso':
+        return 'En Progreso';
+      case 'completado':
+        return 'Completado';
+      case 'cancelado':
+        return 'Cancelado';
+      default:
+        return estado;
     }
   }
 }

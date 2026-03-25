@@ -1,262 +1,288 @@
-<form [formGroup]="form" class="p-4 space-y-6">
+<form [formGroup]="form" class="p-6 space-y-8 bg-background">
   <!-- Datos Generales -->
-  <div class="space-y-4">
-    <div
-      class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-text/5 pb-2"
-    >
-      <h3 class="text-sm font-inter-bold text-text uppercase tracking-wide">
-        Información del Contrato
-      </h3>
-      <div
-        class="flex items-center gap-2 px-3 py-1 bg-secondary/10 rounded-lg border border-secondary/20 self-start sm:self-auto"
-      >
+  <div class="space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-text/5 pb-3">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-secondary/10 flex items-center justify-center">
+          <i class="fas fa-file-contract text-secondary text-sm"></i>
+        </div>
+        <h3 class="text-lg font-anton text-text lowercase tracking-wide">
+          Información del contrato
+        </h3>
+      </div>
+      
+      <div class="flex items-center gap-2.5 px-3.5 py-2 bg-text/5 rounded-lg border border-text/5 active:scale-95 transition-all">
         <input
           type="checkbox"
           id="esIndefinido"
           formControlName="esIndefinido"
-          class="w-3.5 h-3.5 accent-secondary cursor-pointer"
+          class="w-4 h-4 accent-secondary cursor-pointer"
         />
         <label
           for="esIndefinido"
-          class="text-[10px] font-inter-semibold text-secondary cursor-pointer whitespace-nowrap uppercase"
-          >Contrato Indefinido</label
+          class="text-[10px] font-inter-bold text-secondary cursor-pointer whitespace-nowrap uppercase tracking-wider"
         >
+          Contrato Indefinido
+        </label>
       </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 px-1">
       <!-- Cliente -->
-      <div>
-        <label class="block text-xs font-inter-semibold text-text mb-1.5 ml-1">Cliente</label>
+      <div class="md:col-span-1">
+        <label class="text-xs font-inter-bold text-text mb-2 flex items-center gap-2 ml-1">
+          <i class="fas fa-user text-secondary/70"></i>
+          Cliente
+        </label>
         <app-cliente-input-search
           formControlName="clienteId"
           class="block w-full rounded-lg"
           [class.border-danger]="isFieldInvalid('clienteId')"
         />
         @if (isFieldInvalid('clienteId')) {
-          <p class="text-danger text-[10px] font-inter-medium mt-1 ml-1">Cliente requerido</p>
+          <p class="text-danger text-[10px] font-inter-medium mt-1.5 ml-1">Cliente requerido</p>
         }
       </div>
 
       <!-- Tarifa -->
-      <div>
-        <label class="block text-xs font-inter-semibold text-text mb-1.5 ml-1"
-          >Monto por día (Tarifa Global)</label
-        >
-        <div class="relative">
-          <span
-            class="absolute left-3 top-1/2 -translate-y-1/2 text-text/40 font-inter-bold text-sm"
-            >S/</span
-          >
+      <div class="md:col-span-1">
+        <label class="text-xs font-inter-bold text-text mb-2 flex items-center gap-2 ml-1">
+          <i class="fas fa-money-bill-wave text-secondary/70"></i>
+          Tarifa Diaria Global
+        </label>
+        <div class="relative group">
+          <span class="absolute left-4 top-1/2 -translate-y-1/2 text-text/20 font-inter-black text-[12px]">S/</span>
           <input
             type="number"
             step="0.01"
             formControlName="montoPorDia"
             placeholder="0.00"
-            class="w-full pl-9 pr-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-medium outline-none transition-all"
+            class="w-full pl-10 pr-4 py-2.5 text-sm bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-text font-inter-bold outline-none transition-all group-hover:border-text/20"
           />
         </div>
       </div>
 
       <!-- Fecha Inicio -->
-      <div>
-        <label class="block text-xs font-inter-semibold text-text mb-1.5 ml-1">Fecha Inicio</label>
+      <div class="md:col-span-1">
+        <label class="text-xs font-inter-bold text-text mb-2 flex items-center gap-2 ml-1">
+          <i class="fas fa-calendar-alt text-secondary/70"></i>
+          Fecha Inicio
+        </label>
         <input
           type="date"
           formControlName="fechaInicio"
-          class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-medium outline-none transition-all"
+          class="w-full px-4 py-2.5 text-sm bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-text font-inter-bold outline-none transition-all"
           [class.border-danger]="isFieldInvalid('fechaInicio')"
         />
         @if (isFieldInvalid('fechaInicio')) {
-          <p class="text-danger text-[10px] font-inter-medium mt-1 ml-1">Fecha inicio requerida</p>
+          <p class="text-danger text-[10px] font-inter-medium mt-1.5 ml-1">Fecha inicio requerida</p>
         }
       </div>
 
       <!-- Fecha Fin -->
-      <div>
+      <div class="md:col-span-1">
         <label
-          class="block text-xs font-inter-semibold text-text mb-1.5 ml-1"
+          class="text-xs font-inter-bold text-text mb-2 flex items-center gap-2 ml-1"
           [class.opacity-40]="form.get('esIndefinido')?.value"
-          >Fecha Fin</label
         >
+          <i class="fas fa-calendar-check text-secondary/70"></i>
+          Fecha Fin
+        </label>
         <input
           type="date"
           formControlName="fechaFin"
-          class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-medium outline-none transition-all disabled:opacity-40"
+          class="w-full px-4 py-2.5 text-sm bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-text font-inter-bold outline-none transition-all disabled:opacity-20"
         />
       </div>
 
       <!-- Razón -->
-      <div>
-        <label class="block text-xs font-inter-semibold text-text mb-1.5 ml-1"
-          >Razón / Motivo</label
-        >
+      <div class="md:col-span-1">
+        <label class="text-xs font-inter-bold text-text mb-2 flex items-center gap-2 ml-1">
+          <i class="fas fa-comment-alt text-secondary/70"></i>
+          Razón / Motivo
+        </label>
         <textarea
           formControlName="razon"
-          rows="2"
+          rows="1"
           placeholder="Motivo del contrato..."
-          class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-medium outline-none transition-all resize-none"
+          class="w-full px-4 py-2.5 text-sm bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-text font-inter-medium outline-none transition-all resize-none"
         ></textarea>
       </div>
 
       <!-- Observaciones -->
-      <div>
-        <label class="block text-xs font-inter-semibold text-text mb-1.5 ml-1"
-          >Observaciones Globales</label
-        >
+      <div class="md:col-span-1">
+        <label class="text-xs font-inter-bold text-text mb-2 flex items-center gap-2 ml-1">
+          <i class="fas fa-clipboard-list text-secondary/70"></i>
+          Observaciones
+        </label>
         <textarea
           formControlName="observaciones"
-          rows="2"
+          rows="1"
           placeholder="Detalles adicionales..."
-          class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-medium outline-none transition-all resize-none"
+          class="w-full px-4 py-2.5 text-sm bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-text font-inter-medium outline-none transition-all resize-none"
         ></textarea>
       </div>
     </div>
   </div>
 
   <!-- Vehículos (FormArray) -->
-  <div class="space-y-4">
-    <div class="flex items-center justify-between border-b border-text/5 pb-2">
-      <h3 class="text-sm font-inter-bold text-text uppercase tracking-wide">
-        Unidades Asignadas ({{ vehiculosFormArray.length }})
-      </h3>
+  <div class="space-y-6">
+    <div class="flex items-center justify-between border-b border-text/5 pb-3">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-info/10 flex items-center justify-center">
+          <i class="fas fa-truck text-info text-sm"></i>
+        </div>
+        <h3 class="text-lg font-anton text-text lowercase tracking-wide">
+          Unidades asignadas ({{ vehiculosFormArray.length }})
+        </h3>
+      </div>
       <button
         type="button"
         (click)="addVehiculo()"
-        class="flex items-center gap-2 px-3 py-1.5 bg-secondary text-white rounded-lg text-[10px] font-inter-bold hover:bg-secondary/90 transition-all shadow-sm active:scale-95"
+        class="flex items-center gap-2 px-4 py-2 bg-secondary text-background rounded-lg text-[10px] font-inter-bold hover:bg-secondary/90 transition-all shadow shadow-secondary/20 active:scale-95 uppercase tracking-wide"
       >
-        <i class="fas fa-plus"></i> AGREGAR UNIDAD
+        <i class="fas fa-plus-circle"></i> Agregar Unidad
       </button>
     </div>
 
-    <div formArrayName="vehiculos" class="space-y-3">
+    <div formArrayName="vehiculos" class="space-y-4">
       @for (vGroup of vehiculosFormArray.controls; track $index) {
         <div
           [formGroupName]="$index"
-          class="bg-white p-3 rounded-lg border border-text/10 shadow-sm relative transition-all"
+          class="bg-text/2 p-6 rounded-lg border border-text/5 relative group transition-all"
         >
-          <div class="flex items-start justify-between mb-3 border-b border-text/5 pb-2">
-            <span
-              class="text-[10px] font-inter-bold text-text/40 bg-text/5 px-2 py-0.5 rounded uppercase"
-              >Unidad #{{ $index + 1 }}</span
-            >
-            <button
-              *ngIf="vehiculosFormArray.length > 1"
-              type="button"
-              (click)="removeVehiculo($index)"
-              class="text-text/30 hover:text-danger p-1 transition-colors"
-            >
-              <i class="fas fa-trash-alt text-sm"></i>
-            </button>
+          <div class="flex items-center justify-between mb-6 border-b border-text/5 pb-4">
+            <div class="flex items-center gap-3">
+               <span class="w-6 h-6 rounded-lg bg-secondary/10 text-secondary text-[10px] font-inter-bold flex items-center justify-center">
+                 {{ $index + 1 }}
+               </span>
+               <span class="text-[10px] font-inter-bold text-text/40 uppercase tracking-wide">Unidad de Alquiler</span>
+            </div>
+            @if (vehiculosFormArray.length > 1) {
+              <button
+                type="button"
+                (click)="removeVehiculo($index)"
+                class="w-8 h-8 rounded-lg text-text/20 hover:text-danger hover:bg-danger/10 flex items-center justify-center transition-all"
+              >
+                <i class="fas fa-trash-alt text-sm"></i>
+              </button>
+            }
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3">
-            <div class="grid col-span-2 lg:col-span-6 grid-cols-12 gap-3">
-              <!-- Vehículo -->
-              <div class="col-span-12 sm:col-span-7">
-                <label class="block text-[10px] font-inter-semibold text-text/60 uppercase mb-1 ml-1"
-                  >Vehículo</label
-                >
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+             <!-- Vehículo -->
+             <div class="lg:col-span-4">
+                <label class="text-xs font-inter-bold text-text mb-2 flex items-center gap-2 ml-1">
+                  <i class="fas fa-car text-secondary/70"></i>
+                  Vehículo
+                </label>
                 <app-vehiculo-input-search
                   formControlName="vehiculoId"
                   class="block w-full rounded-lg"
-                  [class.border-danger]="
-                    isVehiculoFieldInvalid($index, 'vehiculoId') ||
-                    (getValidationMsg($index) && !getValidationMsg($index)?.status)
-                  "
+                  [class.border-danger]="isVehiculoFieldInvalid($index, 'vehiculoId')"
                 />
-
                 @if (getValidationMsg($index)) {
-                  <div
-                    class="mt-1 flex items-start gap-1 p-1 rounded"
-                    [class.bg-danger/5]="!getValidationMsg($index)?.status"
-                    [class.bg-success/5]="getValidationMsg($index)?.status"
-                  >
-                    <p
-                      class="text-[9px] font-inter-medium leading-tight"
-                      [class.text-danger]="!getValidationMsg($index)?.status"
-                      [class.text-success]="getValidationMsg($index)?.status"
-                    >
+                  <div class="mt-2 flex items-center gap-2 px-2 py-1.5 rounded-lg"
+                       [class.bg-danger/5]="!getValidationMsg($index)?.status"
+                       [class.bg-success/5]="getValidationMsg($index)?.status">
+                    <i class="fas text-[10px]"
+                       [class.fa-exclamation-circle]="!getValidationMsg($index)?.status"
+                       [class.fa-check-circle]="getValidationMsg($index)?.status"
+                       [class.text-danger]="!getValidationMsg($index)?.status"
+                       [class.text-success]="getValidationMsg($index)?.status"></i>
+                    <p class="text-[9px] font-inter-bold leading-tight uppercase tracking-tight"
+                       [class.text-danger]="!getValidationMsg($index)?.status"
+                       [class.text-success]="getValidationMsg($index)?.status">
                       {{ getValidationMsg($index)?.message }}
                     </p>
                   </div>
                 }
-              </div>
+             </div>
 
-              <!-- Tipo -->
-              <div class="col-span-12 sm:col-span-5">
-                <label class="block text-[10px] font-inter-semibold text-text/60 uppercase mb-1 ml-1"
-                  >Tipo</label
-                >
-                <div class="relative">
+             <!-- Tipo -->
+             <div class="lg:col-span-3">
+                <label class="text-xs font-inter-bold text-text mb-2 flex items-center gap-2 ml-1">
+                  <i class="fas fa-cogs text-secondary/70"></i>
+                  Modalidad
+                </label>
+                <div class="relative group/select">
                   <select
                     formControlName="tipo"
-                    class="w-full px-3 py-2.5 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all cursor-pointer appearance-none"
+                    class="w-full px-4 py-2.5 text-sm bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-text font-inter-bold outline-none transition-all cursor-pointer appearance-none"
                   >
                     <option value="maquina_seca">Máquina seca</option>
                     <option value="maquina_operada">Máquina operada</option>
                   </select>
-                  <span
-                    class="absolute inset-y-0 right-3 flex items-center text-text/40 pointer-events-none"
-                  >
+                  <span class="absolute inset-y-0 right-4 flex items-center text-text/20 pointer-events-none group-focus-within/select:text-secondary">
                     <i class="fas fa-chevron-down text-[10px]"></i>
                   </span>
                 </div>
-              </div>
-            </div>
-            <div class="grid col-span-2 lg:col-span-6 grid-cols-12 gap-3">
-              <!-- Conductor -->
-              <div class="col-span-12 sm:col-span-7">
-                <label class="block text-[10px] font-inter-semibold text-text/60 uppercase mb-1 ml-1"
-                  >Conductor</label
-                >
+             </div>
+
+             <!-- Conductor -->
+             <div class="lg:col-span-3">
+                <label class="text-xs font-inter-bold text-text mb-2 flex items-center gap-2 ml-1"
+                       [class.opacity-40]="vGroup.get('tipo')?.value === 'maquina_seca'">
+                  <i class="fas fa-user-tie text-secondary/70"></i>
+                  Conductor
+                </label>
                 <app-conductor-input-search
                   formControlName="conductorId"
                   class="block w-full rounded-lg"
                   [class.border-danger]="isVehiculoFieldInvalid($index, 'conductorId')"
                 />
-              </div>
+             </div>
 
-              <!-- KM Inicial -->
-              <div class="col-span-12 sm:col-span-5">
-                <label class="block text-[10px] font-inter-semibold text-text/60 uppercase mb-1 ml-1"
-                  >KM Inicial</label
-                >
+             <!-- KM Inicial -->
+             <div class="lg:col-span-2">
+                <label class="text-xs font-inter-bold text-text mb-2 flex items-center gap-2 ml-1">
+                  <i class="fas fa-tachometer-alt text-secondary/70"></i>
+                  KM Inicial
+                </label>
                 <input
                   type="number"
                   step="0.01"
                   formControlName="kilometrajeInicial"
                   placeholder="0.00"
-                  class="w-full px-3 py-2.5 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-medium outline-none transition-all"
+                  class="w-full px-4 py-2.5 text-sm bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-text font-inter-bold outline-none transition-all"
                   [class.border-danger]="isVehiculoFieldInvalid($index, 'kilometrajeInicial')"
                 />
-              </div>
-            </div>
+             </div>
           </div>
         </div>
       }
     </div>
   </div>
 
-  <!-- Footer -->
-  <div
-    class="flex items-center justify-between bg-secondary/5 p-3 rounded-lg border border-secondary/20 mt-4"
-  >
-    <div class="flex items-center gap-2">
-      <input
-        type="checkbox"
-        id="marcarComoAlquilado"
-        formControlName="marcarComoAlquilado"
-        class="w-4 h-4 accent-secondary cursor-pointer"
-      />
-      <label
-        for="marcarComoAlquilado"
-        class="text-[10px] font-inter-bold text-secondary cursor-pointer uppercase"
-        >Cambiar estado a "Alquilado" automáticamente</label
-      >
+  <!-- Footer Info & Options -->
+  <div class="space-y-4">
+    <div class="flex items-center justify-between p-5 bg-text/2 rounded-lg border border-text/5">
+      <div class="flex items-center gap-4">
+        <div class="relative flex items-center justify-center">
+          <input
+            type="checkbox"
+            id="marcarComoAlquilado"
+            formControlName="marcarComoAlquilado"
+            class="w-5 h-5 accent-secondary cursor-pointer"
+          />
+        </div>
+        <div class="flex flex-col">
+          <label
+            for="marcarComoAlquilado"
+            class="text-[11px] font-inter-bold text-secondary cursor-pointer uppercase tracking-wider"
+          >
+            Marcar como "Alquilado" automáticamente
+          </label>
+          <span class="text-[9px] font-inter-medium text-text/20 italic uppercase mt-0.5">
+            * Se aplicará a todas las unidades seleccionadas
+          </span>
+        </div>
+      </div>
+      
+      <div class="hidden md:flex items-center gap-2 text-info bg-info/5 px-3 py-1.5 rounded-lg border border-info/10">
+         <i class="fas fa-info-circle text-[10px]"></i>
+         <span class="text-[9px] font-inter-bold uppercase tracking-wider">Sincronización Automática</span>
+      </div>
     </div>
-    <span class="hidden sm:inline text-[9px] font-inter-medium text-text/40 italic uppercase"
-      >* Se aplicará a todas las unidades</span
-    >
   </div>
 </form>

@@ -6,6 +6,7 @@ import { ClienteInputSearch } from '../../../../components/input-searchs/cliente
 import { ConductorInputSearch } from '../../../../components/input-searchs/conductor-input-search/conductor-input-search';
 import { VehiculoInputSearch } from '../../../../components/input-searchs/vehiculo-input-search/vehiculo-input-search';
 import { AlquilerService } from '@service/admin/alquiler.service';
+import { ToastService } from '@service/toast.service';
 
 @Component({
   selector: 'app-alquiler-form',
@@ -135,9 +136,10 @@ export class AlquilerForm implements OnInit {
       const idx = this.vehiculosFormArray.controls.indexOf(vehiculoGroup);
       this.checkAvailability(idx);
 
-      if (!this.editMode() && vehiculo && typeof vehiculo === 'object') {
-        if (vehiculo.kilometraje != null) {
-          vehiculoGroup.patchValue({ kilometrajeInicial: Number(vehiculo.kilometraje) });
+      if (vehiculo && typeof vehiculo === 'object' && 'kilometraje' in vehiculo) {
+        const km = (vehiculo as any).kilometraje;
+        if (km != null) {
+          vehiculoGroup.patchValue({ kilometrajeInicial: Number(km) });
         }
       }
     });
@@ -185,22 +187,36 @@ export class AlquilerForm implements OnInit {
     return this.vehiculoValidacionMsg()[index];
   }
 
+  private toastService = inject(ToastService);
+
   submitForm() {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      this.toastService.warning('Por favor, complete todos los campos requeridos correctamente');
+      return;
+    }
+
+    // Verificar mensajes de validación de vehículos
+    const validaciones = Object.values(this.vehiculoValidacionMsg());
+    const errorMsg = validaciones.find(v => v && !v.status);
+    if (errorMsg) {
+      this.toastService.error(errorMsg.message);
       return;
     }
 
     const rawValue = this.form.getRawValue();
     const clienteId = this.resolveEntityId(rawValue.clienteId);
 
-    if (!clienteId) return;
+    if (!clienteId) {
+      this.toastService.warning('Debe seleccionar un cliente válido');
+      return;
+    }
 
-    const vehiculos = ((rawValue.vehiculos as Array<Record<string, unknown>>) || []).map((v) => ({
-      vehiculoId: this.resolveEntityId(v['vehiculoId'] as number | { id: number } | string | null | undefined)!,
-      tipo: v['tipo'] as 'maquina_seca' | 'maquina_operada',
-      conductorId: v['tipo'] === 'maquina_operada' ? this.resolveEntityId(v['conductorId'] as number | { id: number } | string | null | undefined) : undefined,
-      kilometrajeInicial: Number(v['kilometrajeInicial'] || 0),
+    const vehiculos = ((rawValue.vehiculos as any[]) || []).map((v) => ({
+      vehiculoId: this.resolveEntityId(v.vehiculoId)!,
+      tipo: v.tipo as 'maquina_seca' | 'maquina_operada',
+      conductorId: v.tipo === 'maquina_operada' ? this.resolveEntityId(v.conductorId) : undefined,
+      kilometrajeInicial: Number(v.kilometrajeInicial || 0),
     }));
 
     const payload: ApiBody<'alquileres', 'create'> = {

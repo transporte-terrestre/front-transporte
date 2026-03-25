@@ -3533,7 +3533,7 @@ export interface DocumentoItemDto {
   observacion?: string;
   /**
    * Fecha de Vencimiento Inicial/Por defecto
-   * @example "2026-03-25T11:02:13.960Z"
+   * @example "2026-03-25T19:08:55.100Z"
    */
   fechaVencimiento?: string;
 }
@@ -3716,17 +3716,17 @@ export interface BotiquinItemDto {
   habilitado: boolean;
   /**
    * Fecha de Vencimiento actual
-   * @example "2026-03-25T11:02:13.964Z"
+   * @example "2026-03-25T19:08:55.102Z"
    */
   fechaVencimiento?: string;
   /**
    * Fecha de Salida
-   * @example "2026-03-25T11:02:13.964Z"
+   * @example "2026-03-25T19:08:55.102Z"
    */
   fechaSalida?: string;
   /**
    * Fecha de Reposición
-   * @example "2026-03-25T11:02:13.964Z"
+   * @example "2026-03-25T19:08:55.102Z"
    */
   fechaReposicion?: string;
 }
@@ -9569,6 +9569,7 @@ export interface AlquilerVehiculoDto {
   placa: string;
   marca: string;
   modelo: string;
+  foto?: string;
 }
 
 export interface AlquilerConductorDto {
