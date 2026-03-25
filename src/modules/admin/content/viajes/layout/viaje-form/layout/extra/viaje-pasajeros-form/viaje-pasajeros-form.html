@@ -4,7 +4,8 @@
     class="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-fade-in"
   >
     <div
-      class="bg-background w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden border border-text/10 flex flex-col max-h-[90vh]"
+      [class]="mode() === 'signature' ? 'max-w-4xl' : 'max-w-2xl'"
+      class="bg-background w-full rounded-2xl shadow-2xl overflow-hidden border border-text/10 flex flex-col max-h-[90vh]"
       (click)="$event.stopPropagation()"
     >
       <!-- Header -->
@@ -33,6 +34,13 @@
 
       <!-- Body Container -->
       <div class="flex-1 overflow-hidden flex flex-col">
+        @if (mode() === 'signature') {
+          <app-viaje-pasajeros-signature
+            (onSelected)="onSignatureSelected($event)"
+            (onCancel)="onSignatureCancel()"
+          ></app-viaje-pasajeros-signature>
+        }
+
         <!-- LIST MODE -->
         @if (mode() === 'list') {
           <!-- List Tools -->

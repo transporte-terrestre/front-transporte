@@ -1,17 +1,58 @@
-import { ApiResponse, ViajePasajeroResultDto } from 'api/backend.api';
+import { ApiResponse, ViajePasajeroResultDto, Api } from 'api/backend.api';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
-export const generateManifiestoPasajerosPdf = (
+export interface SignatureSelection {
+  userId: number;
+  nombreCompleto: string;
+  firmaUrl: string;
+  rolEnDocumento: string;
+}
+
+export const generateManifiestoPasajerosPdf = async (
   viaje: ApiResponse<'viajes', 'findOne'>,
-  pasajeros: ViajePasajeroResultDto[]
+  pasajeros: ViajePasajeroResultDto[],
+  api?: Api<unknown>,
+  signature?: SignatureSelection,
 ) => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.width;
   const margin = 14;
   let y = 14;
 
-  // Header Logos/Titles (Text placeholders for logos)
+  const getBase64Image = async (url: string): Promise<string | null> => {
+    try {
+      if (!url) return null;
+      const containerName = 'storagetransporte';
+      const pathIndex = url.indexOf(`/${containerName}/`);
+      const relativePath = pathIndex !== -1 
+        ? url.substring(pathIndex + containerName.length + 2) 
+        : url.split('/').pop() || '';
+
+      if (!api) throw new Error('Api service not provided to PDF generator');
+      
+      const response = await api.storage.download({ path: relativePath });
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      
+      const blob = await (response.blob ? response.blob() : (response as any).data);
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = () => resolve(null);
+        reader.readAsDataURL(blob);
+      });
+    } catch (e) {
+      console.error('Error fetching image via Api proxy:', e);
+      return null;
+    }
+  };
+
+  const drawCenteredText = (text: string, xPos: number, yPos: number, width: number) => {
+    const textWidth = doc.getTextWidth(text || '');
+    doc.text(text || '', xPos + (width - textWidth) / 2, yPos);
+  };
+
+  // Header Logos/Titles
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(16);
   doc.text('JJC', margin, y + 6);
@@ -28,12 +69,10 @@ export const generateManifiestoPasajerosPdf = (
   // Right Logos/Titles
   doc.setFontSize(10);
   doc.setFont('helvetica', 'bolditalic');
-  // Stack 'Rentacar' on top, aligned to the right
   doc.text('Rentacar', pageWidth - margin, y + 3, { align: 'right' });
   
   doc.setFontSize(6);
   doc.setFont('helvetica', 'bold');
-  // Stack the company name and RUC below 'Rentacar', also aligned to the right
   doc.text('INVERSIONES JR Y ASOCIADOS SAC\n20609735237', pageWidth - margin, y + 7, { align: 'right' });
 
   y += 18;
@@ -45,10 +84,10 @@ export const generateManifiestoPasajerosPdf = (
     styles: { fontSize: 7, cellPadding: 1.5, lineColor: [0, 0, 0], lineWidth: 0.2, textColor: [0, 0, 0] },
     body: [
       [
-        { content: 'RUC:\n20609735237', styles: { halign: 'left', cellWidth: 25 } },
-        { content: 'RAZON SOCIAL:\nINVERSIONES JR Y ASOCIADOS S.A.C.', styles: { halign: 'left' } },
+        { content: `RUC:\n${(viaje as any).cliente?.ruc || '20609735237'}`, styles: { halign: 'left', cellWidth: 25 } },
+        { content: `RAZON SOCIAL:\n${(viaje as any).cliente?.razonSocial || 'INVERSIONES JR Y ASOCIADOS S.A.C.'}`, styles: { halign: 'left' } },
         { content: 'TELEFONO:\n', styles: { halign: 'left', cellWidth: 35 } },
-        { content: 'DIRECCION:\nLIMA', styles: { halign: 'left', cellWidth: 40 } }
+        { content: `DIRECCION:\n${(viaje as any).cliente?.direccion || 'LIMA'}`, styles: { halign: 'left', cellWidth: 40 } }
       ]
     ]
   });
@@ -118,14 +157,13 @@ export const generateManifiestoPasajerosPdf = (
       (index + 1).toString(),
       `${nombres} ${apellidos}`.trim(),
       p.dni || '',
-      '', // Empresa
+      (viaje as any).cliente?.razonSocial || '', // Empresa
       '', // Firma Ida
       ''  // Firma Retorno
     ];
   });
 
-  // Fill up to 21 rows empty representation
-  while (tableData.length < 21) {
+  while (tableData.length < 18) {
     const nextIndex = tableData.length + 1;
     tableData.push([nextIndex.toString(), '', '', '', '', '']);
   }
@@ -153,38 +191,49 @@ export const generateManifiestoPasajerosPdf = (
       valign: 'middle'
     },
     headStyles: {
-      fillColor: [242, 228, 28], // --color-primary
+      fillColor: [242, 228, 28], 
       textColor: [0, 0, 0],
       fontStyle: 'bold'
     },
     columnStyles: {
-      0: { fontStyle: 'bold', halign: 'center' } // number centered and bold
+      0: { fontStyle: 'bold', halign: 'center' }
     }
   });
 
   y = (doc as any).lastAutoTable.finalY + 20;
 
   // Footer signature
-  if (y + 20 > doc.internal.pageSize.height) {
+  if (y + 35 > doc.internal.pageSize.height) {
     doc.addPage();
-    y = 20;
+    y = 25;
   }
   
-  const signatureWidth = 60;
-  // Let's place signature on left like the image, specifically near bottom left center
-  const signatureX = margin + 20;
+  const sigWidth = 70;
+  const sigX = (pageWidth - sigWidth) / 2; // Center the single signature
   
+  if (signature?.firmaUrl) {
+    const imgW = 45;
+    const imgH = 20;
+    const base64 = await getBase64Image(signature.firmaUrl);
+    if (base64) {
+      const format = signature.firmaUrl.toLowerCase().includes('.jpg') ? 'JPEG' : 'PNG';
+      doc.addImage(base64, format, sigX + (sigWidth - imgW) / 2, y - 18, imgW, imgH);
+    }
+  }
+
   doc.setDrawColor(0);
   doc.setLineWidth(0.5);
-  // Dashed or solid line? The image shows a dashed line
   doc.setLineDashPattern([1, 1], 0);
-  doc.line(signatureX, y, signatureX + signatureWidth, y);
-  doc.setLineDashPattern([], 0); // reset pattern
+  doc.line(sigX, y, sigX + sigWidth, y);
+  doc.setLineDashPattern([], 0); 
   
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'bold');
+  drawCenteredText(signature?.nombreCompleto || '__________________________', sigX, y + 5, sigWidth);
   doc.setFontSize(7);
   doc.setFont('helvetica', 'normal');
-  doc.text(' PAUL BARRENECHEA C.', signatureX + (signatureWidth / 2), y + 4, { align: 'center' });
-  doc.text('SUPERVISOR DE OPERACIONES', signatureX + (signatureWidth / 2), y + 8, { align: 'center' });
+  // drawCenteredText(signature?.rolEnDocumento || 'SUPERVISOR DE OPERACIONES', sigX, y + 9, sigWidth);
+  drawCenteredText('TRANSPORTES LINEA S.A.', sigX, y + 9, sigWidth);
 
   doc.save(`Manifiesto_${viaje.id}.pdf`);
 };

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { UsuarioService } from '@service/admin/usuario.service';
 import { ApiResponse, UsuarioResultDto } from 'api/backend.api';
 import { FormsModule } from '@angular/forms';
+import { ToastService } from '@service/toast.service';
 
 export interface SignatureSelection {
   userId: number;
@@ -19,6 +20,7 @@ export interface SignatureSelection {
 })
 export class UserSignatureSelectModal implements OnInit {
   private usuarioService = inject(UsuarioService);
+  private toastService = inject(ToastService);
 
   onSelected = output<SignatureSelection[]>();
   onClose = output<void>();
@@ -36,6 +38,8 @@ export class UserSignatureSelectModal implements OnInit {
 
   selectedUserForFirma = signal<any | null>(null);
   userFirmas = signal<any[]>([]);
+  userNoFirmasId = signal<number | null>(null);
+  loadingFirmasUserId = signal<number | null>(null);
 
   ngOnInit() {
     this.loadUsers();
@@ -62,27 +66,45 @@ export class UserSignatureSelectModal implements OnInit {
   }
 
   selectUser(user: any) {
+    // If already selected and have results (signatures or known no signatures), don't fetch again
+    if (this.selectedUserForFirma()?.id === user.id && (this.userFirmas().length > 0 || this.userNoFirmasId() === user.id)) {
+      return;
+    }
+
+    // Clear previous signatures if selecting a DIFFERENT user to avoid stale thumbnails
+    if (this.selectedUserForFirma()?.id !== user.id) {
+      this.userFirmas.set([]);
+    }
+
     this.selectedUserForFirma.set(user);
-    this.loading.set(true);
-    
+    this.loadingFirmasUserId.set(user.id);
+
     this.usuarioService.findFirmas(user.id)
       .then(firmas => {
         this.userFirmas.set(firmas);
-        this.loading.set(false);
-        
+        this.loadingFirmasUserId.set(null);
+
         if (firmas.length === 0) {
-          alert('Este usuario no tiene firmas registradas.');
-        } else if (firmas.length === 1) {
-          this.chooseFirma(firmas[0]);
+          // Show in-card alert
+          this.userNoFirmasId.set(user.id);
+          setTimeout(() => {
+            if (this.userNoFirmasId() === user.id) {
+              this.userNoFirmasId.set(null);
+            }
+          }, 3000);
+        } else {
+          // Select the first one by default but don't clear the selection
+          // so the user can see/change them "below"
+          this.chooseFirma(firmas[0], false);
         }
       })
       .catch(err => {
         console.error('Error loading user firmas:', err);
-        this.loading.set(false);
+        this.loadingFirmasUserId.set(null);
       });
   }
 
-  chooseFirma(firma: any) {
+  chooseFirma(firma: any, clear = true) {
     const user = this.selectedUserForFirma();
     if (!user) return;
 
@@ -99,9 +121,11 @@ export class UserSignatureSelectModal implements OnInit {
       this.supervisor.set(selection);
     }
 
-    // Limpiar selección temporal
-    this.selectedUserForFirma.set(null);
-    this.userFirmas.set([]);
+    if (clear) {
+      // Limpiar selección temporal
+      this.selectedUserForFirma.set(null);
+      this.userFirmas.set([]);
+    }
   }
 
   confirm() {

@@ -1,9 +1,9 @@
-<div class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-  <div class="bg-background w-full max-w-4xl max-h-[90vh] rounded-2xl shadow-2xl overflow-hidden flex flex-col border border-text/10">
+<div class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 overflow-y-auto">
+  <div class="bg-background w-full max-w-4xl md:max-h-[90vh] rounded-2xl shadow-2xl overflow-hidden flex flex-col border border-text/10 my-auto">
     <!-- Header -->
     <div class="p-6 border-b border-text/10 bg-text/5 flex items-center justify-between">
       <div>
-        <h2 class="text-xl font-anton text-text lowercase">Firmas para Orden de Servicio</h2>
+        <h2 class="text-xl font-anton text-text uppercase">Firmas para Orden de Servicio</h2>
         <p class="text-xs text-text/60 mt-1 font-inter-regular">Selecciona qué usuario firma para cada rol en el documento</p>
       </div>
       <button (click)="cancel()" class="w-8 h-8 rounded-lg hover:bg-text/10 flex items-center justify-center transition-colors">
@@ -11,9 +11,9 @@
       </button>
     </div>
 
-    <div class="flex-1 overflow-hidden grid grid-cols-1 md:grid-cols-2">
+    <div class="flex-1 overflow-hidden md:grid md:grid-cols-2">
       <!-- User List Panel -->
-      <div class="p-6 flex flex-col overflow-hidden border-r border-text/10 bg-background">
+      <div class="p-6 flex flex-col overflow-hidden border-b md:border-b-0 md:border-r border-text/10 bg-background">
         <div class="space-y-4 mb-6">
           <div class="relative">
             <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-xs"></i>
@@ -27,8 +27,8 @@
           </div>
 
           <div class="flex items-center gap-2 overflow-x-auto pb-1">
-            <button 
-              (click)="selectingFor.set('planner')" 
+            <button
+              (click)="selectingFor.set('planner')"
               class="px-4 py-1.5 rounded-full text-[10px] font-inter-bold uppercase transition-all"
               [class.bg-secondary]="selectingFor() === 'planner'"
               [class.text-background]="selectingFor() === 'planner'"
@@ -37,8 +37,8 @@
             >
               Firma Planner
             </button>
-            <button 
-              (click)="selectingFor.set('supervisor')" 
+            <button
+              (click)="selectingFor.set('supervisor')"
               class="px-4 py-1.5 rounded-full text-[10px] font-inter-bold uppercase transition-all"
               [class.bg-secondary]="selectingFor() === 'supervisor'"
               [class.text-background]="selectingFor() === 'supervisor'"
@@ -50,56 +50,81 @@
           </div>
         </div>
 
-        <div class="flex-1 overflow-y-auto space-y-2 pr-2 custom-scrollbar">
+        <div class="flex-1 md:overflow-y-auto space-y-2 pr-2 custom-scrollbar">
           @if (loading()) {
             @for (i of [1,2,3,4,5]; track i) {
               <div class="h-16 bg-text/5 rounded-xl animate-pulse"></div>
             }
-          } @else if (selectedUserForFirma() && userFirmas().length > 1) {
-            <!-- Signature Chooser View -->
-            <div class="flex flex-col h-full">
-              <div class="flex items-center gap-2 mb-4">
-                <button (click)="selectedUserForFirma.set(null); userFirmas.set([])" class="text-secondary hover:underline text-xs font-inter-medium flex items-center gap-1">
-                  <i class="fas fa-arrow-left text-[10px]"></i>
-                  Volver a la lista
-                </button>
-              </div>
-              
-              <p class="text-[10px] font-inter-bold text-text/40 uppercase mb-3 px-1">Selecciona una firma para {{ selectedUserForFirma().nombres }}:</p>
-              
-              <div class="grid grid-cols-2 gap-3">
-                @for (firma of userFirmas(); track firma.id) {
-                  <div 
-                    (click)="chooseFirma(firma)"
-                    class="p-3 rounded-xl border border-text/10 bg-white hover:border-secondary hover:bg-secondary/5 transition-all cursor-pointer flex flex-col items-center gap-2 group"
-                  >
-                    <div class="h-24 w-full flex items-center justify-center p-2 bg-text/[0.02] rounded-lg group-hover:bg-background transition-colors">
-                      <img [src]="firma.url" class="max-w-full max-h-full object-contain mix-blend-multiply" />
-                    </div>
-                    <span class="text-[10px] font-inter-semibold text-text/60 group-hover:text-secondary transition-colors">{{ firma.nombre || 'Firma ' + ($index + 1) }}</span>
-                  </div>
-                }
-              </div>
-            </div>
           } @else {
             @for (user of users(); track user.id) {
-              <div 
+              <div
                 (click)="selectUser(user)"
-                class="group p-3 rounded-xl border border-text/5 bg-background hover:bg-secondary/5 hover:border-secondary transition-all cursor-pointer flex items-center justify-between"
+                class="group p-3 rounded-xl border border-text/5 bg-background hover:bg-secondary/5 hover:border-secondary transition-all cursor-pointer flex flex-col gap-3"
+                [class.border-secondary]="selectedUserForFirma()?.id === user.id"
+                [class.bg-secondary/5]="selectedUserForFirma()?.id === user.id"
               >
-                <div class="flex items-center gap-3">
-                  <div class="w-10 h-10 rounded-lg bg-text/5 flex items-center justify-center text-text/40 group-hover:bg-secondary/10 group-hover:text-secondary transition-colors uppercase font-anton">
-                    {{ user.nombres.slice(0, 1) }}{{ user.apellidos.slice(0, 1) }}
+                <div class="flex items-center justify-between w-full">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-text/5 flex items-center justify-center text-text/40 group-hover:bg-secondary/10 group-hover:text-secondary transition-colors uppercase font-anton">
+                      {{ user.nombres.slice(0, 1) }}{{ user.apellidos.slice(0, 1) }}
+                    </div>
+                    <div>
+                      <p class="text-sm font-inter-semibold text-text group-hover:text-secondary transition-colors">{{ user.nombres }} {{ user.apellidos }}</p>
+                      <p class="text-[10px] text-text/40">{{ user.email }}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p class="text-sm font-inter-semibold text-text group-hover:text-secondary transition-colors">{{ user.nombres }} {{ user.apellidos }}</p>
-                    <p class="text-[10px] text-text/40">{{ user.email }}</p>
+
+                  <div class="w-8 h-8 rounded-full bg-text/5 flex items-center justify-center group-hover:bg-secondary group-hover:text-background transition-all"
+                       [class.bg-secondary]="selectedUserForFirma()?.id === user.id"
+                       [class.text-background]="selectedUserForFirma()?.id === user.id">
+                    @if (loadingFirmasUserId() === user.id) {
+                      <i class="fas fa-spinner fa-spin text-[10px]"></i>
+                    } @else {
+                      <i class="fas text-[10px]" [class.fa-chevron-right]="selectedUserForFirma()?.id !== user.id" [class.fa-check]="selectedUserForFirma()?.id === user.id"></i>
+                    }
                   </div>
                 </div>
-                
-                <div class="w-8 h-8 rounded-full bg-text/5 flex items-center justify-center group-hover:bg-secondary group-hover:text-background transition-all">
-                  <i class="fas fa-chevron-right text-[10px]"></i>
-                </div>
+
+                <!-- Loading Signatures -->
+                @if (loadingFirmasUserId() === user.id) {
+                  <div class="pt-2 border-t border-text/10 mt-1 flex items-center gap-2">
+                    <div class="h-1.5 w-1.5 rounded-full bg-secondary animate-pulse"></div>
+                    <p class="text-[10px] text-text/40 font-inter-medium italic">Buscando firmas...</p>
+                  </div>
+                }
+
+                <!-- Signatures under user -->
+                @if (selectedUserForFirma()?.id === user.id && userFirmas().length > 0) {
+                  <div class="pt-2 border-t border-text/10 mt-1">
+                    <p class="text-[9px] font-inter-bold text-text/40 uppercase mb-2">Selecciona una firma:</p>
+                    <div class="grid grid-cols-2 gap-2">
+                      @for (firma of userFirmas(); track firma.id) {
+                        <div
+                          (click)="$event.stopPropagation(); chooseFirma(firma, false)"
+                          class="p-2 rounded-lg border bg-white transition-all flex flex-col items-center gap-1.5 group/firma"
+                          [class.border-secondary]="(selectingFor() === 'planner' ? planner()?.firmaUrl === firma.url : supervisor()?.firmaUrl === firma.url) && (selectingFor() === 'planner' ? planner()?.userId === user.id : supervisor()?.userId === user.id)"
+                          [class.bg-secondary/5]="(selectingFor() === 'planner' ? planner()?.firmaUrl === firma.url : supervisor()?.firmaUrl === firma.url) && (selectingFor() === 'planner' ? planner()?.userId === user.id : supervisor()?.userId === user.id)"
+                          [class.border-text/10]="(selectingFor() === 'planner' ? planner()?.firmaUrl !== firma.url : supervisor()?.firmaUrl !== firma.url) || (selectingFor() === 'planner' ? planner()?.userId !== user.id : supervisor()?.userId !== user.id)"
+                        >
+                          <div class="h-12 w-full flex items-center justify-center p-1 bg-text/[0.02] rounded group-hover/firma:bg-background transition-colors">
+                            <img [src]="firma.url" class="max-w-full max-h-full object-contain mix-blend-multiply" />
+                          </div>
+                          <span class="text-[9px] font-inter-semibold text-text/60 group-hover/firma:text-secondary transition-colors truncate w-full text-center">{{ firma.nombre || 'Firma ' + ($index + 1) }}</span>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                }
+
+                <!-- No signatures alert -->
+                @if (userNoFirmasId() === user.id) {
+                  <div class="pt-2 border-t border-danger/10 mt-1 animate-in fade-in duration-300">
+                    <div class="flex items-center gap-2 text-danger">
+                      <i class="fas fa-exclamation-triangle text-[10px]"></i>
+                      <p class="text-[10px] font-inter-semibold">Este usuario no tiene firmas registradas</p>
+                    </div>
+                  </div>
+                }
               </div>
             } @empty {
               <div class="py-12 text-center">
@@ -112,9 +137,9 @@
       </div>
 
       <!-- Preview Panel -->
-      <div class="p-6 bg-text/[0.02] flex flex-col justify-between overflow-y-auto">
+      <div class="p-6 bg-text/[0.02] flex flex-col justify-between md:overflow-y-auto">
         <h3 class="text-[10px] font-inter-bold text-text/40 uppercase mb-4 tracking-wider">Resumen de Firmas</h3>
-        
+
         <div class="space-y-6 flex-1">
           <!-- Planner Selection -->
           <div class="p-4 rounded-xl border-2 border-dashed transition-all"
@@ -129,7 +154,7 @@
                 </button>
               }
             </div>
-            
+
             @if (planner()) {
               <div class="text-center space-y-2">
                 <div class="h-20 flex items-center justify-center p-2 rounded bg-white border border-text/10 group overflow-hidden">
@@ -159,7 +184,7 @@
                 </button>
               }
             </div>
-            
+
             @if (supervisor()) {
               <div class="text-center space-y-2">
                 <div class="h-20 flex items-center justify-center p-2 rounded bg-white border border-text/10 group overflow-hidden">

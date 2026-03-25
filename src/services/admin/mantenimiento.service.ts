@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Api, ApiQuery, ApiBody, ApiParam, ApiResponse } from 'api/backend.api';
-import { generateOrdenServicioPdf } from '@template/orden-servicio.template';
+import { generateOrdenServicioPdf, SignatureSelection } from '@template/orden-servicio.template';
 
 @Injectable({
   providedIn: 'root',
@@ -93,8 +93,8 @@ export class MantenimientoService {
   }
   async generateOrdenServicio(
     mantenimiento: ApiResponse<'mantenimientos', 'findOne'>,
-    signatures?: any[]
+    signatures?: SignatureSelection[]
   ) {
-    await generateOrdenServicioPdf(mantenimiento, signatures);
+    await generateOrdenServicioPdf(mantenimiento, signatures, this.api);
   }
 }
