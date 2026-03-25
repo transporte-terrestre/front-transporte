@@ -23,11 +23,15 @@ export const generateManifiestoPasajerosPdf = async (
   const getBase64Image = async (url: string): Promise<string | null> => {
     try {
       if (!url) return null;
-      const containerName = 'storagetransporte';
-      const pathIndex = url.indexOf(`/${containerName}/`);
-      const relativePath = pathIndex !== -1 
-        ? url.substring(pathIndex + containerName.length + 2) 
-        : url.split('/').pop() || '';
+      let relativePath = '';
+      if (url.includes('.net/')) {
+        const parts = url.split('.net/');
+        const pathWithContainer = parts[1];
+        const firstSlashIndex = pathWithContainer.indexOf('/');
+        relativePath = firstSlashIndex !== -1 ? pathWithContainer.substring(firstSlashIndex + 1) : pathWithContainer;
+      } else {
+        relativePath = url.split('/').pop() || '';
+      }
 
       if (!api) throw new Error('Api service not provided to PDF generator');
       
