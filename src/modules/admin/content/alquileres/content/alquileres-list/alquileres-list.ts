@@ -13,6 +13,8 @@ import { AlquilerForm } from '../../layout/alquiler-form/alquiler-form';
 import { PaginationComponent } from '../../../../components/pagination/pagination';
 import { AlquilerEstadoUpdate } from './layout/alquiler-estado-update/alquiler-estado-update';
 import { AlquilerTerminarModal } from './layout/alquiler-terminar-modal/alquiler-terminar-modal';
+import { ModalInfo } from '../../../../components/modal-info/modal-info';
+import { AlquilerDetail } from '../../layout/alquiler-detail/alquiler-detail';
 import { PATH, buildPath } from '@route/path.route';
 import { getErrorMessage } from '@helper/error.helper';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -32,6 +34,8 @@ import * as XLSX from 'xlsx';
     PaginationComponent,
     AlquilerEstadoUpdate,
     AlquilerTerminarModal,
+    ModalInfo,
+    AlquilerDetail,
     ClienteInputSearch,
     ConductorInputSearch,
     VehiculoInputSearch,
@@ -70,6 +74,10 @@ export class AlquileresList implements OnInit {
   selectedConductorForSearch = signal<ApiResponse<'conductores', 'findAll'>['data'][number] | null>(null);
   vehiculoId = signal<number | string>('');
   selectedVehiculoForSearch = signal<ApiResponse<'vehiculos', 'findAll'>['data'][number] | null>(null);
+  
+  // Detail
+  selectedAlquilerId = signal<number | null>(null);
+  showDetailModal = signal(false);
 
   formComponent = viewChild<AlquilerForm>('formComponent');
 
@@ -211,6 +219,16 @@ export class AlquileresList implements OnInit {
 
   closeModal() {
     this.showModal.set(false);
+  }
+
+  openPreview(alquiler: any) {
+    this.selectedAlquilerId.set(alquiler.id);
+    this.showDetailModal.set(true);
+  }
+
+  closePreview() {
+    this.showDetailModal.set(false);
+    this.selectedAlquilerId.set(null);
   }
 
   handleFormSubmit(data: ApiBody<'alquileres', 'create'> | ApiBody<'alquileres', 'update'>) {

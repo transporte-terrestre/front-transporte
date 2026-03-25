@@ -515,14 +515,13 @@
                     <span class="text-xs text-text/40">-</span>
                   }
                 </td>
-                <td class="px-4 py-3 whitespace-nowrap">
+                <td class="px-4 py-3 whitespace-nowrap" (click)="$event.stopPropagation()">
                   @if (row.viaje) {
-                    <span
-                      class="px-3 py-1.5 text-xs font-inter-bold rounded-xl"
-                      [ngClass]="getEstadoBadgeClass(row.viaje.estado)"
-                    >
-                      {{ getEstadoLabel(row.viaje.estado) }}
-                    </span>
+                    <app-viaje-status-update
+                      [viajeId]="row.viaje.id"
+                      [estadoActual]="row.viaje.estado"
+                      (onStatusUpdated)="onStatusUpdated()"
+                    />
                   } @else {
                     <span class="text-xs text-text/40">-</span>
                   }
@@ -626,8 +625,15 @@
                   @if (row.viaje) {
                     <div class="flex items-center justify-end gap-1">
                       <button
+                        (click)="$event.stopPropagation(); duplicateViaje(row.viaje)"
+                        class="p-1.5 text-secondary hover:bg-secondary/10 rounded-lg transition-colors"
+                        title="Duplicar Trip"
+                      >
+                        <i class="fas fa-copy text-xs"></i>
+                      </button>
+                      <button
                         (click)="$event.stopPropagation(); navigateToEdit(row.viaje)"
-                        class="p-1.5 text-info hover:bg-info/10 rounded-lg transition-colors"
+                        class="p-1.5 text-info/70 hover:bg-info/10 rounded-lg transition-colors"
                         title="Editar Trip"
                       >
                         <i class="fas fa-edit text-xs"></i>
@@ -683,4 +689,13 @@
   >
     <app-viaje-detail [viaje]="selectedViaje()!" />
   </app-modal-info>
+}
+
+<!-- Duplicar modal -->
+@if (showDuplicateModal()) {
+  <app-viaje-duplicate
+    [viajeId]="selectedViajeToDuplicate()!.id"
+    (onSuccess)="onDuplicateSuccess()"
+    (onClose)="showDuplicateModal.set(false)"
+  />
 }

@@ -19,6 +19,8 @@ import { ClienteInputSearch } from '../../../../components/input-searchs/cliente
 import { ConductorInputSearch } from '../../../../components/input-searchs/conductor-input-search/conductor-input-search';
 import { VehiculoInputSearch } from '../../../../components/input-searchs/vehiculo-input-search/vehiculo-input-search';
 import * as XLSX from 'xlsx';
+import { ViajeStatusUpdate } from './layout/viaje-estado-update/viaje-estado-update';
+import { ViajeDuplicate } from '../../layout/viaje-duplicate/viaje-duplicate';
 
 export type ViajeIndividual = NonNullable<ApiResponse<'viajes', 'findAll'>['data'][0]['ida']>;
 
@@ -40,7 +42,20 @@ interface CalendarEvent {
 
 @Component({
   selector: 'app-viajes-list',
-  imports: [CommonModule, FormsModule, ModalForm, ViajeForm, PaginationComponent, ClienteInputSearch, ConductorInputSearch, VehiculoInputSearch, ModalInfo, ViajeDetail],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ModalForm,
+    ViajeForm,
+    PaginationComponent,
+    ClienteInputSearch,
+    ConductorInputSearch,
+    VehiculoInputSearch,
+    ModalInfo,
+    ViajeDetail,
+    ViajeStatusUpdate,
+    ViajeDuplicate,
+  ],
   templateUrl: './viajes-list.html',
   styleUrl: './viajes-list.css',
 })
@@ -57,7 +72,9 @@ export class ViajesList implements OnInit, OnDestroy {
   loading = signal(false);
   showModal = signal(false);
   showDetailModal = signal(false);
+  showDuplicateModal = signal(false);
   selectedViaje = signal<ViajeIndividual | null>(null);
+  selectedViajeToDuplicate = signal<ViajeIndividual | null>(null);
   viewMode = signal<'table' | 'calendar'>('table');
   showFilters = signal(false);
 
@@ -596,6 +613,17 @@ export class ViajesList implements OnInit, OnDestroy {
     this.router.navigate([path]);
   }
 
+  duplicateViaje(viaje: ViajeIndividual) {
+    this.selectedViajeToDuplicate.set(viaje);
+    this.showDuplicateModal.set(true);
+  }
+
+  onDuplicateSuccess() {
+    this.showDuplicateModal.set(false);
+    this.selectedViajeToDuplicate.set(null);
+    this.loadViajes();
+  }
+
   closeModal() {
     this.showModal.set(false);
   }
@@ -623,6 +651,14 @@ export class ViajesList implements OnInit, OnDestroy {
       console.error('Error al crear viaje:', error);
       this.toastService.error(getErrorMessage(error, 'Error al crear viaje'));
       this.loading.set(false);
+    }
+  }
+
+  onStatusUpdated() {
+    if (this.viewMode() === 'calendar') {
+      this.loadViajesForCalendar();
+    } else {
+      this.loadViajes();
     }
   }
 

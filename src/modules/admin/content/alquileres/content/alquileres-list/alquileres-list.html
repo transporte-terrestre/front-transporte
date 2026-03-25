@@ -146,7 +146,7 @@
         </div>
       </div>
 
-      <!-- Búsqueda (Opcional/Secundario ahora) -->
+      <!-- Búsqueda -->
       <div class="relative w-full">
         <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"></i>
         <input
@@ -238,12 +238,12 @@
             @for (alquiler of alquileres(); track alquiler.id) {
               <tr
                 class="hover:bg-text/5 transition-colors cursor-pointer"
-                (click)="navigateToEdit(alquiler)"
+                (click)="openPreview(alquiler)"
               >
                 <td class="px-4 py-3 whitespace-nowrap">
                   <div class="flex flex-col gap-0.5">
                     <span class="text-xs font-inter-bold text-text uppercase">{{
-                      $any(alquiler.cliente)?.nombreCompleto || '—'
+                      $any(alquiler.cliente)?.razonSocial || $any(alquiler.cliente)?.nombreCompleto || '—'
                     }}</span>
                     @if ($any(alquiler).detalles?.length) {
                       <span
@@ -257,29 +257,49 @@
                 </td>
 
                 <td class="px-4 py-3 whitespace-nowrap">
-                  <div class="flex items-center gap-2">
-                    <div
-                      class="w-10 h-10 rounded-xl bg-secondary/10 border border-secondary/20 flex flex-col items-center justify-center transition-transform hover:scale-105"
-                    >
-                      <span class="text-xs font-inter-bold text-secondary leading-none">{{ $any(alquiler).detalles?.length || 0 }}</span>
-                      <span class="text-[8px] font-inter-bold text-secondary uppercase leading-none">UND</span>
+                  <div class="flex items-center gap-3">
+                    <!-- Foto/Icono de Unidad -->
+                    <div class="relative group/photo">
+                      @if ($any(alquiler).detalles?.length && $any(alquiler).detalles[0].vehiculo?.foto) {
+                        <img
+                          [src]="$any(alquiler).detalles[0].vehiculo.foto"
+                          class="w-10 h-10 min-w-[40px] rounded-lg object-cover border border-text/10 group-hover/photo:scale-110 transition-transform shrink-0"
+                          alt="Vehículo"
+                        />
+                      } @else {
+                        <div
+                          class="w-10 h-10 min-w-[40px] rounded-lg bg-text/5 border border-text/10 flex items-center justify-center text-text/30 shrink-0"
+                        >
+                          <i class="fas fa-truck text-lg"></i>
+                        </div>
+                      }
+                      
+                      @if (($any(alquiler).detalles?.length || 0) > 1) {
+                        <span class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-secondary text-background text-[10px] font-inter-bold rounded-full flex items-center justify-center border-2 border-background shadow-sm">
+                          {{ $any(alquiler).detalles.length }}
+                        </span>
+                      }
                     </div>
-                    <div class="flex flex-col">
+
+                    <div class="flex flex-col gap-0.5">
                       @if ($any(alquiler).detalles?.length) {
-                        <span class="text-xs font-inter-bold text-text uppercase">{{
-                          $any(alquiler).detalles[0].vehiculo?.placa
-                        }}</span>
+                        <div class="flex items-center gap-1.5">
+                          <span class="text-xs font-inter-bold text-text uppercase tracking-tight">{{
+                            $any(alquiler).detalles[0].vehiculo?.placa
+                          }}</span>
+                        </div>
+                        
                         @if ($any(alquiler).detalles.length > 1) {
                           <span class="text-[9px] text-secondary font-inter-bold uppercase"
                             >+ {{ $any(alquiler).detalles.length - 1 }} Unidades más</span
                           >
                         } @else {
-                          <span class="text-[10px] text-text/60 font-inter-medium"
+                          <span class="text-[10px] text-text/60 font-inter-medium lowercase"
                           >{{ $any(alquiler).detalles[0].vehiculo?.marca }} {{ $any(alquiler).detalles[0].vehiculo?.modelo }}</span
                         >
                         }
                       } @else {
-                        <span class="text-xs font-inter-medium text-text/30 italic">Sin unidades</span>
+                        <span class="text-[10px] text-text/30 italic font-inter-medium">Sin unidades</span>
                       }
                     </div>
                   </div>
@@ -404,4 +424,14 @@
       (onSubmitForm)="handleFormSubmit($event)"
     />
   </app-modal-form>
+}
+
+@if (showDetailModal()) {
+  <app-modal-info
+    title="Detalle del Alquiler"
+    maxWidth="4xl"
+    (onClose)="closePreview()"
+  >
+    <app-alquiler-detail [alquilerId]="selectedAlquilerId()!" />
+  </app-modal-info>
 }
