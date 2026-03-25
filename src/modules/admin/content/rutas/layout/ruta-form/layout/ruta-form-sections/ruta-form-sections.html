@@ -8,10 +8,12 @@
 
   @if (allowOpenRoute) {
     <label class="flex items-center gap-2 cursor-pointer mt-0.5" [class.opacity-50]="readonly" [class.pointer-events-none]="readonly">
-      <span class="text-[10px] font-inter-medium transition-colors" [class.text-info]="hasDestino" [class.text-text-40]="!hasDestino">
+      <span class="text-[10px] font-inter-medium transition-colors" 
+        [ngClass]="hasDestino ? 'text-secondary' : 'text-text/40'">
         {{ hasDestino ? 'Destino Fijo' : 'Ruta Abierta' }}
       </span>
-      <div class="relative w-7 h-4 bg-text/20 rounded-full transition-colors" [class.bg-info]="hasDestino">
+      <div class="relative w-8 h-4.5 rounded-full transition-colors duration-200" 
+        [ngClass]="hasDestino ? 'bg-secondary' : 'bg-text/20'">
         <input
           type="checkbox"
           class="peer sr-only"
@@ -20,8 +22,8 @@
           [disabled]="readonly"
         />
         <div
-          class="absolute left-0.5 top-0.5 w-3 h-3 bg-white rounded-full transition-transform"
-          [class.translate-x-3]="hasDestino"
+          class="absolute left-1 top-1 w-2.5 h-2.5 bg-white rounded-full transition-transform duration-200"
+          [class.translate-x-3.5]="hasDestino"
         ></div>
       </div>
     </label>
@@ -88,43 +90,43 @@
       (click)="!readonly && onAddParada.emit({ type: type, index: 0 })"
     >
       @if (showConnections) {
-      <!-- dashed line -->
-      <div
-        class="absolute w-0.5 transition-colors z-0"
-        style="
-          left: -35px;
-          top: -20px;
-          bottom: -12px;
-          background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.2) 60%, transparent 40%);
-          background-size: 2px 6px;
-          background-repeat: repeat-y;
-        "
-      ></div>
+        <!-- dashed line -->
+        <div
+          class="absolute w-0.5 transition-colors z-0"
+          style="
+            left: -35px;
+            top: -20px;
+            bottom: -12px;
+            background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.2) 60%, transparent 40%);
+            background-size: 2px 6px;
+            background-repeat: repeat-y;
+          "
+        ></div>
 
-      <div
-        class="absolute bg-background py-0.5 z-10 flex flex-col items-center justify-center transition-opacity gap-1.5"
-        style="left: -60px; width: 60px"
-        (click)="$event.stopPropagation()"
-      >
-        <span
-          class="text-[11px] font-inter-bold text-text/60 tracking-wider whitespace-nowrap leading-none"
+        <div
+          class="absolute bg-background py-0.5 z-10 flex flex-col items-center justify-center transition-opacity gap-1.5"
+          style="left: -60px; width: 60px"
+          (click)="$event.stopPropagation()"
         >
-          {{ legDistances[0] !== undefined ? legDistances[0] + ' km' : '' }}
-        </span>
-        @if (legDistances[0] !== undefined) {
-          <label class="flex items-center text-text/60 cursor-text">
-            <i class="fas fa-clock text-[10px] mr-1 cursor-pointer" title="Minutos"></i>
-            <input
-              type="number"
-              [formControl]="getLegTimeControl(0)"
-              class="w-5 bg-transparent text-[11px] text-center font-inter-bold outline-none transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none cursor-text"
-              title="Minutos desde el punto anterior"
-              [readonly]="readonly"
-            />
-            <span class="text-[10px] font-inter-medium lowercase ml-0.5 cursor-pointer">min</span>
-          </label>
-        }
-      </div>
+          <span
+            class="text-[11px] font-inter-bold text-text/60 tracking-wider whitespace-nowrap leading-none"
+          >
+            {{ legDistances[0] !== undefined ? legDistances[0] + ' km' : '' }}
+          </span>
+          @if (legDistances[0] !== undefined) {
+            <label class="flex items-center text-text/60 cursor-text">
+              <i class="fas fa-clock text-[10px] mr-1 cursor-pointer" title="Minutos"></i>
+              <input
+                type="number"
+                [formControl]="getLegTimeControl(0)"
+                class="w-5 bg-transparent text-[11px] text-center font-inter-bold outline-none transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none cursor-text"
+                title="Minutos desde el punto anterior"
+                [readonly]="readonly"
+              />
+              <span class="text-[10px] font-inter-medium lowercase ml-0.5 cursor-pointer">min</span>
+            </label>
+          }
+        </div>
       }
 
       <!-- Hover state -->
@@ -204,44 +206,48 @@
           (click)="!readonly && onAddParada.emit({ type: type, index: $index + 1 })"
         >
           @if (!(isLast && !hasDestino)) {
-          <div
-            class="absolute w-0.5 transition-colors z-0"
-            style="
-              left: -35px;
-              top: -20px;
-              bottom: -12px;
-              background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.2) 60%, transparent 40%);
-              background-size: 2px 6px;
-              background-repeat: repeat-y;
-            "
-          ></div>
+            <div
+              class="absolute w-0.5 transition-colors z-0"
+              style="
+                left: -35px;
+                top: -20px;
+                bottom: -12px;
+                background-image: linear-gradient(
+                  to bottom,
+                  rgba(0, 0, 0, 0.2) 60%,
+                  transparent 40%
+                );
+                background-size: 2px 6px;
+                background-repeat: repeat-y;
+              "
+            ></div>
 
-          <div
-            class="absolute bg-background py-0.5 z-10 flex flex-col items-center justify-center transition-opacity gap-1.5"
-            style="left: -60px; width: 60px"
-            (click)="$event.stopPropagation()"
-          >
-            <span
-              class="text-[11px] font-inter-bold text-text/60 tracking-wider whitespace-nowrap leading-none"
+            <div
+              class="absolute bg-background py-0.5 z-10 flex flex-col items-center justify-center transition-opacity gap-1.5"
+              style="left: -60px; width: 60px"
+              (click)="$event.stopPropagation()"
             >
-              {{ legDistances[$index + 1] !== undefined ? legDistances[$index + 1] + ' km' : '' }}
-            </span>
-            @if (legDistances[$index + 1] !== undefined) {
-              <label class="flex items-center text-text/60 cursor-text">
-                <i class="fas fa-clock text-[10px] mr-1 cursor-pointer" title="Minutos"></i>
-                <input
-                  type="number"
-                  [formControl]="getLegTimeControl($index + 1)"
-                  class="w-5 bg-transparent text-[11px] text-center font-inter-bold outline-none transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none cursor-text"
-                  title="Minutos desde el punto anterior"
-                  [readonly]="readonly"
-                />
-                <span class="text-[10px] font-inter-medium lowercase ml-0.5 cursor-pointer"
-                  >min</span
-                >
-              </label>
-            }
-          </div>
+              <span
+                class="text-[11px] font-inter-bold text-text/60 tracking-wider whitespace-nowrap leading-none"
+              >
+                {{ legDistances[$index + 1] !== undefined ? legDistances[$index + 1] + ' km' : '' }}
+              </span>
+              @if (legDistances[$index + 1] !== undefined) {
+                <label class="flex items-center text-text/60 cursor-text">
+                  <i class="fas fa-clock text-[10px] mr-1 cursor-pointer" title="Minutos"></i>
+                  <input
+                    type="number"
+                    [formControl]="getLegTimeControl($index + 1)"
+                    class="w-5 bg-transparent text-[11px] text-center font-inter-bold outline-none transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none cursor-text"
+                    title="Minutos desde el punto anterior"
+                    [readonly]="readonly"
+                  />
+                  <span class="text-[10px] font-inter-medium lowercase ml-0.5 cursor-pointer"
+                    >min</span
+                  >
+                </label>
+              }
+            </div>
           }
 
           <div
@@ -265,7 +271,9 @@
         >
           <i class="fas fa-flag-checkered text-[8px]"></i>
         </div>
-        <div class="p-2 bg-text/5 rounded-lg border-l-4 border-danger flex flex-col gap-1 shadow-sm">
+        <div
+          class="p-2 bg-text/5 rounded-lg border-l-4 border-danger flex flex-col gap-1 shadow-sm"
+        >
           <div class="flex justify-between items-start gap-2">
             <label
               class="text-xs font-inter-semibold text-text flex items-center gap-2 leading-none w-full border-none"
@@ -279,7 +287,9 @@
               />
             </label>
             <div class="flex items-center gap-2">
-              <span class="text-[10px] font-inter-medium text-danger uppercase mt-1">(Destino)</span>
+              <span class="text-[10px] font-inter-medium text-danger uppercase mt-1"
+                >(Destino)</span
+              >
             </div>
           </div>
           <div class="flex items-center gap-3">

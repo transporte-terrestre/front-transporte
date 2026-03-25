@@ -425,7 +425,7 @@ export class RutaForm implements OnInit, AfterViewInit, OnDestroy {
     }
     // Force immediate re-render so child @if blocks update
     this.cdr.detectChanges();
-    this.updateMapMarkers(type);
+    // Manual update removed because patchValue triggers valueChanges -> checkCoordsChange
   }
 
   private autoRenameParadas(arr: FormArray) {
@@ -457,8 +457,7 @@ export class RutaForm implements OnInit, AfterViewInit, OnDestroy {
         tiempoEstimadoDestinoVuelta: Number(v.tiempoEstimadoDestino) || 0,
       });
 
-      // Trigger map update for vuelta after a short delay for the map container to exist
-      setTimeout(() => this.updateMapMarkers('vuelta'), 150);
+      // Map update will be triggered by valueChanges once the map is initialized
     }
   }
 
@@ -601,12 +600,14 @@ export class RutaForm implements OnInit, AfterViewInit, OnDestroy {
     const paradasCoords =
       paradasList?.map((p: any) => ({ lat: p.ubicacionLat, lng: p.ubicacionLng })) || [];
 
+    const hasDestVal = type === 'ida' ? this.hasDestinoIda() : this.hasDestinoVuelta();
     this.lastCoordsHash[type] = JSON.stringify({
       ol: v[`origenLat${suffix}` as keyof RutaFormValue],
       olg: v[`origenLng${suffix}` as keyof RutaFormValue],
       dl: v[`destinoLat${suffix}` as keyof RutaFormValue],
       dlg: v[`destinoLng${suffix}` as keyof RutaFormValue],
       paradas: paradasCoords,
+      hd: hasDestVal,
     });
   }
 
@@ -632,10 +633,7 @@ export class RutaForm implements OnInit, AfterViewInit, OnDestroy {
     this.hasDestinoIda.set(true);
     this.hasDestinoVuelta.set(true);
 
-    // Force marker update if map exists
-    if (this.maps.ida) {
-      this.updateMapMarkers('ida');
-    }
+    // Map update will be handled by valueChanges
   }
 
   // --- Map Logic ---
@@ -675,8 +673,7 @@ export class RutaForm implements OnInit, AfterViewInit, OnDestroy {
             : 'Arrastra los marcadores para ajustar.',
         );
       }
-      // Force update of visual route
-      this.updateMapMarkers(type);
+      // Update will be handled by checkCoordsChange via valueChanges
     });
   }
 
@@ -700,12 +697,14 @@ export class RutaForm implements OnInit, AfterViewInit, OnDestroy {
     const paradasCoords =
       paradasList?.map((p: any) => ({ lat: p.ubicacionLat, lng: p.ubicacionLng })) || [];
 
+    const hasDestVal = type === 'ida' ? this.hasDestinoIda() : this.hasDestinoVuelta();
     const hash = JSON.stringify({
       ol: v[`origenLat${suffix}` as keyof RutaFormValue],
       olg: v[`origenLng${suffix}` as keyof RutaFormValue],
       dl: v[`destinoLat${suffix}` as keyof RutaFormValue],
       dlg: v[`destinoLng${suffix}` as keyof RutaFormValue],
       paradas: paradasCoords,
+      hd: hasDestVal,
     });
 
     if (hash !== this.lastCoordsHash[type]) {
