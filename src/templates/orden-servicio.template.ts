@@ -1,4 +1,4 @@
-import { ApiResponse } from 'api/backend.api';
+import { ApiResponse, Api } from 'api/backend.api';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
@@ -12,55 +12,65 @@ export interface SignatureSelection {
 export const generateOrdenServicioPdf = async (
   mantenimiento: ApiResponse<'mantenimientos', 'findOne'>,
   selectedSignatures?: SignatureSelection[],
+  api?: Api<unknown>,
 ) => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.width;
-  const margin = 14;
-  let y = 14;
+  const margin = 20;
+  let y = margin;
 
-  const drawField = (label: string, value: string, x: number, currentY: number) => {
-    doc.setFont('helvetica', 'bold');
+  // Helper for centered text within a specific width
+  const drawCenteredText = (text: string, xPos: number, yPos: number, width: number) => {
+    const textWidth = doc.getTextWidth(text);
+    doc.text(text || '', xPos + (width - textWidth) / 2, yPos);
+  };
+
+  // Helper for label and value on the same line
+  const drawField = (label: string, value: string, xPos: number, yPos: number, labelWidth = 40) => {
     doc.setFontSize(9);
-    doc.text(label, x, currentY);
-    const labelWidth = doc.getTextWidth(label);
-
+    doc.setFont('helvetica', 'bold');
+    doc.text(`${label}:`, xPos, yPos);
     doc.setFont('helvetica', 'normal');
-    doc.text(value || '---', x + labelWidth + 2, currentY);
+    doc.text(value || '—', xPos + labelWidth, yPos);
   };
 
-  const addImageFromUrl = (
-    url: string,
-    x: number,
-    y: number,
-    w: number,
-    h: number,
-  ): Promise<void> => {
-    return new Promise((resolve) => {
-      const img = new Image();
-      img.crossOrigin = 'Anonymous';
-      img.src = url;
-      img.onload = () => {
-        try {
-          doc.addImage(img, 'PNG', x, y, w, h);
-        } catch (e) {
-          console.error('Error adding image to PDF', e);
-        }
-        resolve();
-      };
-      img.onerror = () => {
-        console.error('Error loading image', url);
-        resolve();
-      };
-    });
+  const getBase64Image = async (url: string): Promise<string | null> => {
+    try {
+      if (!url) return null;
+      
+      // 1. Extract path from Azure URL: https://<account>.blob.core.windows.net/<container>/<path>
+      const containerName = 'storagetransporte';
+      const pathIndex = url.indexOf(`/${containerName}/`);
+      const relativePath = pathIndex !== -1 
+        ? url.substring(pathIndex + containerName.length + 2) 
+        : url.split('/').pop() || '';
+
+      // 2. Use our generated Api proxy instead of hardcoded fetch
+      if (!api) throw new Error('Api service not provided to PDF generator');
+      
+      const response = await api.storage.download({ path: relativePath });
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      
+      const blob = await (response.blob ? response.blob() : (response as any).data);
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = () => resolve(null);
+        reader.readAsDataURL(blob);
+      });
+    } catch (e) {
+      console.error('Error fetching image via Api proxy:', e);
+      return null;
+    }
   };
 
-  // --- Header ---
+  // Header
   doc.setFontSize(16);
   doc.setFont('helvetica', 'bold');
   const title = `ORDEN DE SERVICIO Nro : ${mantenimiento.codigoOrden}`;
   const titleWidth = doc.getTextWidth(title);
   doc.text(title, (pageWidth - titleWidth) / 2, y);
-  y += 8;
+  y += 10;
 
   doc.setFontSize(12);
   const subTitle = `Unidad: ${
@@ -75,13 +85,13 @@ export const generateOrdenServicioPdf = async (
 
   // Line 1
   drawField(
-    'Taller:',
+    'Taller',
     mantenimiento.taller?.nombreComercial || mantenimiento.taller?.razonSocial || '---',
     margin,
     y,
   );
   drawField(
-    'Tipo Mantenimiento:',
+    'Tipo Mantenimiento',
     mantenimiento.tipo === 'preventivo' ? 'Preventivo-Man' : 'Correctivo-Man',
     col2X,
     y,
@@ -90,15 +100,15 @@ export const generateOrdenServicioPdf = async (
 
   // Line 2
   const fmtDate = (d?: string) => (d ? new Date(d).toLocaleString('es-PE') : '---');
-  drawField('Fecha Inicio:', fmtDate(mantenimiento.fechaIngreso), margin, y);
-  drawField('Fecha Término:', fmtDate(mantenimiento.fechaSalida), col2X, y);
+  drawField('Fecha Inicio', fmtDate(mantenimiento.fechaIngreso), margin, y);
+  drawField('Fecha Término', fmtDate(mantenimiento.fechaSalida), col2X, y);
   y += 6;
 
   // Line 3
-  drawField('Odómetro:', mantenimiento.kilometraje.toString(), margin, y);
+  drawField('Odómetro', mantenimiento.kilometraje?.toString() || '0', margin, y);
 
   doc.setFont('helvetica', 'bold');
-  doc.text('Km:', col2X, y);
+  doc.text('Km', col2X, y);
   y += 10;
 
   // --- Table ---
@@ -170,7 +180,7 @@ export const generateOrdenServicioPdf = async (
 
   // --- Signatures ---
   const sigY = y + 15;
-  const sigWidth = 60;
+  const sigWidth = 70; 
   doc.setFontSize(7);
 
   const planner = selectedSignatures?.find((s) => s.rolEnDocumento === 'planner');
@@ -178,21 +188,38 @@ export const generateOrdenServicioPdf = async (
 
   // Left Signature (Planner)
   if (planner?.firmaUrl) {
-    await addImageFromUrl(planner.firmaUrl, margin + 10, sigY - 18, 40, 18);
+    const imgW = 40;
+    const imgH = 18;
+    const base64 = await getBase64Image(planner.firmaUrl);
+    if (base64) {
+      const format = planner.firmaUrl.toLowerCase().includes('.jpg') || planner.firmaUrl.toLowerCase().includes('.jpeg') ? 'JPEG' : 'PNG';
+      doc.addImage(base64, format, margin + (sigWidth - imgW) / 2, sigY - 18, imgW, imgH);
+    }
   }
   doc.line(margin, sigY, margin + sigWidth, sigY);
-  doc.text(planner?.nombreCompleto || 'PLANNER DE MANTENIMIENTO', margin + 5, sigY + 4);
-  doc.text('PLANNER DE MANTENIMIENTO', margin + 8, sigY + 7);
-  doc.text('TRANSPORTES LINEA S.A.', margin + 10, sigY + 10);
+  doc.setFont('helvetica', 'bold');
+  drawCenteredText(planner?.nombreCompleto || 'PLANNER DE MANTENIMIENTO', margin, sigY + 4, sigWidth);
+  doc.setFont('helvetica', 'normal');
+  drawCenteredText('PLANNER DE MANTENIMIENTO', margin, sigY + 7, sigWidth);
+  drawCenteredText('TRANSPORTES LINEA S.A.', margin, sigY + 10, sigWidth);
 
   // Right Signature (Supervisor)
   const rightSigX = pageWidth - margin - sigWidth;
   if (supervisor?.firmaUrl) {
-    await addImageFromUrl(supervisor.firmaUrl, rightSigX + 10, sigY - 18, 40, 18);
+    const imgW = 40;
+    const imgH = 18;
+    const base64 = await getBase64Image(supervisor.firmaUrl);
+    if (base64) {
+      const format = supervisor.firmaUrl.toLowerCase().includes('.jpg') || supervisor.firmaUrl.toLowerCase().includes('.jpeg') ? 'JPEG' : 'PNG';
+      doc.addImage(base64, format, rightSigX + (sigWidth - imgW) / 2, sigY - 18, imgW, imgH);
+    }
   }
   doc.line(rightSigX, sigY, pageWidth - margin, sigY);
-  doc.text(supervisor?.nombreCompleto || 'SUPERVISOR DE MANTENIMIENTO', rightSigX + 10, sigY + 4);
-  doc.text('SUPERVISOR DE MANTENIMIENTO', rightSigX + 5, sigY + 7);
+  doc.setFont('helvetica', 'bold');
+  drawCenteredText(supervisor?.nombreCompleto || 'SUPERVISOR DE MANTENIMIENTO', rightSigX, sigY + 4, sigWidth);
+  doc.setFont('helvetica', 'normal');
+  drawCenteredText('SUPERVISOR DE MANTENIMIENTO', rightSigX, sigY + 7, sigWidth);
+  drawCenteredText('TRANSPORTES LINEA S.A.', rightSigX, sigY + 10, sigWidth);
 
   doc.save(`OrdenServicio_${mantenimiento.codigoOrden}.pdf`);
 };

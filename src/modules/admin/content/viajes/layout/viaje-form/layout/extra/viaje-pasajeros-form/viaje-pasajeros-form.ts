@@ -15,9 +15,10 @@ import { ViajeService } from '@service/admin/viaje.service';
 import { ClienteService } from '@service/admin/cliente.service';
 import { ToastService } from '@service/toast.service';
 import { AlertService } from '@service/alert.service';
-import { ApiResponse, ViajePasajeroResultDto, PasajeroResultDto } from 'api/backend.api';
+import { ApiResponse, ViajePasajeroResultDto, PasajeroResultDto, Api } from 'api/backend.api';
 import * as XLSX from 'xlsx';
-import { generateManifiestoPasajerosPdf } from '../../../../../../../../../templates/manifiesto-pasajeros.template';
+import { generateManifiestoPasajerosPdf, SignatureSelection } from '@template/manifiesto-pasajeros.template';
+import { ViajePasajerosSignature } from './layout/viaje-pasajeros-signature/viaje-pasajeros-signature';
 
 type ViajeData = ApiResponse<'viajes', 'findOne'>;
 
@@ -39,7 +40,7 @@ interface LocalPasajeroItemDto {
 @Component({
   selector: 'app-viaje-pasajeros-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, ViajePasajerosSignature],
   templateUrl: './viaje-pasajeros-form.html',
   styleUrl: './viaje-pasajeros-form.css',
 })
@@ -48,6 +49,7 @@ export class ViajePasajerosForm {
   private clienteService = inject(ClienteService);
   private toastService = inject(ToastService);
   private alertService = inject(AlertService);
+  private api = inject(Api);
 
   viaje = input.required<ViajeData>();
   onDataChange = output<void>();
@@ -57,7 +59,7 @@ export class ViajePasajerosForm {
 
   showModal = signal(false);
   loading = signal(false);
-  mode = signal<'list' | 'add' | 'choice'>('list');
+  mode = signal<'list' | 'add' | 'choice' | 'signature'>('list');
 
   // Data
   pasajeros = signal<ViajePasajeroResultDto[]>([]); // Pasajeros asignados al viaje
@@ -112,7 +114,7 @@ export class ViajePasajerosForm {
     }
   }
 
-  async switchToMode(mode: 'list' | 'add' | 'choice') {
+  async switchToMode(mode: 'list' | 'add' | 'choice' | 'signature') {
     this.mode.set(mode);
     if (mode === 'add') {
       this.loadClientePasajeros();
@@ -307,7 +309,6 @@ export class ViajePasajerosForm {
       list.map((p) => (p.id === pasajero.id ? { ...p, asistencia: !p.asistencia } : p)),
     );
   }
-
   getDisplayName(p: ViajePasajeroResultDto | PasajeroResultDto) {
     const nombres = p.nombres || 'Sin nombre';
     const apellidos = p.apellidos || '';
@@ -323,7 +324,6 @@ export class ViajePasajerosForm {
     const a = p.apellidos || '';
     return (n[0] + (a[0] || '')).toUpperCase();
   }
-
   async saveAll() {
     this.loading.set(true);
     try {
@@ -352,13 +352,24 @@ export class ViajePasajerosForm {
 
   exportarPDF() {
     if (!this.viaje()) return;
+    this.mode.set('signature');
+  }
+
+  async onSignatureSelected(signature: SignatureSelection) {
+    this.loading.set(true);
     try {
-      generateManifiestoPasajerosPdf(this.viaje(), this.pasajeros());
+      await generateManifiestoPasajerosPdf(this.viaje(), this.pasajeros(), this.api, signature);
       this.toastService.success('PDF generado con éxito');
+      this.mode.set('list');
     } catch (error) {
       console.error('Error generando PDF', error);
       this.toastService.error('Error al generar el PDF');
+    } finally {
+      this.loading.set(false);
     }
   }
-}
 
+  onSignatureCancel() {
+    this.mode.set('list');
+  }
+}

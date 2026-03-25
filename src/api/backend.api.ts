@@ -3533,7 +3533,7 @@ export interface DocumentoItemDto {
   observacion?: string;
   /**
    * Fecha de Vencimiento Inicial/Por defecto
-   * @example "2026-03-25T08:22:04.835Z"
+   * @example "2026-03-25T11:02:13.960Z"
    */
   fechaVencimiento?: string;
 }
@@ -3716,17 +3716,17 @@ export interface BotiquinItemDto {
   habilitado: boolean;
   /**
    * Fecha de Vencimiento actual
-   * @example "2026-03-25T08:22:04.846Z"
+   * @example "2026-03-25T11:02:13.964Z"
    */
   fechaVencimiento?: string;
   /**
    * Fecha de Salida
-   * @example "2026-03-25T08:22:04.847Z"
+   * @example "2026-03-25T11:02:13.964Z"
    */
   fechaSalida?: string;
   /**
    * Fecha de Reposición
-   * @example "2026-03-25T08:22:04.847Z"
+   * @example "2026-03-25T11:02:13.964Z"
    */
   fechaReposicion?: string;
 }
@@ -11955,6 +11955,12 @@ export interface StorageDeleteParams {
 
 export type StorageDeleteData = any;
 
+export interface StorageDownloadParams {
+  path: string;
+}
+
+export type StorageDownloadData = any;
+
 export namespace App {
   /**
    * No description
@@ -17211,6 +17217,25 @@ export namespace Storage {
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = StorageDeleteData;
+  }
+
+  /**
+   * No description
+   * @tags storage
+   * @name StorageDownload
+   * @summary Proxy para descargar/visualizar archivos de Azure (CORS-safe)
+   * @request GET:/storage/download-file
+   * @secure
+   * @response `200` `StorageDownloadData`
+   */
+  export namespace StorageDownload {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      path: string;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = StorageDownloadData;
   }
 }
 
@@ -22782,6 +22807,28 @@ export class Api<SecurityDataType extends unknown> {
       this.http.request<StorageDeleteData, any>({
         path: `/storage/${publicId}`,
         method: "DELETE",
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags storage
+     * @name StorageDownload
+     * @summary Proxy para descargar/visualizar archivos de Azure (CORS-safe)
+     * @request GET:/storage/download-file
+     * @secure
+     * @response `200` `StorageDownloadData`
+     */
+    download: (
+      query: StorageDownloadParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<StorageDownloadData, any>({
+        path: `/storage/download-file`,
+        method: "GET",
+        query: query,
         secure: true,
         ...params,
       }),

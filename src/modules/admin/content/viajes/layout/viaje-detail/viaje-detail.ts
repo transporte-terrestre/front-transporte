@@ -331,12 +331,7 @@ export class ViajeDetail implements AfterViewInit {
 
   getClienteDisplay(v: ViajeIndividual): string {
     if (!v.cliente) return '—';
-    const clienteName = v.cliente.razonSocial || v.cliente.nombreCompleto || '—';
-    const entidadName = v.entidad?.nombreServicio;
-
-    let display = clienteName;
-    if (entidadName) display += ` (${entidadName})`;
-    return display;
+    return v.cliente.razonSocial || v.cliente.nombreCompleto || '—';
   }
 
   getRutaDisplay(v: ViajeIndividual): string {

@@ -703,12 +703,7 @@ export class ViajesList implements OnInit, OnDestroy {
   }
 
   getClienteDisplay(viaje: ViajeIndividual): string {
-    const clienteName = viaje.cliente?.razonSocial || viaje.cliente?.nombreCompleto || 'Sin cliente';
-    const entidadName = viaje.entidad?.nombreServicio;
-
-    let display = clienteName;
-    if (entidadName) display += ` (${entidadName})`;
-    return display;
+    return viaje.cliente?.razonSocial || viaje.cliente?.nombreCompleto || 'Sin cliente';
   }
 
   getEstadoBadgeClass(estado: ApiResponse<'viajes', 'findOne'>['estado']): string {
