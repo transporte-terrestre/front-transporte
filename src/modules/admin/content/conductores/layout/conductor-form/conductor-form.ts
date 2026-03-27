@@ -59,6 +59,7 @@ export class ConductorForm implements OnInit {
     email: [''],
     contrasenia: [''],
     celular: [''],
+    estado: ['activo', [Validators.required]],
     numeroLicencia: ['', [Validators.required, Validators.minLength(5)]],
     claseLicencia: ['', [Validators.required]],
     categoriaLicencia: ['', [Validators.required]],
@@ -83,6 +84,12 @@ export class ConductorForm implements OnInit {
     'Boliviana',
     'Brasileña',
     'Otra',
+  ];
+  
+  estados = [
+    { value: 'activo', label: 'Activo' },
+    { value: 'inactivo', label: 'Inactivo' },
+    { value: 'eventual', label: 'Eventual' },
   ];
 
   clases: ApiField<'conductores', 'findOne', 'claseLicencia'>[] = ['A', 'B'];
@@ -138,6 +145,7 @@ export class ConductorForm implements OnInit {
           numeroLicencia: conductorData.numeroLicencia,
           claseLicencia: conductorData.claseLicencia,
           categoriaLicencia: conductorData.categoriaLicencia,
+          estado: conductorData.estado || 'activo',
           documentosNoAplicables: conductorData.documentosNoAplicables || [],
         });
 
@@ -160,6 +168,7 @@ export class ConductorForm implements OnInit {
           nacionalidad: 'Peruana',
           claseLicencia: 'A',
           categoriaLicencia: 'III-c', // Default recomendado para transporte profesional
+          estado: 'activo',
         });
 
         // Contraseña es OBLIGATORIA al crear

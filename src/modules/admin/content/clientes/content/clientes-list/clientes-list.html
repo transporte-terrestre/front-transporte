@@ -96,12 +96,7 @@
               Doc
             </th>
             <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
-            >
-              Tipo
-            </th>
-            <th
-              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider min-w-[140px]"
             >
               N° Documento
             </th>
@@ -122,6 +117,11 @@
             </th>
             <th
               class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider"
+            >
+              Tipo
+            </th>
+            <th
+              class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider min-w-[150px]"
             >
               Fecha Creación
             </th>
@@ -148,15 +148,6 @@
               >{{ cliente.tipoDocumento }}</span>
             </td>
             <td class="px-4 py-3 whitespace-nowrap">
-              <span
-                class="px-1.5 py-0.5 rounded text-[10px] font-inter-bold uppercase"
-                [class.bg-info/10]="cliente.tipo === 'personal'"
-                [class.text-info]="cliente.tipo === 'personal'"
-                [class.bg-success/10]="cliente.tipo === 'corporativo'"
-                [class.text-success]="cliente.tipo === 'corporativo'"
-              >{{ cliente.tipo }}</span>
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap">
               <span class="text-xs font-inter-medium text-text/70">{{ cliente.tipoDocumento === 'DNI' ? cliente.dni : cliente.ruc }}</span>
             </td>
             <td class="px-4 py-3 whitespace-nowrap">
@@ -165,11 +156,11 @@
                 <img
                   [src]="cliente.imagenes[0]"
                   [alt]="cliente.nombres + ' ' + cliente.apellidos"
-                  class="w-8 h-8 rounded-full object-cover border border-text/10"
+                  class="w-8 h-8 min-w-8 min-h-8 shrink-0 rounded-full object-cover border border-text/10"
                 />
                 } @else {
                 <div
-                  class="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center text-secondary text-xs font-inter-bold"
+                  class="w-8 h-8 min-w-8 min-h-8 shrink-0 rounded-full bg-secondary/10 flex items-center justify-center text-secondary text-xs font-inter-bold"
                 >
                   {{ (cliente.tipoDocumento === 'DNI' ? (cliente.nombres || '') : (cliente.razonSocial || '')).charAt(0) }}
                 </div>
@@ -188,6 +179,15 @@
               <span class="text-xs font-inter-medium text-text/70">{{
                 cliente.telefono || '-'
               }}</span>
+            </td>
+            <td class="px-4 py-3 whitespace-nowrap">
+              <span
+                class="px-1.5 py-0.5 rounded text-[10px] font-inter-bold uppercase"
+                [class.bg-info/10]="cliente.tipo === 'personal'"
+                [class.text-info]="cliente.tipo === 'personal'"
+                [class.bg-success/10]="cliente.tipo === 'corporativo'"
+                [class.text-success]="cliente.tipo === 'corporativo'"
+              >{{ cliente.tipo }}</span>
             </td>
             <td class="px-4 py-3 whitespace-nowrap">
               <span class="text-xs font-inter-regular text-text/60">{{

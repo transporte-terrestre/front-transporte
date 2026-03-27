@@ -119,6 +119,35 @@
     </div>
 
     <div>
+      <label class="block text-xs font-inter-semibold text-text mb-1.5">Celular</label>
+      <input
+        type="text"
+        formControlName="celular"
+        class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+        placeholder="987654321"
+      />
+    </div>
+
+    <div>
+      <label class="block text-xs font-inter-semibold text-text mb-1.5">Estado</label>
+      <div class="relative">
+        <select
+          formControlName="estado"
+          class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all appearance-none cursor-pointer"
+        >
+          @for (est of estados; track est.value) {
+            <option [value]="est.value">{{ est.label }}</option>
+          }
+        </select>
+        <span class="absolute inset-y-0 right-3 flex items-center text-text/60 pointer-events-none">
+          <i class="fas fa-chevron-down text-xs"></i>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+    <div>
       <label class="block text-xs font-inter-semibold text-text mb-1.5">
         Contraseña
         @if (!editMode()) {
@@ -137,31 +166,21 @@
     </div>
 
     <div>
-      <label class="block text-xs font-inter-semibold text-text mb-1.5">Celular</label>
+      <label class="block text-xs font-inter-semibold text-text mb-1.5">Número de Licencia</label>
       <input
         type="text"
-        formControlName="celular"
+        formControlName="numeroLicencia"
         class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-        placeholder="987654321"
+        placeholder="Q07864165"
       />
+      @if (
+        conductorForm.get('numeroLicencia')?.touched && conductorForm.get('numeroLicencia')?.errors
+      ) {
+        <p class="text-danger text-xs font-inter-medium mt-1">
+          Número de licencia requerido (mín. 5 caracteres)
+        </p>
+      }
     </div>
-  </div>
-
-  <div>
-    <label class="block text-xs font-inter-semibold text-text mb-1.5">Número de Licencia</label>
-    <input
-      type="text"
-      formControlName="numeroLicencia"
-      class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-      placeholder="Q07864165"
-    />
-    @if (
-      conductorForm.get('numeroLicencia')?.touched && conductorForm.get('numeroLicencia')?.errors
-    ) {
-      <p class="text-danger text-xs font-inter-medium mt-1">
-        Número de licencia requerido (mín. 5 caracteres)
-      </p>
-    }
   </div>
 
   <div class="grid grid-cols-1 md:grid-cols-2 gap-3">

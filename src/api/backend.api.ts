@@ -211,6 +211,11 @@ export interface ConductorLoginInfoDto {
     | "pase_conduc"
     | "foto_funcionario"
   )[];
+  /**
+   * Estado del conductor
+   * @example "activo"
+   */
+  estado: "activo" | "inactivo" | "eventual";
 }
 
 export interface ConductorLoginResultDto {
@@ -638,6 +643,11 @@ export interface ConductorListDto {
    * @example "2023-01-01T00:00:00.000Z"
    */
   actualizadoEn: string;
+  /**
+   * Estado del conductor
+   * @example "activo"
+   */
+  estado: "activo" | "inactivo" | "eventual";
 }
 
 export interface PaginatedConductorResultDto {
@@ -668,6 +678,11 @@ export interface ConductorEstadoDocumentosDto {
    * @example ["https://..."]
    */
   fotocheck: string[];
+  /**
+   * Estado del conductor
+   * @example "activo"
+   */
+  estado: string;
   /**
    * Estado del documento
    * @example "activo"
@@ -917,6 +932,11 @@ export interface ConductorResultDto {
     | "pase_conduc"
     | "foto_funcionario"
   )[];
+  /**
+   * Estado del conductor
+   * @example "activo"
+   */
+  estado: "activo" | "inactivo" | "eventual";
   /** Driver documents grouped by type */
   documentos: DocumentosAgrupadosConductorDto;
 }
@@ -1010,6 +1030,11 @@ export interface ConductorCreateDto {
     | "pase_conduc"
     | "foto_funcionario"
   )[];
+  /**
+   * Estado del conductor
+   * @default "activo"
+   */
+  estado?: "activo" | "inactivo" | "eventual";
 }
 
 export interface ConductorUpdateDto {
@@ -1101,6 +1126,11 @@ export interface ConductorUpdateDto {
     | "pase_conduc"
     | "foto_funcionario"
   )[];
+  /**
+   * Estado del conductor
+   * @default "activo"
+   */
+  estado?: "activo" | "inactivo" | "eventual";
 }
 
 export interface ConductorDocumentoCreateDto {
@@ -3538,7 +3568,7 @@ export interface DocumentoItemDto {
   observacion?: string;
   /**
    * Fecha de Vencimiento Inicial/Por defecto
-   * @example "2026-03-27T17:32:53.394Z"
+   * @example "2026-03-27T21:03:47.321Z"
    */
   fechaVencimiento?: string;
 }
@@ -3721,17 +3751,17 @@ export interface BotiquinItemDto {
   habilitado: boolean;
   /**
    * Fecha de Vencimiento actual
-   * @example "2026-03-27T17:32:53.397Z"
+   * @example "2026-03-27T21:03:47.324Z"
    */
   fechaVencimiento?: string;
   /**
    * Fecha de Salida
-   * @example "2026-03-27T17:32:53.397Z"
+   * @example "2026-03-27T21:03:47.324Z"
    */
   fechaSalida?: string;
   /**
    * Fecha de Reposición
-   * @example "2026-03-27T17:32:53.397Z"
+   * @example "2026-03-27T21:03:47.324Z"
    */
   fechaReposicion?: string;
 }
@@ -5490,6 +5520,11 @@ export interface ConductorViajeDto {
     | "pase_conduc"
     | "foto_funcionario"
   )[];
+  /**
+   * Estado del conductor
+   * @example "activo"
+   */
+  estado: "activo" | "inactivo" | "eventual";
 }
 
 export interface VehiculoViajeDto {
@@ -6136,6 +6171,11 @@ export interface ViajeConductorDetalleDto {
     | "pase_conduc"
     | "foto_funcionario"
   )[];
+  /**
+   * Estado del conductor
+   * @example "activo"
+   */
+  estado: "activo" | "inactivo" | "eventual";
   /**
    * Es conductor principal
    * @example true
@@ -9968,6 +10008,11 @@ export interface ConductoresFindAllParams {
     | "III-a"
     | "III-b"
     | "III-c";
+  /**
+   * Filtrar por estado del conductor
+   * @example "activo"
+   */
+  estado?: "activo" | "inactivo" | "eventual";
 }
 
 export type ConductoresFindAllData = PaginatedConductorResultDto;
@@ -9990,6 +10035,21 @@ export interface ConductoresFindAllEstadoDocumentosParams {
    * @example "incompleto"
    */
   filtro?: "completo" | "incompleto";
+  /** Búsqueda por nombre, DNI o número de licencia */
+  search?: string;
+  /** Filtrar por clase de licencia */
+  claseLicencia?: "A" | "B";
+  /** Filtrar por categoría de licencia */
+  categoriaLicencia?:
+    | "I"
+    | "II-a"
+    | "II-b"
+    | "II-c"
+    | "III-a"
+    | "III-b"
+    | "III-c";
+  /** Filtrar por estado del conductor */
+  estado?: "activo" | "inactivo" | "eventual";
 }
 
 export type ConductoresFindAllEstadoDocumentosData =
@@ -10729,6 +10789,11 @@ export interface NotificacionesFindAllParams {
    * @example 1
    */
   userId: number;
+  /**
+   * Filtrar por destino del usuario
+   * @example "sistema"
+   */
+  destino?: "sistema" | "clientes" | "usuarios" | "conductor";
 }
 
 export type NotificacionesFindAllData = PaginatedNotificacionResultDto;
@@ -10741,6 +10806,13 @@ export interface NotificacionesMarkAsReadParams {
 }
 
 export type NotificacionesMarkAsReadData = NotificacionResultDto;
+
+export interface NotificacionesMarkAsDismissedParams {
+  userId: number;
+  id: number;
+}
+
+export type NotificacionesMarkAsDismissedData = NotificacionResultDto;
 
 export interface NotificacionesCreateForConductorParams {
   conductorId: number;
@@ -10773,6 +10845,14 @@ export interface NotificacionesMarkAsReadByConductorParams {
 }
 
 export type NotificacionesMarkAsReadByConductorData = NotificacionResultDto;
+
+export interface NotificacionesMarkAsDismissedByConductorParams {
+  conductorId: number;
+  id: number;
+}
+
+export type NotificacionesMarkAsDismissedByConductorData =
+  NotificacionResultDto;
 
 export interface NotificacionesPreviewVencimientosParams {
   /**
@@ -12317,6 +12397,11 @@ export namespace Conductores {
         | "III-a"
         | "III-b"
         | "III-c";
+      /**
+       * Filtrar por estado del conductor
+       * @example "activo"
+       */
+      estado?: "activo" | "inactivo" | "eventual";
     };
     export type RequestBody = never;
     export type RequestHeaders = {};
@@ -12352,6 +12437,21 @@ export namespace Conductores {
        * @example "incompleto"
        */
       filtro?: "completo" | "incompleto";
+      /** Búsqueda por nombre, DNI o número de licencia */
+      search?: string;
+      /** Filtrar por clase de licencia */
+      claseLicencia?: "A" | "B";
+      /** Filtrar por categoría de licencia */
+      categoriaLicencia?:
+        | "I"
+        | "II-a"
+        | "II-b"
+        | "II-c"
+        | "III-a"
+        | "III-b"
+        | "III-c";
+      /** Filtrar por estado del conductor */
+      estado?: "activo" | "inactivo" | "eventual";
     };
     export type RequestBody = never;
     export type RequestHeaders = {};
@@ -14164,6 +14264,11 @@ export namespace Notificaciones {
        * @example 1
        */
       userId: number;
+      /**
+       * Filtrar por destino del usuario
+       * @example "sistema"
+       */
+      destino?: "sistema" | "clientes" | "usuarios" | "conductor";
     };
     export type RequestBody = never;
     export type RequestHeaders = {};
@@ -14204,6 +14309,26 @@ export namespace Notificaciones {
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = NotificacionesMarkAsReadData;
+  }
+
+  /**
+   * No description
+   * @tags notificaciones
+   * @name NotificacionesMarkAsDismissed
+   * @summary Ocultar notificación para un usuario
+   * @request POST:/notificacion/ocultar/{id}
+   * @response `200` `NotificacionesMarkAsDismissedData`
+   */
+  export namespace NotificacionesMarkAsDismissed {
+    export type RequestParams = {
+      id: number;
+    };
+    export type RequestQuery = {
+      userId: number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = NotificacionesMarkAsDismissedData;
   }
 
   /**
@@ -14273,6 +14398,26 @@ export namespace Notificaciones {
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = NotificacionesMarkAsReadByConductorData;
+  }
+
+  /**
+   * No description
+   * @tags notificaciones
+   * @name NotificacionesMarkAsDismissedByConductor
+   * @summary Ocultar notificación para un conductor
+   * @request POST:/notificacion/ocultar-conductor/{id}
+   * @response `200` `NotificacionesMarkAsDismissedByConductorData`
+   */
+  export namespace NotificacionesMarkAsDismissedByConductor {
+    export type RequestParams = {
+      id: number;
+    };
+    export type RequestQuery = {
+      conductorId: number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = NotificacionesMarkAsDismissedByConductorData;
   }
 
   /**
@@ -19767,6 +19912,27 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags notificaciones
+     * @name NotificacionesMarkAsDismissed
+     * @summary Ocultar notificación para un usuario
+     * @request POST:/notificacion/ocultar/{id}
+     * @response `200` `NotificacionesMarkAsDismissedData`
+     */
+    markAsDismissed: (
+      { id, ...query }: NotificacionesMarkAsDismissedParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<NotificacionesMarkAsDismissedData, any>({
+        path: `/notificacion/ocultar/${id}`,
+        method: "POST",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags notificaciones
      * @name NotificacionesCreateForConductor
      * @summary Crear una nueva notificación para un conductor
      * @request POST:/notificacion/create-conductor/{conductorId}
@@ -19822,6 +19988,27 @@ export class Api<SecurityDataType extends unknown> {
     ) =>
       this.http.request<NotificacionesMarkAsReadByConductorData, any>({
         path: `/notificacion/leido-conductor/${id}`,
+        method: "POST",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags notificaciones
+     * @name NotificacionesMarkAsDismissedByConductor
+     * @summary Ocultar notificación para un conductor
+     * @request POST:/notificacion/ocultar-conductor/{id}
+     * @response `200` `NotificacionesMarkAsDismissedByConductorData`
+     */
+    markAsDismissedByConductor: (
+      { id, ...query }: NotificacionesMarkAsDismissedByConductorParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<NotificacionesMarkAsDismissedByConductorData, any>({
+        path: `/notificacion/ocultar-conductor/${id}`,
         method: "POST",
         query: query,
         format: "json",

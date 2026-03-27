@@ -8,7 +8,6 @@ import { PATH, buildPath } from '@route/path.route';
   selector: 'app-notificaciones',
   imports: [CommonModule],
   templateUrl: './notificaciones.html',
-  styleUrl: './notificaciones.css',
 })
 export class Notificaciones {
   private service = inject(NotificacionService);
@@ -43,6 +42,11 @@ export class Notificaciones {
   async markAsRead(id: number, event: Event) {
     event.stopPropagation();
     await this.service.markAsRead(id);
+  }
+
+  async ocultar(id: number, event: Event) {
+    event.stopPropagation();
+    await this.service.ocultar(id);
   }
 
   async handleNotificationClick(notificacion: any, event: Event) {
