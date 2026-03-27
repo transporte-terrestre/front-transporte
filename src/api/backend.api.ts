@@ -1491,6 +1491,11 @@ export interface VehiculoEstadoDocumentosDto {
    */
   imagenes: string[];
   /**
+   * Estado del vehículo
+   * @example "disponible"
+   */
+  estado: string;
+  /**
    * Estado del documento: activo (existe y vigente), caducado (existe pero vencido), nulo (no existe)
    * @example "activo"
    */
@@ -3533,7 +3538,7 @@ export interface DocumentoItemDto {
   observacion?: string;
   /**
    * Fecha de Vencimiento Inicial/Por defecto
-   * @example "2026-03-25T21:13:18.303Z"
+   * @example "2026-03-27T17:32:53.394Z"
    */
   fechaVencimiento?: string;
 }
@@ -3716,17 +3721,17 @@ export interface BotiquinItemDto {
   habilitado: boolean;
   /**
    * Fecha de Vencimiento actual
-   * @example "2026-03-25T21:13:18.315Z"
+   * @example "2026-03-27T17:32:53.397Z"
    */
   fechaVencimiento?: string;
   /**
    * Fecha de Salida
-   * @example "2026-03-25T21:13:18.315Z"
+   * @example "2026-03-27T17:32:53.397Z"
    */
   fechaSalida?: string;
   /**
    * Fecha de Reposición
-   * @example "2026-03-25T21:13:18.315Z"
+   * @example "2026-03-27T17:32:53.397Z"
    */
   fechaReposicion?: string;
 }
@@ -9840,6 +9845,8 @@ export interface StorageResultDto {
 
 export type AppGetHelloData = any;
 
+export type AppTestErrorData = any;
+
 export type AuthLoginData = LoginResultDto;
 
 export type AuthLoginConductorData = ConductorLoginResultDto;
@@ -10103,6 +10110,21 @@ export interface VehiculosFindAllEstadoDocumentosParams {
    * @example "incompleto"
    */
   filtro?: "completo" | "incompleto";
+  /**
+   * Filtrar por estado del vehículo
+   * @example "alquilado"
+   */
+  estado?: string;
+  /**
+   * ID de la marca para filtrar
+   * @example 1
+   */
+  marcaId?: number;
+  /**
+   * Placa del vehículo para filtrar
+   * @example "ABC-123"
+   */
+  placa?: string;
 }
 
 export type VehiculosFindAllEstadoDocumentosData =
@@ -11977,6 +11999,21 @@ export namespace App {
     export type RequestHeaders = {};
     export type ResponseBody = AppGetHelloData;
   }
+
+  /**
+   * No description
+   * @tags App
+   * @name AppTestError
+   * @request GET:/test-error
+   * @response `200` `AppTestErrorData`
+   */
+  export namespace AppTestError {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = AppTestErrorData;
+  }
 }
 
 export namespace Auth {
@@ -12586,7 +12623,7 @@ export namespace Dashboard {
    * No description
    * @tags dashboard
    * @name DashboardGetIngresosMensuales
-   * @summary Obtener ingresos de los últimos 6 meses
+   * @summary Obtener kilometraje de los últimos 6 meses (alias para compatibilidad)
    * @request GET:/dashboard/ingresos-mensuales
    * @secure
    * @response `200` `DashboardGetIngresosMensualesData`
@@ -12680,6 +12717,21 @@ export namespace Vehiculos {
        * @example "incompleto"
        */
       filtro?: "completo" | "incompleto";
+      /**
+       * Filtrar por estado del vehículo
+       * @example "alquilado"
+       */
+      estado?: string;
+      /**
+       * ID de la marca para filtrar
+       * @example 1
+       */
+      marcaId?: number;
+      /**
+       * Placa del vehículo para filtrar
+       * @example "ABC-123"
+       */
+      placa?: string;
     };
     export type RequestBody = never;
     export type RequestHeaders = {};
@@ -17524,6 +17576,21 @@ export class Api<SecurityDataType extends unknown> {
         method: "GET",
         ...params,
       }),
+
+    /**
+     * No description
+     *
+     * @tags App
+     * @name AppTestError
+     * @request GET:/test-error
+     * @response `200` `AppTestErrorData`
+     */
+    testError: (params: RequestParams = {}) =>
+      this.http.request<AppTestErrorData, any>({
+        path: `/test-error`,
+        method: "GET",
+        ...params,
+      }),
   };
   auth = {
     /**
@@ -18147,7 +18214,7 @@ export class Api<SecurityDataType extends unknown> {
      *
      * @tags dashboard
      * @name DashboardGetIngresosMensuales
-     * @summary Obtener ingresos de los últimos 6 meses
+     * @summary Obtener kilometraje de los últimos 6 meses (alias para compatibilidad)
      * @request GET:/dashboard/ingresos-mensuales
      * @secure
      * @response `200` `DashboardGetIngresosMensualesData`

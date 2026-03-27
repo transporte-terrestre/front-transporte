@@ -1,5 +1,4 @@
 import { Component, inject, input, output, OnInit, effect, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ApiResponse, ApiBody, ApiField, MantenimientoDocumentoResultDto } from 'api/backend.api';
 import { VehiculoInputSearch } from '@module/admin/components/input-searchs/vehiculo-input-search/vehiculo-input-search';
@@ -104,8 +103,18 @@ export class MantenimientoForm implements OnInit {
     requireExpiration?: boolean;
   }[] = [
     { value: 'factura', label: 'Factura', requireIssue: false, requireExpiration: false },
-    { value: 'guia_remision', label: 'Guía de Remisión', requireIssue: false, requireExpiration: false },
-    { value: 'informe_tecnico', label: 'Informe Técnico', requireIssue: false, requireExpiration: false },
+    {
+      value: 'guia_remision',
+      label: 'Guía de Remisión',
+      requireIssue: false,
+      requireExpiration: false,
+    },
+    {
+      value: 'informe_tecnico',
+      label: 'Informe Técnico',
+      requireIssue: false,
+      requireExpiration: false,
+    },
     { value: 'cotizacion', label: 'Cotización', requireIssue: false, requireExpiration: false },
     { value: 'fotos', label: 'Fotos', requireIssue: false, requireExpiration: false },
     { value: 'cartilla', label: 'Cartilla', requireIssue: false, requireExpiration: false },
