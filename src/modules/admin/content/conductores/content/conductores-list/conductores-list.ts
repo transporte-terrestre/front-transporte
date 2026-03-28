@@ -5,10 +5,11 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { ConductorService } from '@service/admin/conductor.service';
-import { ApiResponse, ApiBody } from 'api/backend.api';
+import { ApiResponse, ApiBody, ConductoresFindAllParams, ConductoresFindAllEstadoDocumentosParams } from 'api/backend.api';
 import { ToastService } from '@service/toast.service';
 import { AlertService } from '@service/alert.service';
 import { ModalForm } from '../../../../components/modal-form/modal-form';
+import { ConductorEstadoUpdate } from './layout/conductor-estado-update/conductor-estado-update';
 import { ConductorForm, ConductorFormSubmitData, PendingConductorDocument } from '../../layout/conductor-form/conductor-form';
 import { PaginationComponent } from '../../../../components/pagination/pagination';
 import { PATH, buildPath } from '@route/path.route';
@@ -26,6 +27,7 @@ import { ConductorDetail } from '../../layout/conductor-detail/conductor-detail'
     PaginationComponent,
     ModalInfo,
     ConductorDetail,
+    ConductorEstadoUpdate,
   ],
   templateUrl: './conductores-list.html',
   styleUrl: './conductores-list.css',
@@ -58,6 +60,30 @@ export class ConductoresList implements OnInit, OnDestroy {
   searchTerm = signal('');
   fechaInicio = signal('');
   fechaFin = signal('');
+  estado = signal<string>('');
+  claseLicencia = signal<string>('');
+  categoriaLicencia = signal<string>('');
+
+  estados = [
+    { value: 'activo', label: 'Activo' },
+    { value: 'inactivo', label: 'Inactivo' },
+    { value: 'eventual', label: 'Eventual' },
+  ];
+
+  clases = [
+    { value: 'A', label: 'Clase A' },
+    { value: 'B', label: 'Clase B' },
+  ];
+
+  categorias = [
+    { value: 'I', label: 'I' },
+    { value: 'II-a', label: 'II-a' },
+    { value: 'II-b', label: 'II-b' },
+    { value: 'II-c', label: 'II-c' },
+    { value: 'III-a', label: 'III-a' },
+    { value: 'III-b', label: 'III-b' },
+    { value: 'III-c', label: 'III-c' },
+  ];
 
   conductorFormComponent = viewChild<ConductorForm>(ConductorForm);
   tableContainer = viewChild<ElementRef>('tableContainer');
@@ -134,6 +160,10 @@ export class ConductoresList implements OnInit, OnDestroy {
           page: this.currentPage(),
           limit: this.pageSize(),
           filtro: filtroDoc,
+          search: this.searchTerm() || undefined,
+          estado: (this.estado() as ConductoresFindAllEstadoDocumentosParams['estado']) || undefined,
+          claseLicencia: (this.claseLicencia() as ConductoresFindAllEstadoDocumentosParams['claseLicencia']) || undefined,
+          categoriaLicencia: (this.categoriaLicencia() as ConductoresFindAllEstadoDocumentosParams['categoriaLicencia']) || undefined,
         });
         this.conductoresEstadoDocumentos.set(response.data);
         this.conductores.set([]);
@@ -145,6 +175,9 @@ export class ConductoresList implements OnInit, OnDestroy {
           search: this.searchTerm() || undefined,
           fechaInicio: this.fechaInicio() || undefined,
           fechaFin: this.fechaFin() || undefined,
+          estado: (this.estado() as ConductoresFindAllParams['estado']) || undefined,
+          claseLicencia: (this.claseLicencia() as ConductoresFindAllParams['claseLicencia']) || undefined,
+          categoriaLicencia: (this.categoriaLicencia() as ConductoresFindAllParams['categoriaLicencia']) || undefined,
         });
         this.conductores.set(response.data);
         this.conductoresEstadoDocumentos.set([]);
@@ -188,6 +221,9 @@ export class ConductoresList implements OnInit, OnDestroy {
     this.searchTerm.set('');
     this.fechaInicio.set('');
     this.fechaFin.set('');
+    this.estado.set('');
+    this.claseLicencia.set('');
+    this.categoriaLicencia.set('');
     this.currentPage.set(1);
     this.loadConductores();
   }
@@ -297,7 +333,7 @@ export class ConductoresList implements OnInit, OnDestroy {
           try {
             await this.conductorService.createDocumento({
               conductorId: newConductor.id,
-              tipo: doc.tipo as any, // Cast to any here as the endpoint expects a specific union
+              tipo: doc.tipo as ApiBody<'conductores', 'createDocumento'>['tipo'],
               nombre: doc.data.nombre,
               url: doc.data.url,
               fechaEmision: doc.data.fechaEmision,

@@ -19,8 +19,6 @@ interface StatCard {
   value: string;
   icon: string;
   color: string;
-  change: string;
-  trend: 'up' | 'down';
 }
 
 interface VehiculoEstadoVM {
@@ -40,7 +38,9 @@ interface ViajeRecienteVM {
   color: string;
 }
 
-interface MantenimientoProximoVM extends MantenimientoProximoDto {}
+interface MantenimientoProximoVM extends MantenimientoProximoDto {
+  estado: string;
+}
 interface RutaPopularVM extends RutaPopularDto {}
 interface IngresoMensualVM extends IngresoMensualDto {}
 
@@ -74,15 +74,8 @@ export class Dashboard implements OnInit {
   // Rutas más utilizadas
   rutasPopulares = signal<RutaPopularVM[]>([]);
 
-  // Kilometraje mensual (Mock)
-  kilometrajeMensual = signal<IngresoMensualVM[]>([
-    { mes: 'Jul', monto: 12500 },
-    { mes: 'Ago', monto: 15800 },
-    { mes: 'Sep', monto: 18200 },
-    { mes: 'Oct', monto: 16900 },
-    { mes: 'Nov', monto: 19500 },
-    { mes: 'Dic', monto: 22100 },
-  ]);
+  // Kilometraje mensual
+  kilometrajeMensual = signal<IngresoMensualVM[]>([]);
 
   ngOnInit() {
     this.loadDashboardData();
@@ -97,6 +90,7 @@ export class Dashboard implements OnInit {
       this.loadViajesRecientes(),
       this.loadMantenimientosProximos(),
       this.loadRutasPopulares(),
+      this.loadKilometrajeMensual(),
     ])
       .catch((error) => {
         console.error('Error loading dashboard data', error);
@@ -115,32 +109,24 @@ export class Dashboard implements OnInit {
           value: data?.totalVehiculos?.toString(),
           icon: 'fa-truck',
           color: 'bg-blue-500',
-          change: `+${data.cambioVehiculos}%`,
-          trend: 'up',
         },
         {
           title: 'Conductores Activos',
           value: data?.conductoresActivos?.toString(),
           icon: 'fa-user-tie',
           color: 'bg-green-500',
-          change: `+${data.cambioConductores}%`,
-          trend: 'up',
         },
         {
           title: 'Viajes Hoy',
           value: data?.viajesHoy?.toString(),
           icon: 'fa-route',
           color: 'bg-purple-500',
-          change: `+${data.cambioViajes}%`,
-          trend: 'up',
         },
         {
           title: 'Clientes',
           value: data?.totalClientes?.toString(),
           icon: 'fa-users',
           color: 'bg-orange-500',
-          change: `+${data.cambioClientes}%`,
-          trend: 'up',
         },
       ]);
     });
@@ -209,7 +195,13 @@ export class Dashboard implements OnInit {
 
   private loadMantenimientosProximos() {
     return this.dashboardService.getMantenimientosProximos().then((response) => {
-      this.mantenimientosProximos.set(response.data || []);
+      this.mantenimientosProximos.set((response.data as any) || []);
+    });
+  }
+
+  private loadKilometrajeMensual() {
+    return this.dashboardService.getIngresosMensuales().then((response) => {
+      this.kilometrajeMensual.set(response.data || []);
     });
   }
 
@@ -217,6 +209,24 @@ export class Dashboard implements OnInit {
     return this.dashboardService.getRutasPopulares().then((response) => {
       this.rutasPopulares.set(response.data || []);
     });
+  }
+
+  getEstadoClass(estado: string): string {
+    const classes: { [key: string]: string } = {
+      pendiente: 'bg-info/10 text-info border-info/20',
+      en_proceso: 'bg-warning/10 text-warning border-warning/20',
+      finalizado: 'bg-success/10 text-success border-success/20',
+    };
+    return classes[estado] || 'bg-text/10 text-text/60 border-text/10';
+  }
+
+  getEstadoLabel(estado: string): string {
+    const labels: { [key: string]: string } = {
+      pendiente: 'Pendiente',
+      en_proceso: 'En Proceso',
+      finalizado: 'Finalizado',
+    };
+    return labels[estado] || estado;
   }
 
   getPrioridadClass(prioridad: string): string {

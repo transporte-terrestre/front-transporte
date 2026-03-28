@@ -1,20 +1,21 @@
 import { Component, inject, input, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { VehiculoService } from '@service/admin/vehiculo.service';
+import { ConductorService } from '@service/admin/conductor.service';
 import { ToastService } from '@service/toast.service';
 import { getErrorMessage } from '@helper/error.helper';
 import { ApiBody } from 'api/backend.api';
 
 @Component({
-  selector: 'app-vehiculo-estado-update',
+  selector: 'app-conductor-estado-update',
+  standalone: true,
   imports: [CommonModule],
-  templateUrl: './vehiculo-estado-update.html',
+  templateUrl: './conductor-estado-update.html',
 })
-export class VehiculoEstadoUpdate {
-  private vehiculoService = inject(VehiculoService);
+export class ConductorEstadoUpdate {
+  private conductorService = inject(ConductorService);
   private toastService = inject(ToastService);
 
-  vehiculoId = input.required<number>();
+  conductorId = input.required<number>();
   estadoActual = input.required<string>();
 
   onStatusUpdated = output<void>();
@@ -24,11 +25,9 @@ export class VehiculoEstadoUpdate {
   dropdownPosition = signal({ top: '0px', left: '0px', transform: 'none' });
 
   estados = [
-    { value: 'disponible', label: 'Disponible', icon: 'fa-check-circle', class: 'text-success' },
-    { value: 'circulacion', label: 'Circulacion', icon: 'fa-road', class: 'text-info' },
-    { value: 'taller', label: 'Taller', icon: 'fa-wrench', class: 'text-warning' },
-    { value: 'alquilado', label: 'Alquilado', icon: 'fa-key', class: 'text-primary' },
-    { value: 'retirado', label: 'Retirado', icon: 'fa-times-circle', class: 'text-danger' },
+    { value: 'activo', label: 'Activo', icon: 'fa-check-circle', class: 'text-success' },
+    { value: 'inactivo', label: 'Inactivo', icon: 'fa-times-circle', class: 'text-danger' },
+    { value: 'eventual', label: 'Eventual', icon: 'fa-user-clock', class: 'text-warning' },
   ];
 
   toggleDropdown(event: Event) {
@@ -40,12 +39,12 @@ export class VehiculoEstadoUpdate {
       const rect = target.getBoundingClientRect();
       const windowHeight = window.innerHeight;
 
-      // Default w-40 = 160px. Heights vary, ~160px.
-      const dropUp = rect.bottom + 160 > windowHeight;
+      // Default w-40 = 160px.
+      const dropUp = rect.bottom + 140 > windowHeight;
 
       this.dropdownPosition.set({
         top: dropUp ? `${rect.top - 4}px` : `${rect.bottom + 4}px`,
-        left: `${rect.right - 160}px`,
+        left: `${rect.right - 150}px`,
         transform: dropUp ? 'translateY(-100%)' : 'none',
       });
 
@@ -65,14 +64,14 @@ export class VehiculoEstadoUpdate {
 
     this.loading.set(true);
     try {
-      await this.vehiculoService.update(this.vehiculoId(), {
-        estado: estado as ApiBody<'vehiculos', 'update'>['estado'],
+      await this.conductorService.update(this.conductorId(), {
+        estado: estado as ApiBody<'conductores', 'update'>['estado'],
       });
       this.toastService.success('Estado actualizado correctamente');
       this.onStatusUpdated.emit();
     } catch (error) {
-      console.error('Error al actualizar estado del vehículo:', error);
-      this.toastService.error(getErrorMessage(error, 'Error al actualizar el estado del vehículo'));
+      console.error('Error al actualizar estado del conductor:', error);
+      this.toastService.error(getErrorMessage(error, 'Error al actualizar el estado del conductor'));
     } finally {
       this.loading.set(false);
     }
@@ -80,16 +79,12 @@ export class VehiculoEstadoUpdate {
 
   getEstadoBadgeClass(estado: string): string {
     switch (estado) {
-      case 'disponible':
+      case 'activo':
         return 'bg-success/10 text-success';
-      case 'circulacion':
-        return 'bg-info/10 text-info';
-      case 'taller':
-        return 'bg-warning/10 text-warning';
-      case 'alquilado':
-        return 'bg-primary/20 text-text font-inter-bold';
-      case 'retirado':
+      case 'inactivo':
         return 'bg-danger/10 text-danger';
+      case 'eventual':
+        return 'bg-warning/10 text-warning';
       default:
         return 'bg-text/10 text-text';
     }
@@ -97,16 +92,12 @@ export class VehiculoEstadoUpdate {
 
   getEstadoIcon(estado: string): string {
     switch (estado) {
-      case 'disponible':
+      case 'activo':
         return 'fa-check-circle';
-      case 'circulacion':
-        return 'fa-road';
-      case 'taller':
-        return 'fa-wrench';
-      case 'alquilado':
-        return 'fa-key';
-      case 'retirado':
+      case 'inactivo':
         return 'fa-times-circle';
+      case 'eventual':
+        return 'fa-user-clock';
       default:
         return 'fa-circle';
     }

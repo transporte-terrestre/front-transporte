@@ -28,14 +28,14 @@
       <!-- Detailed Info (Right Column) -->
       <div class="flex-1 space-y-3">
         <!-- Personal Info Header -->
-        <h3 class="text-sm font-inter-bold text-text mb-2 flex items-center gap-2">
-          <i class="fas fa-user-circle text-primary"></i> Información Personal
+        <h3 class="text-sm font-inter-bold text-text mb-4 flex items-center gap-2">
+          Información Personal
         </h3>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
-              DNI
+              <i class="fas fa-fingerprint text-secondary"></i> DNI
             </label>
             <div
               class="w-full px-3 py-2 text-sm bg-text/5 border border-transparent rounded-lg text-text font-inter-medium"
@@ -46,7 +46,7 @@
 
           <div>
             <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
-              Nombres
+              <i class="fas fa-user text-secondary"></i> Nombres
             </label>
             <div
               class="w-full px-3 py-2 text-sm bg-text/5 border border-transparent rounded-lg text-text font-inter-medium"
@@ -57,7 +57,7 @@
 
           <div>
             <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
-              Apellidos
+              <i class="fas fa-users text-secondary"></i> Apellidos
             </label>
             <div
               class="w-full px-3 py-2 text-sm bg-text/5 border border-transparent rounded-lg text-text font-inter-medium"
@@ -68,7 +68,7 @@
 
           <div>
             <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
-              Celular
+              <i class="fas fa-phone text-secondary"></i> Celular
             </label>
             <div
               class="w-full px-3 py-2 text-sm bg-text/5 border border-transparent rounded-lg text-text font-inter-medium"
@@ -77,9 +77,9 @@
             </div>
           </div>
 
-          <div class="sm:col-span-2">
+          <div>
             <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
-              Email
+              <i class="fas fa-envelope text-secondary"></i> Email
             </label>
             <div
               class="w-full px-3 py-2 text-sm bg-text/5 border border-transparent rounded-lg text-text font-inter-medium"
@@ -87,15 +87,31 @@
               {{ conductor()!.email || '-' }}
             </div>
           </div>
+
+          <div>
+            <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+              <i class="fas fa-info-circle text-secondary"></i> Estado
+            </label>
+            <div
+              class="w-full px-3 py-2 text-sm bg-text/5 border border-transparent rounded-lg font-inter-bold uppercase text-center"
+              [class.text-success]="conductor()!.estado === 'activo'"
+              [class.text-danger]="conductor()!.estado === 'inactivo'"
+              [class.text-warning]="conductor()!.estado === 'eventual'"
+            >
+              {{ conductor()!.estado }}
+            </div>
+          </div>
         </div>
 
-        <div class="border-t border-text/10 pt-3 mt-3">
-          <h3 class="text-sm font-inter-bold text-text mb-2 flex items-center gap-2">
-            <i class="fas fa-id-card text-secondary"></i> Licencia
+        <div class="mt-6">
+          <h3 class="text-sm font-inter-bold text-text mb-4 flex items-center gap-2">
+            Licencia
           </h3>
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div class="sm:col-span-1">
-              <label class="text-xs font-inter-semibold text-text mb-1.5">Número</label>
+              <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+                <i class="fas fa-hashtag text-secondary"></i> Número
+              </label>
               <div
                 class="w-full px-3 py-2 text-sm bg-text/5 border border-transparent rounded-lg text-text font-inter-bold"
               >
@@ -103,7 +119,9 @@
               </div>
             </div>
             <div>
-              <label class="text-xs font-inter-semibold text-text mb-1.5">Clase</label>
+              <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+                <i class="fas fa-layer-group text-secondary"></i> Clase
+              </label>
               <div
                 class="w-full px-3 py-2 text-sm bg-text/5 border border-transparent rounded-lg text-text font-inter-medium text-center"
               >
@@ -111,7 +129,9 @@
               </div>
             </div>
             <div>
-              <label class="text-xs font-inter-semibold text-text mb-1.5">Categoría</label>
+              <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+                <i class="fas fa-tag text-secondary"></i> Categoría
+              </label>
               <div
                 class="w-full px-3 py-2 text-sm bg-text/5 border border-transparent rounded-lg text-text font-inter-medium text-center"
               >
@@ -125,8 +145,8 @@
 
     <!-- Documentos -->
     <div class="border-t border-text/5 pt-3">
-      <label class="text-xs font-inter-semibold text-text mb-2 flex items-center gap-2">
-        <i class="fas fa-file-alt text-secondary"></i> Documentos
+      <label class="text-xs font-inter-semibold text-text mb-4 flex items-center gap-2">
+        Documentos
       </label>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
         @for (type of documentTypes; track type.value) {

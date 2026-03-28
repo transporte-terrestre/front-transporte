@@ -47,11 +47,15 @@
           [class.hover:shadow-md]="hasValidUrl(notif)"
           (click)="handleNotificationClick(notif, $event)"
         >
-          <!-- Unread Indicator -->
-          <div
-            *ngIf="!notif.leido"
-            class="absolute top-4 right-4 w-2 h-2 rounded-full bg-secondary"
-          ></div>
+
+          <!-- Dismiss Button (Hidden by default, shown on group hover) -->
+          <button
+            (click)="ocultar(notif.id, $event)"
+            class="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full bg-text/5 hover:bg-text/10 text-text/30 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all z-20"
+            title="Ocultar notificación"
+          >
+            <i class="fas fa-times text-[10px]"></i>
+          </button>
 
           <div class="flex gap-4">
             <!-- Icon based on type -->

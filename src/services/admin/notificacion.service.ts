@@ -141,6 +141,30 @@ export class NotificacionService {
     // In a real app we would want a bulk endpoint
     await Promise.all(unread.map((n) => this.markAsRead(n.id)));
   }
+  async ocultar(id: number) {
+    const user = this.authService.user();
+    if (!user || user.id === undefined) throw new Error('User not authenticated');
+
+    // Store notification before removing for count update
+    const notification = this.notificaciones().find(n => n.id === id);
+    if (!notification) return;
+
+    // Optimistic update
+    this.notificaciones.update((list) => list.filter((n) => n.id !== id));
+
+    // Update unread count if necessary
+    if (!notification.leido) {
+      this.totalUnreadCount.update(count => Math.max(0, count - 1));
+    }
+
+    try {
+      await this.api.notificaciones.markAsDismissed({ id, userId: user.id }, {});
+    } catch (error) {
+      console.error('Error hiding notification:', error);
+      // Fallback: reload notifications on error
+      this.loadNotificaciones();
+    }
+  }
   open() {
     this.isOpen.set(true);
     this.loadNotificaciones();

@@ -179,6 +179,9 @@ export class VehiculosList implements OnInit, OnDestroy {
           page: this.currentPage(),
           limit: this.pageSize(),
           filtro: filtroDoc,
+          estado: this.estado() || undefined,
+          marcaId: this.selectedMarcaForSearch()?.id || undefined,
+          placa: this.searchTerm() || undefined,
         });
         this.vehiculosEstadoDocumentos.set(response.data);
         this.vehiculos.set([]);
@@ -419,6 +422,8 @@ export class VehiculosList implements OnInit, OnDestroy {
         return 'bg-warning/10 text-warning';
       case 'retirado':
         return 'bg-danger/10 text-danger';
+      case 'alquilado':
+        return 'bg-primary/40 text-text';
       default:
         return 'bg-text/10 text-text';
     }
@@ -434,6 +439,8 @@ export class VehiculosList implements OnInit, OnDestroy {
         return 'fa-wrench';
       case 'retirado':
         return 'fa-times-circle';
+      case 'alquilado':
+        return 'fa-key';
       default:
         return 'fa-circle';
     }

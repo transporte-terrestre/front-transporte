@@ -60,55 +60,57 @@
     </div>
 
     <!-- Buscador y Filtros -->
-    @if (!filtroDocumentos()) {
-      <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
-        <!-- Búsqueda -->
-        <div class="relative sm:col-span-4 lg:col-span-2">
-          <i
-            class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"
-          ></i>
-          <input
-            type="text"
-            [ngModel]="searchTerm()"
-            (ngModelChange)="onSearchChange($event)"
-            placeholder="Buscar por placa, marca, modelo..."
-            class="w-full pl-10 pr-4 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all"
-          />
-        </div>
-
-        <!-- Estado -->
-        <div class="relative sm:col-span-2 lg:col-span-1">
-          <i class="fas fa-tag absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"></i>
-          <select
-            [ngModel]="estado()"
-            (ngModelChange)="estado.set($event); onFilterChange()"
-            class="w-full pl-10 pr-8 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all appearance-none cursor-pointer"
-          >
-            <option value="">Todos los Estados</option>
-            <option value="disponible">Disponible</option>
-            <option value="circulacion">En Circulación</option>
-            <option value="taller">En Taller</option>
-            <option value="alquilado">Alquilado</option>
-            <option value="retirado">Retirado</option>
-          </select>
-          <i
-            class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-text/40 text-[10px] pointer-events-none"
-          ></i>
-        </div>
-
-        <!-- Marca -->
-        <div
-          class="relative sm:col-span-2 lg:col-span-1 border-2 border-text/10 rounded-lg focus-within:border-secondary transition-all"
-        >
-          <app-marca-input-search
-            [ngModel]="selectedMarcaForSearch()"
-            (ngModelChange)="onMarcaChange($event)"
-            [showClear]="true"
-            class="block w-full"
-          />
-        </div>
+    <div class="grid grid-cols-1 sm:grid-cols-4 lg:grid-cols-4 gap-3">
+      <!-- Búsqueda -->
+      <div
+        class="relative col-span-1 sm:col-span-4 lg:col-span-2"
+        [class.col-span-1]="true"
+      >
+        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"></i>
+        <input
+          type="text"
+          [ngModel]="searchTerm()"
+          (ngModelChange)="onSearchChange($event)"
+          [placeholder]="filtroDocumentos() ? 'Buscar por placa...' : 'Buscar por placa, marca, modelo...'"
+          class="w-full pl-10 pr-4 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all"
+        />
       </div>
-    }
+
+      <!-- Estado -->
+      <div
+        class="relative col-span-1 sm:col-span-4 md:col-span-2 lg:col-span-1"
+        [class.col-span-1]="true"
+      >
+        <i class="fas fa-tag absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"></i>
+        <select
+          [ngModel]="estado()"
+          (ngModelChange)="estado.set($event); onFilterChange()"
+          class="w-full pl-10 pr-8 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all appearance-none cursor-pointer"
+        >
+          <option value="">Todos los Estados</option>
+          <option value="disponible">Disponible</option>
+          <option value="circulacion">En Circulación</option>
+          <option value="taller">En Taller</option>
+          <option value="alquilado">Alquilado</option>
+          <option value="retirado">Retirado</option>
+        </select>
+        <i
+          class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-text/40 text-[10px] pointer-events-none"
+        ></i>
+      </div>
+
+      <!-- Marca -->
+      <div
+        class="relative col-span-1 sm:col-span-4 md:col-span-2 lg:col-span-1 border-2 border-text/10 rounded-lg focus-within:border-secondary transition-all"
+      >
+        <app-marca-input-search
+          [ngModel]="selectedMarcaForSearch()"
+          (ngModelChange)="onMarcaChange($event)"
+          [showClear]="true"
+          class="block w-full"
+        />
+      </div>
+    </div>
   </div>
 
   <!-- Loading State -->
@@ -451,9 +453,18 @@
                         </div>
                       }
                     </div>
-                    <span class="font-inter-bold text-text whitespace-nowrap">{{
-                      vehiculo.placa
-                    }}</span>
+                    <div class="flex flex-col">
+                      <span class="font-inter-bold text-text whitespace-nowrap leading-none">{{
+                        vehiculo.placa
+                      }}</span>
+                      <span
+                        class="text-[10px] font-inter-semibold capitalize mt-1 px-1.5 py-0.5 rounded-md inline-flex items-center gap-1 w-fit"
+                        [class]="getEstadoBadgeClass(vehiculo.estado)"
+                      >
+                        <i [class]="'fas ' + getEstadoIcon(vehiculo.estado) + ' text-[9px]'"></i>
+                        {{ vehiculo.estado }}
+                      </span>
+                    </div>
                   </div>
                 </td>
                 <td class="px-3 py-2 text-center">

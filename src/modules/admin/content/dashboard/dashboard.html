@@ -17,22 +17,6 @@
             {{ stat.title }}
           </p>
           <p class="text-3xl font-anton text-text mt-2">{{ stat.value }}</p>
-          <div class="flex items-center gap-1 mt-2">
-            <i
-              [class]="
-                stat.trend === 'up'
-                  ? 'fas fa-arrow-up text-green-500'
-                  : 'fas fa-arrow-down text-red-500'
-              "
-              class="text-xs"
-            ></i>
-            <span
-              [class]="stat.trend === 'up' ? 'text-green-500' : 'text-red-500'"
-              class="text-xs font-inter-semibold"
-              >{{ stat.change }}</span
-            >
-            <span class="text-xs text-text/60 font-inter-regular">vs mes anterior</span>
-          </div>
         </div>
         <div [class]="stat.color" class="w-12 h-12 rounded-lg flex items-center justify-center">
           <i [class]="'fas ' + stat.icon" class="text-xl text-white"></i>
@@ -221,10 +205,10 @@
               <p class="text-xs font-inter-regular text-text/60">{{ mant.tipo }}</p>
             </div>
             <span
-              [class]="getPrioridadClass(mant.prioridad)"
+              [class]="getEstadoClass(mant.estado)"
               class="px-2 py-1 rounded-md text-[10px] font-inter-semibold uppercase border"
             >
-              {{ mant.prioridad }}
+              {{ getEstadoLabel(mant.estado) }}
             </span>
           </div>
           <div class="flex items-center justify-between mt-3 pt-3 border-t border-text/10">
