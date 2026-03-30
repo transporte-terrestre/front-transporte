@@ -3568,7 +3568,7 @@ export interface DocumentoItemDto {
   observacion?: string;
   /**
    * Fecha de Vencimiento Inicial/Por defecto
-   * @example "2026-03-30T17:23:02.794Z"
+   * @example "2026-03-30T20:42:48.580Z"
    */
   fechaVencimiento?: string;
 }
@@ -3751,17 +3751,17 @@ export interface BotiquinItemDto {
   habilitado: boolean;
   /**
    * Fecha de Vencimiento actual
-   * @example "2026-03-30T17:23:02.821Z"
+   * @example "2026-03-30T20:42:48.590Z"
    */
   fechaVencimiento?: string;
   /**
    * Fecha de Salida
-   * @example "2026-03-30T17:23:02.821Z"
+   * @example "2026-03-30T20:42:48.590Z"
    */
   fechaSalida?: string;
   /**
    * Fecha de Reposición
-   * @example "2026-03-30T17:23:02.821Z"
+   * @example "2026-03-30T20:42:48.590Z"
    */
   fechaReposicion?: string;
 }
@@ -7153,6 +7153,45 @@ export interface ViajeComentarioUpdateDto {
    * @default "observacion"
    */
   tipo: "observacion" | "incidencia" | "novedad" | "general";
+}
+
+export interface ViajeRepostajeMovimientoResultDto {
+  /** @example 1 */
+  id: number;
+  /** @example 1 */
+  viajeTramoId: number;
+  /** @example "diesel" */
+  combustible: string;
+  /** @example "10.50" */
+  galonesEstablecidos: string;
+  /**
+   * @format date-time
+   * @example "2024-01-01T12:00:00Z"
+   */
+  creadoEn: string;
+  /**
+   * @format date-time
+   * @example "2024-01-01T12:00:00Z"
+   */
+  actualizadoEn: string;
+}
+
+export interface ViajeRepostajeMovimientoCreateDto {
+  /**
+   * ID del tramo del viaje
+   * @example 1
+   */
+  viajeTramoId: number;
+  /**
+   * Tipo de combustible
+   * @example "diesel"
+   */
+  combustible: "gasolina" | "diesel" | "gnv" | "glp" | "electrico" | "hibrido";
+  /**
+   * Galones establecidos
+   * @example 10.5
+   */
+  galonesEstablecidos: number;
 }
 
 export interface ViajeTramoResultDto {
@@ -11292,6 +11331,23 @@ export interface ViajesDeleteComentarioParams {
 
 export type ViajesDeleteComentarioData = ViajeComentarioResultDto;
 
+export interface ViajesGetRepostajesPorTramoParams {
+  /** ID del tramo */
+  viajeTramoId: number;
+}
+
+export type ViajesGetRepostajesPorTramoData =
+  ViajeRepostajeMovimientoResultDto[];
+
+export type ViajesRegistrarRepostajeData = ViajeRepostajeMovimientoResultDto;
+
+export interface ViajesDeleteRepostajeParams {
+  /** ID del repostaje */
+  id: number;
+}
+
+export type ViajesDeleteRepostajeData = ViajeRepostajeMovimientoResultDto;
+
 export interface ViajesFindTramosParams {
   /** ID del viaje */
   viajeId: number;
@@ -15387,6 +15443,63 @@ export namespace Viajes {
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = ViajesDeleteComentarioData;
+  }
+
+  /**
+   * No description
+   * @tags viajes
+   * @name ViajesGetRepostajesPorTramo
+   * @summary Obtener todos los repostajes de un tramo
+   * @request GET:/viaje/tramo/{viajeTramoId}/repostajes
+   * @secure
+   * @response `200` `ViajesGetRepostajesPorTramoData`
+   */
+  export namespace ViajesGetRepostajesPorTramo {
+    export type RequestParams = {
+      /** ID del tramo */
+      viajeTramoId: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ViajesGetRepostajesPorTramoData;
+  }
+
+  /**
+   * No description
+   * @tags viajes
+   * @name ViajesRegistrarRepostaje
+   * @summary Registrar un repostaje en un tramo
+   * @request POST:/viaje/tramo/repostaje/create
+   * @secure
+   * @response `201` `ViajesRegistrarRepostajeData`
+   */
+  export namespace ViajesRegistrarRepostaje {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = ViajeRepostajeMovimientoCreateDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = ViajesRegistrarRepostajeData;
+  }
+
+  /**
+   * No description
+   * @tags viajes
+   * @name ViajesDeleteRepostaje
+   * @summary Eliminar un repostaje
+   * @request DELETE:/viaje/tramo/repostaje/delete/{id}
+   * @secure
+   * @response `200` `ViajesDeleteRepostajeData`
+   */
+  export namespace ViajesDeleteRepostaje {
+    export type RequestParams = {
+      /** ID del repostaje */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ViajesDeleteRepostajeData;
   }
 
   /**
@@ -20938,6 +21051,74 @@ export class Api<SecurityDataType extends unknown> {
     ) =>
       this.http.request<ViajesDeleteComentarioData, any>({
         path: `/viaje/comentario/delete/${id}`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags viajes
+     * @name ViajesGetRepostajesPorTramo
+     * @summary Obtener todos los repostajes de un tramo
+     * @request GET:/viaje/tramo/{viajeTramoId}/repostajes
+     * @secure
+     * @response `200` `ViajesGetRepostajesPorTramoData`
+     */
+    getRepostajesPorTramo: (
+      { viajeTramoId, ...query }: ViajesGetRepostajesPorTramoParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ViajesGetRepostajesPorTramoData, any>({
+        path: `/viaje/tramo/${viajeTramoId}/repostajes`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags viajes
+     * @name ViajesRegistrarRepostaje
+     * @summary Registrar un repostaje en un tramo
+     * @request POST:/viaje/tramo/repostaje/create
+     * @secure
+     * @response `201` `ViajesRegistrarRepostajeData`
+     */
+    registrarRepostaje: (
+      data: ViajeRepostajeMovimientoCreateDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ViajesRegistrarRepostajeData, any>({
+        path: `/viaje/tramo/repostaje/create`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags viajes
+     * @name ViajesDeleteRepostaje
+     * @summary Eliminar un repostaje
+     * @request DELETE:/viaje/tramo/repostaje/delete/{id}
+     * @secure
+     * @response `200` `ViajesDeleteRepostajeData`
+     */
+    deleteRepostaje: (
+      { id, ...query }: ViajesDeleteRepostajeParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ViajesDeleteRepostajeData, any>({
+        path: `/viaje/tramo/repostaje/delete/${id}`,
         method: "DELETE",
         secure: true,
         format: "json",

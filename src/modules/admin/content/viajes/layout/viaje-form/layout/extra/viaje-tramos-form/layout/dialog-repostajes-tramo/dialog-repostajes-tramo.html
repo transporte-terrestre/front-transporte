@@ -1,0 +1,199 @@
+<app-modal-form
+  [title]="'Repostaje - ' + tramo().tipo.toUpperCase()"
+  [loading]="loading()"
+  maxWidth="xl"
+  submitText="Aceptar"
+  cancelText="Cerrar"
+  (onSubmit)="closeDialog()"
+  (onClose)="closeDialog()"
+>
+  <div class="p-3 sm:p-6 space-y-4 sm:space-y-6">
+    <!-- Header of the Tramo -->
+    <div
+      class="relative overflow-hidden bg-background border border-text/10 rounded-xl p-3 sm:p-5 shadow-sm"
+    >
+      <div class="flex items-center gap-2 sm:gap-3">
+        <div
+          class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center bg-info/10 text-info"
+        >
+          <i class="fas fa-gas-pump"></i>
+        </div>
+        <div>
+          <h4 class="text-[10px] sm:text-xs font-inter-bold text-text uppercase tracking-wider">
+            Gestor de Combustible
+          </h4>
+          <p class="text-[8px] sm:text-[10px] text-text/50 font-inter-medium">
+            Tramo: {{ tramo().nombreLugar }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nuevo Repostaje Form -->
+    <form [formGroup]="form" (ngSubmit)="guardarRepostaje()" class="space-y-3">
+      <div class="flex items-center justify-between px-1">
+        <h3 class="text-[10px] font-inter-bold text-text/40 uppercase tracking-widest">
+          Nuevo Repostaje
+        </h3>
+      </div>
+
+      <div class="bg-background border border-text/10 p-3 sm:p-4 rounded-xl shadow-sm">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-[10px] font-inter-semibold text-text/60 uppercase tracking-wider mb-1.5"
+              >Combustible <span class="text-danger">*</span></label
+            >
+            <div class="relative">
+              <select formControlName="combustible" class="w-full px-3 py-2 sm:py-2.5 text-xs sm:text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all appearance-none cursor-pointer">
+                <option value="">Seleccione...</option>
+                <option value="diesel">Diesel</option>
+                <option value="gnv">GNV</option>
+                <option value="glp">GLP</option>
+                <option value="gasolina">Gasolina</option>
+                <option value="electrico">Eléctrico</option>
+              </select>
+              <span class="absolute inset-y-0 right-3 flex items-center text-text/60 pointer-events-none">
+                <i class="fas fa-chevron-down text-xs"></i>
+              </span>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-[10px] font-inter-semibold text-text/60 uppercase tracking-wider mb-1.5"
+              >Galones Estd. <span class="text-danger">*</span></label
+            >
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] text-text/40 font-inter-bold pointer-events-none">GAL</span>
+              <input
+                type="number"
+                step="0.01"
+                min="0.01"
+                formControlName="galonesEstablecidos"
+                class="w-full pr-3 pl-10 py-2 sm:py-2.5 text-xs sm:text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all placeholder:text-text/30"
+                placeholder="0.00"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4 flex justify-end">
+          <button
+            type="submit"
+            [disabled]="form.invalid || isSubmitting()"
+            class="px-5 py-2 sm:py-2.5 bg-info text-white text-[10px] sm:text-xs font-inter-bold uppercase tracking-wider rounded-lg hover:bg-info/90 hover:shadow-lg hover:shadow-info/20 focus:ring-2 focus:ring-info/50 focus:ring-offset-1 focus:ring-offset-surface transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none flex items-center gap-2"
+          >
+            @if (isSubmitting()) {
+              <i class="fas fa-spinner fa-spin"></i>
+              Guardando
+            } @else {
+              <i class="fas fa-plus"></i>
+              Registrar Carga
+            }
+          </button>
+        </div>
+      </div>
+    </form>
+
+    <!-- Historial de Repostajes -->
+    <div class="space-y-3">
+      <div class="flex items-center justify-between px-1">
+        <h3 class="text-[10px] font-inter-bold text-text/40 uppercase tracking-widest">
+          Historial de Repostajes
+        </h3>
+        <span class="text-[10px] font-inter-bold text-info bg-info/10 px-2 py-0.5 rounded uppercase">
+          {{ repostajes().length }} Registro{{ repostajes().length !== 1 ? 's' : '' }}
+        </span>
+      </div>
+
+      <div class="max-h-[280px] sm:max-h-[350px] overflow-y-auto pr-2 custom-scrollbar space-y-2">
+        @if (repostajes().length > 0) {
+          @for (repo of repostajes(); track repo.id) {
+            <div
+              class="rounded-xl border transition-all duration-300 group overflow-hidden"
+              [ngClass]="{
+                'bg-background border-text/5 hover:border-text/10 shadow-sm': deletingId() !== repo.id,
+                'bg-danger/10 border-danger/30 shadow-md shadow-danger/5': deletingId() === repo.id
+              }"
+            >
+              <!-- Main Row -->
+              <div class="flex items-center gap-2 sm:gap-3 p-2 sm:p-3">
+                <!-- Icono -->
+                <div
+                  class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center transition-colors"
+                  [ngClass]="{
+                    'bg-text/5 text-text/60 group-hover:bg-info/10 group-hover:text-info': deletingId() !== repo.id,
+                    'bg-danger/20 text-danger': deletingId() === repo.id
+                  }"
+                >
+                  <i class="fas fa-gas-pump fa-fw text-xs" [class.fa-trash-alt]="deletingId() === repo.id"></i>
+                </div>
+
+                <!-- Content -->
+                <div class="flex-1 min-w-0">
+                  <p class="text-[11px] sm:text-xs font-inter-bold truncate uppercase tracking-tight" [ngClass]="deletingId() === repo.id ? 'text-danger' : 'text-text'">
+                    <span class="font-inter-medium text-[9px] sm:text-[10px] mr-1" [ngClass]="deletingId() === repo.id ? 'text-danger/60' : 'text-text/50'">TIPO:</span>
+                    {{ repo.combustible }}
+                  </p>
+                  <div class="flex flex-col gap-0.5 mt-0.5">
+                    <p class="text-[10px] font-inter-medium tracking-wide" [ngClass]="deletingId() === repo.id ? 'text-danger/70' : 'text-text/60'">
+                      Fecha: {{ repo.creadoEn | date:'dd/MM/yyyy • HH:mm' }}
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Amount & Actions -->
+                <div class="flex flex-col items-end gap-1 sm:gap-2 pl-3 sm:pl-4" [ngClass]="deletingId() === repo.id ? '' : 'border-l border-text/5'">
+                  <span class="text-xs sm:text-sm font-inter-bold" [ngClass]="deletingId() === repo.id ? 'text-danger/50' : 'text-text'">
+                    {{ repo.galonesEstablecidos | number:'1.2-2' }} <span class="text-[9px] sm:text-[10px]" [ngClass]="deletingId() === repo.id ? 'text-danger/40' : 'text-text/40'">GAL</span>
+                  </span>
+
+                  @if (deletingId() !== repo.id) {
+                    <button
+                      (click)="confirmarEliminacion(repo.id)"
+                      class="text-[9px] sm:text-[10px] font-inter-bold text-danger/70 uppercase hover:text-danger hover:underline transition-colors focus:outline-none"
+                      [disabled]="isSubmitting() || deletingId() !== null"
+                    >
+                      <i class="fas fa-trash-alt mr-1"></i> Eliminar
+                    </button>
+                  }
+                </div>
+              </div>
+
+              <!-- Inline Confirmation Box -->
+              @if (deletingId() === repo.id) {
+                <div class="flex items-center justify-between p-2 sm:p-3 bg-danger/20 border-t border-danger/20 animate-fade-in transition-all">
+                  <span class="text-[11px] sm:text-xs font-inter-semibold text-danger">¿Quitar del viaje?</span>
+                  <div class="flex items-center gap-2">
+                    <button
+                      (click)="cancelarEliminacion()"
+                      class="px-3 py-1.5 text-[10px] sm:text-xs font-inter-medium text-text/60 hover:text-text transition-colors"
+                      [disabled]="isSubmitting()"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      (click)="eliminarRepostaje(repo.id)"
+                      class="px-3 py-1.5 text-[10px] sm:text-xs font-inter-bold bg-danger text-white rounded hover:bg-danger/90 transition-colors flex items-center gap-1 min-w-[70px] justify-center shadow-sm shadow-danger/20"
+                      [disabled]="isSubmitting()"
+                    >
+                      @if (isSubmitting()) {
+                        <i class="fas fa-spinner fa-spin"></i>
+                      } @else {
+                        Eliminar
+                      }
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        } @else {
+          <div class="flex flex-col items-center justify-center py-6 sm:py-10 opacity-40 bg-text/2 border border-dashed border-text/10 rounded-xl">
+            <i class="fas fa-gas-pump text-2xl sm:text-3xl mb-3 text-text/50"></i>
+            <p class="text-[10px] sm:text-xs font-inter-medium text-center max-w-[200px]">No se han registrado repostajes en este tramo</p>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</app-modal-form>
