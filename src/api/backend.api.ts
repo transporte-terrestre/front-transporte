@@ -3568,7 +3568,7 @@ export interface DocumentoItemDto {
   observacion?: string;
   /**
    * Fecha de Vencimiento Inicial/Por defecto
-   * @example "2026-03-27T21:03:47.321Z"
+   * @example "2026-03-30T17:23:02.794Z"
    */
   fechaVencimiento?: string;
 }
@@ -3751,17 +3751,17 @@ export interface BotiquinItemDto {
   habilitado: boolean;
   /**
    * Fecha de Vencimiento actual
-   * @example "2026-03-27T21:03:47.324Z"
+   * @example "2026-03-30T17:23:02.821Z"
    */
   fechaVencimiento?: string;
   /**
    * Fecha de Salida
-   * @example "2026-03-27T21:03:47.324Z"
+   * @example "2026-03-30T17:23:02.821Z"
    */
   fechaSalida?: string;
   /**
    * Fecha de Reposición
-   * @example "2026-03-27T21:03:47.324Z"
+   * @example "2026-03-30T17:23:02.821Z"
    */
   fechaReposicion?: string;
 }
@@ -5082,6 +5082,14 @@ export interface PaginatedNotificacionResultDto {
   data: NotificacionListDto[];
   /** Metadatos de la paginación */
   meta: PaginationMetaDto;
+}
+
+export interface UnreadCountResultDto {
+  /**
+   * Cantidad de notificaciones no leídas
+   * @example 5
+   */
+  count: number;
 }
 
 export interface NotificacionCreateDto {
@@ -10794,9 +10802,51 @@ export interface NotificacionesFindAllParams {
    * @example "sistema"
    */
   destino?: "sistema" | "clientes" | "usuarios" | "conductor";
+  /**
+   * Filtrar por entidad en metadata (ej: conductor, vehiculo)
+   * @example "conductor"
+   */
+  entidad?: string;
+  /**
+   * Fecha de inicio para filtrar (ISO 8601)
+   * @example "2024-01-01T00:00:00.000Z"
+   */
+  fechaInicio?: string;
+  /**
+   * Fecha de fin para filtrar (ISO 8601)
+   * @example "2024-12-31T23:59:59.999Z"
+   */
+  fechaFin?: string;
 }
 
 export type NotificacionesFindAllData = PaginatedNotificacionResultDto;
+
+export interface NotificacionesCountUnreadParams {
+  /**
+   * ID del usuario
+   * @example 1
+   */
+  userId: number;
+  /** Filtrar por destino */
+  destino?: "sistema" | "clientes" | "usuarios" | "conductor";
+  /**
+   * Filtrar por entidad en metadata (ej: conductor, vehiculo)
+   * @example "conductor"
+   */
+  entidad?: string;
+  /**
+   * Fecha de inicio para filtrar (ISO 8601)
+   * @example "2024-01-01T00:00:00.000Z"
+   */
+  fechaInicio?: string;
+  /**
+   * Fecha de fin para filtrar (ISO 8601)
+   * @example "2024-12-31T23:59:59.999Z"
+   */
+  fechaFin?: string;
+}
+
+export type NotificacionesCountUnreadData = UnreadCountResultDto;
 
 export type NotificacionesCreateData = NotificacionResultDto;
 
@@ -14269,10 +14319,64 @@ export namespace Notificaciones {
        * @example "sistema"
        */
       destino?: "sistema" | "clientes" | "usuarios" | "conductor";
+      /**
+       * Filtrar por entidad en metadata (ej: conductor, vehiculo)
+       * @example "conductor"
+       */
+      entidad?: string;
+      /**
+       * Fecha de inicio para filtrar (ISO 8601)
+       * @example "2024-01-01T00:00:00.000Z"
+       */
+      fechaInicio?: string;
+      /**
+       * Fecha de fin para filtrar (ISO 8601)
+       * @example "2024-12-31T23:59:59.999Z"
+       */
+      fechaFin?: string;
     };
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = NotificacionesFindAllData;
+  }
+
+  /**
+   * No description
+   * @tags notificaciones
+   * @name NotificacionesCountUnread
+   * @summary Obtener cantidad de notificaciones no leídas
+   * @request GET:/notificacion/unread-count
+   * @response `200` `NotificacionesCountUnreadData`
+   */
+  export namespace NotificacionesCountUnread {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /**
+       * ID del usuario
+       * @example 1
+       */
+      userId: number;
+      /** Filtrar por destino */
+      destino?: "sistema" | "clientes" | "usuarios" | "conductor";
+      /**
+       * Filtrar por entidad en metadata (ej: conductor, vehiculo)
+       * @example "conductor"
+       */
+      entidad?: string;
+      /**
+       * Fecha de inicio para filtrar (ISO 8601)
+       * @example "2024-01-01T00:00:00.000Z"
+       */
+      fechaInicio?: string;
+      /**
+       * Fecha de fin para filtrar (ISO 8601)
+       * @example "2024-12-31T23:59:59.999Z"
+       */
+      fechaFin?: string;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = NotificacionesCountUnreadData;
   }
 
   /**
@@ -19859,6 +19963,27 @@ export class Api<SecurityDataType extends unknown> {
     ) =>
       this.http.request<NotificacionesFindAllData, any>({
         path: `/notificacion/find-all`,
+        method: "GET",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags notificaciones
+     * @name NotificacionesCountUnread
+     * @summary Obtener cantidad de notificaciones no leídas
+     * @request GET:/notificacion/unread-count
+     * @response `200` `NotificacionesCountUnreadData`
+     */
+    countUnread: (
+      query: NotificacionesCountUnreadParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<NotificacionesCountUnreadData, any>({
+        path: `/notificacion/unread-count`,
         method: "GET",
         query: query,
         format: "json",
