@@ -227,6 +227,8 @@ export class RutaForm implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private updateSuggestedName() {
+    if (this.isLoadingRuta) return;
+
     const val = this.rutaForm.getRawValue();
     const type = this.tipoTrayecto();
     const esIgual = this.esVueltaIgual();
@@ -505,11 +507,22 @@ export class RutaForm implements OnInit, AfterViewInit, OnDestroy {
         let interNodes = sorted;
 
         // DB route always includes the origin and destination bounds; strip them from visual stops.
-        if (sorted.length >= 2) {
-          this.rutaForm.patchValue({
-            tiempoEstimadoDestino: Number(sorted[sorted.length - 1].tiempoEstimado) || 0,
-          });
-          interNodes = sorted.slice(1, sorted.length - 1);
+        const originalHasDestino = !!ref.destino;
+        if (originalHasDestino) {
+          if (sorted.length >= 2) {
+            this.rutaForm.patchValue({
+              tiempoEstimadoDestino: Number(sorted[sorted.length - 1].tiempoEstimado) || 0,
+            });
+            interNodes = sorted.slice(1, sorted.length - 1);
+          } else {
+            interNodes = [];
+          }
+        } else {
+          if (sorted.length >= 1) {
+            interNodes = sorted.slice(1);
+          } else {
+            interNodes = [];
+          }
         }
 
         interNodes.forEach((p: any) => {
@@ -549,11 +562,22 @@ export class RutaForm implements OnInit, AfterViewInit, OnDestroy {
         let interNodes = sorted;
 
         // Strip out origin and destination from visual stops
-        if (sorted.length >= 2) {
-          this.rutaForm.patchValue({
-            tiempoEstimadoDestinoVuelta: Number(sorted[sorted.length - 1].tiempoEstimado) || 0,
-          });
-          interNodes = sorted.slice(1, sorted.length - 1);
+        const originalHasDestinoVuelta = !!v.destino;
+        if (originalHasDestinoVuelta) {
+          if (sorted.length >= 2) {
+            this.rutaForm.patchValue({
+              tiempoEstimadoDestinoVuelta: Number(sorted[sorted.length - 1].tiempoEstimado) || 0,
+            });
+            interNodes = sorted.slice(1, sorted.length - 1);
+          } else {
+            interNodes = [];
+          }
+        } else {
+          if (sorted.length >= 1) {
+            interNodes = sorted.slice(1);
+          } else {
+            interNodes = [];
+          }
         }
 
         interNodes.forEach((p: any) => {

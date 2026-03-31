@@ -358,6 +358,13 @@
                   >
                     <i class="fas fa-users text-xs"></i>
                   </button>
+                  <button
+                    (click)="prepareRepostaje(tramo)"
+                    class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-info/10 text-info transition-colors"
+                    title="Repostaje"
+                  >
+                    <i class="fas fa-gas-pump text-xs"></i>
+                  </button>
                 }
                 <button
                   (click)="prepareEditTramo(tramo)"
@@ -599,4 +606,12 @@
     (onSaved)="onDialogSaved($event)"
     (onClose)="showPasajeros.set(false)"
   ></app-dialog-pasajeros-tramo>
+
+  <app-dialog-repostajes-tramo
+    *ngIf="showRepostaje() && selectedTramo()"
+    [viajeId]="viaje().id"
+    [tramo]="selectedTramo()!"
+    (onSaved)="onDialogSaved($event)"
+    (onClose)="showRepostaje.set(false)"
+  ></app-dialog-repostajes-tramo>
 </div>

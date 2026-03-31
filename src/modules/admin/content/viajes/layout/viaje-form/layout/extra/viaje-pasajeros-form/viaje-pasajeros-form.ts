@@ -282,6 +282,7 @@ export class ViajePasajerosForm {
     } catch (error) {
       console.error('Error agregando pasajeros', error);
       this.toastService.error('Error al agregar pasajeros');
+    } finally {
       this.loading.set(false);
     }
   }

@@ -7,19 +7,28 @@
   </label>
 
   @if (allowOpenRoute) {
-    <label class="flex items-center gap-2 cursor-pointer mt-0.5" [class.opacity-50]="readonly" [class.pointer-events-none]="readonly">
-      <span class="text-[10px] font-inter-medium transition-colors" 
-        [ngClass]="hasDestino ? 'text-secondary' : 'text-text/40'">
+    <label
+      class="flex items-center gap-2 cursor-pointer mt-0.5"
+      [class.opacity-50]="readonly || disableDestinoToggle"
+      [class.pointer-events-none]="readonly || disableDestinoToggle"
+    >
+      <span
+        class="text-[10px] font-inter-medium transition-colors"
+        [ngClass]="hasDestino ? 'text-secondary' : 'text-text/40'"
+      >
         {{ hasDestino ? 'Destino Fijo' : 'Ruta Abierta' }}
       </span>
-      <div class="relative w-8 h-4.5 rounded-full transition-colors duration-200" 
-        [ngClass]="hasDestino ? 'bg-secondary' : 'bg-text/20'">
+      <div
+        class="relative w-8 h-4.5 rounded-full transition-colors duration-200"
+        [ngClass]="hasDestino ? 'bg-secondary' : 'bg-text/20'"
+      >
         <input
           type="checkbox"
           class="peer sr-only"
           [checked]="hasDestino"
-          (change)="onToggleDestino.emit({ type: type, value: !hasDestino })"
-          [disabled]="readonly"
+          (click)="(readonly || disableDestinoToggle) ? $event.preventDefault() : null"
+          (change)="!(readonly || disableDestinoToggle) && onToggleDestino.emit({ type: type, value: !hasDestino })"
+          [disabled]="readonly || disableDestinoToggle"
         />
         <div
           class="absolute left-1 top-1 w-2.5 h-2.5 bg-white rounded-full transition-transform duration-200"

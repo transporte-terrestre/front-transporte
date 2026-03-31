@@ -8,6 +8,19 @@ type Circuito = ApiResponse<'rutas', 'findOneCircuito'>;
 type RutaIndividual = NonNullable<Circuito['rutaIda']>;
 type MapType = 'ida' | 'vuelta';
 
+interface ParadaApi {
+  id: number;
+  orden: number;
+  nombre: string;
+  ubicacionLat: string;
+  ubicacionLng: string;
+  tiempoEstimado?: number | string | null;
+}
+
+type RutaWithParadas = RutaIndividual & {
+  paradas?: ParadaApi[];
+};
+
 // Leaflet default icon setup
 const iconDefault = L.icon({
   iconRetinaUrl: 'assets/leaflet/marker-icon-2x.png',
@@ -30,7 +43,7 @@ L.Marker.prototype.options.icon = iconDefault;
 })
 export class RutaDetail implements OnDestroy {
   circuitoId = input<number>();
-  
+
   private rutaService = inject(RutaService);
   private cdr = inject(ChangeDetectorRef);
 
@@ -41,7 +54,7 @@ export class RutaDetail implements OnDestroy {
   private maps: Record<MapType, L.Map | undefined> = { ida: undefined, vuelta: undefined };
   private routeLayers: Record<MapType, L.Layer | undefined> = { ida: undefined, vuelta: undefined };
   private markersMap: Record<MapType, L.Marker[]> = { ida: [], vuelta: [] };
-  
+
   // Storage for distances extracted from OSRM
   public legDistances: Record<MapType, number[]> = { ida: [], vuelta: [] };
 
@@ -77,9 +90,9 @@ export class RutaDetail implements OnDestroy {
     try {
       const data = await this.rutaService.findOneCircuito(id);
       this.circuito.set(data);
-      
+
       this.cdr.detectChanges();
-      
+
       // Allow DOM to process the @if blocks before initializing Leaflet instances
       setTimeout(() => {
         if (data.rutaIda) {
@@ -114,7 +127,7 @@ export class RutaDetail implements OnDestroy {
 
     // Collect all points
     const points: L.LatLng[] = [];
-    
+
     // Origin
     if (ruta.origenLat && ruta.origenLng) {
       const pt = L.latLng(Number(ruta.origenLat), Number(ruta.origenLng));
@@ -123,13 +136,26 @@ export class RutaDetail implements OnDestroy {
     }
 
     // Paradas (excluding structural origin/dest injected by backend)
-    const paradas = (ruta as any).paradas;
+    const paradas = (ruta as RutaWithParadas).paradas;
     if (paradas && paradas.length > 0) {
-      let sorted = [...paradas].sort((a: any, b: any) => a.orden - b.orden);
-      if (sorted.length >= 2) {
-        sorted = sorted.slice(1, sorted.length - 1);
+      let sorted = [...paradas].sort((a, b) => a.orden - b.orden);
+      const hasDest = this.hasDestino(ruta);
+
+      if (hasDest) {
+        if (sorted.length >= 2) {
+          sorted = sorted.slice(1, sorted.length - 1);
+        } else {
+          sorted = [];
+        }
+      } else {
+        if (sorted.length >= 1) {
+          sorted = sorted.slice(1);
+        } else {
+          sorted = [];
+        }
       }
-      sorted.forEach((p: any, idx: number) => {
+
+      sorted.forEach((p, idx: number) => {
         if (p.ubicacionLat && p.ubicacionLng) {
           const pt = L.latLng(Number(p.ubicacionLat), Number(p.ubicacionLng));
           points.push(pt);
@@ -166,14 +192,27 @@ export class RutaDetail implements OnDestroy {
     }
   }
 
-  getSortedParadas(ruta: RutaIndividual | undefined): any[] {
+  getSortedParadas(ruta: RutaIndividual | undefined): ParadaApi[] {
     if (!ruta) return [];
-    const p = (ruta as any).paradas;
+    const p = (ruta as RutaWithParadas).paradas;
     if (!p || p.length === 0) return [];
-    let sorted = [...p].sort((a: any, b: any) => a.orden - b.orden);
-    if (sorted.length >= 2) {
-      sorted = sorted.slice(1, sorted.length - 1);
+    let sorted = [...p].sort((a, b) => a.orden - b.orden);
+    const hasDest = this.hasDestino(ruta);
+
+    if (hasDest) {
+      if (sorted.length >= 2) {
+        sorted = sorted.slice(1, sorted.length - 1);
+      } else {
+        sorted = [];
+      }
+    } else {
+      if (sorted.length >= 1) {
+        sorted = sorted.slice(1);
+      } else {
+        sorted = [];
+      }
     }
+
     return sorted;
   }
 
@@ -207,7 +246,7 @@ export class RutaDetail implements OnDestroy {
       const data = await resp.json();
       if (data.routes && data.routes.length > 0) {
         const coords = data.routes[0].geometry.coordinates as [number, number][];
-        const legs = data.routes[0].legs ? data.routes[0].legs.map((leg: any) => parseFloat((leg.distance / 1000).toFixed(2))) : [];
+        const legs = data.routes[0].legs ? data.routes[0].legs.map((leg: { distance: number }) => parseFloat((leg.distance / 1000).toFixed(2))) : [];
         return {
           points: coords.map((c: [number, number]) => L.latLng(c[1], c[0])),
           legs,

@@ -30,6 +30,7 @@ import { DialogParadaComponent } from './layout/dialog-parada/dialog-parada';
 import { DialogDescansoComponent } from './layout/dialog-descanso/dialog-descanso';
 import { DialogEditTramoComponent } from './layout/dialog-edit-tramo/dialog-edit-tramo';
 import { DialogPasajerosTramoComponent } from './layout/dialog-pasajeros-tramo/dialog-pasajeros-tramo';
+import { DialogRepostajesTramoComponent } from './layout/dialog-repostajes-tramo/dialog-repostajes-tramo';
 import { generateReporteDiarioPdf } from '@template/reporte-diario.template';
 
 const iconDefault = L.icon({
@@ -56,6 +57,7 @@ L.Marker.prototype.options.icon = iconDefault;
     DialogDescansoComponent,
     DialogEditTramoComponent,
     DialogPasajerosTramoComponent,
+    DialogRepostajesTramoComponent,
   ],
   templateUrl: './viaje-tramos-form.html',
   styleUrl: './viaje-tramos-form.css',
@@ -134,6 +136,8 @@ export class ViajeTramosFormComponent implements AfterViewInit, OnDestroy {
   showDescanso = signal(false);
   showEdit = signal(false);
   showPasajeros = signal(false);
+  showRepostaje = signal(false);
+
   hasSalida = computed(() => this.tramos().some((s) => s.tipo === 'origen'));
   hasLlegada = computed(() => this.tramos().some((s) => s.tipo === 'destino'));
   hasDestinoPlanned = computed(() => this.puntosTrayecto().some((p) => p.tipo === 'destino'));
@@ -147,6 +151,7 @@ export class ViajeTramosFormComponent implements AfterViewInit, OnDestroy {
   onDataChange = output<void>();
 
   // Tracking last loaded ID to prevent redundant trayecto calls on reference-only changes
+  // Tracking last loaded ID removed because we need to reload when parent refreshes the data reference
   private lastId: number | null = null;
 
   capacidadTotal = computed(() => {
@@ -158,7 +163,7 @@ export class ViajeTramosFormComponent implements AfterViewInit, OnDestroy {
   constructor() {
     effect(() => {
       const v = this.viaje();
-      if (v?.id && v.id !== this.lastId) {
+      if (v?.id) {
         this.lastId = v.id;
         untracked(() => this.loadData());
       }
@@ -450,6 +455,11 @@ export class ViajeTramosFormComponent implements AfterViewInit, OnDestroy {
     this.showPasajeros.set(true);
   }
 
+  prepareRepostaje(tramo: ViajeTramoResultDto) {
+    this.selectedTramo.set(tramo);
+    this.showRepostaje.set(true);
+  }
+
   onDialogSaved(keepOpen: boolean = false) {
     if (!keepOpen) {
       this.closeAllDialogs();
@@ -457,10 +467,11 @@ export class ViajeTramosFormComponent implements AfterViewInit, OnDestroy {
     // Si viene de pasajeros tramo (el modal de tramos), queremos actualizar tramos pero NO trayecto
     // Y emitir para que el padre actualice la lista general de pasajeros
     const isPasajerosDialog = this.showPasajeros();
+    const isRepostajeDialog = this.showRepostaje();
     const isSalidaDialog = this.showSalida();
     const isLlegadaDialog = this.showLlegada();
 
-    if (isPasajerosDialog) {
+    if (isPasajerosDialog || isRepostajeDialog) {
       this.loadData({ onlyTramos: true });
     } else {
       this.loadData();
@@ -478,6 +489,7 @@ export class ViajeTramosFormComponent implements AfterViewInit, OnDestroy {
     this.showDescanso.set(false);
     this.showEdit.set(false);
     this.showPasajeros.set(false);
+    this.showRepostaje.set(false);
     this.selectedTramo.set(null);
   }
 
