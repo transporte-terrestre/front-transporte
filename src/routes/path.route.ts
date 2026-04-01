@@ -116,6 +116,10 @@ export const PATH = {
     reportes: {
       _path: 'reportes',
     },
+    historial: {
+      _path: 'historial',
+      list: { _path: 'list' },
+    },
   },
   error: {
     _path: 'error',
@@ -193,6 +197,10 @@ export const ROUTE_CONFIG = {
 
     // Reportes
     [buildPath(PATH.admin.reportes)]: ['admin', 'empleado'],
+
+    // Historial
+    [buildPath(PATH.admin.historial)]: ['admin'],
+    [buildPath(PATH.admin.historial.list)]: ['admin'],
 
     // Errors
     [buildPath(PATH.error.unauthorized)]: ['admin', 'empleado'],

@@ -3568,7 +3568,7 @@ export interface DocumentoItemDto {
   observacion?: string;
   /**
    * Fecha de Vencimiento Inicial/Por defecto
-   * @example "2026-03-30T20:42:48.580Z"
+   * @example "2026-04-01T18:34:03.210Z"
    */
   fechaVencimiento?: string;
 }
@@ -3751,17 +3751,17 @@ export interface BotiquinItemDto {
   habilitado: boolean;
   /**
    * Fecha de Vencimiento actual
-   * @example "2026-03-30T20:42:48.590Z"
+   * @example "2026-04-01T18:34:03.214Z"
    */
   fechaVencimiento?: string;
   /**
    * Fecha de Salida
-   * @example "2026-03-30T20:42:48.590Z"
+   * @example "2026-04-01T18:34:03.214Z"
    */
   fechaSalida?: string;
   /**
    * Fecha de Reposición
-   * @example "2026-03-30T20:42:48.590Z"
+   * @example "2026-04-01T18:34:03.214Z"
    */
   fechaReposicion?: string;
 }
@@ -4688,12 +4688,12 @@ export interface MantenimientoCreateDto {
   fechaSalida: string;
   /**
    * Mileage at maintenance
-   * @example 55000
+   * @example 55000.5
    */
   kilometraje: number;
   /**
    * Next maintenance mileage
-   * @example 60000
+   * @example 60000.5
    */
   kilometrajeProximoMantenimiento: number;
   /**
@@ -4750,12 +4750,12 @@ export interface MantenimientoUpdateDto {
   fechaSalida?: string;
   /**
    * Mileage at maintenance
-   * @example 55000
+   * @example 55000.5
    */
   kilometraje?: number;
   /**
    * Next maintenance mileage
-   * @example 60000
+   * @example 60000.5
    */
   kilometrajeProximoMantenimiento?: number;
   /**
@@ -9930,6 +9930,62 @@ export interface StorageResultDto {
   createdAt: string;
 }
 
+export interface AuditoriaResultDto {
+  /**
+   * ID de la auditoría
+   * @example 1
+   */
+  id: number;
+  /**
+   * Acción realizada
+   * @example "CREAR"
+   */
+  accion: "CREAR" | "EDITAR" | "ELIMINAR";
+  /**
+   * ID del usuario que realizó la acción
+   * @example 1
+   */
+  usuarioId: number;
+  /**
+   * Módulo afectado
+   * @example "vehiculo"
+   */
+  modulo: string;
+  /**
+   * Detalle del cambio en JSON
+   * @example {"placa":"ABC-123"}
+   */
+  detalle: object;
+  /**
+   * Fecha y hora de la acción
+   * @format date-time
+   * @example "2026-04-01T12:00:00.000Z"
+   */
+  fechaHora: string;
+  /**
+   * Nombre del usuario
+   * @example "Erick"
+   */
+  usuarioNombre: string;
+  /**
+   * Apellido del usuario
+   * @example "Flores"
+   */
+  usuarioApellido: string;
+  /**
+   * Roles del usuario
+   * @example ["empleado"]
+   */
+  usuarioRol: ("empleado" | "admin")[];
+}
+
+export interface PaginatedAuditoriaResultDto {
+  /** Lista de registros de auditoría */
+  data: AuditoriaResultDto[];
+  /** Metadatos de paginación */
+  meta: PaginationMetaDto;
+}
+
 export type AppGetHelloData = any;
 
 export type AppTestErrorData = any;
@@ -12169,6 +12225,29 @@ export interface StorageDownloadParams {
 }
 
 export type StorageDownloadData = any;
+
+export interface AuditoriasFindAllParams {
+  /**
+   * Número de página (comienza en 1)
+   * @default 1
+   * @example 1
+   */
+  page?: number;
+  /**
+   * Cantidad de elementos por página
+   * @default 10
+   * @example 10
+   */
+  limit?: number;
+  /** Término de búsqueda (módulo, acción o usuario) */
+  search?: string;
+  /** Fecha de inicio (YYYY-MM-DD) */
+  fechaInicio?: string;
+  /** Fecha de fin (YYYY-MM-DD) */
+  fechaFin?: string;
+}
+
+export type AuditoriasFindAllData = PaginatedAuditoriaResultDto;
 
 export namespace App {
   /**
@@ -17651,6 +17730,44 @@ export namespace Storage {
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = StorageDownloadData;
+  }
+}
+
+export namespace Auditorias {
+  /**
+   * No description
+   * @tags auditorias
+   * @name AuditoriasFindAll
+   * @summary Obtener historial de auditoría del sistema (Solo Admin)
+   * @request GET:/auditorias/find-all
+   * @secure
+   * @response `200` `AuditoriasFindAllData`
+   */
+  export namespace AuditoriasFindAll {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /**
+       * Número de página (comienza en 1)
+       * @default 1
+       * @example 1
+       */
+      page?: number;
+      /**
+       * Cantidad de elementos por página
+       * @default 10
+       * @example 10
+       */
+      limit?: number;
+      /** Término de búsqueda (módulo, acción o usuario) */
+      search?: string;
+      /** Fecha de inicio (YYYY-MM-DD) */
+      fechaInicio?: string;
+      /** Fecha de fin (YYYY-MM-DD) */
+      fechaFin?: string;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = AuditoriasFindAllData;
   }
 }
 
@@ -23391,6 +23508,30 @@ export class Api<SecurityDataType extends unknown> {
         method: "GET",
         query: query,
         secure: true,
+        ...params,
+      }),
+  };
+  auditorias = {
+    /**
+     * No description
+     *
+     * @tags auditorias
+     * @name AuditoriasFindAll
+     * @summary Obtener historial de auditoría del sistema (Solo Admin)
+     * @request GET:/auditorias/find-all
+     * @secure
+     * @response `200` `AuditoriasFindAllData`
+     */
+    findAll: (
+      query: AuditoriasFindAllParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<AuditoriasFindAllData, any>({
+        path: `/auditorias/find-all`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
         ...params,
       }),
   };

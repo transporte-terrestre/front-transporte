@@ -254,6 +254,20 @@ export const routes: Routes = [
         loadComponent: () =>
           import('@module/admin/content/reportes/reportes').then((m) => m.Reportes),
       },
+      {
+        path: getPath(PATH.admin.historial),
+        loadComponent: () => import('@module/admin/content/historial/historial').then((m) => m.Historial),
+        children: [
+          {
+            path: getPath(PATH.admin.historial.list),
+            loadComponent: () =>
+              import('@module/admin/content/historial/content/historial-list/historial-list').then(
+                (m) => m.HistorialList,
+              ),
+          },
+          { path: '**', redirectTo: getPath(PATH.admin.historial.list), pathMatch: 'full' },
+        ],
+      },
       { path: '**', redirectTo: getPath(PATH.admin.dashboard), pathMatch: 'full' },
     ],
   },
@@ -276,7 +290,8 @@ export const routes: Routes = [
     children: [
       {
         path: getPath(PATH.error.unauthorized),
-        loadComponent: () => import('@module/error/unauthorized/unauthorized').then((m) => m.Unauthorized),
+        loadComponent: () =>
+          import('@module/error/unauthorized/unauthorized').then((m) => m.Unauthorized),
       },
       { path: '**', redirectTo: getPath(PATH.error.unauthorized), pathMatch: 'full' },
     ],

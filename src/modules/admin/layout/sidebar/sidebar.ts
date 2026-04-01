@@ -102,6 +102,11 @@ export class Sidebar {
       path: buildPath(PATH.admin.reportes),
       icon: 'fas fa-chart-bar',
     },
+    {
+      label: 'Historial',
+      path: buildPath(PATH.admin.historial),
+      icon: 'fas fa-history',
+    },
   ]);
 
   logout() {
