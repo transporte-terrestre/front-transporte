@@ -19,9 +19,9 @@
   >
     <div class="flex items-center gap-3 overflow-hidden" [class.justify-center]="isCollapsed()">
       <div
-        class="w-8 h-8 bg-text text-background flex items-center justify-center rounded-lg shadow-md shrink-0"
+        class="w-9 h-9 bg-background flex items-center justify-center rounded-lg shadow-sm shrink-0 overflow-hidden border border-text/10"
       >
-        <i class="fas fa-shipping-fast text-primary"></i>
+        <img src="/logo.png" alt="Logo" class="w-full h-full object-cover" />
       </div>
       @if (!isCollapsed()) {
       <span class="font-anton text-xl tracking-wider text-text uppercase truncate">transporte</span>

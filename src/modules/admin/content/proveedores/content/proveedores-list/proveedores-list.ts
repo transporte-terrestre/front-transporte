@@ -9,7 +9,11 @@ import { ApiResponse, ApiBody } from 'api/backend.api';
 import { ToastService } from '@service/toast.service';
 import { AlertService } from '@service/alert.service';
 import { ModalForm } from '../../../../components/modal-form/modal-form';
-import { ProveedorForm, ProveedorFormSubmitData, PendingProveedorDocument } from '../../layout/proveedor-form/proveedor-form';
+import {
+  ProveedorForm,
+  ProveedorFormSubmitData,
+  PendingProveedorDocument,
+} from '../../layout/proveedor-form/proveedor-form';
 import { PaginationComponent } from '../../../../components/pagination/pagination';
 import { PATH, buildPath } from '@route/path.route';
 import { getErrorMessage } from '@helper/error.helper';
@@ -133,7 +137,9 @@ export class ProveedoresList implements OnInit, OnDestroy {
   async createProveedor(data: ProveedorFormSubmitData) {
     this.loading.set(true);
     try {
-      const creationData = data as (ApiBody<'proveedores', 'create'> & { documentos?: PendingProveedorDocument[] });
+      const creationData = data as ApiBody<'proveedores', 'create'> & {
+        documentos?: PendingProveedorDocument[];
+      };
       const { documentos, ...proveedorData } = creationData;
       const newProveedor = await this.proveedorService.create(proveedorData);
 
@@ -183,7 +189,7 @@ export class ProveedoresList implements OnInit, OnDestroy {
             this.toastService.error(getErrorMessage(error, 'Error al eliminar proveedor'));
             this.loading.set(false);
           });
-      }
+      },
     );
   }
 }

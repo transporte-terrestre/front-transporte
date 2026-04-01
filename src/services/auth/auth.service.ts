@@ -6,7 +6,7 @@ import { Api, ApiBody, ApiResponse, ApiField } from 'api/backend.api';
 })
 export class AuthService {
   private api = inject(Api);
-  private userSignal = signal<ApiResponse<'auth', 'login'>["user"] | null>(null);
+  private userSignal = signal<ApiResponse<'auth', 'login'>['user'] | null>(null);
   private tokenSignal = signal<string | null>(null);
   user = this.userSignal.asReadonly();
   token = this.tokenSignal.asReadonly();

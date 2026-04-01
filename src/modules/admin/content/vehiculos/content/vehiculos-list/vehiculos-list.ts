@@ -9,7 +9,11 @@ import { ApiBody, ApiResponse } from 'api/backend.api';
 import { ToastService } from '@service/toast.service';
 import { AlertService } from '@service/alert.service';
 import { ModalForm } from '../../../../components/modal-form/modal-form';
-import { VehiculoForm, VehiculoFormSubmitData, PendingDocument } from '../../layout/vehiculo-form/vehiculo-form';
+import {
+  VehiculoForm,
+  VehiculoFormSubmitData,
+  PendingDocument,
+} from '../../layout/vehiculo-form/vehiculo-form';
 import { PaginationComponent } from '../../../../components/pagination/pagination';
 import { PATH, buildPath } from '@route/path.route';
 import { getErrorMessage } from '@helper/error.helper';
@@ -342,7 +346,9 @@ export class VehiculosList implements OnInit, OnDestroy {
   async createVehiculo(data: VehiculoFormSubmitData) {
     this.loading.set(true);
     try {
-      const creationData = data as (ApiBody<'vehiculos', 'create'> & { documentos?: PendingDocument[] });
+      const creationData = data as ApiBody<'vehiculos', 'create'> & {
+        documentos?: PendingDocument[];
+      };
       const { documentos, ...vehiculoData } = creationData;
       const newVehiculo = await this.vehiculoService.create(vehiculoData);
 

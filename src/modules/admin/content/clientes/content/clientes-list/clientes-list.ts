@@ -9,7 +9,11 @@ import { ApiResponse, ApiBody } from 'api/backend.api';
 import { ToastService } from '@service/toast.service';
 import { AlertService } from '@service/alert.service';
 import { ModalForm } from '../../../../components/modal-form/modal-form';
-import { ClienteForm, ClienteFormSubmitData, PendingClienteDocument } from '../../layout/cliente-form/cliente-form';
+import {
+  ClienteForm,
+  ClienteFormSubmitData,
+  PendingClienteDocument,
+} from '../../layout/cliente-form/cliente-form';
 import { PaginationComponent } from '../../../../components/pagination/pagination';
 import { PATH, buildPath } from '@route/path.route';
 import { getErrorMessage } from '@helper/error.helper';
@@ -18,7 +22,15 @@ import { ClienteDetail } from '../../layout/cliente-detail/cliente-detail';
 
 @Component({
   selector: 'app-clientes-list',
-  imports: [CommonModule, FormsModule, ModalForm, ClienteForm, PaginationComponent, ModalInfo, ClienteDetail],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ModalForm,
+    ClienteForm,
+    PaginationComponent,
+    ModalInfo,
+    ClienteDetail,
+  ],
   templateUrl: './clientes-list.html',
   styleUrl: './clientes-list.css',
 })
@@ -81,8 +93,8 @@ export class ClientesList implements OnInit, OnDestroy {
         page: this.currentPage(),
         limit: this.pageSize(),
         search: this.searchTerm() || undefined,
-        tipo: (this.tipo() as "personal" | "corporativo") || undefined,
-        tipoDocumento: (this.tipoDocumento() as "DNI" | "RUC") || undefined,
+        tipo: (this.tipo() as 'personal' | 'corporativo') || undefined,
+        tipoDocumento: (this.tipoDocumento() as 'DNI' | 'RUC') || undefined,
       })
       .then((response) => {
         this.clientes.set(response.data);
@@ -100,7 +112,6 @@ export class ClientesList implements OnInit, OnDestroy {
     this.searchTerm.set(value);
     this.searchSubject.next(value);
   }
-
 
   onPageChange(page: number) {
     this.currentPage.set(page);
@@ -145,7 +156,9 @@ export class ClientesList implements OnInit, OnDestroy {
   async createCliente(data: ClienteFormSubmitData) {
     this.loading.set(true);
     try {
-      const creationData = data as (ApiBody<'clientes', 'create'> & { documentos?: PendingClienteDocument[] });
+      const creationData = data as ApiBody<'clientes', 'create'> & {
+        documentos?: PendingClienteDocument[];
+      };
       const { documentos, ...clienteData } = creationData;
       const newCliente = await this.clienteService.create(clienteData);
 
@@ -196,7 +209,7 @@ export class ClientesList implements OnInit, OnDestroy {
             this.toastService.error(getErrorMessage(error, 'Error al eliminar cliente'));
             this.loading.set(false);
           });
-      }
+      },
     );
   }
 }

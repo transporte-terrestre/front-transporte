@@ -19,7 +19,15 @@ import { RutaDetail } from '../../layout/ruta-detail/ruta-detail';
 
 @Component({
   selector: 'app-rutas-list',
-  imports: [CommonModule, FormsModule, ModalForm, RutaForm, PaginationComponent, ModalInfo, RutaDetail],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ModalForm,
+    RutaForm,
+    PaginationComponent,
+    ModalInfo,
+    RutaDetail,
+  ],
   templateUrl: './rutas-list.html',
   styleUrl: './rutas-list.css',
 })

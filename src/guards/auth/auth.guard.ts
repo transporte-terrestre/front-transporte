@@ -24,8 +24,7 @@ export const authGuard: CanActivateFn = (route, state) => {
   const currentPath = state.url.split('?')[0].replace(/^\//, '');
 
   if (user && user.roles && !canAccessRoute(currentPath, user.roles)) {
-    const defaultRoute = getDefaultRoute(user.roles);
-    router.navigate([defaultRoute]);
+    router.navigate([buildPath(PATH.error.unauthorized)]);
     return false;
   }
 

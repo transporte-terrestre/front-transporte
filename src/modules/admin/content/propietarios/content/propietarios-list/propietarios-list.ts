@@ -9,7 +9,11 @@ import { ApiResponse, ApiBody } from 'api/backend.api';
 import { ToastService } from '@service/toast.service';
 import { AlertService } from '@service/alert.service';
 import { ModalForm } from '../../../../components/modal-form/modal-form';
-import { PropietarioForm, PropietarioFormSubmitData, PendingPropietarioDocument } from '../../layout/propietario-form/propietario-form';
+import {
+  PropietarioForm,
+  PropietarioFormSubmitData,
+  PendingPropietarioDocument,
+} from '../../layout/propietario-form/propietario-form';
 import { PaginationComponent } from '../../../../components/pagination/pagination';
 import { PATH, buildPath } from '@route/path.route';
 import { getErrorMessage } from '@helper/error.helper';
@@ -133,7 +137,9 @@ export class PropietariosList implements OnInit, OnDestroy {
   async createPropietario(data: PropietarioFormSubmitData) {
     this.loading.set(true);
     try {
-      const creationData = data as (ApiBody<'propietarios', 'create'> & { documentos?: PendingPropietarioDocument[] });
+      const creationData = data as ApiBody<'propietarios', 'create'> & {
+        documentos?: PendingPropietarioDocument[];
+      };
       const { documentos, ...propietarioData } = creationData;
       const newPropietario = await this.propietarioService.create(propietarioData);
 
@@ -183,7 +189,7 @@ export class PropietariosList implements OnInit, OnDestroy {
             this.toastService.error(getErrorMessage(error, 'Error al eliminar propietario'));
             this.loading.set(false);
           });
-      }
+      },
     );
   }
 }

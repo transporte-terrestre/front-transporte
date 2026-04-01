@@ -69,12 +69,18 @@ export class AlquileresList implements OnInit {
   estado = signal('');
   tipo = signal('');
   clienteId = signal<number | string>('');
-  selectedClienteForSearch = signal<ApiResponse<'clientes', 'findAll'>['data'][number] | null>(null);
+  selectedClienteForSearch = signal<ApiResponse<'clientes', 'findAll'>['data'][number] | null>(
+    null,
+  );
   conductorId = signal<number | string>('');
-  selectedConductorForSearch = signal<ApiResponse<'conductores', 'findAll'>['data'][number] | null>(null);
+  selectedConductorForSearch = signal<ApiResponse<'conductores', 'findAll'>['data'][number] | null>(
+    null,
+  );
   vehiculoId = signal<number | string>('');
-  selectedVehiculoForSearch = signal<ApiResponse<'vehiculos', 'findAll'>['data'][number] | null>(null);
-  
+  selectedVehiculoForSearch = signal<ApiResponse<'vehiculos', 'findAll'>['data'][number] | null>(
+    null,
+  );
+
   // Detail
   selectedAlquilerId = signal<number | null>(null);
   showDetailModal = signal(false);
@@ -254,7 +260,6 @@ export class AlquileresList implements OnInit {
     this.router.navigate([path]);
   }
 
-
   deleteAlquiler(id: number, event: Event) {
     event.stopPropagation();
     this.alertService.delete(
@@ -284,10 +289,18 @@ export class AlquileresList implements OnInit {
     }
 
     const data = this.alquileres().map((a: any) => {
-      const placas = a.detalles?.map((d: any) => d.vehiculo?.placa).filter(Boolean).join(', ') || '—';
-      const conductores = a.detalles?.map((d: any) => d.conductor?.nombreCompleto).filter(Boolean).join(', ') || '—';
+      const placas =
+        a.detalles
+          ?.map((d: any) => d.vehiculo?.placa)
+          .filter(Boolean)
+          .join(', ') || '—';
+      const conductores =
+        a.detalles
+          ?.map((d: any) => d.conductor?.nombreCompleto)
+          .filter(Boolean)
+          .join(', ') || '—';
       const tipo = a.detalles?.[0]?.tipo === 'maquina_operada' ? 'Máquina Operada' : 'Máquina Seca';
-      
+
       return {
         ID: a.id,
         Cliente: a.cliente?.razonSocial || a.cliente?.nombreCompleto || '—',
@@ -311,10 +324,14 @@ export class AlquileresList implements OnInit {
 
   private getEstadoLabel(estado: string): string {
     switch (estado) {
-      case 'activo': return 'Activo';
-      case 'finalizado': return 'Finalizado';
-      case 'cancelado': return 'Cancelado';
-      default: return estado;
+      case 'activo':
+        return 'Activo';
+      case 'finalizado':
+        return 'Finalizado';
+      case 'cancelado':
+        return 'Cancelado';
+      default:
+        return estado;
     }
   }
 
@@ -324,5 +341,4 @@ export class AlquileresList implements OnInit {
     const diffTime = Math.abs(pEnd.getTime() - pStart.getTime());
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   }
-
 }

@@ -7,6 +7,7 @@ export const routes: Routes = [
     path: getPath(PATH.admin),
     loadComponent: () => import('@module/admin/admin').then((m) => m.Admin),
     canActivate: [authGuard],
+    canActivateChild: [authGuard],
     children: [
       {
         path: getPath(PATH.admin.dashboard),
@@ -268,6 +269,16 @@ export const routes: Routes = [
         loadComponent: () => import('@module/auth/sing-up/sing-up').then((m) => m.SingUp),
       },
       { path: '**', redirectTo: getPath(PATH.auth.signIn), pathMatch: 'full' },
+    ],
+  },
+  {
+    path: getPath(PATH.error),
+    children: [
+      {
+        path: getPath(PATH.error.unauthorized),
+        loadComponent: () => import('@module/error/unauthorized/unauthorized').then((m) => m.Unauthorized),
+      },
+      { path: '**', redirectTo: getPath(PATH.error.unauthorized), pathMatch: 'full' },
     ],
   },
   { path: '**', redirectTo: getPath(PATH.admin), pathMatch: 'full' },

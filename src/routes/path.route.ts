@@ -117,6 +117,10 @@ export const PATH = {
       _path: 'reportes',
     },
   },
+  error: {
+    _path: 'error',
+    unauthorized: { _path: 'unauthorized' },
+  },
 } as const;
 
 export const ROUTE_CONFIG = {
@@ -126,37 +130,90 @@ export const ROUTE_CONFIG = {
     empleado: buildPath(PATH.admin.dashboard),
   } as Record<Rol, string>,
 
-  // Control de acceso a rutas
   routeAccess: {
     // Dashboard - Todos pueden acceder
     [buildPath(PATH.admin.dashboard)]: ['admin', 'empleado'],
 
-    // Conductores - admins
-    [buildPath(PATH.admin.conductores)]: ['admin'],
+    // Conductores
+    [buildPath(PATH.admin.conductores)]: ['admin', 'empleado'],
+    [buildPath(PATH.admin.conductores.list)]: ['admin', 'empleado'],
     [buildPath(PATH.admin.conductores.edit)]: ['admin'],
 
-    // Vehículos - admins y empleados
+    // Vehículos
     [buildPath(PATH.admin.vehiculos)]: ['admin', 'empleado'],
-    [buildPath(PATH.admin.vehiculos.edit)]: ['admin', 'empleado'],
+    [buildPath(PATH.admin.vehiculos.list)]: ['admin', 'empleado'],
+    [buildPath(PATH.admin.vehiculos.edit)]: ['admin'],
+    [buildPath(PATH.admin.vehiculos.lineas)]: ['admin'],
 
-    // Otras rutas
+    // Mantenimientos
     [buildPath(PATH.admin.mantenimientos)]: ['admin', 'empleado'],
-    [buildPath(PATH.admin.rutas)]: ['admin', 'empleado'],
-    [buildPath(PATH.admin.viajes)]: ['admin', 'empleado'],
-    [buildPath(PATH.admin.usuarios)]: ['admin'],
-    [buildPath(PATH.admin.clientes)]: ['admin', 'empleado'],
+    [buildPath(PATH.admin.mantenimientos.list)]: ['admin', 'empleado'],
+    [buildPath(PATH.admin.mantenimientos.edit)]: ['admin'],
+    [buildPath(PATH.admin.mantenimientos.tareas)]: ['admin'],
 
+    // Rutas
+    [buildPath(PATH.admin.rutas)]: ['admin', 'empleado'],
+    [buildPath(PATH.admin.rutas.list)]: ['admin', 'empleado'],
+    [buildPath(PATH.admin.rutas.edit)]: ['admin'],
+
+    // Viajes
+    [buildPath(PATH.admin.viajes)]: ['admin', 'empleado'],
+    [buildPath(PATH.admin.viajes.list)]: ['admin', 'empleado'],
+    [buildPath(PATH.admin.viajes.edit)]: ['admin'],
+
+    // Usuarios
+    [buildPath(PATH.admin.usuarios)]: ['admin'],
+    [buildPath(PATH.admin.usuarios.list)]: ['admin'],
+    [buildPath(PATH.admin.usuarios.edit)]: ['admin'],
+
+    // Clientes
+    [buildPath(PATH.admin.clientes)]: ['admin', 'empleado'],
+    [buildPath(PATH.admin.clientes.list)]: ['admin', 'empleado'],
+    [buildPath(PATH.admin.clientes.edit)]: ['admin'],
+
+    // Proveedores
     [buildPath(PATH.admin.proveedores)]: ['admin', 'empleado'],
+    [buildPath(PATH.admin.proveedores.list)]: ['admin', 'empleado'],
+    [buildPath(PATH.admin.proveedores.edit)]: ['admin'],
+
+    // Propietarios
+    [buildPath(PATH.admin.propietarios)]: ['admin', 'empleado'],
+    [buildPath(PATH.admin.propietarios.list)]: ['admin', 'empleado'],
+    [buildPath(PATH.admin.propietarios.edit)]: ['admin'],
+
+    // Talleres
     [buildPath(PATH.admin.talleres)]: ['admin', 'empleado'],
-    [buildPath(PATH.admin.talleres.edit)]: ['admin', 'empleado'],
+    [buildPath(PATH.admin.talleres.list)]: ['admin', 'empleado'],
+    [buildPath(PATH.admin.talleres.edit)]: ['admin'],
+
+    // Alquileres
     [buildPath(PATH.admin.alquileres)]: ['admin', 'empleado'],
-    [buildPath(PATH.admin.alquileres.edit)]: ['admin', 'empleado'],
+    [buildPath(PATH.admin.alquileres.list)]: ['admin', 'empleado'],
+    [buildPath(PATH.admin.alquileres.edit)]: ['admin'],
+
+    // Reportes
     [buildPath(PATH.admin.reportes)]: ['admin', 'empleado'],
+
+    // Errors
+    [buildPath(PATH.error.unauthorized)]: ['admin', 'empleado'],
   } as Record<string, Rol[]>,
 };
 
 export function canAccessRoute(route: string, roles: Rol[]): boolean {
-  const allowedRols = ROUTE_CONFIG.routeAccess[route];
+  let allowedRols = ROUTE_CONFIG.routeAccess[route];
+
+  if (!allowedRols) {
+    const rules = Object.entries(ROUTE_CONFIG.routeAccess);
+    for (const [pathPattern, rolesConfig] of rules) {
+      const regexStr = '^' + pathPattern.replace(/:[^\s/]+/g, '([^/]+)') + '$';
+      const regex = new RegExp(regexStr);
+      if (regex.test(route)) {
+        allowedRols = rolesConfig;
+        break;
+      }
+    }
+  }
+
   if (!allowedRols) return true;
   return roles.some((role) => allowedRols.includes(role));
 }
