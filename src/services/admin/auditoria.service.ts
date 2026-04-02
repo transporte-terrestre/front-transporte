@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Api, ApiQuery, ApiResponse } from 'api/backend.api';
+import { Api, ApiParam, ApiQuery, ApiResponse } from 'api/backend.api';
 
 @Injectable({
   providedIn: 'root',
@@ -12,5 +12,12 @@ export class AuditoriaService {
    */
   async findAll(query: ApiQuery<'auditorias', 'findAll'>): Promise<ApiResponse<'auditorias', 'findAll'>> {
     return await this.api.auditorias.findAll(query).then((response) => response.data);
+  }
+
+  /**
+   * Obtiene un registro de auditoría por su ID
+   */
+  async findOne(id: ApiParam<'auditorias', 'findOne', 'id'>): Promise<ApiResponse<'auditorias', 'findOne'>> {
+    return await this.api.auditorias.findOne({ id }).then((response) => response.data);
   }
 }

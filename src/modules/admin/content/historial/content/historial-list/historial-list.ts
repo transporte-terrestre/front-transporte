@@ -8,10 +8,14 @@ import { ToastService } from '@service/toast.service';
 import { PaginationComponent } from '../../../../components/pagination/pagination';
 import { ApiResponse } from 'api/backend.api';
 
+import { ModalInfo } from '../../../../components/modal-info/modal-info';
+import { HistorialDetail } from '../../layout/historial-detail/historial-detail';
+
 @Component({
   selector: 'app-historial-list',
-  imports: [CommonModule, FormsModule, PaginationComponent, DatePipe],
+  imports: [CommonModule, FormsModule, PaginationComponent, ModalInfo, HistorialDetail, DatePipe],
   templateUrl: './historial-list.html',
+  styleUrl: './historial-list.css',
 })
 export class HistorialList implements OnInit, OnDestroy {
   private auditoriaService = inject(AuditoriaService);
@@ -34,6 +38,20 @@ export class HistorialList implements OnInit, OnDestroy {
   // Nuevos filtros estilo "Viajes"
   fechaDia = signal('');
   mesSeleccionado = signal(this.getCurrentMonth());
+
+  // Modal Detalles
+  selectedAuditoriaId = signal<number | null>(null);
+  showDetailModal = signal(false);
+
+  viewDetails(id: number) {
+    this.selectedAuditoriaId.set(id);
+    this.showDetailModal.set(true);
+  }
+
+  closeDetails() {
+    this.showDetailModal.set(false);
+    this.selectedAuditoriaId.set(null);
+  }
 
   ngOnInit() {
     // Inicializar rango con el mes actual

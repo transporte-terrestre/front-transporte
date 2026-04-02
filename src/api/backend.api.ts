@@ -3568,7 +3568,7 @@ export interface DocumentoItemDto {
   observacion?: string;
   /**
    * Fecha de Vencimiento Inicial/Por defecto
-   * @example "2026-04-01T18:34:03.210Z"
+   * @example "2026-04-02T02:56:36.982Z"
    */
   fechaVencimiento?: string;
 }
@@ -3751,17 +3751,17 @@ export interface BotiquinItemDto {
   habilitado: boolean;
   /**
    * Fecha de Vencimiento actual
-   * @example "2026-04-01T18:34:03.214Z"
+   * @example "2026-04-02T02:56:36.988Z"
    */
   fechaVencimiento?: string;
   /**
    * Fecha de Salida
-   * @example "2026-04-01T18:34:03.214Z"
+   * @example "2026-04-02T02:56:36.988Z"
    */
   fechaSalida?: string;
   /**
    * Fecha de Reposición
-   * @example "2026-04-01T18:34:03.214Z"
+   * @example "2026-04-02T02:56:36.988Z"
    */
   fechaReposicion?: string;
 }
@@ -9977,6 +9977,11 @@ export interface AuditoriaResultDto {
    * @example ["empleado"]
    */
   usuarioRol: ("empleado" | "admin")[];
+  /**
+   * Correo del usuario
+   * @example "erick@gmail.com"
+   */
+  usuarioEmail: string;
 }
 
 export interface PaginatedAuditoriaResultDto {
@@ -12248,6 +12253,13 @@ export interface AuditoriasFindAllParams {
 }
 
 export type AuditoriasFindAllData = PaginatedAuditoriaResultDto;
+
+export interface AuditoriasFindOneParams {
+  /** ID de la auditoría */
+  id: number;
+}
+
+export type AuditoriasFindOneData = AuditoriaResultDto;
 
 export namespace App {
   /**
@@ -17768,6 +17780,26 @@ export namespace Auditorias {
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = AuditoriasFindAllData;
+  }
+
+  /**
+   * No description
+   * @tags auditorias
+   * @name AuditoriasFindOne
+   * @summary Obtener un registro de auditoría por ID
+   * @request GET:/auditorias/find-one/{id}
+   * @secure
+   * @response `200` `AuditoriasFindOneData`
+   */
+  export namespace AuditoriasFindOne {
+    export type RequestParams = {
+      /** ID de la auditoría */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = AuditoriasFindOneData;
   }
 }
 
@@ -23530,6 +23562,28 @@ export class Api<SecurityDataType extends unknown> {
         path: `/auditorias/find-all`,
         method: "GET",
         query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags auditorias
+     * @name AuditoriasFindOne
+     * @summary Obtener un registro de auditoría por ID
+     * @request GET:/auditorias/find-one/{id}
+     * @secure
+     * @response `200` `AuditoriasFindOneData`
+     */
+    findOne: (
+      { id, ...query }: AuditoriasFindOneParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<AuditoriasFindOneData, any>({
+        path: `/auditorias/find-one/${id}`,
+        method: "GET",
         secure: true,
         format: "json",
         ...params,
