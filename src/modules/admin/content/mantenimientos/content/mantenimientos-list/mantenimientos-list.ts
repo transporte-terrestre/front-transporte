@@ -103,6 +103,7 @@ export class MantenimientosList implements OnInit {
   selectedTallerForSearch = signal<any>(null);
   vehiculoId = signal<number | string>('');
   selectedVehiculoForSearch = signal<any>(null);
+  Math = Math;
 
   // Calendario
   currentDate = signal(new Date());

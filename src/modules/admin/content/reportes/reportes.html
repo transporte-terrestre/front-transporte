@@ -23,6 +23,7 @@
             <option value="mantenimientos">Mantenimientos</option>
             <option value="conductores">Conductores</option>
             <option value="clientes">Clientes</option>
+            <option value="resumen">Resumen Flota</option>
           </select>
           <!-- Icono Izquierdo Dinámico -->
           <div class="absolute left-3 top-1/2 -translate-y-1/2 text-secondary">
@@ -30,6 +31,7 @@
             @else if (reportCategory() === 'mantenimientos') { <i class="fas fa-tools"></i> }
             @else if (reportCategory() === 'conductores') { <i class="fas fa-id-card"></i> }
             @else if (reportCategory() === 'clientes') { <i class="fas fa-building"></i> }
+            @else if (reportCategory() === 'resumen') { <i class="fas fa-chart-pie"></i> }
           </div>
           <!-- Chevron Derecha -->
           <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-text/40 text-[10px] pointer-events-none"></i>
@@ -132,6 +134,11 @@
       <!-- Child Component: Clientes -->
       @if (reportCategory() === 'clientes') {
       <app-reportes-clientes></app-reportes-clientes>
+      }
+
+      <!-- Child Component: Resumen Flota -->
+      @if (reportCategory() === 'resumen') {
+      <app-reportes-resumen></app-reportes-resumen>
       }
     </div>
   </div>

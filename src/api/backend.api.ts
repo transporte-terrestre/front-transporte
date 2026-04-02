@@ -3568,7 +3568,7 @@ export interface DocumentoItemDto {
   observacion?: string;
   /**
    * Fecha de Vencimiento Inicial/Por defecto
-   * @example "2026-04-02T02:56:36.982Z"
+   * @example "2026-04-02T14:15:59.365Z"
    */
   fechaVencimiento?: string;
 }
@@ -3751,17 +3751,17 @@ export interface BotiquinItemDto {
   habilitado: boolean;
   /**
    * Fecha de Vencimiento actual
-   * @example "2026-04-02T02:56:36.988Z"
+   * @example "2026-04-02T14:15:59.368Z"
    */
   fechaVencimiento?: string;
   /**
    * Fecha de Salida
-   * @example "2026-04-02T02:56:36.988Z"
+   * @example "2026-04-02T14:15:59.368Z"
    */
   fechaSalida?: string;
   /**
    * Fecha de Reposición
-   * @example "2026-04-02T02:56:36.988Z"
+   * @example "2026-04-02T14:15:59.368Z"
    */
   fechaReposicion?: string;
 }
@@ -8877,6 +8877,23 @@ export interface ReporteConductorDto {
   paseconduc: string;
 }
 
+export interface ResumenVehiculoDto {
+  /** ID del vehículo */
+  vehiculoId: number;
+  /** Placa del vehículo */
+  placa: string;
+  /** Marca del vehículo */
+  marca: string;
+  /** Modelo del vehículo */
+  modelo: string;
+  /** Total de kilometraje recorrido */
+  totalKilometraje: number;
+  /** Total de galones abastecidos */
+  totalGalones: number;
+  /** Cantidad de viajes realizados */
+  cantidadViajes: number;
+}
+
 export interface PropietarioListDto {
   /**
    * ID del propietario
@@ -11967,6 +11984,15 @@ export type ReportesGetMantenimientosDetalladosPorTallerData =
   MantenimientoDetalladoTallerDto[];
 
 export type ReportesGetReporteConductoresData = ReporteConductorDto[];
+
+export interface ReportesGetResumenVehiculosParams {
+  /** Fecha de inicio del reporte (YYYY-MM-DD) */
+  fechaInicio?: string;
+  /** Fecha de fin del reporte (YYYY-MM-DD) */
+  fechaFin?: string;
+}
+
+export type ReportesGetResumenVehiculosData = ResumenVehiculoDto[];
 
 export interface PropietariosFindAllParams {
   /**
@@ -17048,6 +17074,28 @@ export namespace Reportes {
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = ReportesGetReporteConductoresData;
+  }
+
+  /**
+   * No description
+   * @tags reportes
+   * @name ReportesGetResumenVehiculos
+   * @summary Resumen de kilometraje y combustible por vehículo
+   * @request GET:/reportes/resumen-vehiculos
+   * @secure
+   * @response `200` `ReportesGetResumenVehiculosData` Lista de resumen por vehículo
+   */
+  export namespace ReportesGetResumenVehiculos {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /** Fecha de inicio del reporte (YYYY-MM-DD) */
+      fechaInicio?: string;
+      /** Fecha de fin del reporte (YYYY-MM-DD) */
+      fechaFin?: string;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ReportesGetResumenVehiculosData;
   }
 }
 
@@ -22797,6 +22845,29 @@ export class Api<SecurityDataType extends unknown> {
       this.http.request<ReportesGetReporteConductoresData, any>({
         path: `/reportes/conductores/general`,
         method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags reportes
+     * @name ReportesGetResumenVehiculos
+     * @summary Resumen de kilometraje y combustible por vehículo
+     * @request GET:/reportes/resumen-vehiculos
+     * @secure
+     * @response `200` `ReportesGetResumenVehiculosData` Lista de resumen por vehículo
+     */
+    getResumenVehiculos: (
+      query: ReportesGetResumenVehiculosParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ReportesGetResumenVehiculosData, any>({
+        path: `/reportes/resumen-vehiculos`,
+        method: "GET",
+        query: query,
         secure: true,
         format: "json",
         ...params,

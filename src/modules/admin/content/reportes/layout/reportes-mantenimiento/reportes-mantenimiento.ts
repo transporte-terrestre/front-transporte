@@ -89,11 +89,9 @@ export class ReportesMantenimiento implements OnInit {
     const mode = this.activeMode();
 
     if (mode === 'mantenimientos-vehiculo') {
-      const id = this.selectedVehiculoId();
-      if (!id) {
-        this.toastService.warning('Selecciona un vehículo');
-        this.loading.set(false);
-        return;
+      const id = this.selectedVehiculoId() || 0;
+      if (id === 0 && !this.selectedEntityName()) {
+        this.selectedEntityName.set('Todos los Vehículos');
       }
       this.reportesService
         .getMantenimientosDetalladosPorVehiculo(id, { ...params, id })
@@ -107,11 +105,9 @@ export class ReportesMantenimiento implements OnInit {
           this.loading.set(false);
         });
     } else if (mode === 'mantenimientos-taller') {
-      const id = this.selectedTallerId();
-      if (!id) {
-        this.toastService.warning('Selecciona un taller');
-        this.loading.set(false);
-        return;
+      const id = this.selectedTallerId() || 0;
+      if (id === 0 && !this.selectedEntityName()) {
+        this.selectedEntityName.set('Todos los Talleres');
       }
       this.reportesService
         .getMantenimientosDetalladosPorTaller(id, { ...params, id })

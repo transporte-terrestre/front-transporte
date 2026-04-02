@@ -39,6 +39,11 @@ export class ReportesService {
       .getViajesDetalladosPorCliente({ id, ...query })
       .then((response) => response.data);
   }
+
+  async getResumenVehiculos(query?: ApiQuery<'reportes', 'getResumenVehiculos'>) {
+    return await this.api.reportes.getResumenVehiculos({ ...query })
+      .then((response) => response.data);
+  }
   // ========== MANTENIMIENTOS DETALLADOS ==========
   async getMantenimientosDetalladosPorVehiculo(
     id: ApiParam<'reportes', 'getMantenimientosDetalladosPorVehiculo', 'id'>,
