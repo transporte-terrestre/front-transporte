@@ -40,14 +40,14 @@
     <div class="bg-background border border-text/10 rounded-xl p-4 shadow-sm">
       <div class="flex items-center gap-4">
         <div class="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center text-secondary text-lg font-inter-bold border border-secondary/10">
-          {{ auditoria()?.usuarioNombre.charAt(0) }}{{ auditoria()?.usuarioApellido.charAt(0) }}
+          {{ auditoria()?.executorNombre.charAt(0) }}{{ auditoria()?.executorApellido.charAt(0) }}
         </div>
         <div class="flex-1">
-          <p class="text-sm font-inter-bold text-text capitalize">{{ auditoria()?.usuarioNombre }} {{ auditoria()?.usuarioApellido }}</p>
+          <p class="text-sm font-inter-bold text-text capitalize">{{ auditoria()?.executorNombre }} {{ auditoria()?.executorApellido }}</p>
           <div class="flex items-center gap-2 mt-1">
-            <span class="text-[10px] text-text/60 font-inter-medium bg-text/5 px-2 py-0.5 rounded border border-text/5">{{ auditoria()?.usuarioEmail }}</span>
+            <span class="text-[10px] text-text/60 font-inter-medium bg-text/5 px-2 py-0.5 rounded border border-text/5">{{ auditoria()?.executorEmail }}</span>
             <span class="px-2 py-0.5 text-[9px] font-inter-bold rounded-full capitalize bg-info/10 text-info">
-              {{ auditoria()?.usuarioRol[0] }}
+              {{ auditoria()?.executorRol }}
             </span>
           </div>
         </div>
