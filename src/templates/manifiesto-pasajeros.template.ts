@@ -57,13 +57,8 @@ export const generateManifiestoPasajerosPdf = async (
   };
 
   // Header Logos/Titles
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(16);
-  doc.text('JJC', margin, y + 6);
-  
-  doc.setFontSize(7);
-  doc.setFont('helvetica', 'normal');
-  doc.text('INGENIERÍA\nY CONSTRUCCIÓN', margin, y + 10);
+  // (JJC removed)
+
 
   // Center Title
   doc.setFontSize(18);
@@ -94,8 +89,11 @@ export const generateManifiestoPasajerosPdf = async (
       [
         { content: `RUC:\n${(viaje as any).cliente?.ruc || '20609735237'}`, styles: { halign: 'left', cellWidth: 25 } },
         { content: `RAZON SOCIAL:\n${(viaje as any).cliente?.razonSocial || 'INVERSIONES JR Y ASOCIADOS S.A.C.'}`, styles: { halign: 'left' } },
-        { content: 'TELEFONO:\n', styles: { halign: 'left', cellWidth: 35 } },
+        { content: `TELEFONO:\n${(viaje as any).cliente?.telefono || '---'}`, styles: { halign: 'left', cellWidth: 35 } },
         { content: `DIRECCION:\n${(viaje as any).cliente?.direccion || 'LIMA'}`, styles: { halign: 'left', cellWidth: 40 } }
+      ],
+      [
+        { content: `CENTRO DE SERVICIO: ${(viaje as any).entidad?.nombreServicio || '---'}`, colSpan: 4, styles: { halign: 'left', fontStyle: 'bold' } }
       ]
     ]
   });
