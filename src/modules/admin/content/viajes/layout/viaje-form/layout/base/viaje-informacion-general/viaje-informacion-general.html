@@ -126,28 +126,42 @@
     </div>
 
     <!-- Nombre de la Ruta (Picker if fixed, text if occasional) -->
-    <div>
-      <label class="text-xs font-inter-semibold text-text mb-1.5 block"> Nombre de la Ruta </label>
-      @if (form.get('tipoRuta')?.value === 'fija') {
-        @if (editMode()) {
-          <app-ruta-input-search formControlName="ruta"> </app-ruta-input-search>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
+      <div [class.lg:col-span-2]="form.get('tipoRuta')?.value !== 'fija'">
+        <label class="text-xs font-inter-semibold text-text mb-1.5 block"> Nombre de la Ruta </label>
+        @if (form.get('tipoRuta')?.value === 'fija') {
+           <input
+            type="text"
+            formControlName="nombreRuta"
+            class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+            placeholder="Ej: Ruta Principal - Turno Mañana"
+          />
         } @else {
-          <app-ruta-circuito-input-search formControlName="ruta">
-          </app-ruta-circuito-input-search>
+          <input
+            type="text"
+            formControlName="nombreRuta"
+            class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+            placeholder="Ej: Ruta Principal - Turno Mañana"
+          />
+          @if (form.get('nombreRuta')?.touched && form.get('nombreRuta')?.errors) {
+            <p class="text-danger text-xs font-inter-medium mt-1">El nombre de la ruta es requerido</p>
+          }
         }
-        @if (form.get('ruta')?.touched && form.get('ruta')?.errors) {
-          <p class="text-danger text-xs font-inter-medium mt-1">La ruta es requerida</p>
-        }
-      } @else {
-        <input
-          type="text"
-          formControlName="nombreRuta"
-          class="w-full px-3 py-2 text-sm bg-text/5 border-2 border-transparent focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-          placeholder="Ej: Ruta Principal - Turno Mañana"
-        />
-        @if (form.get('nombreRuta')?.touched && form.get('nombreRuta')?.errors) {
-          <p class="text-danger text-xs font-inter-medium mt-1">El nombre de la ruta es requerido</p>
-        }
+      </div>
+
+      @if (form.get('tipoRuta')?.value === 'fija') {
+        <div>
+          <label class="text-xs font-inter-semibold text-text mb-1.5 block"> Seleccionar Ruta </label>
+          @if (editMode()) {
+            <app-ruta-input-search formControlName="ruta"> </app-ruta-input-search>
+          } @else {
+            <app-ruta-circuito-input-search formControlName="ruta">
+            </app-ruta-circuito-input-search>
+          }
+          @if (form.get('ruta')?.touched && form.get('ruta')?.errors) {
+            <p class="text-danger text-xs font-inter-medium mt-1">La ruta es requerida</p>
+          }
+        </div>
       }
     </div>
 
@@ -155,9 +169,10 @@
     @if (form.get('tipoRuta')?.value === 'fija') {
       @if (selectedRutaLabel()) {
         <div>
-          <label class="text-xs font-inter-semibold text-text mb-1.5 block"> Ruta </label>
-          <div class="w-full px-3 py-1.5 text-xs bg-text/2.5 border border-text/5 rounded-lg text-text/60 font-inter-medium italic min-h-[34px] flex items-center">
-            <span class="opacity-80 px-1">{{ selectedRutaLabel() }}</span>
+          <label class="text-xs font-inter-semibold text-text mb-1.5 block  opacity-80 uppercase text-[10px]"> Detalles de Ruta </label>
+          <div class="w-full px-3 py-2 text-xs bg-secondary/5 border border-secondary/10 rounded-lg text-secondary font-inter-medium italic min-h-[40px] flex items-center">
+            <i class="fas fa-route mr-2 opacity-60"></i>
+            <span class="opacity-90">{{ selectedRutaLabel() }}</span>
           </div>
         </div>
       }
