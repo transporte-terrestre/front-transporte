@@ -69,6 +69,10 @@ export const generateManifiestoPasajerosPdf = async (
   doc.setFontSize(18);
   doc.setFont('helvetica', 'italic');
   doc.text('MANIFIESTO DE PASAJEROS', pageWidth / 2, y + 8, { align: 'center' });
+  
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'bold');
+  doc.text(`Nº FICHA: ${viaje.id}`, pageWidth / 2, y + 14, { align: 'center' });
 
   // Right Logos/Titles
   doc.setFontSize(10);
@@ -99,7 +103,9 @@ export const generateManifiestoPasajerosPdf = async (
 
   // Row 2: Trip details
   let rutaTexto = '---';
-  if ((viaje as any).tipoRuta === 'ocasional' || (viaje as any).rutaOcasional) {
+  if ((viaje as any).nombreRuta) {
+    rutaTexto = (viaje as any).nombreRuta;
+  } else if ((viaje as any).tipoRuta === 'ocasional' || (viaje as any).rutaOcasional) {
     rutaTexto = (viaje as any).rutaOcasional || '---';
   } else if ((viaje as any).ruta) {
     const r = (viaje as any).ruta;
@@ -137,17 +143,27 @@ export const generateManifiestoPasajerosPdf = async (
 
   // Row 3: Conductores
   const conductores = viaje.conductores ?? [];
-  const cond1 = conductores[0] ? `${conductores[0].nombres || ''} ${conductores[0].apellidos || ''}`.trim() : '---';
-  const cond2 = conductores[1] ? `${conductores[1].nombres || ''} ${conductores[1].apellidos || ''}`.trim() : '---';
+  const c1 = conductores[0];
+  const c2 = conductores[1];
+  
+  const cond1 = c1 ? `${c1.nombres || ''} ${c1.apellidos || ''}`.trim() : '---';
+  const lic1 = c1?.numeroLicencia ? ` / LICENCIA: ${c1.numeroLicencia}` : '';
+  
+  const cond2 = c2 ? `${c2.nombres || ''} ${c2.apellidos || ''}`.trim() : '---';
+  const lic2 = c2?.numeroLicencia ? ` / LICENCIA: ${c2.numeroLicencia}` : '';
 
   autoTable(doc, {
     startY: y,
     theme: 'grid',
     styles: { fontSize: 7, cellPadding: 1.5, lineColor: [0, 0, 0], lineWidth: 0.2, textColor: [0, 0, 0] },
+    columnStyles: {
+      0: { cellWidth: (pageWidth - 2 * margin) / 2 },
+      1: { cellWidth: (pageWidth - 2 * margin) / 2 }
+    },
     body: [
       [
-        { content: `CONDUCTOR 1: ${cond1}` },
-        { content: `CONDUCTOR 2: ${cond2}` }
+        { content: `CONDUCTOR 1: ${cond1}${lic1}` },
+        { content: `CONDUCTOR 2: ${cond2}${lic2}` }
       ]
     ]
   });
