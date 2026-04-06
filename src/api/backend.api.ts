@@ -3568,7 +3568,7 @@ export interface DocumentoItemDto {
   observacion?: string;
   /**
    * Fecha de Vencimiento Inicial/Por defecto
-   * @example "2026-03-30T20:42:48.580Z"
+   * @example "2026-04-02T14:15:59.365Z"
    */
   fechaVencimiento?: string;
 }
@@ -3751,17 +3751,17 @@ export interface BotiquinItemDto {
   habilitado: boolean;
   /**
    * Fecha de Vencimiento actual
-   * @example "2026-03-30T20:42:48.590Z"
+   * @example "2026-04-02T14:15:59.368Z"
    */
   fechaVencimiento?: string;
   /**
    * Fecha de Salida
-   * @example "2026-03-30T20:42:48.590Z"
+   * @example "2026-04-02T14:15:59.368Z"
    */
   fechaSalida?: string;
   /**
    * Fecha de Reposición
-   * @example "2026-03-30T20:42:48.590Z"
+   * @example "2026-04-02T14:15:59.368Z"
    */
   fechaReposicion?: string;
 }
@@ -4688,12 +4688,12 @@ export interface MantenimientoCreateDto {
   fechaSalida: string;
   /**
    * Mileage at maintenance
-   * @example 55000
+   * @example 55000.5
    */
   kilometraje: number;
   /**
    * Next maintenance mileage
-   * @example 60000
+   * @example 60000.5
    */
   kilometrajeProximoMantenimiento: number;
   /**
@@ -4750,12 +4750,12 @@ export interface MantenimientoUpdateDto {
   fechaSalida?: string;
   /**
    * Mileage at maintenance
-   * @example 55000
+   * @example 55000.5
    */
   kilometraje?: number;
   /**
    * Next maintenance mileage
-   * @example 60000
+   * @example 60000.5
    */
   kilometrajeProximoMantenimiento?: number;
   /**
@@ -8877,6 +8877,23 @@ export interface ReporteConductorDto {
   paseconduc: string;
 }
 
+export interface ResumenVehiculoDto {
+  /** ID del vehículo */
+  vehiculoId: number;
+  /** Placa del vehículo */
+  placa: string;
+  /** Marca del vehículo */
+  marca: string;
+  /** Modelo del vehículo */
+  modelo: string;
+  /** Total de kilometraje recorrido */
+  totalKilometraje: number;
+  /** Total de galones abastecidos */
+  totalGalones: number;
+  /** Cantidad de viajes realizados */
+  cantidadViajes: number;
+}
+
 export interface PropietarioListDto {
   /**
    * ID del propietario
@@ -9928,6 +9945,67 @@ export interface StorageResultDto {
    * @example "2024-01-01T00:00:00.000Z"
    */
   createdAt: string;
+}
+
+export interface AuditoriaResultDto {
+  /**
+   * ID de la auditoría
+   * @example 1
+   */
+  id: number;
+  /**
+   * Acción realizada
+   * @example "CREAR"
+   */
+  accion: "CREAR" | "EDITAR" | "ELIMINAR";
+  /**
+   * ID del usuario que realizó la acción
+   * @example 1
+   */
+  usuarioId: number;
+  /**
+   * Módulo afectado
+   * @example "vehiculo"
+   */
+  modulo: string;
+  /**
+   * Detalle del cambio en JSON
+   * @example {"placa":"ABC-123"}
+   */
+  detalle: object;
+  /**
+   * Fecha y hora de la acción
+   * @format date-time
+   * @example "2026-04-01T12:00:00.000Z"
+   */
+  fechaHora: string;
+  /**
+   * Nombre del usuario
+   * @example "Erick"
+   */
+  usuarioNombre: string;
+  /**
+   * Apellido del usuario
+   * @example "Flores"
+   */
+  usuarioApellido: string;
+  /**
+   * Roles del usuario
+   * @example ["empleado"]
+   */
+  usuarioRol: ("empleado" | "admin")[];
+  /**
+   * Correo del usuario
+   * @example "erick@gmail.com"
+   */
+  usuarioEmail: string;
+}
+
+export interface PaginatedAuditoriaResultDto {
+  /** Lista de registros de auditoría */
+  data: AuditoriaResultDto[];
+  /** Metadatos de paginación */
+  meta: PaginationMetaDto;
 }
 
 export type AppGetHelloData = any;
@@ -11907,6 +11985,15 @@ export type ReportesGetMantenimientosDetalladosPorTallerData =
 
 export type ReportesGetReporteConductoresData = ReporteConductorDto[];
 
+export interface ReportesGetResumenVehiculosParams {
+  /** Fecha de inicio del reporte (YYYY-MM-DD) */
+  fechaInicio?: string;
+  /** Fecha de fin del reporte (YYYY-MM-DD) */
+  fechaFin?: string;
+}
+
+export type ReportesGetResumenVehiculosData = ResumenVehiculoDto[];
+
 export interface PropietariosFindAllParams {
   /**
    * Número de página
@@ -12169,6 +12256,36 @@ export interface StorageDownloadParams {
 }
 
 export type StorageDownloadData = any;
+
+export interface AuditoriasFindAllParams {
+  /**
+   * Número de página (comienza en 1)
+   * @default 1
+   * @example 1
+   */
+  page?: number;
+  /**
+   * Cantidad de elementos por página
+   * @default 10
+   * @example 10
+   */
+  limit?: number;
+  /** Término de búsqueda (módulo, acción o usuario) */
+  search?: string;
+  /** Fecha de inicio (YYYY-MM-DD) */
+  fechaInicio?: string;
+  /** Fecha de fin (YYYY-MM-DD) */
+  fechaFin?: string;
+}
+
+export type AuditoriasFindAllData = PaginatedAuditoriaResultDto;
+
+export interface AuditoriasFindOneParams {
+  /** ID de la auditoría */
+  id: number;
+}
+
+export type AuditoriasFindOneData = AuditoriaResultDto;
 
 export namespace App {
   /**
@@ -16958,6 +17075,28 @@ export namespace Reportes {
     export type RequestHeaders = {};
     export type ResponseBody = ReportesGetReporteConductoresData;
   }
+
+  /**
+   * No description
+   * @tags reportes
+   * @name ReportesGetResumenVehiculos
+   * @summary Resumen de kilometraje y combustible por vehículo
+   * @request GET:/reportes/resumen-vehiculos
+   * @secure
+   * @response `200` `ReportesGetResumenVehiculosData` Lista de resumen por vehículo
+   */
+  export namespace ReportesGetResumenVehiculos {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /** Fecha de inicio del reporte (YYYY-MM-DD) */
+      fechaInicio?: string;
+      /** Fecha de fin del reporte (YYYY-MM-DD) */
+      fechaFin?: string;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ReportesGetResumenVehiculosData;
+  }
 }
 
 export namespace Propietarios {
@@ -17651,6 +17790,64 @@ export namespace Storage {
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = StorageDownloadData;
+  }
+}
+
+export namespace Auditorias {
+  /**
+   * No description
+   * @tags auditorias
+   * @name AuditoriasFindAll
+   * @summary Obtener historial de auditoría del sistema (Solo Admin)
+   * @request GET:/auditorias/find-all
+   * @secure
+   * @response `200` `AuditoriasFindAllData`
+   */
+  export namespace AuditoriasFindAll {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /**
+       * Número de página (comienza en 1)
+       * @default 1
+       * @example 1
+       */
+      page?: number;
+      /**
+       * Cantidad de elementos por página
+       * @default 10
+       * @example 10
+       */
+      limit?: number;
+      /** Término de búsqueda (módulo, acción o usuario) */
+      search?: string;
+      /** Fecha de inicio (YYYY-MM-DD) */
+      fechaInicio?: string;
+      /** Fecha de fin (YYYY-MM-DD) */
+      fechaFin?: string;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = AuditoriasFindAllData;
+  }
+
+  /**
+   * No description
+   * @tags auditorias
+   * @name AuditoriasFindOne
+   * @summary Obtener un registro de auditoría por ID
+   * @request GET:/auditorias/find-one/{id}
+   * @secure
+   * @response `200` `AuditoriasFindOneData`
+   */
+  export namespace AuditoriasFindOne {
+    export type RequestParams = {
+      /** ID de la auditoría */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = AuditoriasFindOneData;
   }
 }
 
@@ -22652,6 +22849,29 @@ export class Api<SecurityDataType extends unknown> {
         format: "json",
         ...params,
       }),
+
+    /**
+     * No description
+     *
+     * @tags reportes
+     * @name ReportesGetResumenVehiculos
+     * @summary Resumen de kilometraje y combustible por vehículo
+     * @request GET:/reportes/resumen-vehiculos
+     * @secure
+     * @response `200` `ReportesGetResumenVehiculosData` Lista de resumen por vehículo
+     */
+    getResumenVehiculos: (
+      query: ReportesGetResumenVehiculosParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ReportesGetResumenVehiculosData, any>({
+        path: `/reportes/resumen-vehiculos`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
   };
   propietarios = {
     /**
@@ -23391,6 +23611,52 @@ export class Api<SecurityDataType extends unknown> {
         method: "GET",
         query: query,
         secure: true,
+        ...params,
+      }),
+  };
+  auditorias = {
+    /**
+     * No description
+     *
+     * @tags auditorias
+     * @name AuditoriasFindAll
+     * @summary Obtener historial de auditoría del sistema (Solo Admin)
+     * @request GET:/auditorias/find-all
+     * @secure
+     * @response `200` `AuditoriasFindAllData`
+     */
+    findAll: (
+      query: AuditoriasFindAllParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<AuditoriasFindAllData, any>({
+        path: `/auditorias/find-all`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags auditorias
+     * @name AuditoriasFindOne
+     * @summary Obtener un registro de auditoría por ID
+     * @request GET:/auditorias/find-one/{id}
+     * @secure
+     * @response `200` `AuditoriasFindOneData`
+     */
+    findOne: (
+      { id, ...query }: AuditoriasFindOneParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<AuditoriasFindOneData, any>({
+        path: `/auditorias/find-one/${id}`,
+        method: "GET",
+        secure: true,
+        format: "json",
         ...params,
       }),
   };

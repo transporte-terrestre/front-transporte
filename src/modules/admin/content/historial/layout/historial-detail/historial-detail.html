@@ -1,0 +1,93 @@
+@if (loading()) {
+  <div class="h-64 flex flex-col items-center justify-center gap-4">
+    <i class="fas fa-spinner fa-spin text-secondary text-4xl"></i>
+    <span class="text-text/60 font-inter-medium text-sm">Cargando registro de auditoría...</span>
+  </div>
+} @else if (error()) {
+  <div class="flex flex-col items-center justify-center p-8 text-center">
+    <i class="fas fa-exclamation-circle text-danger text-4xl mb-3"></i>
+    <p class="text-text font-inter-medium">{{ error() }}</p>
+  </div>
+} @else if (auditoria()) {
+  <div class="p-6 space-y-6">
+    <!-- Header: Action & Module -->
+    <div class="flex items-center justify-between border-b border-text/5 pb-4">
+      <div class="flex items-center gap-3">
+        <span class="px-3 py-1 text-xs font-inter-bold rounded flex items-center gap-2 uppercase tracking-wider"
+          [class.bg-success/10]="auditoria()?.accion === 'CREAR'"
+          [class.text-success]="auditoria()?.accion === 'CREAR'"
+          [class.bg-info/10]="auditoria()?.accion === 'EDITAR'"
+          [class.text-info]="auditoria()?.accion === 'EDITAR'"
+          [class.bg-danger/10]="auditoria()?.accion === 'ELIMINAR'"
+          [class.text-danger]="auditoria()?.accion === 'ELIMINAR'"
+        >
+          <span class="w-1.5 h-1.5 rounded-full"
+            [class.bg-success]="auditoria()?.accion === 'CREAR'"
+            [class.bg-info]="auditoria()?.accion === 'EDITAR'"
+            [class.bg-danger]="auditoria()?.accion === 'ELIMINAR'">
+          </span>
+          AUDITORÍA: {{ auditoria()?.accion }}
+        </span>
+        <span class="text-sm font-inter-bold text-text/60 uppercase tracking-tight">{{ auditoria()?.modulo }}</span>
+      </div>
+      <div class="text-right">
+        <span class="block text-xs font-inter-semibold text-text/80">{{ auditoria()?.fechaHora | date:'dd/MM/yyyy, HH:mm:ss':'UTC' }}</span>
+        <span class="text-[10px] text-text/40 font-inter-regular">Registro: #{{ auditoria()?.id }}</span>
+      </div>
+    </div>
+
+    <!-- User Information Card -->
+    <div class="bg-background border border-text/10 rounded-xl p-4 shadow-sm">
+      <div class="flex items-center gap-4">
+        <div class="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center text-secondary text-lg font-inter-bold border border-secondary/10">
+          {{ auditoria()?.usuarioNombre.charAt(0) }}{{ auditoria()?.usuarioApellido.charAt(0) }}
+        </div>
+        <div class="flex-1">
+          <p class="text-sm font-inter-bold text-text capitalize">{{ auditoria()?.usuarioNombre }} {{ auditoria()?.usuarioApellido }}</p>
+          <div class="flex items-center gap-2 mt-1">
+            <span class="text-[10px] text-text/60 font-inter-medium bg-text/5 px-2 py-0.5 rounded border border-text/5">{{ auditoria()?.usuarioEmail }}</span>
+            <span class="px-2 py-0.5 text-[9px] font-inter-bold rounded-full capitalize bg-info/10 text-info">
+              {{ auditoria()?.usuarioRol[0] }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Details/JSON Content -->
+    <div class="space-y-3">
+      <div class="flex items-center gap-2 text-text font-inter-bold text-xs uppercase tracking-widest pl-1">
+        <i class="fas fa-database text-secondary"></i>
+        <span>Detalles del Cambio</span>
+      </div>
+
+      <div class="bg-background border border-text/10 rounded-xl overflow-hidden">
+        <div class="p-4 bg-text/2 border-b border-text/5 flex items-center justify-between">
+          <span class="text-[10px] text-text/40 font-inter-bold uppercase tracking-widest">Atributo</span>
+          <span class="text-[10px] text-text/40 font-inter-bold uppercase tracking-widest">Valor Registrado</span>
+        </div>
+
+        <div class="divide-y divide-text/5">
+          @for (entry of getEntries(auditoria()?.detalle); track entry[0]) {
+            <div class="flex items-start justify-between p-3 gap-4 hover:bg-text/1 transition-colors">
+              <span class="text-[11px] font-inter-bold text-text/70 bg-text/5 px-2 py-0.5 rounded capitalize shrink-0">{{ entry[0] }}</span>
+              <div class="flex-1 text-right truncate">
+                @if (isObject(entry[1])) {
+                   <pre class="text-[11px] font-mono text-text/80 text-left bg-text/2 p-2 rounded border border-text/5 overflow-auto max-h-40 inline-block w-full whitespace-pre-wrap wrap-break-words">
+                     {{ entry[1] | json }}
+                   </pre>
+                } @else {
+                  <span class="text-[12px] font-inter-medium text-text break-all">{{ entry[1] }}</span>
+                }
+              </div>
+            </div>
+          } @empty {
+            <div class="p-8 text-center text-text/40 italic text-xs">
+              No se enviaron detalles adicionales para esta acción.
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+}

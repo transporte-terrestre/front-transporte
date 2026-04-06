@@ -8,15 +8,16 @@ import {
 } from './layout/reportes-mantenimiento/reportes-mantenimiento';
 import { ReportesConductores } from './layout/reportes-conductores/reportes-conductores';
 import { ReportesClientes } from './layout/reportes-clientes/reportes-clientes';
+import { ReportesResumen } from './layout/reportes-resumen/reportes-resumen';
 
-type ReportCategory = 'viajes' | 'mantenimientos' | 'conductores' | 'clientes';
+type ReportCategory = 'viajes' | 'mantenimientos' | 'conductores' | 'clientes' | 'resumen';
 
 type ReportMode = ViajeReportMode | MantenimientoReportMode;
 
 @Component({
   selector: 'app-reportes',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReportesViaje, ReportesMantenimiento, ReportesConductores, ReportesClientes],
+  imports: [CommonModule, FormsModule, ReportesViaje, ReportesMantenimiento, ReportesConductores, ReportesClientes, ReportesResumen],
   templateUrl: './reportes.html',
   styleUrl: './reportes.css',
 })
@@ -34,6 +35,8 @@ export class Reportes {
       this.activeMode.set('vehiculo');
     } else if (category === 'mantenimientos') {
       this.activeMode.set('mantenimientos-vehiculo');
+    } else if (category === 'resumen') {
+      this.activeMode.set('vehiculo');
     }
   }
 

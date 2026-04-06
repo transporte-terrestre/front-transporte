@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { Toast } from '@component/toast/toast';
 import { Alert } from '@component/alert/alert';
+import { ThemeService } from '@service/theme.service';
 
 @Component({
   selector: 'app-root',
@@ -9,4 +10,6 @@ import { Alert } from '@component/alert/alert';
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
-export class App {}
+export class App {
+  private themeService = inject(ThemeService);
+}

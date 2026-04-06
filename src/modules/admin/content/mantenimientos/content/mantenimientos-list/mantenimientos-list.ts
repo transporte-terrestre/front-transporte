@@ -18,7 +18,10 @@ import { PATH, buildPath } from '@route/path.route';
 import { getErrorMessage } from '@helper/error.helper';
 import { TallerInputSearch } from '../../../../components/input-searchs/taller-input-search/taller-input-search';
 import { VehiculoInputSearch } from '../../../../components/input-searchs/vehiculo-input-search/vehiculo-input-search';
-import { UserSignatureSelectModal, SignatureSelection } from '../../../../components/user-signature-select-modal/user-signature-select-modal';
+import {
+  UserSignatureSelectModal,
+  SignatureSelection,
+} from '../../../../components/user-signature-select-modal/user-signature-select-modal';
 import * as XLSX from 'xlsx';
 
 interface CalendarDay {
@@ -58,9 +61,13 @@ export class MantenimientosList implements OnInit {
 
   // Firma Modal
   showSignatureModal = signal(false);
-  selectedMantenimientoForSignature = signal<ApiResponse<'mantenimientos', 'findAll'>['data'][number] | null>(null);
+  selectedMantenimientoForSignature = signal<
+    ApiResponse<'mantenimientos', 'findAll'>['data'][number] | null
+  >(null);
 
-  downloadOrdenServicioList(mantenimiento: ApiResponse<'mantenimientos', 'findAll'>['data'][number]) {
+  downloadOrdenServicioList(
+    mantenimiento: ApiResponse<'mantenimientos', 'findAll'>['data'][number],
+  ) {
     this.selectedMantenimientoForSignature.set(mantenimiento);
     this.showSignatureModal.set(true);
   }
@@ -96,6 +103,7 @@ export class MantenimientosList implements OnInit {
   selectedTallerForSearch = signal<any>(null);
   vehiculoId = signal<number | string>('');
   selectedVehiculoForSearch = signal<any>(null);
+  Math = Math;
 
   // Calendario
   currentDate = signal(new Date());
@@ -537,11 +545,14 @@ export class MantenimientosList implements OnInit {
       return {
         Placa: item.placa,
         'Cód. Interno': item.codigoInterno || item.vehiculoId,
-        'Último Mant. Fecha': item.ultimoMantenimientoFecha ? this.formatDate(item.ultimoMantenimientoFecha) : '-',
+        'Último Mant. Fecha': item.ultimoMantenimientoFecha
+          ? this.formatDate(item.ultimoMantenimientoFecha)
+          : '-',
         'Último Mant. Km': item.ultimoMantenimientoKm || '-',
         'Próximo Mant. Km': item.proxMantenimientoKm || 'Sin Prog.',
         'Km Actual': item.kilometrajeActual,
-        'Km Restante': item.kilometrajeRestante !== null ? `${item.kilometrajeRestante} km` : 'Sin Prog.',
+        'Km Restante':
+          item.kilometrajeRestante !== null ? `${item.kilometrajeRestante} km` : 'Sin Prog.',
       };
     });
 

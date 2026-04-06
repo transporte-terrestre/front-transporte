@@ -5,12 +5,21 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { ConductorService } from '@service/admin/conductor.service';
-import { ApiResponse, ApiBody, ConductoresFindAllParams, ConductoresFindAllEstadoDocumentosParams } from 'api/backend.api';
+import {
+  ApiResponse,
+  ApiBody,
+  ConductoresFindAllParams,
+  ConductoresFindAllEstadoDocumentosParams,
+} from 'api/backend.api';
 import { ToastService } from '@service/toast.service';
 import { AlertService } from '@service/alert.service';
 import { ModalForm } from '../../../../components/modal-form/modal-form';
 import { ConductorEstadoUpdate } from './layout/conductor-estado-update/conductor-estado-update';
-import { ConductorForm, ConductorFormSubmitData, PendingConductorDocument } from '../../layout/conductor-form/conductor-form';
+import {
+  ConductorForm,
+  ConductorFormSubmitData,
+  PendingConductorDocument,
+} from '../../layout/conductor-form/conductor-form';
 import { PaginationComponent } from '../../../../components/pagination/pagination';
 import { PATH, buildPath } from '@route/path.route';
 import { getErrorMessage } from '@helper/error.helper';
@@ -42,7 +51,9 @@ export class ConductoresList implements OnInit, OnDestroy {
   private searchSubject = new Subject<string>();
 
   conductores = signal<ApiResponse<'conductores', 'findAll'>['data']>([]);
-  conductoresEstadoDocumentos = signal<ApiResponse<'conductores', 'findAllEstadoDocumentos'>['data']>([]);
+  conductoresEstadoDocumentos = signal<
+    ApiResponse<'conductores', 'findAllEstadoDocumentos'>['data']
+  >([]);
   loading = signal(false);
   showModal = signal(false);
   filtroDocumentos = signal<'completo' | 'incompleto' | null>(null);
@@ -161,9 +172,14 @@ export class ConductoresList implements OnInit, OnDestroy {
           limit: this.pageSize(),
           filtro: filtroDoc,
           search: this.searchTerm() || undefined,
-          estado: (this.estado() as ConductoresFindAllEstadoDocumentosParams['estado']) || undefined,
-          claseLicencia: (this.claseLicencia() as ConductoresFindAllEstadoDocumentosParams['claseLicencia']) || undefined,
-          categoriaLicencia: (this.categoriaLicencia() as ConductoresFindAllEstadoDocumentosParams['categoriaLicencia']) || undefined,
+          estado:
+            (this.estado() as ConductoresFindAllEstadoDocumentosParams['estado']) || undefined,
+          claseLicencia:
+            (this.claseLicencia() as ConductoresFindAllEstadoDocumentosParams['claseLicencia']) ||
+            undefined,
+          categoriaLicencia:
+            (this.categoriaLicencia() as ConductoresFindAllEstadoDocumentosParams['categoriaLicencia']) ||
+            undefined,
         });
         this.conductoresEstadoDocumentos.set(response.data);
         this.conductores.set([]);
@@ -176,8 +192,11 @@ export class ConductoresList implements OnInit, OnDestroy {
           fechaInicio: this.fechaInicio() || undefined,
           fechaFin: this.fechaFin() || undefined,
           estado: (this.estado() as ConductoresFindAllParams['estado']) || undefined,
-          claseLicencia: (this.claseLicencia() as ConductoresFindAllParams['claseLicencia']) || undefined,
-          categoriaLicencia: (this.categoriaLicencia() as ConductoresFindAllParams['categoriaLicencia']) || undefined,
+          claseLicencia:
+            (this.claseLicencia() as ConductoresFindAllParams['claseLicencia']) || undefined,
+          categoriaLicencia:
+            (this.categoriaLicencia() as ConductoresFindAllParams['categoriaLicencia']) ||
+            undefined,
         });
         this.conductores.set(response.data);
         this.conductoresEstadoDocumentos.set([]);
@@ -323,7 +342,9 @@ export class ConductoresList implements OnInit, OnDestroy {
   async createConductor(data: ConductorFormSubmitData) {
     this.loading.set(true);
     try {
-      const creationData = data as (ApiBody<'conductores', 'create'> & { documentos?: PendingConductorDocument[] });
+      const creationData = data as ApiBody<'conductores', 'create'> & {
+        documentos?: PendingConductorDocument[];
+      };
       const { documentos, ...conductorData } = creationData;
       const newConductor = await this.conductorService.create(conductorData);
 

@@ -93,11 +93,17 @@ export class ViajesList implements OnInit, OnDestroy {
   sentido = signal('');
   turno = signal('');
   clienteId = signal<number | string>('');
-  selectedClienteForSearch = signal<ApiResponse<'clientes', 'findAll'>['data'][number] | null>(null);
+  selectedClienteForSearch = signal<ApiResponse<'clientes', 'findAll'>['data'][number] | null>(
+    null,
+  );
   conductorId = signal<number | string>('');
-  selectedConductorForSearch = signal<ApiResponse<'conductores', 'findAll'>['data'][number] | null>(null);
+  selectedConductorForSearch = signal<ApiResponse<'conductores', 'findAll'>['data'][number] | null>(
+    null,
+  );
   vehiculoId = signal<number | string>('');
-  selectedVehiculoForSearch = signal<ApiResponse<'vehiculos', 'findAll'>['data'][number] | null>(null);
+  selectedVehiculoForSearch = signal<ApiResponse<'vehiculos', 'findAll'>['data'][number] | null>(
+    null,
+  );
 
   // Calendario
   currentWeekStart = signal(this.getWeekStart(new Date()));
@@ -693,23 +699,28 @@ export class ViajesList implements OnInit, OnDestroy {
       return;
     }
 
-    const data = this.processedRows().map((row) => {
-      const v = row.viaje;
-      if (!v) return null;
+    const data = this.processedRows()
+      .map((row) => {
+        const v = row.viaje;
+        if (!v) return null;
 
-      return {
-        ID: row.circuito.id,
-        Sentido: this.getSentidoLabel(row.tipo),
-        Cliente: this.getClienteDisplay(v),
-        Ruta: this.getRutaDisplay(v),
-        Vehículo: this.getVehiculoDisplay(v),
-        Conductor: this.getConductorDisplay(v),
-        Estado: this.getEstadoLabel(v.estado),
-        Turno: this.getTurnoLabel(v.turno),
-        Salida: this.formatDate(v.fechaSalidaProgramada || v.fechaSalida || ''),
-        Llegada: v.fechaLlegadaProgramada || v.fechaLlegada ? this.formatDate(v.fechaLlegadaProgramada || v.fechaLlegada || '') : '-',
-      };
-    }).filter(r => r !== null);
+        return {
+          ID: row.circuito.id,
+          Sentido: this.getSentidoLabel(row.tipo),
+          Cliente: this.getClienteDisplay(v),
+          Ruta: this.getRutaDisplay(v),
+          Vehículo: this.getVehiculoDisplay(v),
+          Conductor: this.getConductorDisplay(v),
+          Estado: this.getEstadoLabel(v.estado),
+          Turno: this.getTurnoLabel(v.turno),
+          Salida: this.formatDate(v.fechaSalidaProgramada || v.fechaSalida || ''),
+          Llegada:
+            v.fechaLlegadaProgramada || v.fechaLlegada
+              ? this.formatDate(v.fechaLlegadaProgramada || v.fechaLlegada || '')
+              : '-',
+        };
+      })
+      .filter((r) => r !== null);
 
     const ws = XLSX.utils.json_to_sheet(data);
     const wb = XLSX.utils.book_new();

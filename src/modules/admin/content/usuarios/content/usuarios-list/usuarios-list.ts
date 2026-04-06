@@ -18,7 +18,15 @@ import { UsuarioDetail } from '../../layout/usuario-detail/usuario-detail';
 
 @Component({
   selector: 'app-usuarios-list',
-  imports: [CommonModule, FormsModule, ModalForm, UsuarioForm, PaginationComponent, ModalInfo, UsuarioDetail],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ModalForm,
+    UsuarioForm,
+    PaginationComponent,
+    ModalInfo,
+    UsuarioDetail,
+  ],
   templateUrl: './usuarios-list.html',
   styleUrl: './usuarios-list.css',
 })
@@ -181,7 +189,7 @@ export class UsuariosList implements OnInit, OnDestroy {
             this.toastService.error(getErrorMessage(error, 'Error al eliminar usuario'));
             this.loading.set(false);
           });
-      }
+      },
     );
   }
 }

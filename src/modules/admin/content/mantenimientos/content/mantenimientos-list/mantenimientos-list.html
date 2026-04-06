@@ -130,7 +130,7 @@
           </div>
 
           <!-- Taller -->
-          <div class="relative border-2 border-text/10 rounded-lg focus-within:border-secondary transition-all">
+          <div class="relative transition-all">
             <app-taller-input-search
               [ngModel]="selectedTallerForSearch()"
               (ngModelChange)="onTallerChange($event)"
@@ -140,7 +140,7 @@
           </div>
 
           <!-- Vehículo -->
-          <div class="relative border-2 border-text/10 rounded-lg focus-within:border-secondary transition-all">
+          <div class="relative transition-all">
             <app-vehiculo-input-search
               [ngModel]="selectedVehiculoForSearch()"
               (ngModelChange)="onVehiculoChange($event)"
@@ -423,7 +423,7 @@
       <!-- Reporte Estado de Flota -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
         <div class="flex-1 max-w-sm">
-          <div class="relative border-2 border-text/10 rounded-lg focus-within:border-secondary transition-all">
+          <div class="relative transition-all">
             <app-vehiculo-input-search
               [ngModel]="selectedVehiculoForSearch()"
               (ngModelChange)="onVehiculoChange($event)"
@@ -569,7 +569,7 @@
                               getRestanteClass(item.kilometrajeRestante)
                             "
                           >
-                            {{ item.kilometrajeRestante }} km
+                            {{ Math.round(item.kilometrajeRestante) }} km
                           </span>
                         } @else {
                           <span

@@ -4,6 +4,7 @@ import {
   provideZonelessChangeDetection,
   PLATFORM_ID,
   inject,
+  LOCALE_ID,
 } from '@angular/core';
 import { provideRouter, Router } from '@angular/router';
 import { registerLocaleData, isPlatformBrowser } from '@angular/common';

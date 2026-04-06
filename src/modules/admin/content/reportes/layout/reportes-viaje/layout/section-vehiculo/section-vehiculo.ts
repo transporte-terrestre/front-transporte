@@ -227,7 +227,7 @@ export class SectionVehiculo implements OnInit {
     }
   }
 
-    generarReporte() {
+  generarReporte() {
     const params = {
       fechaInicio: this.fechaInicio(),
       fechaFin: this.fechaFin(),
@@ -236,12 +236,12 @@ export class SectionVehiculo implements OnInit {
     this.loading.set(true);
     this.viajes.set([]);
 
-    const id = this.selectedVehiculoId();
-    if (!id) {
-      this.toastService.warning('Selecciona un vehiculo');
-      this.loading.set(false);
-      return;
+    const id = this.selectedVehiculoId() || 0;
+
+    if (id === 0 && !this.selectedEntityName()) {
+      this.selectedEntityName.set('Todos los Vehículos');
     }
+
     this.reportesService
       .getViajesDetalladosPorVehiculo(id, { ...params, id })
       .then((data) => {
@@ -409,8 +409,11 @@ export class SectionVehiculo implements OnInit {
     return tipo === 'fija' ? 'Ruta Fija' : tipo === 'ocasional' ? 'Ruta Ocasional' : tipo;
   }
 
-  getRutaDisplay(viaje: ApiResponse<'reportes', 'getViajesDetalladosPorVehiculo'>[number]): string {
-    if (viaje.tipoRuta === 'fija' && viaje.rutaOrigen && viaje.rutaDestino) {
+  getRutaDisplay(viaje: any): string {
+    if (viaje.nombreRuta) {
+      return viaje.nombreRuta;
+    }
+    if (viaje.tipoRuta && (viaje.tipoRuta.toLowerCase() === 'fija' || viaje.tipoRuta.toLowerCase() === 'fijo') && viaje.rutaOrigen && viaje.rutaDestino) {
       return `${viaje.rutaOrigen} → ${viaje.rutaDestino}`;
     }
     return viaje.rutaOcasional || 'Sin ruta definida';
