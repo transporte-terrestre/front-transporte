@@ -3568,7 +3568,7 @@ export interface DocumentoItemDto {
   observacion?: string;
   /**
    * Fecha de Vencimiento Inicial/Por defecto
-   * @example "2026-04-02T14:15:59.365Z"
+   * @example "2026-04-06T20:00:24.176Z"
    */
   fechaVencimiento?: string;
 }
@@ -3751,17 +3751,17 @@ export interface BotiquinItemDto {
   habilitado: boolean;
   /**
    * Fecha de Vencimiento actual
-   * @example "2026-04-02T14:15:59.368Z"
+   * @example "2026-04-06T20:00:24.220Z"
    */
   fechaVencimiento?: string;
   /**
    * Fecha de Salida
-   * @example "2026-04-02T14:15:59.368Z"
+   * @example "2026-04-06T20:00:24.220Z"
    */
   fechaSalida?: string;
   /**
    * Fecha de Reposición
-   * @example "2026-04-02T14:15:59.368Z"
+   * @example "2026-04-06T20:00:24.220Z"
    */
   fechaReposicion?: string;
 }
@@ -9962,7 +9962,12 @@ export interface AuditoriaResultDto {
    * ID del usuario que realizó la acción
    * @example 1
    */
-  usuarioId: number;
+  usuarioId?: number;
+  /**
+   * ID del conductor que realizó la acción
+   * @example 1
+   */
+  conductorId?: number;
   /**
    * Módulo afectado
    * @example "vehiculo"
@@ -9980,25 +9985,25 @@ export interface AuditoriaResultDto {
    */
   fechaHora: string;
   /**
-   * Nombre del usuario
+   * Nombre de quien realizó la acción
    * @example "Erick"
    */
-  usuarioNombre: string;
+  executorNombre: string;
   /**
-   * Apellido del usuario
+   * Apellido de quien realizó la acción
    * @example "Flores"
    */
-  usuarioApellido: string;
+  executorApellido: string;
   /**
-   * Roles del usuario
-   * @example ["empleado"]
+   * Rol de quien realizó la acción
+   * @example "ADMIN"
    */
-  usuarioRol: ("empleado" | "admin")[];
+  executorRol: string;
   /**
-   * Correo del usuario
+   * Correo de quien realizó la acción
    * @example "erick@gmail.com"
    */
-  usuarioEmail: string;
+  executorEmail: string;
 }
 
 export interface PaginatedAuditoriaResultDto {

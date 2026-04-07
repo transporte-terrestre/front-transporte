@@ -5,6 +5,7 @@ import {
   PLATFORM_ID,
   inject,
   LOCALE_ID,
+  Injector,
 } from '@angular/core';
 import { provideRouter, Router } from '@angular/router';
 import { registerLocaleData, isPlatformBrowser } from '@angular/common';
@@ -15,6 +16,7 @@ import { AuthService } from '@service/auth/auth.service';
 import { environment } from '../environments/environment';
 
 import localeEsPE from '@angular/common/locales/es-PE';
+import { buildPath, PATH } from '@route/path.route';
 registerLocaleData(localeEsPE, 'es-PE');
 
 export const appConfig: ApplicationConfig = {
@@ -29,6 +31,7 @@ export const appConfig: ApplicationConfig = {
       provide: Api,
       useFactory: () => {
         const platformId = inject(PLATFORM_ID);
+        const injector = inject(Injector);
 
         return new Api(
           new HttpClient({
@@ -50,8 +53,6 @@ export const appConfig: ApplicationConfig = {
               // Si estamos en el SERVIDOR (SSR), bloqueamos la petición
               if (!isPlatformBrowser(platformId)) {
                 // Retornamos una promesa "falsa" que resuelve nada.
-                // Esto imita el "return EMPTY" de RxJS.
-                // Evita el error 401 y el crash en consola.
                 return Promise.resolve(
                   new Response(JSON.stringify({}), {
                     status: 200,
@@ -63,12 +64,18 @@ export const appConfig: ApplicationConfig = {
               // Si estamos en el NAVEGADOR, hacemos el fetch real
               const response = await fetch(input, init);
 
-              // Detectar error 401 y cerrar sesión
+              // Detectar error 401 y cerrar sesión solo si es para nuestro backend
               if (response.status === 401) {
-                const authService = inject(AuthService);
-                const router = inject(Router);
-                authService.logout();
-                router.navigate(['/auth/sign-in']);
+                const url = typeof input === 'string' ? input : (input instanceof Request ? input.url : input.toString());
+                const backendUrl = environment.baseUrl || '';
+
+                if (url.startsWith(backendUrl)) {
+                  // Obtenemos los servicios del inyector de forma perezosa
+                  const authService = injector.get(AuthService);
+                  const router = injector.get(Router);
+                  authService.logout();
+                  router.navigate([buildPath(PATH.auth.signIn)]);
+                }
               }
 
               return response;
