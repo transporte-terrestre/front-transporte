@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit, output } from '@angular/core';
+import { Component, inject, signal, OnInit, output, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { UsuarioService } from '@service/admin/usuario.service';
 import { ApiResponse, UsuarioResultDto } from 'api/backend.api';
@@ -19,6 +19,7 @@ export interface SignatureSelection {
   templateUrl: './user-signature-select-modal.html',
 })
 export class UserSignatureSelectModal implements OnInit {
+  variant = input<'modal' | 'inline'>('modal');
   private usuarioService = inject(UsuarioService);
   private toastService = inject(ToastService);
 
