@@ -3568,7 +3568,7 @@ export interface DocumentoItemDto {
   observacion?: string;
   /**
    * Fecha de Vencimiento Inicial/Por defecto
-   * @example "2026-04-06T20:00:24.176Z"
+   * @example "2026-04-17T05:33:43.084Z"
    */
   fechaVencimiento?: string;
 }
@@ -3751,17 +3751,17 @@ export interface BotiquinItemDto {
   habilitado: boolean;
   /**
    * Fecha de Vencimiento actual
-   * @example "2026-04-06T20:00:24.220Z"
+   * @example "2026-04-17T05:33:43.086Z"
    */
   fechaVencimiento?: string;
   /**
    * Fecha de Salida
-   * @example "2026-04-06T20:00:24.220Z"
+   * @example "2026-04-17T05:33:43.086Z"
    */
   fechaSalida?: string;
   /**
    * Fecha de Reposición
-   * @example "2026-04-06T20:00:24.220Z"
+   * @example "2026-04-17T05:33:43.086Z"
    */
   fechaReposicion?: string;
 }
@@ -7542,6 +7542,11 @@ export interface ViajePasajeroResultDto {
    */
   apellidos?: string;
   /**
+   * Nombre de la empresa del pasajero
+   * @example "Empresa S.A."
+   */
+  empresa?: string;
+  /**
    * Asistencia del pasajero en la parada consultada
    * @example false
    */
@@ -7576,6 +7581,16 @@ export interface ViajePasajeroResultDto {
    * @example true
    */
   esSalidaTramoActual?: boolean | null;
+  /**
+   * Hora en la que se registró la entrada del pasajero (subida)
+   * @example "2024-03-24T10:30:00Z"
+   */
+  horaAsistencia?: string | null;
+  /**
+   * Hora en la que se registró la salida del pasajero (bajada)
+   * @example "2024-03-24T12:30:00Z"
+   */
+  horaSalida?: string | null;
   /**
    * Fecha de creación
    * @format date-time

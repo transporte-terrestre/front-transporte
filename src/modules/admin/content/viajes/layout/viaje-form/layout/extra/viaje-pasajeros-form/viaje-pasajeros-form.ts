@@ -33,6 +33,7 @@ interface LocalPasajeroItemDto {
   nombres?: string;
   apellidos?: string;
   asistencia: boolean;
+  empresa?: string;
   creadoEn?: string;
   actualizadoEn?: string;
 }
@@ -183,6 +184,7 @@ export class ViajePasajerosForm {
               dni: findVal(['DNI', 'DOCUMENTO', 'ID', 'IDENTIFICACION']) || undefined,
               nombres: findVal(['NOMBRES', 'NOMBRE', 'NAME']) || undefined,
               apellidos: findVal(['APELLIDOS', 'APELLIDO', 'LAST NAME', 'SURNAME']) || undefined,
+              empresa: findVal(['EMPRESA', 'COMPANY', 'NEGOCIO']) || undefined,
               asistencia: false,
             };
           })
@@ -271,6 +273,7 @@ export class ViajePasajerosForm {
         if ('dni' in p) item.dni = p.dni || undefined;
         if ('nombres' in p) item.nombres = p.nombres || undefined;
         if ('apellidos' in p) item.apellidos = p.apellidos || undefined;
+        if ('empresa' in p) item.empresa = p.empresa || (this.viaje() as any).cliente?.razonSocial || undefined;
         return item;
       });
 
@@ -335,6 +338,7 @@ export class ViajePasajerosForm {
           dni: p.dni || undefined,
           nombres: p.nombres || undefined,
           apellidos: p.apellidos || undefined,
+          empresa: p.empresa || undefined,
         };
         return item;
       });

@@ -18,13 +18,15 @@ const iconDefault = L.icon({
 L.Marker.prototype.options.icon = iconDefault;
 
 export type ViajeIndividual = NonNullable<ApiResponse<'viajes', 'findAll'>['data'][0]['ida']>;
-import { ViajeHojaRutaResultDto, ViajePuntoTrayectoDto } from '@api/backend.api';
+import { ViajeHojaRutaResultDto, ViajePuntoTrayectoDto, Api } from '@api/backend.api';
 import { generateReporteDiarioPdf } from '@template/reporte-diario.template';
+import { generateManifiestoPasajerosPdf, SignatureSelection } from '@template/manifiesto-pasajeros.template';
+import { ViajePasajerosSignature } from '@module/admin/content/viajes/layout/viaje-form/layout/extra/viaje-pasajeros-form/layout/viaje-pasajeros-signature/viaje-pasajeros-signature';
 
 @Component({
   selector: 'app-viaje-detail',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ViajePasajerosSignature],
   templateUrl: './viaje-detail.html',
   styleUrl: './viaje-detail.css',
 })
@@ -33,8 +35,11 @@ export class ViajeDetail implements AfterViewInit {
   hojaRuta = signal<ViajeHojaRutaResultDto | null>(null);
   loading = signal(false);
   hiddenTramoIndexes = signal<Set<number>>(new Set());
+  showSignatureModal = signal(false);
+  mode = signal<'detail' | 'signature'>('detail');
 
   private viajeService = inject(ViajeService);
+  private api = inject(Api);
 
   puntosTrayecto = signal<ViajePuntoTrayectoDto[]>([]);
 
@@ -311,6 +316,35 @@ export class ViajeDetail implements AfterViewInit {
     const hr = this.hojaRutaDisplay();
     if (!data || !hr) return;
     generateReporteDiarioPdf(data as any, hr);
+  }
+
+  async descargarManifiesto() {
+    this.mode.set('signature');
+  }
+
+  async onSignatureSelected(signature: SignatureSelection) {
+    this.mode.set('detail');
+    const data = this.viaje();
+    if (!data || !data.id) return;
+
+    try {
+      this.loading.set(true);
+      // Obtenemos los datos completos del viaje (necesario para la lista de conductores) y los pasajeros en paralelo
+      const [fullViaje, pasajeros] = await Promise.all([
+        this.viajeService.findOne(data.id),
+        this.viajeService.findPasajeros(data.id),
+      ]);
+
+      await generateManifiestoPasajerosPdf(fullViaje as any, pasajeros, this.api, signature);
+    } catch (err) {
+      console.error('Error generando manifiesto', err);
+    } finally {
+      this.loading.set(false);
+    }
+  }
+
+  onSignatureCancel() {
+    this.mode.set('detail');
   }
 
   toggleTramoVisibility(index: number) {
