@@ -85,11 +85,13 @@ export class ClienteForm implements OnInit {
   searchingRuc = signal(false);
   validateDocuments = signal(false);
   tipoDocSelected = signal<'DNI' | 'RUC'>('DNI');
+  tipoClienteSelected = signal<'personal' | 'corporativo'>('personal');
 
   requiredDocumentTypes = computed(() => {
     if (this.editMode()) return [];
     const tipo = this.tipoDocSelected();
-    return ['ficha_ruc', tipo === 'DNI' ? 'dni' : 'ruc'] as (keyof DocumentosAgrupadosClienteDto)[];
+    const required: (keyof DocumentosAgrupadosClienteDto)[] = [tipo === 'DNI' ? 'dni' : 'ruc'];
+    return required;
   });
 
   visibleDocumentTypes = computed(() => {
@@ -98,6 +100,10 @@ export class ClienteForm implements OnInit {
       // Ocultar el tipo de documento opuesto al seleccionado
       if (tipo === 'DNI' && dt.value === 'ruc') return false;
       if (tipo === 'RUC' && dt.value === 'dni') return false;
+      
+      // Ocultar 'ficha_ruc' si no hay documentos antiguos cargados para evitar redundancia con 'ruc'
+      if (dt.value === 'ficha_ruc' && this.getDocuments('ficha_ruc').length === 0) return false;
+
       return true;
     });
   });
@@ -149,6 +155,7 @@ export class ClienteForm implements OnInit {
           tipo: clienteData.tipo || 'personal',
         });
         this.tipoDocSelected.set(clienteData.tipoDocumento as 'DNI' | 'RUC');
+        this.tipoClienteSelected.set((clienteData.tipo || 'personal') as 'personal' | 'corporativo');
         this.imagenes.set(clienteData.imagenes || []);
         this.localDocuments.set(JSON.parse(JSON.stringify(clienteData.documentos)));
         this.loadPasajeros(clienteData.id);
@@ -156,6 +163,8 @@ export class ClienteForm implements OnInit {
         this.loadEntidades(clienteData.id);
       } else {
         this.clienteForm.reset({ tipoDocumento: 'DNI', tipo: 'personal' });
+        this.tipoDocSelected.set('DNI');
+        this.tipoClienteSelected.set('personal');
         this.imagenes.set([]);
         this.localDocuments.set({} as DocumentosAgrupadosClienteDto);
         this.pendingDocuments.set([]);
@@ -164,6 +173,11 @@ export class ClienteForm implements OnInit {
   }
 
   ngOnInit() {
+    // Suscribirse a cambios en tipo de cliente
+    this.clienteForm.get('tipo')?.valueChanges.subscribe((tipo) => {
+      if (tipo) this.tipoClienteSelected.set(tipo);
+    });
+
     // Suscribirse a cambios en tipoDocumento para validaciones
     this.clienteForm.get('tipoDocumento')?.valueChanges.subscribe((tipo) => {
       this.tipoDocSelected.set(tipo);

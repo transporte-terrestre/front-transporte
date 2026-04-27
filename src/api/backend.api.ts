@@ -3568,7 +3568,7 @@ export interface DocumentoItemDto {
   observacion?: string;
   /**
    * Fecha de Vencimiento Inicial/Por defecto
-   * @example "2026-04-17T05:33:43.084Z"
+   * @example "2026-04-27T19:38:24.539Z"
    */
   fechaVencimiento?: string;
 }
@@ -3751,17 +3751,17 @@ export interface BotiquinItemDto {
   habilitado: boolean;
   /**
    * Fecha de Vencimiento actual
-   * @example "2026-04-17T05:33:43.086Z"
+   * @example "2026-04-27T19:38:24.545Z"
    */
   fechaVencimiento?: string;
   /**
    * Fecha de Salida
-   * @example "2026-04-17T05:33:43.086Z"
+   * @example "2026-04-27T19:38:24.545Z"
    */
   fechaSalida?: string;
   /**
    * Fecha de Reposición
-   * @example "2026-04-17T05:33:43.086Z"
+   * @example "2026-04-27T19:38:24.545Z"
    */
   fechaReposicion?: string;
 }
@@ -9867,13 +9867,17 @@ export interface AlquilerUpdateDto {
   montoTotalFinal?: number;
 }
 
-export interface AlquilerTerminarDto {
-  /** ID del detalle del alquiler a finalizar. Si no se envía se finaliza todo el contrato (maestro). */
-  detalleId?: number;
-  /** @format date-time */
-  fechaFin: string;
+export interface AlquilerTerminarDetalleDto {
+  detalleId: number;
   /** @example 15820.5 */
   kilometrajeFinal?: number;
+}
+
+export interface AlquilerTerminarDto {
+  /** Lista de detalles a finalizar. Si no se envía se finaliza todo el contrato maestro. */
+  detalles?: AlquilerTerminarDetalleDto[];
+  /** @format date-time */
+  fechaFin: string;
   /** @example 2500 */
   montoTotalFinal: number;
   /** Observaciones finales del cierre del alquiler */

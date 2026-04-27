@@ -412,6 +412,7 @@
               [label]="''"
               [documents]="getDocuments(docType.value)"
               [maxDocuments]="10"
+              [requireExpirationDate]="docType.value !== 'ruc' && docType.value !== 'ficha_ruc'"
               (onUpload)="handleDocumentUpload($event, docType.value)"
               (onUpdate)="handleDocumentUpdate($event)"
               (onDelete)="deleteDocument($event, docType.value)"

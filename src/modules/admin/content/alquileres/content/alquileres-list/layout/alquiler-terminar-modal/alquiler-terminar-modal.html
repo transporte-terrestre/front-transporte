@@ -32,18 +32,6 @@
 
         <div>
           <label class="block text-xs font-inter-semibold text-text mb-1.5"
-            >Kilometraje Final <span class="text-danger">*</span></label
-          >
-          <input
-            type="number"
-            step="0.01"
-            formControlName="kilometrajeFinal"
-            class="w-full px-3 py-2 text-sm bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
-          />
-        </div>
-
-        <div class="sm:col-span-2">
-          <label class="block text-xs font-inter-semibold text-text mb-1.5"
             >Monto Calculado Final <span class="text-danger">*</span></label
           >
           <input
@@ -53,6 +41,34 @@
             class="w-full px-3 py-2 text-sm bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
           />
         </div>
+
+      <div formArrayName="detalles" class="sm:col-span-2 space-y-3 mt-2">
+        <label class="block text-xs font-inter-semibold text-text mb-1.5">Kilometraje Final de Unidades <span class="text-danger">*</span></label>
+        @for (det of detallesFormArray.controls; track det) {
+          <div [formGroupName]="$index" class="flex items-center gap-3 bg-text/5 p-3 rounded-lg border border-text/10">
+            <div class="w-10 h-10 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary overflow-hidden shrink-0">
+              @if (det.get('foto')?.value) {
+                <img [src]="det.get('foto')?.value" alt="Foto Vehículo" class="w-full h-full object-cover" />
+              } @else {
+                <i class="fas fa-car"></i>
+              }
+            </div>
+            <div class="flex-1">
+              <p class="text-[11px] font-inter-bold text-text uppercase">{{ det.get('placa')?.value }}</p>
+            </div>
+            <div class="w-1/2 relative">
+              <input
+                type="number"
+                step="0.01"
+                formControlName="kilometrajeFinal"
+                placeholder="Kilometraje"
+                class="w-full px-3 py-2 text-sm bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-text font-inter-regular outline-none transition-all"
+                [class.border-danger]="det.get('kilometrajeFinal')?.invalid && det.get('kilometrajeFinal')?.touched"
+              />
+            </div>
+          </div>
+        }
+      </div>
 
         <div class="sm:col-span-2">
           <label class="block text-xs font-inter-semibold text-text mb-1.5">Observaciones</label>

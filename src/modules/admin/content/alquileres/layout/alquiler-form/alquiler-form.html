@@ -146,7 +146,7 @@
     </div>
 
     <div formArrayName="vehiculos" class="space-y-4">
-      @for (vGroup of vehiculosFormArray.controls; track $index) {
+      @for (vGroup of vehiculosFormArray.controls; track vGroup) {
         <div
           [formGroupName]="$index"
           class="bg-text/2 p-6 rounded-lg border border-text/5 relative group transition-all"
