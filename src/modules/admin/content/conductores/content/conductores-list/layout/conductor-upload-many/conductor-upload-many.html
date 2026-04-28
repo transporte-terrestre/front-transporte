@@ -1,0 +1,155 @@
+<button
+  (click)="openModal()"
+  class="h-full flex-none flex items-center justify-center px-4 bg-secondary text-background rounded-lg text-sm font-inter-semibold hover:bg-secondary/90 transition-all shadow-sm"
+  title="Carga Masiva de Documento"
+>
+  <i class="fas fa-upload text-sm"></i>
+</button>
+
+@if (showModal()) {
+  <app-modal-form
+    title="Subida Masiva de Documento"
+    submitText="Subir Documento"
+    [loading]="loading()"
+    [maxWidth]="'3xl'"
+    (onSubmit)="onSubmit()"
+    (onClose)="closeModal()"
+  >
+    <div class="p-4 md:p-6 space-y-6">
+      <div class="flex flex-col md:flex-row gap-6 md:gap-8 md:min-h-[400px]">
+        <!-- Form for the Document -->
+        <div class="space-y-4 flex-1" [formGroup]="form">
+          <!-- Tipo -->
+          <div>
+            <label class="block text-sm font-inter-medium text-text/70 mb-1"
+              >Tipo de Documento <span class="text-danger">*</span></label
+            >
+            <div class="relative">
+              <select
+                formControlName="tipo"
+                class="w-full pl-3 pr-8 py-2.5 bg-background border border-text/10 rounded-lg text-sm text-text font-inter-regular focus:border-secondary outline-none transition-all appearance-none cursor-pointer"
+              >
+                <option value="" disabled>Seleccione un tipo</option>
+                @for (tipo of documentTypes; track tipo.value) {
+                  <option [value]="tipo.value">{{ tipo.label }}</option>
+                }
+              </select>
+              <i
+                class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-text/40 text-[10px] pointer-events-none"
+              ></i>
+            </div>
+          </div>
+
+          <!-- Nombre -->
+          <div>
+            <label class="block text-sm font-inter-medium text-text/70 mb-1"
+              >Nombre del Documento <span class="text-danger">*</span></label
+            >
+            <input
+              type="text"
+              formControlName="nombre"
+              class="w-full px-3 py-2 bg-background border border-text/10 rounded-lg text-sm text-text font-inter-regular focus:border-secondary outline-none transition-colors"
+              placeholder="Ej. SCTR Mayo 2024"
+            />
+          </div>
+
+          <!-- Archivo -->
+          <div>
+            <div class="relative w-full">
+              <input
+                type="file"
+                id="fileUploadMassive"
+                (change)="onFileSelected($event)"
+                accept=".pdf,.jpg,.jpeg,.png"
+                class="hidden"
+              />
+              <label
+                for="fileUploadMassive"
+                class="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-secondary text-background rounded-lg text-sm font-inter-semibold hover:bg-secondary/90 transition-all cursor-pointer shadow-sm"
+              >
+                @if (fileName()) {
+                  <i class="fas fa-check-circle"></i>
+                  <span class="truncate max-w-[200px]">{{ fileName() }}</span>
+                } @else {
+                  <i class="fas fa-paperclip"></i> Elegir archivo
+                }
+              </label>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <!-- Emisión -->
+            <div>
+              <label class="block text-sm font-inter-medium text-text/70 mb-1">Fecha Emisión</label>
+              <input
+                type="date"
+                formControlName="fechaEmision"
+                class="w-full px-3 py-2 bg-background border border-text/10 rounded-lg text-sm text-text font-inter-regular focus:border-secondary outline-none transition-colors"
+              />
+            </div>
+            <!-- Expiración -->
+            <div>
+              <label class="block text-sm font-inter-medium text-text/70 mb-1"
+                >Fecha Expiración</label
+              >
+              <input
+                type="date"
+                formControlName="fechaExpiracion"
+                class="w-full px-3 py-2 bg-background border border-text/10 rounded-lg text-sm text-text font-inter-regular focus:border-secondary outline-none transition-colors"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Divider -->
+        <div class="w-full h-px md:w-px md:h-auto bg-text/10 shrink-0"></div>
+
+        <!-- Exclusion list using Input Search -->
+        <div class="flex flex-col h-full flex-1">
+          <label class="block text-sm font-inter-bold text-text mb-4"
+            >Excluir Conductores Específicos</label
+          >
+
+          <div class="relative w-full z-20">
+            <app-conductor-input-search
+              (onSelected)="onConductorSelected($any($event))"
+              class="block w-full"
+            ></app-conductor-input-search>
+          </div>
+
+          <div class="mt-4 flex-1">
+            <label class="block text-xs font-inter-semibold text-text/60 mb-2"
+              >Conductores Excluidos ({{ excludedConductores().length }})</label
+            >
+
+            <div class="flex flex-wrap gap-2">
+              @for (conductor of excludedConductores(); track conductor.id) {
+                <div
+                  class="flex items-center gap-2 px-3 py-1.5 bg-danger/10 text-danger rounded-full border border-danger/20"
+                >
+                  <i class="fas fa-user text-[10px]"></i>
+                  <span class="text-xs font-inter-semibold">{{ conductor.nombreCompleto }}</span>
+                  <button
+                    type="button"
+                    (click)="removeExclusion(conductor.id)"
+                    class="ml-1 w-4 h-4 rounded-full flex items-center justify-center hover:bg-danger/20 transition-colors"
+                  >
+                    <i class="fas fa-times text-[10px]"></i>
+                  </button>
+                </div>
+              }
+
+              @if (excludedConductores().length === 0) {
+                <div
+                  class="w-full text-center py-6 text-text/40 text-sm font-inter-medium bg-text/5 rounded-lg border border-dashed border-text/20"
+                >
+                  Ningún conductor excluido.
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </app-modal-form>
+}

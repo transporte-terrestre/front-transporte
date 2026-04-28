@@ -51,17 +51,20 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
       <!-- Búsqueda -->
-      <div class="relative">
-        <i
-          class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"
-        ></i>
-        <input
-          type="text"
-          [ngModel]="searchTerm()"
-          (ngModelChange)="onSearchChange($event)"
-          placeholder="Nombre, DNI o N° licencia..."
-          class="w-full pl-10 pr-4 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all"
-        />
+      <div class="relative flex items-stretch gap-2">
+        <div class="relative flex-1">
+          <i
+            class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"
+          ></i>
+          <input
+            type="text"
+            [ngModel]="searchTerm()"
+            (ngModelChange)="onSearchChange($event)"
+            placeholder="Nombre, DNI o N° licencia..."
+            class="w-full pl-10 pr-4 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all"
+          />
+        </div>
+        <app-conductor-upload-many (onUploaded)="loadConductores()" class="block h-full" />
       </div>
 
       <!-- Estado -->

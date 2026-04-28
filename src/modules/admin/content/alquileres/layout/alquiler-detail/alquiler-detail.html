@@ -81,9 +81,26 @@
 
     <!-- Units Section -->
     <div class="pt-2 border-t border-text/10">
-      <label class="text-[11px] font-inter-bold text-text/60 mb-3 flex items-center gap-2 uppercase tracking-widest">
-        <i class="fas fa-truck-moving text-secondary"></i> Unidades Asignadas ({{ alquiler()?.detalles?.length || 0 }})
-      </label>
+      <div class="flex items-center justify-between mb-3">
+        <label class="text-[11px] font-inter-bold text-text/60 flex items-center gap-2 uppercase tracking-widest">
+          <i class="fas fa-truck-moving text-secondary"></i> Unidades Asignadas ({{ alquiler()?.detalles?.length || 0 }})
+        </label>
+        
+        @if (alquiler()?.detalles?.length) {
+          <button
+            (click)="descargarDocumentos()"
+            [disabled]="isDownloadingDocs()"
+            class="flex items-center justify-center gap-2 px-3 py-1.5 bg-secondary/10 text-secondary border border-secondary/20 hover:bg-secondary hover:text-background transition-all rounded-lg text-xs font-inter-bold disabled:opacity-50 disabled:cursor-not-allowed min-w-[170px]"
+            title="Descargar todos los documentos en ZIP"
+          >
+            @if (isDownloadingDocs()) {
+              <i class="fas fa-spinner fa-spin"></i> Comprimiendo ZIP...
+            } @else {
+              <i class="fas fa-file-archive"></i> Descargar Documentos
+            }
+          </button>
+        }
+      </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         @for (unit of alquiler()?.detalles; track unit.id) {

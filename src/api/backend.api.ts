@@ -1184,6 +1184,58 @@ export interface ConductorDocumentoCreateDto {
   fechaEmision?: string;
 }
 
+export interface DocumentoConductorMasivoDetalleDto {
+  tipo:
+    | "dni"
+    | "licencia_mtc"
+    | "seguro_vida_ley"
+    | "sctr"
+    | "examen_medico"
+    | "psicosensometrico"
+    | "induccion_general"
+    | "manejo_defensivo"
+    | "licencia_interna"
+    | "autoriza_ssgg"
+    | "curso_seguridad_portuaria"
+    | "curso_mercancias_peligrosas"
+    | "curso_basico_pbip"
+    | "examen_medico_temporal"
+    | "induccion_visita"
+    | "em_visita"
+    | "pase_conduc"
+    | "foto_funcionario";
+  /** @example "Documento 1" */
+  nombre: string;
+  /** @example "https://storage.example.com/documentos/soat-ABC123.pdf" */
+  url: string;
+  /** @example "2025-12-31" */
+  fechaExpiracion?: string;
+  /** @example "2023-01-15" */
+  fechaEmision?: string;
+}
+
+export interface ConductorDocumentoMasivoDto {
+  /**
+   * IDs de conductores a excluir
+   * @example [1,2,3]
+   */
+  excepto?: string[];
+  documento: DocumentoConductorMasivoDetalleDto;
+}
+
+export interface ConductorDocumentoMasivoResultDto {
+  /**
+   * Número de conductores a los que se asignó el documento
+   * @example 10
+   */
+  count: number;
+  /**
+   * Mensaje de éxito
+   * @example "Documento asignado correctamente a 10 conductores."
+   */
+  message: string;
+}
+
 export interface ConductorDocumentoUpdateDto {
   /**
    * Tipo de documento
@@ -2332,6 +2384,61 @@ export interface VehiculoDocumentoCreateDto {
    * @example "2023-01-15"
    */
   fechaEmision?: string;
+}
+
+export interface DocumentoVehiculoMasivoDetalleDto {
+  tipo:
+    | "tarjeta_propiedad"
+    | "tarjeta_unica_circulacion"
+    | "citv"
+    | "soat"
+    | "poliza"
+    | "certificado_operatividad_factura"
+    | "plan_mantenimiento_historico"
+    | "certificado_instalacion_gps"
+    | "certificado_valor_anadido"
+    | "constancia_gps"
+    | "certificado_extintores_hidrostatica"
+    | "certificado_extintores_operatividad"
+    | "certificado_rops"
+    | "certificado_radio_frecuencia"
+    | "certificacion_frenos"
+    | "certificado_laminados_lunas"
+    | "certificado_carroceria"
+    | "certificado_caracteristicas_tecnicas"
+    | "certificado_adas"
+    | "revision_gps"
+    | "otros";
+  /** @example "Documento 1" */
+  nombre: string;
+  /** @example "https://storage.example.com/documentos/soat-ABC123.pdf" */
+  url: string;
+  /** @example "2025-12-31" */
+  fechaExpiracion?: string;
+  /** @example "2023-01-15" */
+  fechaEmision?: string;
+}
+
+export interface VehiculoDocumentoMasivoDto {
+  /**
+   * IDs de vehículos a excluir
+   * @example [1,2,3]
+   */
+  excepto?: string[];
+  documento: DocumentoVehiculoMasivoDetalleDto;
+}
+
+export interface VehiculoDocumentoMasivoResultDto {
+  /**
+   * Número de vehículos a los que se asignó el documento
+   * @example 10
+   */
+  count: number;
+  /**
+   * Mensaje de éxito
+   * @example "Documento asignado correctamente a 10 vehículos."
+   */
+  message: string;
 }
 
 export interface VehiculoDocumentoUpdateDto {
@@ -3568,7 +3675,7 @@ export interface DocumentoItemDto {
   observacion?: string;
   /**
    * Fecha de Vencimiento Inicial/Por defecto
-   * @example "2026-04-17T05:33:43.084Z"
+   * @example "2026-04-28T05:17:42.513Z"
    */
   fechaVencimiento?: string;
 }
@@ -3751,17 +3858,17 @@ export interface BotiquinItemDto {
   habilitado: boolean;
   /**
    * Fecha de Vencimiento actual
-   * @example "2026-04-17T05:33:43.086Z"
+   * @example "2026-04-28T05:17:42.516Z"
    */
   fechaVencimiento?: string;
   /**
    * Fecha de Salida
-   * @example "2026-04-17T05:33:43.086Z"
+   * @example "2026-04-28T05:17:42.516Z"
    */
   fechaSalida?: string;
   /**
    * Fecha de Reposición
-   * @example "2026-04-17T05:33:43.086Z"
+   * @example "2026-04-28T05:17:42.516Z"
    */
   fechaReposicion?: string;
 }
@@ -9867,13 +9974,17 @@ export interface AlquilerUpdateDto {
   montoTotalFinal?: number;
 }
 
-export interface AlquilerTerminarDto {
-  /** ID del detalle del alquiler a finalizar. Si no se envía se finaliza todo el contrato (maestro). */
-  detalleId?: number;
-  /** @format date-time */
-  fechaFin: string;
+export interface AlquilerTerminarDetalleDto {
+  detalleId: number;
   /** @example 15820.5 */
   kilometrajeFinal?: number;
+}
+
+export interface AlquilerTerminarDto {
+  /** Lista de detalles a finalizar. Si no se envía se finaliza todo el contrato maestro. */
+  detalles?: AlquilerTerminarDetalleDto[];
+  /** @format date-time */
+  fechaFin: string;
   /** @example 2500 */
   montoTotalFinal: number;
   /** Observaciones finales del cierre del alquiler */
@@ -10026,6 +10137,19 @@ export interface PaginatedAuditoriaResultDto {
   data: AuditoriaResultDto[];
   /** Metadatos de paginación */
   meta: PaginationMetaDto;
+}
+
+export interface DescargarDocumentosDto {
+  /**
+   * Diccionario con el ID del conductor y los tipos de documentos a descargar
+   * @example {"1":["dni","licencia"],"2":["dni"]}
+   */
+  conductores?: object;
+  /**
+   * Diccionario con el ID del vehículo y los tipos de documentos a descargar
+   * @example {"15":["soat","tarjeta_propiedad"]}
+   */
+  vehiculos?: object;
 }
 
 export type AppGetHelloData = any;
@@ -10232,6 +10356,9 @@ export type ConductoresFindDocumentoData = ConductorDocumentoResultDto;
 
 export type ConductoresCreateDocumentoData = ConductorDocumentoResultDto;
 
+export type ConductoresCreateDocumentoMasivoData =
+  ConductorDocumentoMasivoResultDto;
+
 export interface ConductoresUpdateDocumentoParams {
   /** ID del documento */
   id: number;
@@ -10373,6 +10500,9 @@ export interface VehiculosFindDocumentoParams {
 export type VehiculosFindDocumentoData = VehiculoDocumentoResultDto;
 
 export type VehiculosCreateDocumentoData = VehiculoDocumentoResultDto;
+
+export type VehiculosCreateDocumentoMasivoData =
+  VehiculoDocumentoMasivoResultDto;
 
 export interface VehiculosUpdateDocumentoParams {
   /** ID del documento */
@@ -12307,6 +12437,8 @@ export interface AuditoriasFindOneParams {
 
 export type AuditoriasFindOneData = AuditoriaResultDto;
 
+export type DescargasDescargarDocumentosZipData = any;
+
 export namespace App {
   /**
    * No description
@@ -12818,6 +12950,23 @@ export namespace Conductores {
   /**
    * No description
    * @tags conductores
+   * @name ConductoresCreateDocumentoMasivo
+   * @summary Asignar un documento a múltiples conductores masivamente
+   * @request POST:/conductor/documento/masivo
+   * @secure
+   * @response `201` `ConductoresCreateDocumentoMasivoData` Documento asignado correctamente
+   */
+  export namespace ConductoresCreateDocumentoMasivo {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = ConductorDocumentoMasivoDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = ConductoresCreateDocumentoMasivoData;
+  }
+
+  /**
+   * No description
+   * @tags conductores
    * @name ConductoresUpdateDocumento
    * @summary Actualizar un documento de conductor
    * @request PATCH:/conductor/documento/update/{id}
@@ -13213,6 +13362,23 @@ export namespace Vehiculos {
     export type RequestBody = VehiculoDocumentoCreateDto;
     export type RequestHeaders = {};
     export type ResponseBody = VehiculosCreateDocumentoData;
+  }
+
+  /**
+   * No description
+   * @tags vehiculos
+   * @name VehiculosCreateDocumentoMasivo
+   * @summary Asignar un documento a múltiples vehículos masivamente
+   * @request POST:/vehiculo/documento/masivo
+   * @secure
+   * @response `201` `VehiculosCreateDocumentoMasivoData` Documento asignado correctamente
+   */
+  export namespace VehiculosCreateDocumentoMasivo {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = VehiculoDocumentoMasivoDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = VehiculosCreateDocumentoMasivoData;
   }
 
   /**
@@ -17871,6 +18037,25 @@ export namespace Auditorias {
   }
 }
 
+export namespace Descargas {
+  /**
+   * No description
+   * @tags descargas
+   * @name DescargasDescargarDocumentosZip
+   * @summary Descargar documentos masivamente en un archivo ZIP
+   * @request POST:/descargas/zip
+   * @secure
+   * @response `200` `DescargasDescargarDocumentosZipData` Archivo ZIP con los documentos solicitados
+   */
+  export namespace DescargasDescargarDocumentosZip {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = DescargarDocumentosDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = DescargasDescargarDocumentosZipData;
+  }
+}
+
 export type QueryParamsType = Record<string | number, any>;
 export type ResponseFormat = keyof Omit<Body, "body" | "bodyUsed">;
 
@@ -18628,6 +18813,30 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags conductores
+     * @name ConductoresCreateDocumentoMasivo
+     * @summary Asignar un documento a múltiples conductores masivamente
+     * @request POST:/conductor/documento/masivo
+     * @secure
+     * @response `201` `ConductoresCreateDocumentoMasivoData` Documento asignado correctamente
+     */
+    createDocumentoMasivo: (
+      data: ConductorDocumentoMasivoDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<ConductoresCreateDocumentoMasivoData, any>({
+        path: `/conductor/documento/masivo`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags conductores
      * @name ConductoresUpdateDocumento
      * @summary Actualizar un documento de conductor
      * @request PATCH:/conductor/documento/update/{id}
@@ -19003,6 +19212,30 @@ export class Api<SecurityDataType extends unknown> {
     ) =>
       this.http.request<VehiculosCreateDocumentoData, any>({
         path: `/vehiculo/documento/create`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags vehiculos
+     * @name VehiculosCreateDocumentoMasivo
+     * @summary Asignar un documento a múltiples vehículos masivamente
+     * @request POST:/vehiculo/documento/masivo
+     * @secure
+     * @response `201` `VehiculosCreateDocumentoMasivoData` Documento asignado correctamente
+     */
+    createDocumentoMasivo: (
+      data: VehiculoDocumentoMasivoDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<VehiculosCreateDocumentoMasivoData, any>({
+        path: `/vehiculo/documento/masivo`,
         method: "POST",
         body: data,
         secure: true,
@@ -23677,6 +23910,30 @@ export class Api<SecurityDataType extends unknown> {
         method: "GET",
         secure: true,
         format: "json",
+        ...params,
+      }),
+  };
+  descargas = {
+    /**
+     * No description
+     *
+     * @tags descargas
+     * @name DescargasDescargarDocumentosZip
+     * @summary Descargar documentos masivamente en un archivo ZIP
+     * @request POST:/descargas/zip
+     * @secure
+     * @response `200` `DescargasDescargarDocumentosZipData` Archivo ZIP con los documentos solicitados
+     */
+    descargarDocumentosZip: (
+      data: DescargarDocumentosDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<DescargasDescargarDocumentosZipData, any>({
+        path: `/descargas/zip`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
         ...params,
       }),
   };

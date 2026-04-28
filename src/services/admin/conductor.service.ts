@@ -43,6 +43,11 @@ export class ConductorService {
       .updateDocumento({ id }, documento)
       .then((response) => response.data);
   }
+  async createDocumentoMasivo(documento: ApiBody<'conductores', 'createDocumentoMasivo'>) {
+    return await this.api.conductores
+      .createDocumentoMasivo(documento)
+      .then((response) => response.data);
+  }
   async deleteDocumento(id: ApiParam<'conductores', 'deleteDocumento', 'id'>) {
     return await this.api.conductores.deleteDocumento({ id }).then((response) => response.data);
   }

@@ -1,4 +1,4 @@
-import { Component, inject, signal, ElementRef, HostListener, input } from '@angular/core';
+import { Component, inject, signal, ElementRef, HostListener, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   ControlValueAccessor,
@@ -31,6 +31,7 @@ export class VehiculoInputSearch implements ControlValueAccessor {
   // Inputs
   initialData = input<ApiResponse<'vehiculos', 'findAll'>['data'][number] | null>(null);
   showClear = input(false);
+  onSelected = output<ApiResponse<'vehiculos', 'findAll'>['data'][number] | null>();
 
   // State
   isOpen = signal(false);
@@ -129,6 +130,7 @@ export class VehiculoInputSearch implements ControlValueAccessor {
   selectVehiculo(vehiculo: ApiResponse<'vehiculos', 'findAll'>['data'][number]) {
     this.selectedVehiculo.set(vehiculo);
     this.onChange(vehiculo);
+    this.onSelected.emit(vehiculo);
     this.isOpen.set(false);
   }
 
@@ -145,6 +147,7 @@ export class VehiculoInputSearch implements ControlValueAccessor {
   clearSelection() {
     this.selectedVehiculo.set(null);
     this.onChange(null);
+    this.onSelected.emit(null);
     this.isOpen.set(false);
   }
 

@@ -1,12 +1,13 @@
-import { Component, inject, input, output, signal } from '@angular/core';
+import { Component, inject, input, output, signal, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ModalForm } from '../../../../../../components/modal-form/modal-form';
 import { DocumentsDateUpload, DocumentWithDate } from '@module/admin/components/documents-date-upload/documents-date-upload';
 import { AlquilerService } from '@service/admin/alquiler.service';
 import { ToastService } from '@service/toast.service';
 import { getErrorMessage } from '@helper/error.helper';
 import { ApiBody, ApiResponse } from 'api/backend.api';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-alquiler-terminar-modal',
@@ -15,7 +16,7 @@ import { ApiBody, ApiResponse } from 'api/backend.api';
   templateUrl: './alquiler-terminar-modal.html',
   styleUrl: './alquiler-terminar-modal.css',
 })
-export class AlquilerTerminarModal {
+export class AlquilerTerminarModal implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private alquilerService = inject(AlquilerService);
   private toastService = inject(ToastService);
@@ -30,10 +31,36 @@ export class AlquilerTerminarModal {
 
   terminarForm = this.fb.group({
     fechaFin: ['', [Validators.required]],
-    kilometrajeFinal: [null as number | null, [Validators.required, Validators.min(0)]],
+    detalles: this.fb.array([]),
     montoTotalFinal: [null as number | null, [Validators.required, Validators.min(0)]],
     observaciones: [''],
   });
+
+  private fechaFinSub?: Subscription;
+
+  ngOnInit() {
+    this.fechaFinSub = this.terminarForm.get('fechaFin')?.valueChanges.subscribe((fechaFinStr) => {
+      if (fechaFinStr && this.showModal()) {
+        const alquilerData = this.alquiler();
+        const nuevoMonto = this.calculateMontoFinal(
+          alquilerData.fechaInicio,
+          fechaFinStr,
+          alquilerData.montoPorDia
+        );
+        this.terminarForm.patchValue({ montoTotalFinal: nuevoMonto }, { emitEvent: false });
+      }
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.fechaFinSub) {
+      this.fechaFinSub.unsubscribe();
+    }
+  }
+
+  get detallesFormArray() {
+    return this.terminarForm.get('detalles') as FormArray;
+  }
 
   openModal(event: Event) {
     event.stopPropagation();
@@ -47,12 +74,25 @@ export class AlquilerTerminarModal {
     );
 
     this.documentosPendientes.set([]);
+    this.detallesFormArray.clear();
+
+    const detalles = alquiler.detalles || [];
+    detalles.forEach((d: any) => {
+      this.detallesFormArray.push(
+        this.fb.group({
+          detalleId: [d.id, [Validators.required]],
+          placa: [d.vehiculo?.placa || 'N/A'],
+          foto: [d.vehiculo?.foto || ''],
+          kilometrajeFinal: [
+            d.kilometrajeFinal != null ? Number(d.kilometrajeFinal) : Number(d.kilometrajeInicial || 0),
+            [Validators.required, Validators.min(0)],
+          ],
+        })
+      );
+    });
+
     this.terminarForm.patchValue({
       fechaFin: fechaFinDefault,
-      kilometrajeFinal:
-        (alquiler as ApiResponse<'alquileres', 'findAll'>['data'][number]).detalles?.[0]?.kilometrajeFinal != null
-          ? Number((alquiler as ApiResponse<'alquileres', 'findAll'>['data'][number]).detalles![0].kilometrajeFinal)
-          : Number((alquiler as ApiResponse<'alquileres', 'findAll'>['data'][number]).detalles?.[0]?.kilometrajeInicial || 0),
       montoTotalFinal:
         alquiler.montoTotalFinal != null
           ? Number(alquiler.montoTotalFinal)
@@ -68,10 +108,10 @@ export class AlquilerTerminarModal {
     this.documentosPendientes.set([]);
     this.terminarForm.reset({
       fechaFin: '',
-      kilometrajeFinal: null,
       montoTotalFinal: null,
       observaciones: '',
     });
+    this.detallesFormArray.clear();
   }
 
   handleDocumentoUpload(event: DocumentWithDate) {
@@ -104,7 +144,10 @@ export class AlquilerTerminarModal {
     try {
       await this.alquilerService.terminar(alquilerId, {
         fechaFin: new Date(String(formValue.fechaFin)).toISOString(),
-        kilometrajeFinal: Number(formValue.kilometrajeFinal),
+        detalles: formValue.detalles?.map((d: any) => ({
+          detalleId: d.detalleId,
+          kilometrajeFinal: Number(d.kilometrajeFinal),
+        })),
         montoTotalFinal: Number(formValue.montoTotalFinal),
         observaciones: formValue.observaciones || undefined,
       } as ApiBody<'alquileres', 'terminar'>);

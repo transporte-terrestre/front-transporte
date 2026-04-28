@@ -39,6 +39,9 @@ export class VehiculoService {
   async createDocumento(documento: ApiBody<'vehiculos', 'createDocumento'>) {
     return await this.api.vehiculos.createDocumento(documento).then((response) => response.data);
   }
+  async createDocumentoMasivo(documento: ApiBody<'vehiculos', 'createDocumentoMasivo'>) {
+    return await this.api.vehiculos.createDocumentoMasivo(documento).then((response) => response.data);
+  }
   async updateDocumento(
     id: ApiParam<'vehiculos', 'updateDocumento', 'id'>,
     documento: ApiBody<'vehiculos', 'updateDocumento'>,

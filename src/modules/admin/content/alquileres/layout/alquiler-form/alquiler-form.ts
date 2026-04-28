@@ -123,7 +123,7 @@ export class AlquilerForm implements OnInit {
     // Validar conductor según tipo
     const typeControl = vehiculoGroup.get('tipo');
     const conductorControl = vehiculoGroup.get('conductorId');
-    
+
     // Estado inicial
     const initialTipo = data?.tipo || 'maquina_seca';
     if (initialTipo === 'maquina_seca') {
@@ -170,6 +170,8 @@ export class AlquilerForm implements OnInit {
   removeVehiculo(index: number) {
     if (this.vehiculosFormArray.length > 1) {
       this.vehiculosFormArray.removeAt(index);
+      this.vehiculoValidacionMsg.set({});
+      this.checkAllAvailability();
     }
   }
 
@@ -220,12 +222,11 @@ export class AlquilerForm implements OnInit {
       return;
     }
 
-    // Verificar mensajes de validación de vehículos
+    // Verificar mensajes de validación de vehículos (ahora solo informativos, no bloquean)
     const validaciones = Object.values(this.vehiculoValidacionMsg());
     const errorMsg = validaciones.find(v => v && !v.status);
     if (errorMsg) {
-      this.toastService.error(errorMsg.message);
-      return;
+      // this.toastService.error(errorMsg.message);
     }
 
     const rawValue = this.form.getRawValue();
