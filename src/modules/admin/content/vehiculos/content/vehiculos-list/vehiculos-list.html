@@ -63,17 +63,20 @@
     <div class="grid grid-cols-1 sm:grid-cols-4 lg:grid-cols-4 gap-3">
       <!-- Búsqueda -->
       <div
-        class="relative col-span-1 sm:col-span-4 lg:col-span-2"
+        class="relative col-span-1 sm:col-span-4 lg:col-span-2 flex items-stretch gap-2"
         [class.col-span-1]="true"
       >
-        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"></i>
-        <input
-          type="text"
-          [ngModel]="searchTerm()"
-          (ngModelChange)="onSearchChange($event)"
-          [placeholder]="filtroDocumentos() ? 'Buscar por placa...' : 'Buscar por placa, marca, modelo...'"
-          class="w-full pl-10 pr-4 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all"
-        />
+        <div class="relative flex-1">
+          <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"></i>
+          <input
+            type="text"
+            [ngModel]="searchTerm()"
+            (ngModelChange)="onSearchChange($event)"
+            [placeholder]="filtroDocumentos() ? 'Buscar por placa...' : 'Buscar por placa, marca, modelo...'"
+            class="w-full pl-10 pr-4 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all"
+          />
+        </div>
+        <app-vehiculo-upload-many (onUploaded)="loadVehiculos()" class="block h-full" />
       </div>
 
       <!-- Estado -->

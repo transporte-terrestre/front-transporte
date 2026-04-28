@@ -23,6 +23,7 @@ import { VehiculoDetail } from '../../layout/vehiculo-detail/vehiculo-detail';
 import { VehiculoComentarioAdd } from './layout/vehiculo-comentario-add/vehiculo-comentario-add';
 import { VehiculoEstadoUpdate } from './layout/vehiculo-estado-update/vehiculo-estado-update';
 import { MarcaInputSearch } from '../../../../components/input-searchs/marca-input-search/marca-input-search';
+import { VehiculoUploadMany } from './layout/vehiculo-upload-many/vehiculo-upload-many';
 
 @Component({
   selector: 'app-vehiculos-list',
@@ -37,6 +38,7 @@ import { MarcaInputSearch } from '../../../../components/input-searchs/marca-inp
     VehiculoComentarioAdd,
     VehiculoEstadoUpdate,
     MarcaInputSearch,
+    VehiculoUploadMany,
   ],
   templateUrl: './vehiculos-list.html',
   styleUrl: './vehiculos-list.css',

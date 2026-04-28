@@ -1,4 +1,4 @@
-import { Component, inject, signal, ElementRef, HostListener, input } from '@angular/core';
+import { Component, inject, signal, ElementRef, HostListener, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   ControlValueAccessor,
@@ -31,6 +31,7 @@ export class ConductorInputSearch implements ControlValueAccessor {
   // Inputs
   initialData = input<ApiResponse<'conductores', 'findAll'>['data'][number] | null>(null);
   showClear = input(false);
+  onSelected = output<ApiResponse<'conductores', 'findAll'>['data'][number] | null>();
 
   // State
   isOpen = signal(false);
@@ -130,6 +131,7 @@ export class ConductorInputSearch implements ControlValueAccessor {
   selectConductor(conductor: ApiResponse<'conductores', 'findAll'>['data'][number]) {
     this.selectedConductor.set(conductor);
     this.onChange(conductor);
+    this.onSelected.emit(conductor);
     this.isOpen.set(false);
   }
 
@@ -146,6 +148,7 @@ export class ConductorInputSearch implements ControlValueAccessor {
   clearSelection() {
     this.selectedConductor.set(null);
     this.onChange(null);
+    this.onSelected.emit(null);
     this.isOpen.set(false);
   }
 

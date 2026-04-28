@@ -2,6 +2,9 @@ import { Component, input, inject, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ApiResponse } from 'api/backend.api';
 import { AlquilerService } from '@service/admin/alquiler.service';
+import { DescargasService } from '@service/admin/descargas.service';
+import { ToastService } from '@service/toast.service';
+import { AlertService } from '@service/alert.service';
 
 @Component({
   selector: 'app-alquiler-detail',
@@ -13,10 +16,14 @@ import { AlquilerService } from '@service/admin/alquiler.service';
 export class AlquilerDetail {
   alquilerId = input<number>();
   private alquilerService = inject(AlquilerService);
+  private descargasService = inject(DescargasService);
+  private toastService = inject(ToastService);
+  private alertService = inject(AlertService);
 
   alquiler = signal<ApiResponse<'alquileres', 'findOne'> | null>(null);
   loading = signal(true);
   error = signal<string | null>(null);
+  isDownloadingDocs = signal(false);
 
   constructor() {
     effect(() => {
@@ -84,5 +91,51 @@ export class AlquilerDetail {
     }
 
     return '—';
+  }
+
+  async descargarDocumentos() {
+    const alq = this.alquiler();
+    if (!alq || !alq.detalles || alq.detalles.length === 0) return;
+
+    const vehiculos: Record<number, string[]> = {};
+    const conductores: Record<number, string[]> = {};
+
+    alq.detalles.forEach((det: any) => {
+      if (det.vehiculoId) {
+        vehiculos[det.vehiculoId] = ['*'];
+      }
+      if (det.conductorId) {
+        conductores[det.conductorId] = ['*'];
+      }
+    });
+
+    const payload = { vehiculos, conductores };
+
+    this.alertService.confirm(
+      'Descargar Documentos',
+      'Se comprimirán todos los documentos de los vehículos y conductores asignados. Este proceso puede tardar hasta 10 segundos dependiendo de la cantidad de archivos. ¿Deseas continuar?',
+      async () => {
+        try {
+          this.isDownloadingDocs.set(true);
+          const blob = await this.descargasService.descargarDocumentosZip(payload);
+          
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `Documentos_Alquiler_${alq.id}.zip`;
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+          a.remove();
+          
+          this.toastService.success('Documentos descargados correctamente');
+        } catch (err: any) {
+          console.error(err);
+          this.toastService.error(err.message || 'Error al descargar documentos');
+        } finally {
+          this.isDownloadingDocs.set(false);
+        }
+      }
+    );
   }
 }

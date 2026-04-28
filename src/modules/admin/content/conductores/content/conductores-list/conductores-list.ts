@@ -25,6 +25,7 @@ import { PATH, buildPath } from '@route/path.route';
 import { getErrorMessage } from '@helper/error.helper';
 import { ModalInfo } from '@module/admin/components/modal-info/modal-info';
 import { ConductorDetail } from '../../layout/conductor-detail/conductor-detail';
+import { ConductorUploadMany } from './layout/conductor-upload-many/conductor-upload-many';
 
 @Component({
   selector: 'app-conductores-list',
@@ -37,6 +38,7 @@ import { ConductorDetail } from '../../layout/conductor-detail/conductor-detail'
     ModalInfo,
     ConductorDetail,
     ConductorEstadoUpdate,
+    ConductorUploadMany,
   ],
   templateUrl: './conductores-list.html',
   styleUrl: './conductores-list.css',
