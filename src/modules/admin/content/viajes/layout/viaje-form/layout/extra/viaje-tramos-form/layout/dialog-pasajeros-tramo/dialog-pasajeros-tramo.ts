@@ -58,10 +58,10 @@ export class DialogPasajerosTramoComponent implements OnInit {
     return editables.every((p) => this.idsSeleccionados().has(p.id));
   });
 
-  // Computed: pasajeros abordados (que pueden bajar) — excluye los que subieron en este tramo
+  // Computed: pasajeros abordados (que pueden bajar) — incluye los que ya bajaron en ESTE tramo
   pasajerosAbordados = computed(() => {
     return this.pasajeros().filter(
-      (p) => (p.asistencia || p.paradaAsistenciaId != null) && !p.esAsistenciaTramoActual,
+      (p: ViajePasajeroResultDto) => (p.estaArriba || p.esSalidaTramoActual) && !p.esAsistenciaTramoActual,
     );
   });
 
@@ -214,13 +214,14 @@ export class DialogPasajerosTramoComponent implements OnInit {
     return p.dni || '---';
   }
 
-  /** Retorna true si el pasajero tiene asistencia registrada en otro tramo */
+  /** Retorna true si el pasajero tiene asistencia registrada en otro tramo y aún está arriba */
   tieneAsistenciaOtroTramo(p: ViajePasajeroResultDto) {
-    return p.paradaAsistenciaId != null && !p.esAsistenciaTramoActual;
+    return p.estaArriba && !p.esAsistenciaTramoActual;
   }
 
   /** Retorna true si el pasajero tiene salida registrada en otro tramo */
   tieneSalidaOtroTramo(p: ViajePasajeroResultDto) {
-    return p.paradaSalidaId != null && !p.esSalidaTramoActual;
+    // Si ya bajó en un tramo anterior y NO ha vuelto a subir, bloqueamos la salida
+    return !p.estaArriba && p.paradaSalidaId != null && !p.esSalidaTramoActual;
   }
 }

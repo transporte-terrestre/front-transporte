@@ -3675,7 +3675,7 @@ export interface DocumentoItemDto {
   observacion?: string;
   /**
    * Fecha de Vencimiento Inicial/Por defecto
-   * @example "2026-04-28T05:17:42.513Z"
+   * @example "2026-04-28T22:28:22.941Z"
    */
   fechaVencimiento?: string;
 }
@@ -3858,17 +3858,17 @@ export interface BotiquinItemDto {
   habilitado: boolean;
   /**
    * Fecha de Vencimiento actual
-   * @example "2026-04-28T05:17:42.516Z"
+   * @example "2026-04-28T22:28:22.945Z"
    */
   fechaVencimiento?: string;
   /**
    * Fecha de Salida
-   * @example "2026-04-28T05:17:42.516Z"
+   * @example "2026-04-28T22:28:22.945Z"
    */
   fechaSalida?: string;
   /**
    * Fecha de Reposición
-   * @example "2026-04-28T05:17:42.516Z"
+   * @example "2026-04-28T22:28:22.945Z"
    */
   fechaReposicion?: string;
 }
@@ -7617,6 +7617,34 @@ export interface ViajeTramoUpdateDto {
   numeroPasajeros?: number;
 }
 
+export interface ViajePasajeroMovimientoDetalleDto {
+  /**
+   * ID del movimiento
+   * @example 1
+   */
+  id: number;
+  /**
+   * Tipo de movimiento (entrada/salida)
+   * @example "entrada"
+   */
+  tipoMovimiento: string;
+  /**
+   * ID del tramo
+   * @example 1
+   */
+  viajeTramoId: number;
+  /**
+   * Nombre del lugar/parada
+   * @example "Parada A"
+   */
+  paradaNombre: string;
+  /**
+   * Hora del movimiento
+   * @example "2024-03-24T10:30:00Z"
+   */
+  hora: string;
+}
+
 export interface ViajePasajeroResultDto {
   /**
    * ID del registro
@@ -7699,6 +7727,11 @@ export interface ViajePasajeroResultDto {
    */
   horaSalida?: string | null;
   /**
+   * Indica si el pasajero se encuentra actualmente a bordo (su último movimiento fue entrada)
+   * @example true
+   */
+  estaArriba: boolean;
+  /**
    * Fecha de creación
    * @format date-time
    * @example "2023-01-01T00:00:00.000Z"
@@ -7710,6 +7743,8 @@ export interface ViajePasajeroResultDto {
    * @example "2023-01-01T00:00:00.000Z"
    */
   actualizadoEn: string;
+  /** Historial completo de movimientos del pasajero en el viaje */
+  historial?: ViajePasajeroMovimientoDetalleDto[] | null;
 }
 
 export type PasajeroItemDto = object;

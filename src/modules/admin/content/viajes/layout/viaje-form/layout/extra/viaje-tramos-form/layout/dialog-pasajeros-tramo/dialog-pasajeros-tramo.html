@@ -49,11 +49,11 @@
             <i class="fas fa-users"></i>
           </div>
           <div>
-            <h4 class="text-[10px] sm:text-xs font-inter-bold text-text uppercase tracking-wider">
-              {{ modo() === 'abordar' ? 'Ocupación del Tramo' : 'Descenso del Tramo' }}
+            <h4 class="text-[10px] sm:text-xs font-anton text-text uppercase tracking-wider">
+              {{ modo() === 'abordar' ? 'Subida en ' + tramo().nombreLugar : 'Bajada en ' + tramo().nombreLugar }}
             </h4>
             <p class="text-[8px] sm:text-[10px] text-text/50 font-inter-medium">
-              {{ modo() === 'abordar' ? 'Pasajeros abordando actualmente' : 'Pasajeros que bajan aquí' }}
+              {{ modo() === 'abordar' ? 'Pasajeros subiendo aquí' : 'Pasajeros que bajan aquí' }}
             </p>
           </div>
         </div>
@@ -128,13 +128,20 @@
                       <p class="text-[10px] text-info/70 font-inter-medium tracking-wide">
                         DNI: {{ getDisplayDni(p) }}
                       </p>
-                      <div class="flex items-center mt-1">
-                        <span
-                          class="inline-flex items-center px-1.5 py-0.5 rounded bg-info/10 text-info text-[7px] font-inter-bold uppercase tracking-widest border border-info/20"
-                        >
-                          <i class="fas fa-map-marker-alt mr-1 text-[6.5px]"></i>
-                          Subió en: {{ p.paradaAsistenciaNombre || 'otra parada' }}
-                        </span>
+                      <div class="flex flex-wrap gap-1 mt-1.5">
+                        @for (m of p.historial; track m.id) {
+                          <span
+                            class="inline-flex items-center px-1.5 py-0.5 rounded text-[7px] font-inter-bold uppercase tracking-widest border"
+                            [ngClass]="{
+                              'bg-success/10 text-success border-success/20': m.tipoMovimiento === 'entrada',
+                              'bg-danger/10 text-danger border-danger/20': m.tipoMovimiento === 'salida'
+                            }"
+                            [title]="m.hora | date: 'HH:mm'"
+                          >
+                            <i class="fas mr-1 text-[6px]" [ngClass]="m.tipoMovimiento === 'entrada' ? 'fa-arrow-up' : 'fa-arrow-down'"></i>
+                            {{ m.paradaNombre }}
+                          </span>
+                        }
                       </div>
                     </div>
                   </div>
@@ -167,6 +174,24 @@
                       <p class="text-[10px] text-text/40 font-inter-medium tracking-wide">
                         DNI: {{ getDisplayDni(p) }}
                       </p>
+                      <!-- Historial de movimientos -->
+                      @if (p.historial && p.historial.length > 0) {
+                        <div class="flex flex-wrap gap-1 mt-1.5">
+                          @for (m of p.historial; track m.id) {
+                            <span
+                              class="inline-flex items-center px-1.5 py-0.5 rounded text-[7px] font-inter-bold uppercase tracking-widest border"
+                              [ngClass]="{
+                                'bg-success/10 text-success border-success/20': m.tipoMovimiento === 'entrada',
+                                'bg-danger/10 text-danger border-danger/20': m.tipoMovimiento === 'salida'
+                              }"
+                              [title]="m.hora | date: 'HH:mm'"
+                            >
+                              <i class="fas mr-1 text-[6px]" [ngClass]="m.tipoMovimiento === 'entrada' ? 'fa-arrow-up' : 'fa-arrow-down'"></i>
+                              {{ m.paradaNombre }}
+                            </span>
+                          }
+                        </div>
+                      }
                     </div>
                   </div>
                   <div
@@ -270,13 +295,23 @@
                       <p class="text-[10px] text-text/40 font-inter-medium tracking-wide">
                         DNI: {{ getDisplayDni(p) }}
                       </p>
-                      @if (p.paradaAsistenciaNombre && !idsDesabordar().has(p.id)) {
-                        <span
-                          class="inline-flex items-center px-1.5 py-0.5 rounded bg-text/5 text-text/60 text-[7px] font-inter-bold uppercase tracking-widest border border-text/10 w-fit mt-1"
-                        >
-                          <i class="fas fa-arrow-up mr-1 text-[6.5px]"></i>
-                          {{ p.paradaAsistenciaNombre }}
-                        </span>
+                      <!-- Historial de movimientos -->
+                      @if (p.historial && p.historial.length > 0) {
+                        <div class="flex flex-wrap gap-1 mt-1.5">
+                          @for (m of p.historial; track m.id) {
+                            <span
+                              class="inline-flex items-center px-1.5 py-0.5 rounded text-[7px] font-inter-bold uppercase tracking-widest border"
+                              [ngClass]="{
+                                'bg-success/10 text-success border-success/20': m.tipoMovimiento === 'entrada',
+                                'bg-danger/10 text-danger border-danger/20': m.tipoMovimiento === 'salida'
+                              }"
+                              [title]="m.hora | date: 'HH:mm'"
+                            >
+                              <i class="fas mr-1 text-[6px]" [ngClass]="m.tipoMovimiento === 'entrada' ? 'fa-arrow-up' : 'fa-arrow-down'"></i>
+                              {{ m.paradaNombre }}
+                            </span>
+                          }
+                        </div>
                       }
                     </div>
                   </div>
