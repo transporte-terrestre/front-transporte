@@ -2,6 +2,14 @@ import { ApiResponse } from 'api/backend.api';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
+export interface SignatureSelection {
+  userId: number;
+  nombreCompleto: string;
+  firmaUrl: string;
+  rolEnDocumento: string;
+  empresa: string;
+}
+
 export interface ReportePdfData {
   tipoReporte: 'vehiculo' | 'conductor' | 'cliente';
   entidadNombre: string;
@@ -13,9 +21,10 @@ export interface ReportePdfData {
   totalDiferencia?: number;
   totalHorasTotales?: number;
   totalHorasExcedidas?: number;
+  selectedSignatures?: SignatureSelection[];
 }
 
-export const generateReportePdf = (data: ReportePdfData) => {
+export const generateReportePdf = async (data: ReportePdfData) => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.width;
   const margin = 14;
@@ -50,6 +59,32 @@ export const generateReportePdf = (data: ReportePdfData) => {
 
   const totalHorasExcedidas =
     data.totalHorasExcedidas ?? data.viajes.reduce((acc, v) => acc + (v.horasExcedidas || 0), 0);
+
+  const drawCenteredText = (text: string, x: number, currentY: number, width: number) => {
+    const textWidth = doc.getTextWidth(text);
+    doc.text(text, x + (width - textWidth) / 2, currentY);
+  };
+
+  const getBase64Image = async (url: string): Promise<string | null> => {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(blob);
+      });
+    } catch (e) {
+      return null;
+    }
+  };
+
+  // Sort trips: most recent first
+  const sortedViajes = [...data.viajes].sort((a, b) => {
+    const dateA = a.fechaSalida ? new Date(a.fechaSalida).getTime() : 0;
+    const dateB = b.fechaSalida ? new Date(b.fechaSalida).getTime() : 0;
+    return dateB - dateA;
+  });
 
   // Helper function
   const drawField = (label: string, value: string, x: number, currentY: number) => {
@@ -188,7 +223,7 @@ export const generateReportePdf = (data: ReportePdfData) => {
   doc.text('Detalle de Viajes', margin, y);
   y += 4;
 
-  const tableData = data.viajes.map((viaje) => {
+  const tableData = sortedViajes.map((viaje) => {
     const ruta =
       viaje.tipoRuta === 'fija' && viaje.rutaOrigen && viaje.rutaDestino
         ? `${viaje.rutaOrigen} - ${viaje.rutaDestino}`
@@ -306,17 +341,47 @@ export const generateReportePdf = (data: ReportePdfData) => {
     },
   });
 
-  y = (doc as any).lastAutoTable.finalY + 10;
+  y = (doc as any).lastAutoTable.finalY + 20;
+
+  // Check if we need a new page for signatures
+  if (y > doc.internal.pageSize.height - 40) {
+    doc.addPage();
+    y = 30;
+  }
+
+  // === Signatures ===
+  if (data.selectedSignatures && data.selectedSignatures.length > 0) {
+    const sigY = y + 20;
+    const sigWidth = 60;
+    const sigSpacing = (pageWidth - margin * 2 - sigWidth * data.selectedSignatures.length) / (data.selectedSignatures.length + 1);
+
+    for (let i = 0; i < data.selectedSignatures.length; i++) {
+      const sig = data.selectedSignatures[i];
+      const sigX = margin + sigSpacing + i * (sigWidth + sigSpacing);
+
+      if (sig.firmaUrl) {
+        const imgW = 40;
+        const imgH = 18;
+        const base64 = await getBase64Image(sig.firmaUrl);
+        if (base64) {
+          const format = sig.firmaUrl.toLowerCase().includes('.jpg') || sig.firmaUrl.toLowerCase().includes('.jpeg') ? 'JPEG' : 'PNG';
+          doc.addImage(base64, format, sigX + (sigWidth - imgW) / 2, sigY - 18, imgW, imgH);
+        }
+      }
+
+      doc.setDrawColor(0);
+      doc.line(sigX, sigY, sigX + sigWidth, sigY);
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'bold');
+      drawCenteredText(sig.nombreCompleto, sigX, sigY + 5, sigWidth);
+      doc.setFont('helvetica', 'normal');
+      drawCenteredText(sig.empresa, sigX, sigY + 8, sigWidth);
+    }
+  }
 
   // === FOOTER ===
-  doc.setDrawColor(220);
-  doc.line(margin, y, pageWidth - margin, y);
-  y += 6;
-
-  doc.setTextColor(100);
-  doc.setFontSize(8);
-  doc.setFont('helvetica', 'normal');
-  doc.text('TRANSPORTES LINEA S.A. - Sistema de Gestion de Flota', margin, y + 8);
+  // doc.setDrawColor(220);
+  // doc.line(margin, y, pageWidth - margin, y);
 
   // Save
   const filename = `Reporte_${data.tipoReporte}_${new Date().toISOString().split('T')[0]}.pdf`;

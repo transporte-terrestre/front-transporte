@@ -34,7 +34,7 @@ export const generateHojaRutaPdf = (viaje: ApiResponse<'viajes', 'findOne'>) => 
   // 2. Company & Op Line (Left & Right)
   doc.setFontSize(11);
   doc.setFont('helvetica', 'bold');
-  doc.text('TRANSPORTES LINEA S.A.', margin, y);
+  // doc.text('TRANSPORTES LINEA S.A.', margin, y);
 
   doc.setFontSize(10);
   doc.text('Op. Quellaveco', pageWidth - margin, y, { align: 'right' });
@@ -45,10 +45,10 @@ export const generateHojaRutaPdf = (viaje: ApiResponse<'viajes', 'findOne'>) => 
   doc.setFontSize(8);
   doc.setTextColor(80);
   doc.setFont('helvetica', 'normal');
-  doc.text('Dirección: Ofic Principal Av.D.A. Carrión 140, Urb. Sn Nicolás - TRUJILLO', margin, y);
-  doc.text('Correo-Teléfono: informes@linea.pe - 0801-00-015', pageWidth - margin, y, {
-    align: 'right',
-  });
+  // doc.text('Dirección: Ofic Principal Av.D.A. Carrión 140, Urb. Sn Nicolás - TRUJILLO', margin, y);
+  // doc.text('Correo-Teléfono: informes@linea.pe - 0801-00-015', pageWidth - margin, y, {
+  //   align: 'right',
+  // });
   doc.setTextColor(0); // Reset
 
   y += 4;

@@ -7,6 +7,7 @@ export interface SignatureSelection {
   nombreCompleto: string;
   firmaUrl: string;
   rolEnDocumento: string;
+  empresa: string;
 }
 
 export const generateManifiestoPasajerosPdf = async (
@@ -217,7 +218,14 @@ export const generateManifiestoPasajerosPdf = async (
     });
   };
 
-  const pasajerosAbordaron = pasajeros.filter((p) => p.asistencia === true);
+  const pasajerosAbordaron = pasajeros
+    .filter((p) => p.asistencia === true)
+    .sort((a, b) => {
+      const nameA = `${a.nombres} ${a.apellidos}`.toLowerCase();
+      const nameB = `${b.nombres} ${b.apellidos}`.toLowerCase();
+      return nameA.localeCompare(nameB);
+    });
+
   const tableData = pasajerosAbordaron.map((p, index) => {
     const nombres = p.nombres || '';
     const apellidos = p.apellidos || '';
@@ -277,7 +285,7 @@ export const generateManifiestoPasajerosPdf = async (
     doc.addPage();
     signatureY = pageHeight - bottomMargin - 15;
   }
-  
+
   y = signatureY;
 
   const sigWidth = 70;
@@ -310,7 +318,9 @@ export const generateManifiestoPasajerosPdf = async (
   doc.setFontSize(7);
   doc.setFont('helvetica', 'normal');
   // drawCenteredText(signature?.rolEnDocumento || 'SUPERVISOR DE OPERACIONES', sigX, y + 9, sigWidth);
-  drawCenteredText('TRANSPORTES LINEA S.A.', sigX, y + 9, sigWidth);
+  if (signature) {
+    drawCenteredText(signature.empresa, sigX, y + 9, sigWidth);
+  }
 
   doc.save(`Manifiesto_${viaje.id}.pdf`);
 };

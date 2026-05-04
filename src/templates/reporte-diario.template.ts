@@ -1,16 +1,59 @@
-import { ApiResponse, ViajeHojaRutaResultDto } from '@api/backend.api';
+import { ApiResponse, ViajeHojaRutaResultDto, Api } from '@api/backend.api';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
-export const generateReporteDiarioPdf = (
+export interface SignatureSelection {
+  userId: number;
+  nombreCompleto: string;
+  firmaUrl: string;
+  rolEnDocumento: string;
+  empresa: string;
+}
+
+export const generateReporteDiarioPdf = async (
   viaje: ApiResponse<'viajes', 'findOne'>,
   hojaRuta: ViajeHojaRutaResultDto | null = null,
+  api?: Api<unknown>,
+  signature?: SignatureSelection,
 ) => {
   const doc = new jsPDF({ orientation: 'landscape', format: 'a4' });
   const pageWidth = doc.internal.pageSize.width;
   const pageHeight = doc.internal.pageSize.height;
   const margin = 12;
   let y = 15;
+
+  const getBase64Image = async (url: string): Promise<string | null> => {
+    try {
+      if (!url) return null;
+      let relativePath = '';
+      if (url.includes('.net/')) {
+        const parts = url.split('.net/');
+        const pathWithContainer = parts[1];
+        const firstSlashIndex = pathWithContainer.indexOf('/');
+        relativePath =
+          firstSlashIndex !== -1
+            ? decodeURIComponent(pathWithContainer.substring(firstSlashIndex + 1))
+            : decodeURIComponent(pathWithContainer);
+      } else {
+        relativePath = decodeURIComponent(url.split('/').pop() || '');
+      }
+
+      if (!api) return null;
+
+      const response = await api.storage.download({ path: relativePath });
+      if (!response.ok) return null;
+
+      const blob = await (response.blob ? response.blob() : (response as any).data);
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = () => resolve(null);
+        reader.readAsDataURL(blob);
+      });
+    } catch (e) {
+      return null;
+    }
+  };
 
   // --- Logos and Title ---
   // Left side info (Placeholder for Inversiones JR logo)
@@ -228,23 +271,44 @@ export const generateReporteDiarioPdf = (
   doc.setDrawColor(0);
   doc.setLineWidth(0.5);
 
-  // Left Signature
-  doc.line(margin, sigY, margin + sigWidth, sigY);
+  // Left Signature (Company Supervisor)
+  const leftSigX = margin;
+  doc.line(leftSigX, sigY, leftSigX + sigWidth, sigY);
   doc.setFontSize(8);
-  doc.text('FIRMA DEL SUPERVISOR INVERSIONES JR Y ASOCIADOS', margin + sigWidth / 2, sigY + 4, {
+  doc.text('FIRMA DEL SUPERVISOR INVERSIONES JR Y ASOCIADOS', leftSigX + sigWidth / 2, sigY + 4, {
     align: 'center',
     maxWidth: sigWidth,
   });
 
-  // Center Signature
+  // Center Signature (Driver)
   const centerSigX = pageWidth / 2 - sigWidth / 2;
   doc.line(centerSigX, sigY, centerSigX + sigWidth, sigY);
   doc.text('FIRMA DEL CONDUCTOR', pageWidth / 2, sigY + 4, { align: 'center' });
 
-  // Right Signature
+  // Right Signature (Contractor / Selected Signature)
   const rightSigX = pageWidth - margin - sigWidth;
+  
+  if (signature?.firmaUrl) {
+    const imgW = 40;
+    const imgH = 18;
+    const base64 = await getBase64Image(signature.firmaUrl);
+    if (base64) {
+      const format = signature.firmaUrl.toLowerCase().includes('.jpg') || signature.firmaUrl.toLowerCase().includes('.jpeg') ? 'JPEG' : 'PNG';
+      doc.addImage(base64, format, rightSigX + (sigWidth - imgW) / 2, sigY - 20, imgW, imgH);
+    }
+  }
+
   doc.line(rightSigX, sigY, rightSigX + sigWidth, sigY);
-  doc.text('FIRMA VB DEL CONTRATISTA', rightSigX + sigWidth / 2, sigY + 4, { align: 'center' });
+  
+  if (signature) {
+    doc.setFontSize(7);
+    doc.setFont('helvetica', 'bold');
+    doc.text(signature.nombreCompleto.toUpperCase(), rightSigX + sigWidth / 2, sigY + 4, { align: 'center', maxWidth: sigWidth });
+    doc.setFont('helvetica', 'normal');
+    doc.text(signature.empresa.toUpperCase(), rightSigX + sigWidth / 2, sigY + 7, { align: 'center', maxWidth: sigWidth });
+  } else {
+    doc.text('FIRMA VB DEL CONTRATISTA', rightSigX + sigWidth / 2, sigY + 4, { align: 'center' });
+  }
 
   doc.save(`Reporte_Diario_${viaje.id}.pdf`);
 };

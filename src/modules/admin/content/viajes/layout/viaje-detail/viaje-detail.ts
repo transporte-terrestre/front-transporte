@@ -37,6 +37,7 @@ export class ViajeDetail implements AfterViewInit {
   hiddenTramoIndexes = signal<Set<number>>(new Set());
   showSignatureModal = signal(false);
   mode = signal<'detail' | 'signature'>('detail');
+  currentReportType = signal<'manifiesto' | 'diario'>('manifiesto');
 
   private viajeService = inject(ViajeService);
   private api = inject(Api);
@@ -312,13 +313,12 @@ export class ViajeDetail implements AfterViewInit {
   }
 
   descargarReporteDiario() {
-    const data = this.viaje();
-    const hr = this.hojaRutaDisplay();
-    if (!data || !hr) return;
-    generateReporteDiarioPdf(data as any, hr);
+    this.currentReportType.set('diario');
+    this.mode.set('signature');
   }
 
   async descargarManifiesto() {
+    this.currentReportType.set('manifiesto');
     this.mode.set('signature');
   }
 
@@ -329,15 +329,21 @@ export class ViajeDetail implements AfterViewInit {
 
     try {
       this.loading.set(true);
-      // Obtenemos los datos completos del viaje (necesario para la lista de conductores) y los pasajeros en paralelo
-      const [fullViaje, pasajeros] = await Promise.all([
-        this.viajeService.findOne(data.id),
-        this.viajeService.findPasajeros(data.id),
-      ]);
+      const reportType = this.currentReportType();
 
-      await generateManifiestoPasajerosPdf(fullViaje as any, pasajeros, this.api, signature);
+      if (reportType === 'manifiesto') {
+        const [fullViaje, pasajeros] = await Promise.all([
+          this.viajeService.findOne(data.id),
+          this.viajeService.findPasajeros(data.id),
+        ]);
+        await generateManifiestoPasajerosPdf(fullViaje as any, pasajeros, this.api, signature);
+      } else {
+        const fullViaje = await this.viajeService.findOne(data.id);
+        const hr = this.hojaRutaDisplay();
+        await generateReporteDiarioPdf(fullViaje as any, hr, this.api, signature);
+      }
     } catch (err) {
-      console.error('Error generando manifiesto', err);
+      console.error('Error generando reporte', err);
     } finally {
       this.loading.set(false);
     }

@@ -44,6 +44,7 @@ export class ReportesMantenimiento implements OnInit {
   mantenimientosTaller = signal<ApiResponse<'reportes', 'getMantenimientosDetalladosPorTaller'>>(
     [],
   );
+  showSignatureModal = signal(false);
 
   ngOnInit() {
     const today = new Date();
@@ -194,8 +195,24 @@ export class ReportesMantenimiento implements OnInit {
       mantenimientosTaller:
         this.activeMode() === 'mantenimientos-taller' ? this.mantenimientosTaller() : undefined,
       totalCosto: this.getTotalCosto(),
+      selectedSignatures: [],
     });
 
     this.toastService.success('PDF generado exitosamente');
+  }
+
+  descargarExcel() {
+    if (!this.hasResults()) {
+      this.toastService.warning('No hay datos para generar el Excel');
+      return;
+    }
+
+    const data =
+      this.activeMode() === 'mantenimientos-vehiculo'
+        ? this.mantenimientosVehiculos()
+        : this.mantenimientosTaller();
+
+    this.reportesService.generateReporteMantenimientosExcel(data);
+    this.toastService.success('Excel generado exitosamente');
   }
 }

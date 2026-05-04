@@ -1,6 +1,6 @@
 import { Component, input, inject, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ApiResponse } from 'api/backend.api';
+import { ApiResponse } from '@api/backend.api';
 import { UsuarioService } from '@service/admin/usuario.service';
 
 type Usuario = ApiResponse<'usuarios', 'findOne'>;

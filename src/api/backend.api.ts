@@ -55,6 +55,16 @@ export interface UsuarioLoginInfoDto {
    */
   roles: ("empleado" | "admin")[];
   /**
+   * Empresa del usuario
+   * @example "TRANSPORTES LINEA S.A."
+   */
+  empresa: string;
+  /**
+   * Asignatura del usuario
+   * @example "Asignatura 1"
+   */
+  asignatura?: string;
+  /**
    * User fotocheck URLs
    * @example ["https://storage.example.com/fotocheck/1.jpg"]
    */
@@ -257,6 +267,16 @@ export interface UsuarioListDto {
    */
   roles: ("empleado" | "admin")[];
   /**
+   * Empresa del usuario
+   * @example "TRANSPORTES LINEA S.A."
+   */
+  empresa: string;
+  /**
+   * Asignatura del usuario
+   * @example "Asignatura 1"
+   */
+  asignatura?: string;
+  /**
    * User fotocheck URLs
    * @example []
    */
@@ -418,6 +438,16 @@ export interface UsuarioResultDto {
    */
   roles: ("empleado" | "admin")[];
   /**
+   * Empresa del usuario
+   * @example "TRANSPORTES LINEA S.A."
+   */
+  empresa: string;
+  /**
+   * Asignatura del usuario
+   * @example "Asignatura 1"
+   */
+  asignatura?: string;
+  /**
    * User fotocheck URLs
    * @example ["https://storage.example.com/fotocheck/1.jpg"]
    */
@@ -470,6 +500,16 @@ export interface UsuarioCreateDto {
    * @example ["empleado"]
    */
   roles: ("empleado" | "admin")[];
+  /**
+   * Empresa del usuario
+   * @example "TRANSPORTES LINEA S.A."
+   */
+  empresa: string;
+  /**
+   * Asignatura del usuario
+   * @example "Asignatura 1"
+   */
+  asignatura?: string;
 }
 
 export interface UsuarioUpdateDto {
@@ -498,6 +538,16 @@ export interface UsuarioUpdateDto {
    * @example ["empleado"]
    */
   roles?: ("empleado" | "admin")[];
+  /**
+   * Empresa del usuario
+   * @example "TRANSPORTES LINEA S.A."
+   */
+  empresa?: string;
+  /**
+   * Asignatura del usuario
+   * @example "Asignatura 1"
+   */
+  asignatura?: string;
 }
 
 export interface UsuarioDocumentoCreateDto {
@@ -3675,7 +3725,7 @@ export interface DocumentoItemDto {
   observacion?: string;
   /**
    * Fecha de Vencimiento Inicial/Por defecto
-   * @example "2026-04-28T05:17:42.513Z"
+   * @example "2026-04-29T18:57:54.510Z"
    */
   fechaVencimiento?: string;
 }
@@ -3858,17 +3908,17 @@ export interface BotiquinItemDto {
   habilitado: boolean;
   /**
    * Fecha de Vencimiento actual
-   * @example "2026-04-28T05:17:42.516Z"
+   * @example "2026-04-29T18:57:54.516Z"
    */
   fechaVencimiento?: string;
   /**
    * Fecha de Salida
-   * @example "2026-04-28T05:17:42.516Z"
+   * @example "2026-04-29T18:57:54.516Z"
    */
   fechaSalida?: string;
   /**
    * Fecha de Reposición
-   * @example "2026-04-28T05:17:42.516Z"
+   * @example "2026-04-29T18:57:54.516Z"
    */
   fechaReposicion?: string;
 }
@@ -9014,6 +9064,12 @@ export interface ResumenVehiculoDto {
   totalGalones: number;
   /** Cantidad de viajes realizados */
   cantidadViajes: number;
+  /** Kilometraje actual del vehículo */
+  kilometrajeActual: number;
+  /** Estado actual del vehículo */
+  estado: string;
+  /** Cliente al que está alquilado actualmente */
+  clienteActual?: string;
 }
 
 export interface PropietarioListDto {

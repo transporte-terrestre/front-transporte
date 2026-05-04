@@ -1,7 +1,7 @@
 import { Component, inject, input, output, OnInit, effect, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ApiResponse, ApiBody, ApiField } from 'api/backend.api';
+import { ApiResponse, ApiBody, ApiField } from '@api/backend.api';
 import { UsuarioService } from '@service/admin/usuario.service';
 import { ToastService } from '@service/toast.service';
 import { getErrorMessage } from '@helper/error.helper';
@@ -39,6 +39,8 @@ export class UsuarioForm implements OnInit {
     email: ['', [Validators.required, Validators.email]],
     contrasenia: ['', [Validators.required, Validators.minLength(6)]],
     roles: [['empleado'], [Validators.required]],
+    empresa: ['TRANSPORTES LINEA S.A.', [Validators.required]],
+    asignatura: [''],
   });
 
   roles: NonNullable<ApiField<'usuarios', 'findOne', 'roles'>>[number][] = ['admin', 'empleado'];
@@ -74,6 +76,8 @@ export class UsuarioForm implements OnInit {
           apellidos: usuarioData.apellidos,
           email: usuarioData.email,
           roles: usuarioData.roles,
+          empresa: usuarioData.empresa,
+          asignatura: usuarioData.asignatura || '',
         });
         this.usuarioForm.get('contrasenia')?.clearValidators();
         this.usuarioForm.get('contrasenia')?.updateValueAndValidity();
