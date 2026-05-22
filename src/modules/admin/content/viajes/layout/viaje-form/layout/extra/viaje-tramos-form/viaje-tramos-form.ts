@@ -160,6 +160,11 @@ export class ViajeTramosFormComponent implements AfterViewInit, OnDestroy {
     return v.vehiculos.reduce((acc, veh) => acc + (veh.pasajeros || 0), 0);
   });
 
+  vehiculoPrincipalId = computed(() => {
+    const vehiculos = this.viaje().vehiculos || [];
+    return vehiculos.find((vehiculo) => vehiculo.esPrincipal)?.id || vehiculos[0]?.id || null;
+  });
+
   constructor() {
     effect(() => {
       const v = this.viaje();
@@ -555,18 +560,28 @@ export class ViajeTramosFormComponent implements AfterViewInit, OnDestroy {
       return tramo.nombreLugar || '—';
     }
 
-    // Para descanso, calcular minutos dinámicamente
+    return 'Descanso';
+  }
+
+  getDescansoDuracion(tramo: ViajeTramoResultDto, index: number): string {
     const lista = this.tramos();
     if (index > 0 && tramo.horaFinal && lista[index - 1]?.horaFinal) {
       const actual = new Date(tramo.horaFinal).getTime();
       const anterior = new Date(lista[index - 1].horaFinal!).getTime();
       const diffMin = Math.round((actual - anterior) / 60000);
       if (diffMin > 0) {
-        return `Descanso (${diffMin} min)`;
+        return this.formatDuracionDescanso(diffMin);
       }
     }
 
-    return 'Descanso';
+    return '—';
+  }
+
+  private formatDuracionDescanso(minutos: number): string {
+    if (minutos < 60) return `${minutos} min`;
+    const horas = Math.floor(minutos / 60);
+    const minutosRestantes = minutos % 60;
+    return minutosRestantes > 0 ? `${horas} h ${minutosRestantes} min` : `${horas} h`;
   }
 
   private ajustarHojaRutaConDescansos(data: ViajeHojaRutaResultDto): ViajeHojaRutaResultDto {

@@ -1,9 +1,13 @@
 import { Component, input, inject, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ApiResponse } from 'api/backend.api';
+import {
+  ConductorDocumentoResultDto,
+  ConductorResultDto,
+  DocumentosAgrupadosConductorDto,
+} from 'api/backend.api';
 import { ConductorService } from '@service/admin/conductor.service';
 
-type Conductor = ApiResponse<'conductores', 'findOne'> & { documentos: any[] };
+type ConductorDocumentType = keyof DocumentosAgrupadosConductorDto;
 
 @Component({
   selector: 'app-conductor-detail',
@@ -16,7 +20,7 @@ export class ConductorDetail {
   conductorId = input<number>();
   private conductorService = inject(ConductorService);
 
-  conductor = signal<Conductor | null>(null);
+  conductor = signal<ConductorResultDto | null>(null);
   loading = signal(true);
   error = signal<string | null>(null);
 
@@ -34,7 +38,7 @@ export class ConductorDetail {
     this.error.set(null);
     try {
       const data = await this.conductorService.findOne(id);
-      this.conductor.set(data as any);
+      this.conductor.set(data);
     } catch (err) {
       console.error('Error loading conductor:', err);
       this.error.set('Error al cargar conductor');
@@ -43,20 +47,25 @@ export class ConductorDetail {
     }
   }
 
-  getDocumentosByType(type: string) {
+  getDocumentosByType(type: ConductorDocumentType): ConductorDocumentoResultDto[] {
     const c = this.conductor();
     if (!c || !c.documentos) return [];
 
-    // Si es array (flat), filtramos
-    if (Array.isArray(c.documentos)) {
-      return c.documentos.filter((d: any) => d.tipo === type);
-    }
+    const documentos = c.documentos[type] || [];
 
-    // Si es objeto (agrupado), accedemos por key
-    return (c.documentos as any)[type] || [];
+    const latestDocument = documentos.reduce<ConductorDocumentoResultDto | null>((latest, current) => {
+      if (!latest) return current;
+
+      const latestDate = new Date(latest.creadoEn ?? 0).getTime();
+      const currentDate = new Date(current.creadoEn ?? 0).getTime();
+
+      return currentDate > latestDate ? current : latest;
+    }, null);
+
+    return latestDocument ? [latestDocument] : [];
   }
 
-  documentTypes = [
+  documentTypes: { value: ConductorDocumentType; label: string }[] = [
     { value: 'dni', label: 'DNI' },
     { value: 'licencia_mtc', label: 'Licencia MTC' },
     { value: 'seguro_vida_ley', label: 'Seguro Vida Ley' },

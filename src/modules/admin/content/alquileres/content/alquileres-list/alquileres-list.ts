@@ -9,7 +9,11 @@ import { ApiBody, ApiResponse } from 'api/backend.api';
 import { ToastService } from '@service/toast.service';
 import { AlertService } from '@service/alert.service';
 import { ModalForm } from '../../../../components/modal-form/modal-form';
-import { AlquilerForm } from '../../layout/alquiler-form/alquiler-form';
+import {
+  AlquilerForm,
+  AlquilerFormSubmitData,
+  PendingAlquilerDocument,
+} from '../../layout/alquiler-form/alquiler-form';
 import { PaginationComponent } from '../../../../components/pagination/pagination';
 import { AlquilerEstadoUpdate } from './layout/alquiler-estado-update/alquiler-estado-update';
 import { AlquilerTerminarModal } from './layout/alquiler-terminar-modal/alquiler-terminar-modal';
@@ -237,14 +241,37 @@ export class AlquileresList implements OnInit {
     this.selectedAlquilerId.set(null);
   }
 
-  handleFormSubmit(data: ApiBody<'alquileres', 'create'> | ApiBody<'alquileres', 'update'>) {
+  handleFormSubmit(data: AlquilerFormSubmitData) {
     this.createAlquiler(data);
   }
 
-  async createAlquiler(data: ApiBody<'alquileres', 'create'> | ApiBody<'alquileres', 'update'>) {
+  async createAlquiler(data: AlquilerFormSubmitData) {
     this.loading.set(true);
     try {
-      await this.alquilerService.create(data as ApiBody<'alquileres', 'create'>);
+      const creationData = data as ApiBody<'alquileres', 'create'> & {
+        documentos?: PendingAlquilerDocument[];
+      };
+      const { documentos, ...alquilerData } = creationData;
+      const newAlquiler = await this.alquilerService.create(alquilerData);
+
+      if (documentos && documentos.length > 0) {
+        for (const doc of documentos) {
+          try {
+            await this.alquilerService.createDocumento({
+              alquilerId: newAlquiler.id,
+              tipo: doc.tipo,
+              nombre: doc.data.nombre,
+              url: doc.data.url,
+              fechaEmision: doc.data.fechaEmision,
+              fechaExpiracion: doc.data.fechaExpiracion,
+            });
+          } catch (docError) {
+            console.error(`Error al subir documento ${doc.tipo}:`, docError);
+            this.toastService.error(`No se pudo subir el documento: ${doc.tipo}`);
+          }
+        }
+      }
+
       this.toastService.success('Alquiler creado exitosamente');
       this.loadAlquileres();
       this.closeModal();

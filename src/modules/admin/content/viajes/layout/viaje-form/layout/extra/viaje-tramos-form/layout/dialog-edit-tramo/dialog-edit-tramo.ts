@@ -42,7 +42,6 @@ export class DialogEditTramoComponent implements OnInit, AfterViewInit {
       fecha: ['', [Validators.required]],
       hora: ['', [Validators.required]],
       kilometrajeFinal: [0, [Validators.required, Validators.min(0)]],
-      numeroPasajeros: [0],
       latitud: [0, [Validators.required]],
       longitud: [0, [Validators.required]],
     });
@@ -52,19 +51,16 @@ export class DialogEditTramoComponent implements OnInit, AfterViewInit {
     const s = this.tramo();
     this.esDescanso = s.tipo === 'descanso';
 
-    // Para descanso, no requerimos nombre, km ni pasajeros
-    // Para descanso, no requerimos nombre, km, pasajeros ni coordenadas
+    // Para descanso, no requerimos nombre, km ni coordenadas
     if (this.esDescanso) {
       this.form.get('tipo')?.disable();
       this.form.get('nombreLugar')?.clearValidators();
       this.form.get('kilometrajeFinal')?.clearValidators();
-      this.form.get('numeroPasajeros')?.clearValidators();
       this.form.get('latitud')?.clearValidators();
       this.form.get('longitud')?.clearValidators();
       
       this.form.get('nombreLugar')?.updateValueAndValidity();
       this.form.get('kilometrajeFinal')?.updateValueAndValidity();
-      this.form.get('numeroPasajeros')?.updateValueAndValidity();
       this.form.get('latitud')?.updateValueAndValidity();
       this.form.get('longitud')?.updateValueAndValidity();
     }
@@ -89,7 +85,6 @@ export class DialogEditTramoComponent implements OnInit, AfterViewInit {
       fecha: fValue,
       hora: hValue,
       kilometrajeFinal: s.kilometrajeFinal || 0,
-      numeroPasajeros: s.numeroPasajeros || 0,
       latitud: s.latitud || 0,
       longitud: s.longitud || 0,
     });
@@ -153,7 +148,6 @@ export class DialogEditTramoComponent implements OnInit, AfterViewInit {
         nombreLugar: val.nombreLugar,
         horaFinal: isoString,
         kilometrajeFinal: Number(val.kilometrajeFinal),
-        numeroPasajeros: Number(val.numeroPasajeros),
         latitud: Number(val.latitud),
         longitud: Number(val.longitud),
       });

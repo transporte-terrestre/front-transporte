@@ -277,6 +277,11 @@
               Pasajeros
             </th>
             <th
+              class="py-2 px-3 text-[10px] font-inter-bold text-text/40 uppercase tracking-wider text-center"
+            >
+              Combustible
+            </th>
+            <th
               class="py-2 px-3 text-[10px] font-inter-bold text-text/40 uppercase tracking-wider text-right"
             >
               Acciones
@@ -318,9 +323,19 @@
               </div>
             </td>
             <td class="py-2 px-3">
-              <span class="text-sm font-inter-semibold text-text">{{
-                getNombreLugar(tramo, i)
-              }}</span>
+              @if (tramo.tipo === 'descanso') {
+                <div class="flex items-center gap-2">
+                  <span class="text-sm font-inter-semibold text-text">Descanso</span>
+                  <span class="inline-flex items-center gap-1 text-xs font-inter-semibold text-text/50">
+                    <i class="fas fa-clock text-[10px] text-text/40"></i>
+                    {{ getDescansoDuracion(tramo, i) }}
+                  </span>
+                </div>
+              } @else {
+                <span class="text-sm font-inter-semibold text-text">{{
+                  getNombreLugar(tramo, i)
+                }}</span>
+              }
             </td>
             <td class="py-2 px-3">
               <span class="text-xs text-text/60 font-inter-medium">{{
@@ -341,16 +356,12 @@
             </td>
             <td class="py-2 px-3 text-center">
               @if (tramo.tipo !== 'descanso') {
-                <span
-                  class="inline-flex items-center justify-center px-2 py-0.5 rounded-full bg-text/5 text-[10px] font-inter-bold text-text/60"
-                >
-                  {{ tramo.numeroPasajeros != null ? tramo.numeroPasajeros : '—' }}
-                </span>
-              }
-            </td>
-            <td class="py-2 px-3 text-right">
-              <div class="flex items-center justify-end gap-1">
-                @if (tramo.tipo !== 'descanso') {
+                <div class="inline-flex items-center justify-center gap-1.5">
+                  <span
+                    class="inline-flex items-center justify-center min-w-6 px-2 py-0.5 rounded-full bg-text/5 text-[10px] font-inter-bold text-text/60"
+                  >
+                    {{ tramo.numeroPasajeros != null ? tramo.numeroPasajeros : '—' }}
+                  </span>
                   <button
                     (click)="preparePasajeros(tramo)"
                     class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-success/10 text-success transition-colors"
@@ -358,6 +369,21 @@
                   >
                     <i class="fas fa-users text-xs"></i>
                   </button>
+                </div>
+              }
+            </td>
+            <td class="py-2 px-3 text-center">
+              @if (tramo.tipo !== 'descanso') {
+                <div class="inline-flex items-center justify-center gap-1.5">
+                  <span
+                    class="inline-flex items-center justify-center min-w-14 px-2 py-0.5 rounded-full bg-text/5 text-[10px] font-inter-bold text-text/60"
+                  >
+                    @if (tramo.galonesAbastecidos) {
+                      {{ tramo.galonesAbastecidos | number:'1.2-2' }} Gal.
+                    } @else {
+                      0 Gal.
+                    }
+                  </span>
                   <button
                     (click)="prepareRepostaje(tramo)"
                     class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-info/10 text-info transition-colors"
@@ -365,7 +391,11 @@
                   >
                     <i class="fas fa-gas-pump text-xs"></i>
                   </button>
-                }
+                </div>
+              }
+            </td>
+            <td class="py-2 px-3 text-right">
+              <div class="flex items-center justify-end gap-1">
                 <button
                   (click)="prepareEditTramo(tramo)"
                   class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-secondary/10 text-secondary transition-colors"
@@ -435,6 +465,11 @@
                 N° Pasajeros
               </th>
               <th
+                class="py-2 px-2 text-[9px] font-inter-bold text-text/40 uppercase tracking-wider text-center whitespace-nowrap"
+              >
+                Galones
+              </th>
+              <th
                 class="py-2 px-2 text-[9px] font-inter-bold text-text/40 uppercase tracking-wider whitespace-nowrap"
               >
                 Hora Término
@@ -498,6 +533,17 @@
                   {{ tramo.numeroPasajeros != null ? tramo.numeroPasajeros : '—' }}
                 </span>
               </td>
+              <td class="py-2 px-2 text-center">
+                <span
+                  class="inline-flex items-center justify-center min-w-14 px-2 py-0.5 rounded-full bg-text/5 text-[10px] font-inter-bold text-text/60"
+                >
+                  @if (tramo.galonesAbastecidos) {
+                    {{ tramo.galonesAbastecidos | number:'1.2-2' }} Gal.
+                  } @else {
+                    0 Gal.
+                  }
+                </span>
+              </td>
               <td class="py-2 px-2">
                 <span class="text-[11px] font-inter-medium text-text/60">{{
                   tramo.horaTermino
@@ -520,7 +566,7 @@
           </tbody>
           <tfoot>
             <tr class="border-t-2 border-text/10 bg-text/2">
-              <td colspan="8" class="py-2 px-2 text-right">
+              <td colspan="9" class="py-2 px-2 text-right">
                 <span class="text-[10px] font-inter-bold text-text/40 uppercase tracking-wider"
                   >Totales:</span
                 >
@@ -607,11 +653,13 @@
     (onClose)="showPasajeros.set(false)"
   ></app-dialog-pasajeros-tramo>
 
+  @if (showRepostaje() && selectedTramo() && vehiculoPrincipalId()) {
   <app-dialog-repostajes-tramo
-    *ngIf="showRepostaje() && selectedTramo()"
     [viajeId]="viaje().id"
     [tramo]="selectedTramo()!"
+    [vehiculoId]="vehiculoPrincipalId()!"
     (onSaved)="onDialogSaved($event)"
     (onClose)="showRepostaje.set(false)"
   ></app-dialog-repostajes-tramo>
+  }
 </div>

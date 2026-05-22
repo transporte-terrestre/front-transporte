@@ -1,0 +1,188 @@
+<div class="space-y-6">
+  <div class="flex flex-col gap-4">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div>
+        <h1 class="text-2xl font-anton text-text lowercase">Abastecimientos</h1>
+        <p class="text-sm text-text/60 font-inter-regular mt-1">
+          Historial general de combustible por vehículo
+        </p>
+      </div>
+
+      <div class="flex items-center gap-2 w-full sm:w-auto">
+        <button
+          type="button"
+          (click)="openCreate()"
+          class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-secondary text-background rounded-lg text-sm font-inter-semibold hover:bg-secondary/90 transition-all shadow-sm hover:shadow-md"
+        >
+          <i class="fas fa-plus text-xs"></i>
+          <span>Nuevo</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-4 lg:grid-cols-4 gap-3">
+      <div class="relative col-span-1 sm:col-span-4 lg:col-span-3">
+        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"></i>
+        <input
+          type="text"
+          [ngModel]="searchTerm()"
+          (ngModelChange)="onSearchChange($event)"
+          class="w-full pl-10 pr-4 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all"
+          placeholder="Buscar por placa, código o tramo..."
+        />
+      </div>
+
+      <div class="relative col-span-1 sm:col-span-4 lg:col-span-1">
+        <app-vehiculo-input-search
+          [ngModel]="selectedVehiculoForSearch()"
+          (ngModelChange)="onVehiculoFilterChange($event)"
+          [showClear]="true"
+          class="block w-full"
+        />
+      </div>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="flex items-center justify-center py-12">
+      <div class="flex flex-col items-center gap-3">
+        <i class="fas fa-spinner fa-spin text-3xl text-secondary"></i>
+        <p class="text-text/60 font-inter-medium">Cargando abastecimientos...</p>
+      </div>
+    </div>
+  } @else if (abastecimientos().length === 0) {
+    <div
+      class="flex flex-col items-center justify-center py-12 text-text/60 bg-background border border-text/10 rounded-xl"
+    >
+      <i class="fas fa-gas-pump text-5xl mb-4 text-text/20"></i>
+      <p class="font-inter-semibold text-lg">No hay abastecimientos registrados</p>
+      <p class="font-inter-regular text-sm mt-1">Comienza agregando un abastecimiento</p>
+    </div>
+  } @else {
+    <div class="bg-background border border-text/10 rounded-xl shadow-sm overflow-hidden">
+
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-text/5 border-b border-text/10">
+            <tr>
+              <th class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider">Fecha</th>
+              <th class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider">Vehículo</th>
+              <th class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider">Combustible</th>
+              <th class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider">Galones</th>
+              <th class="px-4 py-3 text-left text-xs font-inter-bold text-text/60 uppercase tracking-wider">Tramo</th>
+              <th class="px-4 py-3 text-right text-xs font-inter-bold text-text/60 uppercase tracking-wider">Acciones</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-text/10">
+              @for (item of abastecimientos(); track item.id) {
+                <tr
+                  class="hover:bg-text/5 transition-colors cursor-pointer"
+                  (click)="viewDetails(item.id)"
+                >
+                  <td class="px-4 py-3 whitespace-nowrap">
+                    <span class="text-xs font-inter-medium text-text/70">
+                    {{ item.creadoEn | date:'dd/MM/yyyy HH:mm' }}
+                    </span>
+                  </td>
+                  <td class="px-4 py-3 whitespace-nowrap">
+                    <div class="flex items-center gap-2">
+                      @if (getVehiculoImage(item)) {
+                        <div
+                          class="w-10 h-10 min-w-10 min-h-10 shrink-0 rounded-lg border border-text/10 overflow-hidden"
+                        >
+                          <img
+                            [src]="getVehiculoImage(item)!"
+                            [alt]="getVehiculoLabel(item)"
+                            class="w-full h-full object-cover"
+                          />
+                        </div>
+                      } @else {
+                        <div
+                          class="w-10 h-10 min-w-10 min-h-10 shrink-0 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary text-xs"
+                        >
+                          <i class="fas fa-car"></i>
+                        </div>
+                      }
+                      <span class="text-xs font-inter-bold text-text uppercase">{{ getVehiculoLabel(item) }}</span>
+                    </div>
+                  </td>
+                  <td class="px-4 py-3 whitespace-nowrap">
+                    <span class="inline-flex items-center px-3 py-1 rounded-lg bg-text/5 text-xs font-inter-bold text-text/60 uppercase">
+                      {{ item.combustible }}
+                    </span>
+                  </td>
+                  <td class="px-4 py-3 whitespace-nowrap">
+                    <span class="inline-flex items-center justify-center min-w-[76px] px-2.5 py-1 rounded-full bg-text/5 text-xs font-inter-bold text-text/60">
+                      {{ item.galonesEstablecidos | number:'1.2-2' }} Gal.
+                    </span>
+                  </td>
+                  <td class="px-4 py-3">
+                    <span class="text-xs font-inter-medium text-text/70 line-clamp-2">
+                    @if (item.tramoNombreLugar) {
+                      {{ item.tramoNombreLugar }}
+                    } @else {
+                      <span class="italic text-text/35">Sin tramo asociado</span>
+                    }
+                    </span>
+                  </td>
+                  <td class="px-4 py-3 whitespace-nowrap">
+                    <div class="flex items-center justify-end gap-2">
+                      <button
+                        type="button"
+                        (click)="openEdit(item, $event)"
+                        class="p-1.5 text-secondary hover:bg-secondary/10 rounded-lg transition-colors text-sm"
+                        title="Editar"
+                      >
+                        <i class="fas fa-pen"></i>
+                      </button>
+                      <button
+                        type="button"
+                        (click)="deleteAbastecimiento(item.id, $event)"
+                        class="p-1.5 text-danger hover:bg-danger/10 rounded-lg transition-colors text-sm"
+                        title="Eliminar"
+                      >
+                        <i class="fas fa-trash-alt"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+          </tbody>
+        </table>
+      </div>
+
+      <app-pagination
+        [meta]="meta()"
+        [currentPage]="currentPage()"
+        [pageSize]="pageSize()"
+        (pageChange)="onPageChange($event)"
+        (pageSizeChange)="onPageSizeChange($event)"
+      ></app-pagination>
+    </div>
+  }
+</div>
+
+@if (showForm()) {
+  <app-modal-form
+    [title]="editing() ? 'Editar Abastecimiento' : 'Nuevo Abastecimiento'"
+    [submitText]="editing() ? 'Guardar' : 'Crear'"
+    [maxWidth]="'xl'"
+    [loading]="saving()"
+    (onSubmit)="handleModalSubmit()"
+    (onClose)="closeForm()"
+  >
+    <app-abastecimiento-form
+      [editMode]="!!editing()"
+      [abastecimiento]="editing()"
+      (onSubmitForm)="handleFormSubmit($event)"
+    />
+  </app-modal-form>
+}
+
+@if (showDetailModal()) {
+  <app-modal-info title="Detalle del Abastecimiento" maxWidth="2xl" (onClose)="closeDetails()">
+    @if (selectedAbastecimientoId()) {
+      <app-abastecimiento-detail [abastecimientoId]="selectedAbastecimientoId()!" />
+    }
+  </app-modal-info>
+}

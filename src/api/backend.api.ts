@@ -3725,7 +3725,7 @@ export interface DocumentoItemDto {
   observacion?: string;
   /**
    * Fecha de Vencimiento Inicial/Por defecto
-   * @example "2026-04-29T18:57:54.510Z"
+   * @example "2026-05-21T21:32:42.563Z"
    */
   fechaVencimiento?: string;
 }
@@ -3908,17 +3908,17 @@ export interface BotiquinItemDto {
   habilitado: boolean;
   /**
    * Fecha de Vencimiento actual
-   * @example "2026-04-29T18:57:54.516Z"
+   * @example "2026-05-21T21:32:42.568Z"
    */
   fechaVencimiento?: string;
   /**
    * Fecha de Salida
-   * @example "2026-04-29T18:57:54.516Z"
+   * @example "2026-05-21T21:32:42.568Z"
    */
   fechaSalida?: string;
   /**
    * Fecha de Reposición
-   * @example "2026-04-29T18:57:54.516Z"
+   * @example "2026-05-21T21:32:42.568Z"
    */
   fechaReposicion?: string;
 }
@@ -7312,45 +7312,6 @@ export interface ViajeComentarioUpdateDto {
   tipo: "observacion" | "incidencia" | "novedad" | "general";
 }
 
-export interface ViajeRepostajeMovimientoResultDto {
-  /** @example 1 */
-  id: number;
-  /** @example 1 */
-  viajeTramoId: number;
-  /** @example "diesel" */
-  combustible: string;
-  /** @example "10.50" */
-  galonesEstablecidos: string;
-  /**
-   * @format date-time
-   * @example "2024-01-01T12:00:00Z"
-   */
-  creadoEn: string;
-  /**
-   * @format date-time
-   * @example "2024-01-01T12:00:00Z"
-   */
-  actualizadoEn: string;
-}
-
-export interface ViajeRepostajeMovimientoCreateDto {
-  /**
-   * ID del tramo del viaje
-   * @example 1
-   */
-  viajeTramoId: number;
-  /**
-   * Tipo de combustible
-   * @example "diesel"
-   */
-  combustible: "gasolina" | "diesel" | "gnv" | "glp" | "electrico" | "hibrido";
-  /**
-   * Galones establecidos
-   * @example 10.5
-   */
-  galonesEstablecidos: number;
-}
-
 export interface ViajeTramoResultDto {
   id: number;
   viajeId: number;
@@ -7361,7 +7322,9 @@ export interface ViajeTramoResultDto {
   /** @format date-time */
   horaFinal?: string;
   kilometrajeFinal?: number;
-  numeroPasajeros?: number;
+  numeroPasajeros?: number | null;
+  /** Galones abastecidos en el tramo */
+  galonesAbastecidos?: number | null;
   rutaParadaId?: number;
   /** @format date-time */
   creadoEn: string;
@@ -7394,7 +7357,12 @@ export interface ViajeItemHojaRutaDto {
    * Número de pasajeros
    * @example 12
    */
-  numeroPasajeros?: number;
+  numeroPasajeros?: number | null;
+  /**
+   * Galones abastecidos en el tramo
+   * @example 8.5
+   */
+  galonesAbastecidos?: number | null;
   /**
    * Hora de término del tramo
    * @example "10:20 AM"
@@ -7664,7 +7632,6 @@ export interface ViajeTramoUpdateDto {
    */
   horaFinal?: string;
   kilometrajeFinal?: number;
-  numeroPasajeros?: number;
 }
 
 export interface ViajePasajeroResultDto {
@@ -9895,6 +9862,7 @@ export interface AlquilerDocumentoResultDto {
   alquilerId: number;
   tipo:
     | "contrato"
+    | "documentacion"
     | "guia_remision"
     | "acta_entrega"
     | "acta_devolucion"
@@ -9902,10 +9870,22 @@ export interface AlquilerDocumentoResultDto {
     | "otros";
   nombre: string;
   url: string;
+  fechaExpiracion?: string | null;
+  fechaEmision?: string | null;
   /** @format date-time */
   creadoEn: string;
   /** @format date-time */
   actualizadoEn: string;
+}
+
+export interface DocumentosAgrupadosAlquilerDto {
+  contrato: AlquilerDocumentoResultDto[];
+  documentacion: AlquilerDocumentoResultDto[];
+  guia_remision: AlquilerDocumentoResultDto[];
+  acta_entrega: AlquilerDocumentoResultDto[];
+  acta_devolucion: AlquilerDocumentoResultDto[];
+  comprobante_pago: AlquilerDocumentoResultDto[];
+  otros: AlquilerDocumentoResultDto[];
 }
 
 export interface AlquilerItemDto {
@@ -9928,7 +9908,7 @@ export interface AlquilerItemDto {
   cliente?: AlquilerClienteDto;
   detalles?: AlquilerDetalleResultDto[];
   historial?: AlquilerHistorialResultDto[];
-  documentos?: AlquilerDocumentoResultDto[];
+  documentos?: DocumentosAgrupadosAlquilerDto;
 }
 
 export interface AlquilerPaginationMetaDto {
@@ -9978,7 +9958,7 @@ export interface AlquilerResultDto {
   cliente?: AlquilerClienteDto;
   detalles?: AlquilerDetalleResultDto[];
   historial?: AlquilerHistorialResultDto[];
-  documentos?: AlquilerDocumentoResultDto[];
+  documentos?: DocumentosAgrupadosAlquilerDto;
 }
 
 export interface AlquilerVehiculoDetalleDto {
@@ -10053,6 +10033,7 @@ export interface AlquilerDocumentoCreateDto {
   /** @example "contrato" */
   tipo?:
     | "contrato"
+    | "documentacion"
     | "guia_remision"
     | "acta_entrega"
     | "acta_devolucion"
@@ -10062,6 +10043,10 @@ export interface AlquilerDocumentoCreateDto {
   nombre: string;
   /** @example "https://cdn.midominio.com/docs/contrato.pdf" */
   url: string;
+  /** @example "2026-04-26" */
+  fechaEmision?: string;
+  /** @example "2027-04-26" */
+  fechaExpiracion?: string;
 }
 
 export interface AlquilerDocumentoUpdateDto {
@@ -10070,6 +10055,7 @@ export interface AlquilerDocumentoUpdateDto {
   /** @example "contrato" */
   tipo?:
     | "contrato"
+    | "documentacion"
     | "guia_remision"
     | "acta_entrega"
     | "acta_devolucion"
@@ -10079,6 +10065,10 @@ export interface AlquilerDocumentoUpdateDto {
   nombre?: string;
   /** @example "https://cdn.midominio.com/docs/contrato.pdf" */
   url?: string;
+  /** @example "2026-04-26" */
+  fechaEmision?: string;
+  /** @example "2027-04-26" */
+  fechaExpiracion?: string;
 }
 
 export interface StorageResultDto {
@@ -10206,6 +10196,102 @@ export interface DescargarDocumentosDto {
    * @example {"15":["soat","tarjeta_propiedad"]}
    */
   vehiculos?: object;
+}
+
+export interface AbastecimientoResultDto {
+  /** @example 1 */
+  id: number;
+  /** @example 1 */
+  vehiculoId: number;
+  /** @example 10 */
+  viajeTramoId?: number | null;
+  /** @example "diesel" */
+  combustible: string;
+  /** @example "10.50" */
+  galonesEstablecidos: string;
+  /** @example "ABC-123" */
+  vehiculoPlaca?: string;
+  /** @example "VAN-01" */
+  vehiculoCodigoInterno?: string;
+  /** @example ["https://ejemplo.com/vehiculo.jpg"] */
+  vehiculoImagenes?: string[];
+  /** @example "Grifo Primax" */
+  tramoNombreLugar?: string | null;
+  /**
+   * @format date-time
+   * @example "2026-05-21T12:00:00Z"
+   */
+  tramoHoraFinal?: string | null;
+  /**
+   * @format date-time
+   * @example "2026-05-21T12:00:00Z"
+   */
+  creadoEn: string;
+  /**
+   * @format date-time
+   * @example "2026-05-21T12:00:00Z"
+   */
+  actualizadoEn: string;
+}
+
+export interface AbastecimientoPaginationMetaDto {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+}
+
+export interface PaginatedAbastecimientoResultDto {
+  data: AbastecimientoResultDto[];
+  meta: AbastecimientoPaginationMetaDto;
+}
+
+export interface AbastecimientoCreateDto {
+  /**
+   * ID del vehiculo abastecido
+   * @example 1
+   */
+  vehiculoId: number;
+  /**
+   * ID del tramo asociado, si el abastecimiento ocurrió durante un viaje
+   * @example 10
+   */
+  viajeTramoId?: number;
+  /**
+   * Tipo de combustible
+   * @example "diesel"
+   */
+  combustible: "gasolina" | "diesel" | "gnv" | "glp" | "electrico" | "hibrido";
+  /**
+   * Galones abastecidos
+   * @example 10.5
+   */
+  galonesEstablecidos: number;
+}
+
+export interface AbastecimientoUpdateDto {
+  /**
+   * ID del vehiculo abastecido
+   * @example 1
+   */
+  vehiculoId?: number;
+  /**
+   * ID del tramo asociado, si el abastecimiento ocurrió durante un viaje
+   * @example 10
+   */
+  viajeTramoId?: number;
+  /**
+   * Tipo de combustible
+   * @example "diesel"
+   */
+  combustible?: "gasolina" | "diesel" | "gnv" | "glp" | "electrico" | "hibrido";
+  /**
+   * Galones abastecidos
+   * @example 10.5
+   */
+  galonesEstablecidos?: number;
 }
 
 export type AppGetHelloData = any;
@@ -11615,23 +11701,6 @@ export interface ViajesDeleteComentarioParams {
 
 export type ViajesDeleteComentarioData = ViajeComentarioResultDto;
 
-export interface ViajesGetRepostajesPorTramoParams {
-  /** ID del tramo */
-  viajeTramoId: number;
-}
-
-export type ViajesGetRepostajesPorTramoData =
-  ViajeRepostajeMovimientoResultDto[];
-
-export type ViajesRegistrarRepostajeData = ViajeRepostajeMovimientoResultDto;
-
-export interface ViajesDeleteRepostajeParams {
-  /** ID del repostaje */
-  id: number;
-}
-
-export type ViajesDeleteRepostajeData = ViajeRepostajeMovimientoResultDto;
-
 export interface ViajesFindTramosParams {
   /** ID del viaje */
   viajeId: number;
@@ -12494,6 +12563,58 @@ export interface AuditoriasFindOneParams {
 export type AuditoriasFindOneData = AuditoriaResultDto;
 
 export type DescargasDescargarDocumentosZipData = any;
+
+export interface AbastecimientosFindAllParams {
+  /** @example 1 */
+  page?: number;
+  /** @example 10 */
+  limit?: number;
+  /** @example "ABC-123" */
+  search?: string;
+  /** @example 1 */
+  vehiculoId?: number;
+  /** @example 10 */
+  viajeTramoId?: number;
+}
+
+export type AbastecimientosFindAllData = PaginatedAbastecimientoResultDto;
+
+export interface AbastecimientosFindOneParams {
+  /** ID del abastecimiento */
+  id: number;
+}
+
+export type AbastecimientosFindOneData = AbastecimientoResultDto;
+
+export interface AbastecimientosFindByVehiculoParams {
+  /** ID del vehículo */
+  vehiculoId: number;
+}
+
+export type AbastecimientosFindByVehiculoData = AbastecimientoResultDto[];
+
+export interface AbastecimientosFindByTramoParams {
+  /** ID del tramo */
+  viajeTramoId: number;
+}
+
+export type AbastecimientosFindByTramoData = AbastecimientoResultDto[];
+
+export type AbastecimientosCreateData = AbastecimientoResultDto;
+
+export interface AbastecimientosUpdateParams {
+  /** ID del abastecimiento */
+  id: number;
+}
+
+export type AbastecimientosUpdateData = AbastecimientoResultDto;
+
+export interface AbastecimientosDeleteParams {
+  /** ID del abastecimiento */
+  id: number;
+}
+
+export type AbastecimientosDeleteData = AbastecimientoResultDto;
 
 export namespace App {
   /**
@@ -15807,63 +15928,6 @@ export namespace Viajes {
   /**
    * No description
    * @tags viajes
-   * @name ViajesGetRepostajesPorTramo
-   * @summary Obtener todos los repostajes de un tramo
-   * @request GET:/viaje/tramo/{viajeTramoId}/repostajes
-   * @secure
-   * @response `200` `ViajesGetRepostajesPorTramoData`
-   */
-  export namespace ViajesGetRepostajesPorTramo {
-    export type RequestParams = {
-      /** ID del tramo */
-      viajeTramoId: number;
-    };
-    export type RequestQuery = {};
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = ViajesGetRepostajesPorTramoData;
-  }
-
-  /**
-   * No description
-   * @tags viajes
-   * @name ViajesRegistrarRepostaje
-   * @summary Registrar un repostaje en un tramo
-   * @request POST:/viaje/tramo/repostaje/create
-   * @secure
-   * @response `201` `ViajesRegistrarRepostajeData`
-   */
-  export namespace ViajesRegistrarRepostaje {
-    export type RequestParams = {};
-    export type RequestQuery = {};
-    export type RequestBody = ViajeRepostajeMovimientoCreateDto;
-    export type RequestHeaders = {};
-    export type ResponseBody = ViajesRegistrarRepostajeData;
-  }
-
-  /**
-   * No description
-   * @tags viajes
-   * @name ViajesDeleteRepostaje
-   * @summary Eliminar un repostaje
-   * @request DELETE:/viaje/tramo/repostaje/delete/{id}
-   * @secure
-   * @response `200` `ViajesDeleteRepostajeData`
-   */
-  export namespace ViajesDeleteRepostaje {
-    export type RequestParams = {
-      /** ID del repostaje */
-      id: number;
-    };
-    export type RequestQuery = {};
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = ViajesDeleteRepostajeData;
-  }
-
-  /**
-   * No description
-   * @tags viajes
    * @name ViajesFindTramos
    * @summary Obtener todos los tramos de un viaje
    * @request GET:/viaje/{viajeId}/tramos
@@ -18109,6 +18173,153 @@ export namespace Descargas {
     export type RequestBody = DescargarDocumentosDto;
     export type RequestHeaders = {};
     export type ResponseBody = DescargasDescargarDocumentosZipData;
+  }
+}
+
+export namespace Abastecimientos {
+  /**
+   * No description
+   * @tags abastecimientos
+   * @name AbastecimientosFindAll
+   * @summary Obtener historial de abastecimientos con paginación y filtros
+   * @request GET:/abastecimiento/find-all
+   * @secure
+   * @response `200` `AbastecimientosFindAllData`
+   */
+  export namespace AbastecimientosFindAll {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /** @example 1 */
+      page?: number;
+      /** @example 10 */
+      limit?: number;
+      /** @example "ABC-123" */
+      search?: string;
+      /** @example 1 */
+      vehiculoId?: number;
+      /** @example 10 */
+      viajeTramoId?: number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = AbastecimientosFindAllData;
+  }
+
+  /**
+   * No description
+   * @tags abastecimientos
+   * @name AbastecimientosFindOne
+   * @summary Obtener un abastecimiento por ID
+   * @request GET:/abastecimiento/find-one/{id}
+   * @secure
+   * @response `200` `AbastecimientosFindOneData`
+   */
+  export namespace AbastecimientosFindOne {
+    export type RequestParams = {
+      /** ID del abastecimiento */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = AbastecimientosFindOneData;
+  }
+
+  /**
+   * No description
+   * @tags abastecimientos
+   * @name AbastecimientosFindByVehiculo
+   * @summary Obtener abastecimientos de un vehículo
+   * @request GET:/abastecimiento/vehiculo/{vehiculoId}
+   * @secure
+   * @response `200` `AbastecimientosFindByVehiculoData`
+   */
+  export namespace AbastecimientosFindByVehiculo {
+    export type RequestParams = {
+      /** ID del vehículo */
+      vehiculoId: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = AbastecimientosFindByVehiculoData;
+  }
+
+  /**
+   * No description
+   * @tags abastecimientos
+   * @name AbastecimientosFindByTramo
+   * @summary Obtener abastecimientos asociados a un tramo
+   * @request GET:/abastecimiento/tramo/{viajeTramoId}
+   * @secure
+   * @response `200` `AbastecimientosFindByTramoData`
+   */
+  export namespace AbastecimientosFindByTramo {
+    export type RequestParams = {
+      /** ID del tramo */
+      viajeTramoId: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = AbastecimientosFindByTramoData;
+  }
+
+  /**
+   * No description
+   * @tags abastecimientos
+   * @name AbastecimientosCreate
+   * @summary Registrar un abastecimiento de vehículo
+   * @request POST:/abastecimiento/create
+   * @secure
+   * @response `201` `AbastecimientosCreateData`
+   */
+  export namespace AbastecimientosCreate {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = AbastecimientoCreateDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = AbastecimientosCreateData;
+  }
+
+  /**
+   * No description
+   * @tags abastecimientos
+   * @name AbastecimientosUpdate
+   * @summary Actualizar un abastecimiento
+   * @request PATCH:/abastecimiento/update/{id}
+   * @secure
+   * @response `200` `AbastecimientosUpdateData`
+   */
+  export namespace AbastecimientosUpdate {
+    export type RequestParams = {
+      /** ID del abastecimiento */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = AbastecimientoUpdateDto;
+    export type RequestHeaders = {};
+    export type ResponseBody = AbastecimientosUpdateData;
+  }
+
+  /**
+   * No description
+   * @tags abastecimientos
+   * @name AbastecimientosDelete
+   * @summary Eliminar un abastecimiento
+   * @request DELETE:/abastecimiento/delete/{id}
+   * @secure
+   * @response `200` `AbastecimientosDeleteData`
+   */
+  export namespace AbastecimientosDelete {
+    export type RequestParams = {
+      /** ID del abastecimiento */
+      id: number;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = AbastecimientosDeleteData;
   }
 }
 
@@ -21567,74 +21778,6 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags viajes
-     * @name ViajesGetRepostajesPorTramo
-     * @summary Obtener todos los repostajes de un tramo
-     * @request GET:/viaje/tramo/{viajeTramoId}/repostajes
-     * @secure
-     * @response `200` `ViajesGetRepostajesPorTramoData`
-     */
-    getRepostajesPorTramo: (
-      { viajeTramoId, ...query }: ViajesGetRepostajesPorTramoParams,
-      params: RequestParams = {},
-    ) =>
-      this.http.request<ViajesGetRepostajesPorTramoData, any>({
-        path: `/viaje/tramo/${viajeTramoId}/repostajes`,
-        method: "GET",
-        secure: true,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags viajes
-     * @name ViajesRegistrarRepostaje
-     * @summary Registrar un repostaje en un tramo
-     * @request POST:/viaje/tramo/repostaje/create
-     * @secure
-     * @response `201` `ViajesRegistrarRepostajeData`
-     */
-    registrarRepostaje: (
-      data: ViajeRepostajeMovimientoCreateDto,
-      params: RequestParams = {},
-    ) =>
-      this.http.request<ViajesRegistrarRepostajeData, any>({
-        path: `/viaje/tramo/repostaje/create`,
-        method: "POST",
-        body: data,
-        secure: true,
-        type: ContentType.Json,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags viajes
-     * @name ViajesDeleteRepostaje
-     * @summary Eliminar un repostaje
-     * @request DELETE:/viaje/tramo/repostaje/delete/{id}
-     * @secure
-     * @response `200` `ViajesDeleteRepostajeData`
-     */
-    deleteRepostaje: (
-      { id, ...query }: ViajesDeleteRepostajeParams,
-      params: RequestParams = {},
-    ) =>
-      this.http.request<ViajesDeleteRepostajeData, any>({
-        path: `/viaje/tramo/repostaje/delete/${id}`,
-        method: "DELETE",
-        secure: true,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags viajes
      * @name ViajesFindTramos
      * @summary Obtener todos los tramos de un viaje
      * @request GET:/viaje/{viajeId}/tramos
@@ -23990,6 +24133,167 @@ export class Api<SecurityDataType extends unknown> {
         body: data,
         secure: true,
         type: ContentType.Json,
+        ...params,
+      }),
+  };
+  abastecimientos = {
+    /**
+     * No description
+     *
+     * @tags abastecimientos
+     * @name AbastecimientosFindAll
+     * @summary Obtener historial de abastecimientos con paginación y filtros
+     * @request GET:/abastecimiento/find-all
+     * @secure
+     * @response `200` `AbastecimientosFindAllData`
+     */
+    findAll: (
+      query: AbastecimientosFindAllParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<AbastecimientosFindAllData, any>({
+        path: `/abastecimiento/find-all`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags abastecimientos
+     * @name AbastecimientosFindOne
+     * @summary Obtener un abastecimiento por ID
+     * @request GET:/abastecimiento/find-one/{id}
+     * @secure
+     * @response `200` `AbastecimientosFindOneData`
+     */
+    findOne: (
+      { id, ...query }: AbastecimientosFindOneParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<AbastecimientosFindOneData, any>({
+        path: `/abastecimiento/find-one/${id}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags abastecimientos
+     * @name AbastecimientosFindByVehiculo
+     * @summary Obtener abastecimientos de un vehículo
+     * @request GET:/abastecimiento/vehiculo/{vehiculoId}
+     * @secure
+     * @response `200` `AbastecimientosFindByVehiculoData`
+     */
+    findByVehiculo: (
+      { vehiculoId, ...query }: AbastecimientosFindByVehiculoParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<AbastecimientosFindByVehiculoData, any>({
+        path: `/abastecimiento/vehiculo/${vehiculoId}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags abastecimientos
+     * @name AbastecimientosFindByTramo
+     * @summary Obtener abastecimientos asociados a un tramo
+     * @request GET:/abastecimiento/tramo/{viajeTramoId}
+     * @secure
+     * @response `200` `AbastecimientosFindByTramoData`
+     */
+    findByTramo: (
+      { viajeTramoId, ...query }: AbastecimientosFindByTramoParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<AbastecimientosFindByTramoData, any>({
+        path: `/abastecimiento/tramo/${viajeTramoId}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags abastecimientos
+     * @name AbastecimientosCreate
+     * @summary Registrar un abastecimiento de vehículo
+     * @request POST:/abastecimiento/create
+     * @secure
+     * @response `201` `AbastecimientosCreateData`
+     */
+    create: (
+      data: AbastecimientoCreateDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<AbastecimientosCreateData, any>({
+        path: `/abastecimiento/create`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags abastecimientos
+     * @name AbastecimientosUpdate
+     * @summary Actualizar un abastecimiento
+     * @request PATCH:/abastecimiento/update/{id}
+     * @secure
+     * @response `200` `AbastecimientosUpdateData`
+     */
+    update: (
+      { id, ...query }: AbastecimientosUpdateParams,
+      data: AbastecimientoUpdateDto,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<AbastecimientosUpdateData, any>({
+        path: `/abastecimiento/update/${id}`,
+        method: "PATCH",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags abastecimientos
+     * @name AbastecimientosDelete
+     * @summary Eliminar un abastecimiento
+     * @request DELETE:/abastecimiento/delete/{id}
+     * @secure
+     * @response `200` `AbastecimientosDeleteData`
+     */
+    delete: (
+      { id, ...query }: AbastecimientosDeleteParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<AbastecimientosDeleteData, any>({
+        path: `/abastecimiento/delete/${id}`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
         ...params,
       }),
   };
