@@ -26,6 +26,7 @@ export class AbastecimientoForm {
   editMode = input(false);
 
   onSubmitForm = output<AbastecimientoFormSubmitData>();
+  onValidationError = output<string>();
 
   selectedVehiculo = signal<number | VehiculoOption | null>(null);
   form = signal<AbastecimientoFormState>({
@@ -64,15 +65,33 @@ export class AbastecimientoForm {
     this.form.update((current) => ({ ...current, [key]: value }));
   }
 
-  onVehiculoChange(vehiculo: VehiculoOption | null) {
+  onVehiculoChange(vehiculo: number | VehiculoOption | null) {
     this.selectedVehiculo.set(vehiculo);
-    this.updateForm('vehiculoId', vehiculo?.id || null);
+    const vehiculoId = typeof vehiculo === 'number' ? vehiculo : vehiculo?.id || null;
+    const combustible = typeof vehiculo === 'number' ? '' : this.normalizeCombustible(vehiculo?.combustible || '');
+
+    this.form.update((current) => ({
+      ...current,
+      vehiculoId,
+      combustible,
+    }));
   }
 
   submitForm() {
     const form = this.form();
     const galones = Number(form.galonesEstablecidos);
-    if (!form.vehiculoId || !form.combustible || Number.isNaN(galones) || galones <= 0) return;
+    if (!form.vehiculoId) {
+      this.onValidationError.emit('Selecciona un vehículo');
+      return;
+    }
+    if (!form.combustible) {
+      this.onValidationError.emit('Selecciona el tipo de combustible');
+      return;
+    }
+    if (Number.isNaN(galones) || galones <= 0) {
+      this.onValidationError.emit('Ingresa una cantidad de galones mayor a 0');
+      return;
+    }
 
     this.onSubmitForm.emit({
       vehiculoId: form.vehiculoId,

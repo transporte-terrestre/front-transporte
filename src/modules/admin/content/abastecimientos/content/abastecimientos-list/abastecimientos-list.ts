@@ -138,6 +138,10 @@ export class AbastecimientosList implements OnInit, OnDestroy {
     this.abastecimientoFormComponent()?.submitForm();
   }
 
+  handleValidationError(message: string) {
+    this.toastService.warning(message);
+  }
+
   viewDetails(id: number) {
     this.selectedAbastecimientoId.set(id);
     this.showDetailModal.set(true);
@@ -160,7 +164,8 @@ export class AbastecimientosList implements OnInit, OnDestroy {
         this.toastService.success('Abastecimiento registrado');
       }
 
-      this.closeForm();
+      this.showForm.set(false);
+      this.editing.set(null);
       await this.loadAbastecimientos();
     } catch (error) {
       console.error('Error guardando abastecimiento:', error);

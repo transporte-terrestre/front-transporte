@@ -28,6 +28,7 @@
       <app-abastecimiento-form
         [abastecimiento]="abastecimiento()"
         [editMode]="true"
+        (onValidationError)="handleValidationError($event)"
         (onSubmitForm)="handleFormSubmit($event)"
       />
 

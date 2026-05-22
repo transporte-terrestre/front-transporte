@@ -66,6 +66,10 @@ export class AbastecimientosEdit implements OnInit {
     }
   }
 
+  handleValidationError(message: string) {
+    this.toastService.warning(message);
+  }
+
   onCancel() {
     this.router.navigate([buildPath(PATH.admin.abastecimientos)]);
   }
