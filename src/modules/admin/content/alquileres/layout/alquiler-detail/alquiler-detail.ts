@@ -1,6 +1,10 @@
 import { Component, input, inject, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ApiResponse } from 'api/backend.api';
+import {
+  AlquilerDocumentoResultDto,
+  ApiResponse,
+  DocumentosAgrupadosAlquilerDto,
+} from 'api/backend.api';
 import { AlquilerService } from '@service/admin/alquiler.service';
 import { DescargasService } from '@service/admin/descargas.service';
 import { ToastService } from '@service/toast.service';
@@ -24,6 +28,19 @@ export class AlquilerDetail {
   loading = signal(true);
   error = signal<string | null>(null);
   isDownloadingDocs = signal(false);
+
+  documentTypes: {
+    value: keyof DocumentosAgrupadosAlquilerDto;
+    label: string;
+  }[] = [
+    { value: 'contrato', label: 'Contrato' },
+    { value: 'documentacion', label: 'Documentación' },
+    { value: 'guia_remision', label: 'Guía de Remisión' },
+    { value: 'acta_entrega', label: 'Acta de Entrega' },
+    { value: 'acta_devolucion', label: 'Acta de Devolución' },
+    { value: 'comprobante_pago', label: 'Comprobante de Pago' },
+    { value: 'otros', label: 'Otros' },
+  ];
 
   constructor() {
     effect(() => {
@@ -64,6 +81,23 @@ export class AlquilerDetail {
       month: '2-digit',
       year: 'numeric'
     });
+  }
+
+  getDocumentSections(): {
+    tipo: keyof DocumentosAgrupadosAlquilerDto;
+    label: string;
+    documentos: AlquilerDocumentoResultDto[];
+  }[] {
+    const documentos = this.alquiler()?.documentos;
+    if (!documentos) return [];
+
+    return this.documentTypes
+      .map((docType) => ({
+        tipo: docType.value,
+        label: docType.label,
+        documentos: documentos[docType.value] || [],
+      }))
+      .filter((section) => section.documentos.length > 0);
   }
 
   getCleanClientName(): string {

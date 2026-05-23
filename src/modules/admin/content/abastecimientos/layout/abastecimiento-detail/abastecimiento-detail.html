@@ -1,0 +1,66 @@
+@if (loading()) {
+  <div class="h-56 flex flex-col items-center justify-center gap-4">
+    <i class="fas fa-spinner fa-spin text-secondary text-4xl"></i>
+    <span class="text-text/60 font-inter-medium text-sm">Cargando abastecimiento...</span>
+  </div>
+} @else if (error()) {
+  <div class="flex flex-col items-center justify-center p-8 text-center">
+    <i class="fas fa-exclamation-circle text-danger text-4xl mb-3"></i>
+    <p class="text-text font-inter-medium">{{ error() }}</p>
+  </div>
+} @else if (abastecimiento()) {
+  <div class="p-4 space-y-4">
+    <div class="flex items-center gap-4">
+      @if (getVehiculoImage()) {
+        <img
+          [src]="getVehiculoImage()!"
+          [alt]="getVehiculoLabel()"
+          class="w-20 h-20 rounded-xl object-cover border border-text/10"
+        />
+      } @else {
+        <div class="w-20 h-20 rounded-xl bg-secondary/10 flex items-center justify-center text-secondary text-2xl">
+          <i class="fas fa-car"></i>
+        </div>
+      }
+      <div>
+        <p class="text-[10px] font-inter-bold text-text/40 uppercase tracking-wider">Vehículo</p>
+        <h3 class="text-lg font-inter-black text-text uppercase">{{ getVehiculoLabel() }}</h3>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 border-t border-text/10 pt-4">
+      <div>
+        <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+          <i class="fas fa-gas-pump text-secondary"></i> Combustible
+        </label>
+        <div class="w-full px-3 py-2 text-sm bg-text/5 rounded-lg text-text font-inter-bold uppercase">
+          {{ abastecimiento()?.combustible }}
+        </div>
+      </div>
+      <div>
+        <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+          <i class="fas fa-tint text-secondary"></i> Galones
+        </label>
+        <div class="w-full px-3 py-2 text-sm bg-text/5 rounded-lg text-text font-inter-bold">
+          {{ abastecimiento()?.galonesEstablecidos | number:'1.2-2' }} Gal.
+        </div>
+      </div>
+      <div>
+        <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+          <i class="fas fa-calendar text-secondary"></i> Fecha Registro
+        </label>
+        <div class="w-full px-3 py-2 text-sm bg-text/5 rounded-lg text-text font-inter-medium">
+          {{ abastecimiento()?.creadoEn | date:'dd/MM/yyyy HH:mm' }}
+        </div>
+      </div>
+      <div>
+        <label class="text-xs font-inter-semibold text-text mb-1.5 flex items-center gap-2">
+          <i class="fas fa-map-marker-alt text-secondary"></i> Tramo
+        </label>
+        <div class="w-full px-3 py-2 text-sm bg-text/5 rounded-lg text-text font-inter-medium">
+          {{ abastecimiento()?.tramoNombreLugar || 'Sin tramo asociado' }}
+        </div>
+      </div>
+    </div>
+  </div>
+}

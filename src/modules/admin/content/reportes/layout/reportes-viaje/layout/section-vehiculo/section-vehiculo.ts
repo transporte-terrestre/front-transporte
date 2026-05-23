@@ -59,7 +59,7 @@ export class SectionVehiculo implements OnInit {
   private toastService = inject(ToastService);
 
   // Input from parent
-  
+
   // Date filters
   fechaInicio = signal<string>('');
   fechaFin = signal<string>('');
@@ -93,6 +93,7 @@ export class SectionVehiculo implements OnInit {
   columnDefinitions = signal<ColumnConfig[]>(COLUMN_DEFINITIONS);
   visibleColumns = signal<Set<string>>(new Set(COLUMN_DEFINITIONS.filter((c) => c.defaultVisible).map((c) => c.key)));
   showColumnSelector = signal(false);
+  showSignatureModal = signal(false);
 
   // Column groups for the selector UI
   columnGroups = computed(() => {
@@ -480,9 +481,22 @@ export class SectionVehiculo implements OnInit {
       totalKilometrosFinales: this.getTotalKilometrosFinales(),
       totalKilometrosEstimados: this.getTotalKilometrosEstimados(),
       totalDiferencia: this.getTotalDiferencia(),
+      totalHorasTotales: this.getTotalHorasTotales(),
+      totalHorasExcedidas: this.getTotalHorasExcedidas(),
+      selectedSignatures: [],
     });
 
     this.toastService.success('PDF generado exitosamente');
+  }
+
+  descargarExcel() {
+    if (this.filteredViajes().length === 0) {
+      this.toastService.warning('No hay datos para generar el Excel');
+      return;
+    }
+
+    this.reportesService.generateReporteViajesExcel(this.filteredViajes());
+    this.toastService.success('Excel generado exitosamente');
   }
 
   formatDecimalHours(hours: number | string | null | undefined): string {

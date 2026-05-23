@@ -2,6 +2,14 @@ import { ApiResponse } from 'api/backend.api';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
+export interface SignatureSelection {
+  userId: number;
+  nombreCompleto: string;
+  firmaUrl: string;
+  rolEnDocumento: string;
+  empresa: string;
+}
+
 export interface ReporteMantenimientoPdfData {
   tipoReporte: 'mantenimientos-vehiculo' | 'mantenimientos-taller';
   entidadNombre: string;
@@ -10,9 +18,10 @@ export interface ReporteMantenimientoPdfData {
   mantenimientosVehiculo?: ApiResponse<'reportes', 'getMantenimientosDetalladosPorVehiculo'>;
   mantenimientosTaller?: ApiResponse<'reportes', 'getMantenimientosDetalladosPorTaller'>;
   totalCosto: number;
+  selectedSignatures?: SignatureSelection[];
 }
 
-export const generateReporteMantenimientoPdf = (data: ReporteMantenimientoPdfData) => {
+export const generateReporteMantenimientoPdf = async (data: ReporteMantenimientoPdfData) => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.width;
   const margin = 14;
@@ -28,16 +37,43 @@ export const generateReporteMantenimientoPdf = (data: ReporteMantenimientoPdfDat
 
   // Get data based on report type
   const isVehiculo = data.tipoReporte === 'mantenimientos-vehiculo';
-  const mantenimientos = isVehiculo
+  const rawMantenimientos = isVehiculo
     ? data.mantenimientosVehiculo || []
     : data.mantenimientosTaller || [];
 
-  // Calculate totals
-  const totalCosto =
-    data.totalCosto || mantenimientos.reduce((acc, m) => acc + parseFloat(m.costoTotal || '0'), 0);
+  // Sort: most recent first
+  const mantenimientos = [...rawMantenimientos].sort((a: any, b: any) => {
+    const dateA = a.fechaIngreso ? new Date(a.fechaIngreso).getTime() : 0;
+    const dateB = b.fechaIngreso ? new Date(b.fechaIngreso).getTime() : 0;
+    return dateB - dateA;
+  });
 
-  const totalPreventivos = mantenimientos.filter((m) => m.tipo === 'preventivo').length;
-  const totalCorrectivos = mantenimientos.filter((m) => m.tipo === 'correctivo').length;
+  // Calculate totals
+  const totalPreventivos = mantenimientos.filter((m: any) => m.tipo === 'preventivo').length;
+  const totalCorrectivos = mantenimientos.filter((m: any) => m.tipo === 'correctivo').length;
+  const totalCosto = mantenimientos.reduce(
+    (acc: number, m: any) => acc + (parseFloat(m.costoTotal) || 0),
+    0,
+  );
+
+  const drawCenteredText = (text: string, x: number, currentY: number, width: number) => {
+    const textWidth = doc.getTextWidth(text);
+    doc.text(text, x + (width - textWidth) / 2, currentY);
+  };
+
+  const getBase64Image = async (url: string): Promise<string | null> => {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(blob);
+      });
+    } catch (e) {
+      return null;
+    }
+  };
 
   // Helper function
   const drawField = (label: string, value: string, x: number, currentY: number) => {
@@ -167,7 +203,7 @@ export const generateReporteMantenimientoPdf = (data: ReporteMantenimientoPdfDat
 
   if (isVehiculo) {
     headers = ['Orden', 'Tipo', 'Estado', 'Taller', 'Km', 'Costo', 'Fecha'];
-    tableData = (data.mantenimientosVehiculo || []).map((m) => {
+    tableData = mantenimientos.map((m: any) => {
       const estadoLabels: Record<string, string> = {
         pendiente: 'Pendiente',
         en_proceso: 'En Proceso',
@@ -182,7 +218,7 @@ export const generateReporteMantenimientoPdf = (data: ReporteMantenimientoPdfDat
         m.codigoOrden || `#${m.id}`,
         m.tipo.charAt(0).toUpperCase() + m.tipo.slice(1),
         estadoLabels[m.estado] || m.estado,
-        m.tallerNombre,
+        m.tallerNombre || '---',
         m.kilometraje.toLocaleString(),
         `S/ ${parseFloat(m.costoTotal).toFixed(2)}`,
         fechaIngreso,
@@ -190,7 +226,7 @@ export const generateReporteMantenimientoPdf = (data: ReporteMantenimientoPdfDat
     });
   } else {
     headers = ['Orden', 'Vehiculo', 'Tipo', 'Estado', 'Km', 'Costo', 'Fecha'];
-    tableData = (data.mantenimientosTaller || []).map((m) => {
+    tableData = mantenimientos.map((m: any) => {
       const estadoLabels: Record<string, string> = {
         pendiente: 'Pendiente',
         en_proceso: 'En Proceso',
@@ -285,18 +321,47 @@ export const generateReporteMantenimientoPdf = (data: ReporteMantenimientoPdfDat
     },
   });
 
-  y = (doc as any).lastAutoTable.finalY + 10;
+  y = (doc as any).lastAutoTable.finalY + 20;
+
+  // Check if we need a new page for signatures
+  if (y > doc.internal.pageSize.height - 40) {
+    doc.addPage();
+    y = 30;
+  }
+
+  // === Signatures ===
+  if (data.selectedSignatures && data.selectedSignatures.length > 0) {
+    const sigY = y + 20;
+    const sigWidth = 60;
+    const sigSpacing = (pageWidth - margin * 2 - sigWidth * data.selectedSignatures.length) / (data.selectedSignatures.length + 1);
+
+    for (let i = 0; i < data.selectedSignatures.length; i++) {
+      const sig = data.selectedSignatures[i];
+      const sigX = margin + sigSpacing + i * (sigWidth + sigSpacing);
+
+      if (sig.firmaUrl) {
+        const imgW = 40;
+        const imgH = 18;
+        const base64 = await getBase64Image(sig.firmaUrl);
+        if (base64) {
+          const format = sig.firmaUrl.toLowerCase().includes('.jpg') || sig.firmaUrl.toLowerCase().includes('.jpeg') ? 'JPEG' : 'PNG';
+          doc.addImage(base64, format, sigX + (sigWidth - imgW) / 2, sigY - 18, imgW, imgH);
+        }
+      }
+
+      doc.setDrawColor(0);
+      doc.line(sigX, sigY, sigX + sigWidth, sigY);
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'bold');
+      drawCenteredText(sig.nombreCompleto, sigX, sigY + 5, sigWidth);
+      doc.setFont('helvetica', 'normal');
+      drawCenteredText(sig.empresa, sigX, sigY + 8, sigWidth);
+    }
+  }
 
   // === FOOTER ===
-  doc.setDrawColor(220);
-  doc.line(margin, y, pageWidth - margin, y);
-  y += 6;
-
-  // Footer text
-  doc.setTextColor(100);
-  doc.setFontSize(8);
-  doc.setFont('helvetica', 'normal');
-  doc.text('TRANSPORTES LINEA S.A. - Sistema de Gestion de Flota', margin, y + 8);
+  // doc.setDrawColor(220);
+  // doc.line(margin, y, pageWidth - margin, y);
 
   // Save
   const filename = `Reporte_Mantenimientos_${data.tipoReporte.split('-')[1]}_${

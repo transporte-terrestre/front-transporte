@@ -1,10 +1,14 @@
 import { Component, input, inject, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ApiResponse } from 'api/backend.api';
+import {
+  DocumentosAgrupadosVehiculoDto,
+  VehiculoDocumentoResultDto,
+  VehiculoResultDto,
+} from 'api/backend.api';
 import { VehiculoService } from '@service/admin/vehiculo.service';
 import { VehiculoComentariosForm } from '../vehiculo-form/layout/vehiculo-comentarios-form/vehiculo-comentarios-form';
 
-type Vehiculo = ApiResponse<'vehiculos', 'findOne'> & { documentos: any[] };
+type VehiculoDocumentType = keyof DocumentosAgrupadosVehiculoDto;
 
 @Component({
   selector: 'app-vehiculo-detail',
@@ -17,7 +21,7 @@ export class VehiculoDetail {
   vehiculoId = input<number>();
   private vehiculoService = inject(VehiculoService);
 
-  vehiculo = signal<Vehiculo | null>(null);
+  vehiculo = signal<VehiculoResultDto | null>(null);
   loading = signal(true);
   error = signal<string | null>(null);
 
@@ -35,7 +39,7 @@ export class VehiculoDetail {
     this.error.set(null);
     try {
       const data = await this.vehiculoService.findOne(id);
-      this.vehiculo.set(data as any);
+      this.vehiculo.set(data);
     } catch (err) {
       console.error('Error loading vehiculo:', err);
       this.error.set('Error al cargar el vehículo');
@@ -51,20 +55,25 @@ export class VehiculoDetail {
     }
   }
 
-  getDocumentosByType(type: string) {
+  getDocumentosByType(type: VehiculoDocumentType): VehiculoDocumentoResultDto[] {
     const v = this.vehiculo();
     if (!v || !v.documentos) return [];
 
-    // Si es array (flat), filtramos
-    if (Array.isArray(v.documentos)) {
-      return v.documentos.filter((d: any) => d.tipo === type);
-    }
+    const documentos = v.documentos[type] || [];
 
-    // Si es objeto (agrupado por tipo), accedemos por key
-    return (v.documentos as any)[type] || [];
+    const latestDocument = documentos.reduce<VehiculoDocumentoResultDto | null>((latest, current) => {
+      if (!latest) return current;
+
+      const latestDate = new Date(latest.creadoEn ?? 0).getTime();
+      const currentDate = new Date(current.creadoEn ?? 0).getTime();
+
+      return currentDate > latestDate ? current : latest;
+    }, null);
+
+    return latestDocument ? [latestDocument] : [];
   }
 
-  documentTypes = [
+  documentTypes: { value: VehiculoDocumentType; label: string }[] = [
     { value: 'tarjeta_propiedad', label: 'Tarjeta de Propiedad' },
     { value: 'tarjeta_unica_circulacion', label: 'Tarjeta Única de Circulación' },
     { value: 'citv', label: 'Revisión Técnica (CITV)' },

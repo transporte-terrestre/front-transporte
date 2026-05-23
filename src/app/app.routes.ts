@@ -97,6 +97,30 @@ export const routes: Routes = [
         ],
       },
       {
+        path: getPath(PATH.admin.abastecimientos),
+        loadComponent: () =>
+          import('@module/admin/content/abastecimientos/abastecimientos').then(
+            (m) => m.Abastecimientos,
+          ),
+        children: [
+          {
+            path: getPath(PATH.admin.abastecimientos.list),
+            loadComponent: () =>
+              import('@module/admin/content/abastecimientos/content/abastecimientos-list/abastecimientos-list').then(
+                (m) => m.AbastecimientosList,
+              ),
+          },
+          {
+            path: getPath(PATH.admin.abastecimientos.edit),
+            loadComponent: () =>
+              import('@module/admin/content/abastecimientos/content/abastecimientos-edit/abastecimientos-edit').then(
+                (m) => m.AbastecimientosEdit,
+              ),
+          },
+          { path: '**', redirectTo: getPath(PATH.admin.abastecimientos.list), pathMatch: 'full' },
+        ],
+      },
+      {
         path: getPath(PATH.admin.rutas),
         loadComponent: () => import('@module/admin/content/rutas/rutas').then((m) => m.Rutas),
         children: [

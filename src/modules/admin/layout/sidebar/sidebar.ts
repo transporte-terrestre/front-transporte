@@ -78,6 +78,11 @@ export class Sidebar {
       ],
     },
     {
+      label: 'Abastecimientos',
+      path: buildPath(PATH.admin.abastecimientos),
+      icon: 'fas fa-gas-pump',
+    },
+    {
       label: 'Alquileres',
       path: buildPath(PATH.admin.alquileres),
       icon: 'fas fa-key',

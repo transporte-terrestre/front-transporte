@@ -66,6 +66,11 @@ export const PATH = {
         _path: 'lineas',
       },
     },
+    abastecimientos: {
+      _path: 'abastecimientos',
+      list: { _path: 'list' },
+      edit: { _path: 'edit/:id' },
+    },
     mantenimientos: {
       _path: 'mantenimientos',
       list: { _path: 'list' },
@@ -148,6 +153,11 @@ export const ROUTE_CONFIG = {
     [buildPath(PATH.admin.vehiculos.list)]: ['admin', 'empleado'],
     [buildPath(PATH.admin.vehiculos.edit)]: ['admin'],
     [buildPath(PATH.admin.vehiculos.lineas)]: ['admin'],
+
+    // Abastecimientos
+    [buildPath(PATH.admin.abastecimientos)]: ['admin', 'empleado'],
+    [buildPath(PATH.admin.abastecimientos.list)]: ['admin', 'empleado'],
+    [buildPath(PATH.admin.abastecimientos.edit)]: ['admin'],
 
     // Mantenimientos
     [buildPath(PATH.admin.mantenimientos)]: ['admin', 'empleado'],

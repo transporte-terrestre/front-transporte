@@ -1,7 +1,7 @@
 import { Component, inject, signal, OnInit, output, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { UsuarioService } from '@service/admin/usuario.service';
-import { ApiResponse, UsuarioResultDto } from 'api/backend.api';
+import { ApiResponse, UsuarioResultDto } from '@api/backend.api';
 import { FormsModule } from '@angular/forms';
 import { ToastService } from '@service/toast.service';
 
@@ -10,6 +10,7 @@ export interface SignatureSelection {
   nombreCompleto: string;
   firmaUrl: string;
   rolEnDocumento: 'planner' | 'supervisor';
+  empresa: string;
 }
 
 @Component({
@@ -20,6 +21,7 @@ export interface SignatureSelection {
 })
 export class UserSignatureSelectModal implements OnInit {
   variant = input<'modal' | 'inline'>('modal');
+  show = input<boolean>(false);
   private usuarioService = inject(UsuarioService);
   private toastService = inject(ToastService);
 
@@ -113,7 +115,8 @@ export class UserSignatureSelectModal implements OnInit {
       userId: user.id,
       nombreCompleto: `${user.nombres} ${user.apellidos}`.toUpperCase(),
       firmaUrl: firma.url,
-      rolEnDocumento: this.selectingFor()
+      rolEnDocumento: this.selectingFor(),
+      empresa: user.empresa || 'TRANSPORTES LINEA S.A.'
     };
 
     if (this.selectingFor() === 'planner') {

@@ -112,18 +112,6 @@ export class ViajeService {
   async deleteComentario(id: ApiParam<'viajes', 'deleteComentario', 'id'>) {
     return await this.api.viajes.deleteComentario({ id }).then((response) => response.data);
   }
-  // Repostajes
-  async getRepostajesPorTramo(viajeTramoId: ApiParam<'viajes', 'getRepostajesPorTramo', 'viajeTramoId'>) {
-    return await this.api.viajes.getRepostajesPorTramo({ viajeTramoId }).then((response) => response.data);
-  }
-
-  async registrarRepostaje(data: ApiBody<'viajes', 'registrarRepostaje'>) {
-    return await this.api.viajes.registrarRepostaje(data).then((response) => response.data);
-  }
-
-  async deleteRepostaje(id: ApiParam<'viajes', 'deleteRepostaje', 'id'>) {
-    return await this.api.viajes.deleteRepostaje({ id }).then((response) => response.data);
-  }
   // Tramos
   async findTramos(viajeId: ApiParam<'viajes', 'findTramos', 'viajeId'>) {
     return await this.api.viajes.findTramos({ viajeId }).then((response) => response.data);

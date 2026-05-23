@@ -125,10 +125,12 @@
             <tr>
               <th class="px-6 py-4 text-[11px] font-inter-bold text-text/50 uppercase tracking-wider">Vehículo</th>
               <th class="px-6 py-4 text-[11px] font-inter-bold text-text/50 uppercase tracking-wider">Marca / Modelo</th>
+              <th class="px-6 py-4 text-[11px] font-inter-bold text-text/50 uppercase tracking-wider text-right">KM Actual</th>
+              <th class="px-6 py-4 text-[11px] font-inter-bold text-text/50 uppercase tracking-wider">Estado / Cliente</th>
               <th class="px-6 py-4 text-[11px] font-inter-bold text-text/50 uppercase tracking-wider text-center">Viajes</th>
               <th class="px-6 py-4 text-[11px] font-inter-bold text-text/50 uppercase tracking-wider text-right">Recorrido (km)</th>
               <th class="px-6 py-4 text-[11px] font-inter-bold text-text/50 uppercase tracking-wider text-right">Combustible (gal)</th>
-              <th class="px-6 py-4 text-[11px] font-inter-bold text-text/50 uppercase tracking-wider text-right">Rendimiento (km/gal)</th>
+              <th class="px-6 py-4 text-[11px] font-inter-bold text-text/50 uppercase tracking-wider text-right">Rendimiento</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-text/5">
@@ -148,6 +150,29 @@
                     <span class="text-[10px] text-text/40">{{ item.modelo }}</span>
                   </div>
                 </td>
+                <td class="px-6 py-4 text-right">
+                  <span class="text-sm font-inter-bold text-text/70">{{ item.kilometrajeActual | number:'1.0-0' }}</span>
+                </td>
+                <td class="px-6 py-4">
+                  <div class="flex flex-col gap-0.5">
+                    <span class="text-[10px] font-inter-bold uppercase px-1.5 py-0.5 rounded-md w-fit" 
+                      [ngClass]="{
+                        'bg-success/10 text-success': item.estado === 'disponible',
+                        'bg-info/10 text-info': item.estado === 'circulacion',
+                        'bg-warning/10 text-warning': item.estado === 'taller',
+                        'bg-danger/10 text-danger': item.estado === 'alquilado'
+                      }">
+                      {{ getEstadoLabel(item.estado) }}
+                    </span>
+                    @if (item.clienteActual) {
+                      <span class="text-[10px] font-inter-medium text-text/60 truncate max-w-[150px]" [title]="item.clienteActual">
+                        {{ item.clienteActual }}
+                      </span>
+                    } @else if (item.estado === 'disponible') {
+                      <span class="text-[10px] font-inter-medium text-success/60 italic">Listo para servicio</span>
+                    }
+                  </div>
+                </td>
                 <td class="px-6 py-4 text-center">
                   <span class="px-2.5 py-1 rounded-full bg-text/5 text-xs font-inter-bold text-text/60">
                     {{ item.cantidadViajes }}
@@ -163,7 +188,7 @@
                   @if (item.totalGalones > 0) {
                     <div class="flex flex-col items-end">
                       <span class="text-sm font-inter-bold text-success">{{ (item.totalKilometraje / item.totalGalones) | number:'1.2-2' }}</span>
-                      <span class="text-[9px] text-text/30 font-inter-medium">KM/GAL</span>
+                      <span class="text-[9px] text-text/30 font-inter-medium uppercase">km/gal</span>
                     </div>
                   } @else {
                     <span class="text-xs text-text/20">—</span>
@@ -177,9 +202,25 @@
 
       <!-- Footer Actions -->
       <div class="p-4 bg-text/2 border-t border-text/5 flex items-center justify-end gap-3">
-        <p class="text-[10px] text-text/30 font-inter-medium mr-auto pl-2 truncate">
-          * Los datos de combustible corresponden a los registros en viaje-repostaje-movimiento.
+        <p class="text-[10px] text-text/30 font-inter-medium mr-auto pl-2 truncate uppercase">
+          * VAT-016: Resumen consolidado de actividad y disponibilidad de flota
         </p>
+        <button
+          (click)="descargarExcel()"
+          class="flex items-center gap-1.5 px-3 py-1.5 bg-success/10 text-success rounded-lg text-xs font-inter-bold hover:bg-success/20 transition-all border border-success/20"
+          title="Descargar Excel"
+        >
+          <i class="fas fa-file-excel text-xs"></i>
+          <span>EXCEL</span>
+        </button>
+        <button
+          (click)="descargarPdf()"
+          class="flex items-center gap-1.5 px-3 py-1.5 bg-danger/10 text-danger rounded-lg text-xs font-inter-bold hover:bg-danger/20 transition-all border border-danger/20"
+          title="Descargar PDF"
+        >
+          <i class="fas fa-file-pdf text-xs"></i>
+          <span>PDF</span>
+        </button>
       </div>
     }
   </div>

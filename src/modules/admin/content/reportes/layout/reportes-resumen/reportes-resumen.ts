@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ReportesService } from '@service/admin/reportes.service';
 import { ToastService } from '@service/toast.service';
-import { ApiResponse, ApiQuery } from 'api/backend.api';
+import { ApiResponse, ApiQuery, ResumenVehiculoDto } from 'api/backend.api';
 
 @Component({
   selector: 'app-reportes-resumen',
@@ -24,7 +24,8 @@ export class ReportesResumen implements OnInit {
 
   // Results
   loading = signal(false);
-  resumen = signal<ApiResponse<'reportes', 'getResumenVehiculos'>>([]);
+  resumen = signal<ResumenVehiculoDto[]>([]);
+
 
   ngOnInit() {
     this.setMonthRange(this.mesSeleccionado());
@@ -98,4 +99,38 @@ export class ReportesResumen implements OnInit {
   getTotalViajes(): number {
     return this.resumen().reduce((total, item) => total + (item.cantidadViajes || 0), 0);
   }
+
+  descargarPdf() {
+    if (this.resumen().length === 0) return;
+    this.reportesService.generateReporteResumenFlotaPdf({
+      mes: this.mesSeleccionado(),
+      fechaInicio: this.fechaInicio(),
+      fechaFin: this.fechaFin(),
+      resumen: this.resumen(),
+      totalKilometraje: this.getTotalKilometraje(),
+      totalGalones: this.getTotalGalones(),
+      totalViajes: this.getTotalViajes()
+    });
+  }
+
+  descargarExcel() {
+    if (this.resumen().length === 0) return;
+    this.reportesService.generateReporteResumenFlotaExcel(
+      this.resumen(),
+      this.fechaInicio(),
+      this.fechaFin()
+    );
+  }
+
+  getEstadoLabel(estado: string): string {
+    const labels: Record<string, string> = {
+      disponible: 'Disponible',
+      circulacion: 'Circulación',
+      taller: 'Taller',
+      retirado: 'Retirado',
+      alquilado: 'Alquilado'
+    };
+    return labels[estado] || estado;
+  }
 }
+

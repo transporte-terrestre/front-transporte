@@ -2,7 +2,7 @@ import { Component, inject, output, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UsuarioService } from '@service/admin/usuario.service';
-import { UsuarioResultDto } from 'api/backend.api';
+import { UsuarioResultDto } from '@api/backend.api';
 import { SignatureSelection } from '@template/manifiesto-pasajeros.template';
 
 @Component({
@@ -46,7 +46,7 @@ export class ViajePasajerosSignature implements OnInit {
   filteredUsuarios() {
     const query = this.searchQuery().toLowerCase();
     if (!query) return this.usuarios();
-    return this.usuarios().filter(u => 
+    return this.usuarios().filter(u =>
       `${u.nombres} ${u.apellidos}`.toLowerCase().includes(query) ||
       u.roles?.some((r: any) => (typeof r === 'string' ? r : r.name).toLowerCase().includes(query))
     );
@@ -77,7 +77,8 @@ export class ViajePasajerosSignature implements OnInit {
       userId: u.id,
       nombreCompleto: `${u.nombres} ${u.apellidos}`.trim().toUpperCase(),
       firmaUrl: firma?.url || '',
-      rolEnDocumento: (typeof u.roles?.[0] === 'string' ? u.roles[0] : (u.roles?.[0] as any)?.name || 'USUARIO').toUpperCase()
+      rolEnDocumento: (typeof u.roles?.[0] === 'string' ? u.roles[0] : (u.roles?.[0] as any)?.name || 'USUARIO').toUpperCase(),
+      empresa: u.empresa || ''
     });
   }
 

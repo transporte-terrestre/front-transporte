@@ -657,15 +657,26 @@
             </span>
           </div>
         </div>
-        <button
-          (click)="descargarPdf()"
-          class="flex items-center gap-1.5 px-3 py-1.5 bg-danger/10 text-danger rounded-lg text-xs font-inter-bold hover:bg-danger/20 transition-all border border-danger/20"
-          title="Descargar PDF"
-        >
-          <i class="fas fa-file-pdf text-xs"></i>
-          <span>Descargar PDF</span>
-        </button>
+        <div class="flex items-center gap-2">
+          <button
+            (click)="descargarExcel()"
+            class="flex items-center gap-1.5 px-3 py-1.5 bg-success/10 text-success rounded-lg text-xs font-inter-bold hover:bg-success/20 transition-all border border-success/20"
+            title="Descargar Excel"
+          >
+            <i class="fas fa-file-excel text-xs"></i>
+            <span>Descargar Excel</span>
+          </button>
+          <button
+            (click)="descargarPdf()"
+            class="flex items-center gap-1.5 px-3 py-1.5 bg-danger/10 text-danger rounded-lg text-xs font-inter-bold hover:bg-danger/20 transition-all border border-danger/20"
+            title="Descargar PDF"
+          >
+            <i class="fas fa-file-pdf text-xs"></i>
+            <span>Descargar PDF</span>
+          </button>
+        </div>
       </div>
-    }
-  </div>
+  }
 </div>
+
+

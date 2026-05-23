@@ -7,6 +7,7 @@ export interface SignatureSelection {
   nombreCompleto: string;
   firmaUrl: string;
   rolEnDocumento: 'planner' | 'supervisor';
+  empresa: string;
 }
 
 export const generateOrdenServicioPdf = async (
@@ -191,39 +192,41 @@ export const generateOrdenServicioPdf = async (
   const supervisor = selectedSignatures?.find((s) => s.rolEnDocumento === 'supervisor');
 
   // Left Signature (Planner)
-  if (planner?.firmaUrl) {
-    const imgW = 40;
-    const imgH = 18;
-    const base64 = await getBase64Image(planner.firmaUrl);
-    if (base64) {
-      const format = planner.firmaUrl.toLowerCase().includes('.jpg') || planner.firmaUrl.toLowerCase().includes('.jpeg') ? 'JPEG' : 'PNG';
-      doc.addImage(base64, format, margin + (sigWidth - imgW) / 2, sigY - 18, imgW, imgH);
+  if (planner) {
+    if (planner.firmaUrl) {
+      const imgW = 40;
+      const imgH = 18;
+      const base64 = await getBase64Image(planner.firmaUrl);
+      if (base64) {
+        const format = planner.firmaUrl.toLowerCase().includes('.jpg') || planner.firmaUrl.toLowerCase().includes('.jpeg') ? 'JPEG' : 'PNG';
+        doc.addImage(base64, format, margin + (sigWidth - imgW) / 2, sigY - 18, imgW, imgH);
+      }
     }
+    doc.line(margin, sigY, margin + sigWidth, sigY);
+    doc.setFont('helvetica', 'bold');
+    drawCenteredText(planner.nombreCompleto, margin, sigY + 4, sigWidth);
+    doc.setFont('helvetica', 'normal');
+    drawCenteredText(planner.empresa, margin, sigY + 7, sigWidth);
   }
-  doc.line(margin, sigY, margin + sigWidth, sigY);
-  doc.setFont('helvetica', 'bold');
-  drawCenteredText(planner?.nombreCompleto || 'PLANNER DE MANTENIMIENTO', margin, sigY + 4, sigWidth);
-  doc.setFont('helvetica', 'normal');
-  drawCenteredText('PLANNER DE MANTENIMIENTO', margin, sigY + 7, sigWidth);
-  drawCenteredText('TRANSPORTES LINEA S.A.', margin, sigY + 10, sigWidth);
 
   // Right Signature (Supervisor)
-  const rightSigX = pageWidth - margin - sigWidth;
-  if (supervisor?.firmaUrl) {
-    const imgW = 40;
-    const imgH = 18;
-    const base64 = await getBase64Image(supervisor.firmaUrl);
-    if (base64) {
-      const format = supervisor.firmaUrl.toLowerCase().includes('.jpg') || supervisor.firmaUrl.toLowerCase().includes('.jpeg') ? 'JPEG' : 'PNG';
-      doc.addImage(base64, format, rightSigX + (sigWidth - imgW) / 2, sigY - 18, imgW, imgH);
+  if (supervisor) {
+    const rightSigX = pageWidth - margin - sigWidth;
+    if (supervisor.firmaUrl) {
+      const imgW = 40;
+      const imgH = 18;
+      const base64 = await getBase64Image(supervisor.firmaUrl);
+      if (base64) {
+        const format = supervisor.firmaUrl.toLowerCase().includes('.jpg') || supervisor.firmaUrl.toLowerCase().includes('.jpeg') ? 'JPEG' : 'PNG';
+        doc.addImage(base64, format, rightSigX + (sigWidth - imgW) / 2, sigY - 18, imgW, imgH);
+      }
     }
+    doc.line(rightSigX, sigY, pageWidth - margin, sigY);
+    doc.setFont('helvetica', 'bold');
+    drawCenteredText(supervisor.nombreCompleto, rightSigX, sigY + 4, sigWidth);
+    doc.setFont('helvetica', 'normal');
+    drawCenteredText(supervisor.empresa, rightSigX, sigY + 7, sigWidth);
   }
-  doc.line(rightSigX, sigY, pageWidth - margin, sigY);
-  doc.setFont('helvetica', 'bold');
-  drawCenteredText(supervisor?.nombreCompleto || 'SUPERVISOR DE MANTENIMIENTO', rightSigX, sigY + 4, sigWidth);
-  doc.setFont('helvetica', 'normal');
-  drawCenteredText('SUPERVISOR DE MANTENIMIENTO', rightSigX, sigY + 7, sigWidth);
-  drawCenteredText('TRANSPORTES LINEA S.A.', rightSigX, sigY + 10, sigWidth);
 
   doc.save(`OrdenServicio_${mantenimiento.codigoOrden}.pdf`);
 };

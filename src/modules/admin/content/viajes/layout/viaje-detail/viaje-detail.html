@@ -128,6 +128,11 @@
                 N° Pasajeros
               </th>
               <th
+                class="py-2 px-2 text-[9px] font-inter-bold text-text/40 uppercase tracking-wider text-center whitespace-nowrap"
+              >
+                Galones
+              </th>
+              <th
                 class="py-2 px-2 text-[9px] font-inter-bold text-text/40 uppercase tracking-wider whitespace-nowrap"
               >
                 Hora Término
@@ -191,6 +196,17 @@
                     {{ tramo.numeroPasajeros != null ? tramo.numeroPasajeros : '—' }}
                   </span>
                 </td>
+                <td class="py-2 px-2 text-center">
+                  <span
+                    class="inline-flex items-center justify-center min-w-14 px-2 py-0.5 rounded-full bg-text/5 text-[10px] font-inter-bold text-text/60"
+                  >
+                    @if (tramo.galonesAbastecidos) {
+                      {{ tramo.galonesAbastecidos | number:'1.2-2' }} Gal.
+                    } @else {
+                      0 Gal.
+                    }
+                  </span>
+                </td>
                 <td class="py-2 px-2">
                   <span class="text-[11px] font-inter-medium text-text/60">{{
                     tramo.horaTermino
@@ -214,7 +230,7 @@
           </tbody>
           <tfoot>
             <tr class="border-t-2 border-text/10 bg-text/2">
-              <td colspan="8" class="py-2 px-2 text-right">
+              <td colspan="9" class="py-2 px-2 text-right">
                 <span class="text-[10px] font-inter-bold text-text/40 uppercase tracking-wider"
                   >Totales:</span
                 >

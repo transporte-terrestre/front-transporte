@@ -208,16 +208,20 @@
                   }}</span>
                 </td>
                 <td class="px-4 py-3 whitespace-nowrap">
-                  <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-2">
                     @if (vehiculo.imagenes && vehiculo.imagenes.length > 0) {
-                      <img
-                        [src]="vehiculo.imagenes[0]"
-                        [alt]="vehiculo.marca + ' ' + vehiculo.modelo"
-                        class="w-8 h-8 rounded-lg object-cover border border-text/10"
-                      />
+                      <div
+                        class="w-10 h-10 min-w-10 min-h-10 shrink-0 rounded-lg border border-text/10 overflow-hidden"
+                      >
+                        <img
+                          [src]="vehiculo.imagenes[0]"
+                          [alt]="vehiculo.marca + ' ' + vehiculo.modelo"
+                          class="w-full h-full object-cover"
+                        />
+                      </div>
                     } @else {
                       <div
-                        class="w-8 h-8 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary text-xs"
+                        class="w-10 h-10 min-w-10 min-h-10 shrink-0 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary text-xs"
                       >
                         <i class="fas fa-car"></i>
                       </div>

@@ -125,6 +125,38 @@
     </div>
   </div>
 
+  <!-- Documentos del contrato -->
+  <div class="space-y-4">
+    <div class="flex items-center justify-between border-b border-text/5 pb-3">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-secondary/10 flex items-center justify-center">
+          <i class="fas fa-folder-open text-secondary text-sm"></i>
+        </div>
+        <h3 class="text-lg font-anton text-text lowercase tracking-wide">
+          Documentos del contrato
+        </h3>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
+      @for (docType of documentTypes; track docType.value) {
+        <div class="bg-background rounded-lg p-4 border border-text/10">
+          <app-documents-date-upload
+            [label]="docType.label"
+            [documents]="getDocuments(docType.value)"
+            [maxDocuments]="10"
+            [folder]="'alquileres/documentos'"
+            [requireIssueDate]="docType.requireIssue ?? false"
+            [requireExpirationDate]="docType.requireExpiration ?? false"
+            (onUpload)="handleDocumentUpload($event, docType.value)"
+            (onUpdate)="handleDocumentUpdate($event)"
+            (onDelete)="deleteDocument($event, docType.value)"
+          ></app-documents-date-upload>
+        </div>
+      }
+    </div>
+  </div>
+
   <!-- Vehículos (FormArray) -->
   <div class="space-y-6">
     <div class="flex items-center justify-between border-b border-text/5 pb-3">
