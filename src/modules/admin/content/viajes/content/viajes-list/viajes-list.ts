@@ -24,6 +24,7 @@ import { ViajeDuplicate } from '../../layout/viaje-duplicate/viaje-duplicate';
 
 export type ViajeIndividual = NonNullable<ApiResponse<'viajes', 'findAll'>['data'][0]['ida']>;
 
+
 interface WeekDay {
   date: Date;
   dayName: string;
@@ -87,7 +88,7 @@ export class ViajesList implements OnInit, OnDestroy {
   searchTerm = signal('');
   fechaInicio = signal('');
   fechaFin = signal('');
-  fechaDia = signal('');
+  fechaDia = signal(this.getLocalDateString());
   mesSeleccionado = signal(this.getCurrentMonth());
   estado = signal('');
   sentido = signal('');
@@ -397,8 +398,13 @@ export class ViajesList implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    // Setear rango del mes actual por defecto
-    this.setMonthRange(this.mesSeleccionado());
+    // Setear rango por defecto (día de hoy si existe, sino mes actual)
+    if (this.fechaDia()) {
+      this.fechaInicio.set(this.fechaDia());
+      this.fechaFin.set(this.fechaDia());
+    } else {
+      this.setMonthRange(this.mesSeleccionado());
+    }
 
     // Cargar según el modo de vista inicial
     if (this.viewMode() === 'calendar') {
@@ -498,6 +504,14 @@ export class ViajesList implements OnInit, OnDestroy {
 
   onDateChange() {
     this.onSearch();
+  }
+
+  private getLocalDateString(): string {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   private getCurrentMonth(): string {
