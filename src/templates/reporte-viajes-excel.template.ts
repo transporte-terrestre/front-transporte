@@ -1,4 +1,5 @@
 import { ApiResponse } from '@api/backend.api';
+import { applyMaxTwoDecimalFormat, roundToMaxTwoDecimals } from '@helper/excel.helper';
 import * as XLSX from 'xlsx';
 
 export const generateReporteViajesExcel = (data: ApiResponse<'reportes', 'getViajesDetalladosPorCliente'>) => {
@@ -34,23 +35,24 @@ export const generateReporteViajesExcel = (data: ApiResponse<'reportes', 'getVia
       v.id,
       ruta,
       v.estado,
-      v.distanciaEstimada ? parseFloat(v.distanciaEstimada) : 0,
-      v.distanciaFinal ? parseFloat(v.distanciaFinal) : 0,
-      v.diferencia || 0,
+      roundToMaxTwoDecimals(v.distanciaEstimada ? parseFloat(v.distanciaEstimada) : 0),
+      roundToMaxTwoDecimals(v.distanciaFinal ? parseFloat(v.distanciaFinal) : 0),
+      roundToMaxTwoDecimals(v.diferencia || 0),
       v.fechaSalida ? new Date(v.fechaSalida).toLocaleDateString() : '---',
       v.vehiculoPlaca || '---',
       v.conductorNombre || '---',
-      v.horasContrato ? parseFloat(v.horasContrato) : 0,
-      v.horasTotales || 0,
-      v.horasExcedidas || 0,
+      roundToMaxTwoDecimals(v.horasContrato ? parseFloat(v.horasContrato) : 0),
+      roundToMaxTwoDecimals(v.horasTotales || 0),
+      roundToMaxTwoDecimals(v.horasExcedidas || 0),
     ];
   });
 
   const wb = XLSX.utils.book_new();
   const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+  applyMaxTwoDecimalFormat(ws);
   XLSX.utils.book_append_sheet(wb, ws, 'Reporte de Viajes');
 
-  const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+  const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array', cellStyles: true });
   const dataBlob = new Blob([excelBuffer], {
     type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   });

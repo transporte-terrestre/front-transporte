@@ -8,11 +8,13 @@ import { ApiResponse, ApiBody, ApiField } from 'api/backend.api';
 import { ToastService } from '@service/toast.service';
 import { AlertService } from '@service/alert.service';
 import { ModalForm } from '../../../../components/modal-form/modal-form';
+import { ModalInfo } from '../../../../components/modal-info/modal-info';
 import {
   MantenimientoForm,
   MantenimientoFormSubmitData,
   PendingMantenimientoDocument,
 } from '../../layout/mantenimiento-form/mantenimiento-form';
+import { MantenimientoDetail } from '../../layout/mantenimiento-detail/mantenimiento-detail';
 import { PaginationComponent } from '../../../../components/pagination/pagination';
 import { PATH, buildPath } from '@route/path.route';
 import { getErrorMessage } from '@helper/error.helper';
@@ -23,6 +25,7 @@ import {
   SignatureSelection,
 } from '../../../../components/user-signature-select-modal/user-signature-select-modal';
 import * as XLSX from 'xlsx';
+import { applyMaxTwoDecimalFormat, formatMaxTwoDecimals, roundToMaxTwoDecimals } from '@helper/excel.helper';
 
 interface CalendarDay {
   date: Date;
@@ -38,7 +41,9 @@ interface CalendarDay {
     CommonModule,
     FormsModule,
     ModalForm,
+    ModalInfo,
     MantenimientoForm,
+    MantenimientoDetail,
     PaginationComponent,
     TallerInputSearch,
     VehiculoInputSearch,
@@ -133,6 +138,10 @@ export class MantenimientosList implements OnInit {
   // Día seleccionado para ver detalles
   selectedDay = signal<CalendarDay | null>(null);
   showDayDetails = signal(false);
+
+  // Detalle Modal
+  showDetailModal = signal(false);
+  selectedMantenimientoId = signal<number | null>(null);
 
   mantenimientoFormComponent = viewChild<MantenimientoForm>(MantenimientoForm);
 
@@ -392,15 +401,23 @@ export class MantenimientosList implements OnInit {
   }
 
   onDayClick(day: CalendarDay) {
-    if (day.mantenimientos.length > 0) {
-      // Si hay mantenimientos, mostrar detalles
-      this.selectedDay.set(day);
-      this.showDayDetails.set(true);
-    } else {
-      // Si no hay mantenimientos, abrir modal para crear uno
-      this.selectedDate.set(day.date);
-      this.openCreateModal();
-    }
+    this.selectedDay.set(day);
+    this.showDayDetails.set(true);
+  }
+
+  onMantenimientoClick(
+    event: MouseEvent,
+    mantenimiento: ApiResponse<'mantenimientos', 'findAll'>['data'][number],
+  ) {
+    event.stopPropagation();
+    this.closeDayDetails();
+    this.selectedMantenimientoId.set(mantenimiento.id);
+    this.showDetailModal.set(true);
+  }
+
+  closeDetailModal() {
+    this.showDetailModal.set(false);
+    this.selectedMantenimientoId.set(null);
   }
 
   closeDayDetails() {
@@ -523,16 +540,17 @@ export class MantenimientosList implements OnInit {
         Taller: this.getTallerDisplay(m.tallerId, m),
         Tipo: this.getTipoLabel(m.tipo),
         Fecha: this.formatDate(m.fechaIngreso),
-        Costo: m.costoTotal ? Number(m.costoTotal) : 0,
+        Costo: roundToMaxTwoDecimals(m.costoTotal ? Number(m.costoTotal) : 0),
         Estado: this.getEstadoLabel(m.estado),
         Descripción: m.descripcion,
       };
     });
 
     const ws = XLSX.utils.json_to_sheet(data);
+    applyMaxTwoDecimalFormat(ws);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Mantenimientos');
-    XLSX.writeFile(wb, `Reporte_Mantenimientos_${new Date().toISOString().split('T')[0]}.xlsx`);
+    XLSX.writeFile(wb, `Reporte_Mantenimientos_${new Date().toISOString().split('T')[0]}.xlsx`, { cellStyles: true });
   }
 
   private exportReportToExcel() {
@@ -544,22 +562,27 @@ export class MantenimientosList implements OnInit {
     const data = this.vehiculosEstadoMantenimiento().map((item) => {
       return {
         Placa: item.placa,
+        'Unidad proveedor': item.unidadProveedor || '-',
+        'Marca y modelo': item.marcaModelo || '-',
         'Cód. Interno': item.codigoInterno || item.vehiculoId,
         'Último Mant. Fecha': item.ultimoMantenimientoFecha
           ? this.formatDate(item.ultimoMantenimientoFecha)
           : '-',
-        'Último Mant. Km': item.ultimoMantenimientoKm || '-',
-        'Próximo Mant. Km': item.proxMantenimientoKm || 'Sin Prog.',
-        'Km Actual': item.kilometrajeActual,
+        'Último Mant. Km': item.ultimoMantenimientoKm != null ? roundToMaxTwoDecimals(item.ultimoMantenimientoKm) : '-',
+        'Próximo Mant. Km': item.proxMantenimientoKm != null ? roundToMaxTwoDecimals(item.proxMantenimientoKm) : 'Sin Prog.',
+        'Km Actual': roundToMaxTwoDecimals(item.kilometrajeActual),
         'Km Restante':
-          item.kilometrajeRestante !== null ? `${item.kilometrajeRestante} km` : 'Sin Prog.',
+          item.kilometrajeRestante !== null
+            ? `${formatMaxTwoDecimals(item.kilometrajeRestante)} km`
+            : 'Sin Prog.',
       };
     });
 
     const ws = XLSX.utils.json_to_sheet(data);
+    applyMaxTwoDecimalFormat(ws);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Estado Flota');
-    XLSX.writeFile(wb, `Reporte_Estado_Flota_${new Date().toISOString().split('T')[0]}.xlsx`);
+    XLSX.writeFile(wb, `Reporte_Estado_Flota_${new Date().toISOString().split('T')[0]}.xlsx`, { cellStyles: true });
   }
 
   getTallerDisplay(

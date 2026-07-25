@@ -1,4 +1,5 @@
 import { ApiResponse } from '@api/backend.api';
+import { applyMaxTwoDecimalFormat, roundToMaxTwoDecimals } from '@helper/excel.helper';
 import * as XLSX from 'xlsx';
 
 export const generateReporteMantenimientosExcel = (data: ApiResponse<'reportes', 'getMantenimientosDetalladosPorVehiculo'> | ApiResponse<'reportes', 'getMantenimientosDetalladosPorTaller'>) => {
@@ -28,8 +29,8 @@ export const generateReporteMantenimientosExcel = (data: ApiResponse<'reportes',
       m.tipo,
       m.estado,
       m.tallerNombre || '---',
-      m.kilometraje || 0,
-      m.costoTotal ? parseFloat(m.costoTotal) : 0,
+      roundToMaxTwoDecimals(m.kilometraje || 0),
+      roundToMaxTwoDecimals(m.costoTotal ? parseFloat(m.costoTotal) : 0),
       m.fechaIngreso ? new Date(m.fechaIngreso).toLocaleDateString() : '---',
       m.fechaSalida ? new Date(m.fechaSalida).toLocaleDateString() : '---',
     ];
@@ -37,9 +38,10 @@ export const generateReporteMantenimientosExcel = (data: ApiResponse<'reportes',
 
   const wb = XLSX.utils.book_new();
   const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+  applyMaxTwoDecimalFormat(ws);
   XLSX.utils.book_append_sheet(wb, ws, 'Reporte de Mantenimientos');
 
-  const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+  const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array', cellStyles: true });
   const dataBlob = new Blob([excelBuffer], {
     type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   });

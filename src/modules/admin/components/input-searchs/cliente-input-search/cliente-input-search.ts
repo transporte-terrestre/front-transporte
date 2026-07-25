@@ -7,7 +7,7 @@ import {
   ReactiveFormsModule,
 } from '@angular/forms';
 import { ClienteService } from '@service/admin/cliente.service';
-import { ApiResponse } from 'api/backend.api';
+import { ApiQuery, ApiResponse } from 'api/backend.api';
 import { debounceTime, distinctUntilChanged, switchMap, tap, finalize } from 'rxjs/operators';
 import { of, from } from 'rxjs';
 
@@ -32,6 +32,7 @@ export class ClienteInputSearch implements ControlValueAccessor {
   // Inputs
   initialData = input<ApiResponse<'clientes', 'findAll'>['data'][number] | null>(null);
   showClear = input(false);
+  tipo = input<ApiQuery<'clientes', 'findAll'>['tipo']>(undefined);
 
   // State
   isOpen = signal(false);
@@ -66,7 +67,14 @@ export class ClienteInputSearch implements ControlValueAccessor {
                 hasNextPage: false,
               },
             });
-          return from(this.clienteService.findAll({ search: term || '', limit: 10 })).pipe(
+          const tipo = this.tipo();
+          const query: ApiQuery<'clientes', 'findAll'> = {
+            search: term || '',
+            limit: 10,
+            ...(tipo ? { tipo } : {}),
+          };
+
+          return from(this.clienteService.findAll(query)).pipe(
             finalize(() => this.loading.set(false)),
           );
         }),

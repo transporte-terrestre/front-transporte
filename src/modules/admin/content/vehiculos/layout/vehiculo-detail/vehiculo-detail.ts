@@ -67,7 +67,7 @@ export class VehiculoDetail {
       const latestDate = new Date(latest.creadoEn ?? 0).getTime();
       const currentDate = new Date(current.creadoEn ?? 0).getTime();
 
-      return currentDate > latestDate ? current : latest;
+      return currentDate > latestDate || (currentDate === latestDate && current.id > latest.id) ? current : latest;
     }, null);
 
     return latestDocument ? [latestDocument] : [];

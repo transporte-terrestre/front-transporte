@@ -24,6 +24,10 @@ export interface ReportePdfData {
   selectedSignatures?: SignatureSelection[];
 }
 
+type ViajeReporteItem = ApiResponse<'reportes', 'getViajesDetalladosPorCliente'>[number] & {
+  nombreRuta?: string | null;
+};
+
 export const generateReportePdf = async (data: ReportePdfData) => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.width;
@@ -34,31 +38,17 @@ export const generateReportePdf = async (data: ReportePdfData) => {
   const primaryColor = [245, 158, 11] as const; // Amber/Secondary
   const textColor = [31, 41, 55] as const; // Gray-800
   const lightBg = [249, 250, 251] as const; // Gray-50
-  const successColor = [34, 197, 94] as const; // Green
-  const dangerColor = [239, 68, 68] as const; // Red
   const infoColor = [59, 130, 246] as const; // Blue
 
   // Calculate totals if not provided
-  const totalKmEstimados =
-    data.totalKilometrosEstimados ??
-    data.viajes.reduce((acc, v) => {
-      return acc + (v.distanciaEstimada ? parseFloat(v.distanciaEstimada) : 0);
-    }, 0);
-
-  const totalKmFinales =
+  const totalKmReales =
     data.totalKilometrosFinales ??
     data.viajes.reduce((acc, v) => {
       return acc + (v.distanciaFinal ? parseFloat(v.distanciaFinal) : 0);
     }, 0);
 
-  const totalDiferencia =
-    data.totalDiferencia ?? data.viajes.reduce((acc, v) => acc + v.diferencia, 0);
-
   const totalHorasTotales =
     data.totalHorasTotales ?? data.viajes.reduce((acc, v) => acc + (v.horasTotales || 0), 0);
-
-  const totalHorasExcedidas =
-    data.totalHorasExcedidas ?? data.viajes.reduce((acc, v) => acc + (v.horasExcedidas || 0), 0);
 
   const drawCenteredText = (text: string, x: number, currentY: number, width: number) => {
     const textWidth = doc.getTextWidth(text);
@@ -85,6 +75,18 @@ export const generateReportePdf = async (data: ReportePdfData) => {
     const dateB = b.fechaSalida ? new Date(b.fechaSalida).getTime() : 0;
     return dateB - dateA;
   });
+
+  const getRutaDisplay = (viaje: ViajeReporteItem): string => {
+    if (viaje.nombreRuta?.trim()) {
+      return viaje.nombreRuta.trim();
+    }
+
+    if (viaje.rutaOrigen && viaje.rutaDestino) {
+      return `${viaje.rutaOrigen} - ${viaje.rutaDestino}`;
+    }
+
+    return viaje.rutaOcasional || 'Sin ruta';
+  };
 
   // Helper function
   const drawField = (label: string, value: string, x: number, currentY: number) => {
@@ -157,62 +159,28 @@ export const generateReportePdf = async (data: ReportePdfData) => {
 
   y += 8;
 
-  // === SUMMARY CARDS (4 cards now) ===
-  const cardWidth = (pageWidth - margin * 2 - 15) / 4;
+  // === SUMMARY CARDS ===
+  const cardWidth = (pageWidth - margin * 2 - 10) / 3;
   const cardHeight = 18;
 
-  // Card 1: Total Viajes
-  doc.setFillColor(...lightBg);
-  doc.roundedRect(margin, y, cardWidth, cardHeight, 2, 2, 'F');
-  doc.setFontSize(7);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(100);
-  doc.text('TOTAL VIAJES', margin + 3, y + 6);
-  doc.setFontSize(12);
-  doc.setTextColor(...textColor);
-  doc.text(data.viajes.length.toString(), margin + 3, y + 14);
+  const summaryCards = [
+    { label: 'TOTAL VIAJES', value: data.viajes.length.toString(), color: textColor },
+    { label: 'KM REALES', value: totalKmReales.toFixed(2), color: infoColor },
+    { label: 'HORA TOTAL', value: totalHorasTotales.toFixed(2), color: primaryColor },
+  ];
 
-  // Card 2: Km Estimados
-  doc.setFillColor(...lightBg);
-  doc.roundedRect(margin + cardWidth + 5, y, cardWidth, cardHeight, 2, 2, 'F');
-  doc.setFontSize(7);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(100);
-  doc.text('KM ESTIMADOS', margin + cardWidth + 8, y + 6);
-  doc.setFontSize(12);
-  doc.setTextColor(...infoColor);
-  doc.text(totalKmEstimados.toFixed(2), margin + cardWidth + 8, y + 14);
-
-  // Card 3: Km Finales
-  doc.setFillColor(...lightBg);
-  doc.roundedRect(margin + (cardWidth + 5) * 2, y, cardWidth, cardHeight, 2, 2, 'F');
-  doc.setFontSize(7);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(100);
-  doc.text('KM FINALES', margin + (cardWidth + 5) * 2 + 3, y + 6);
-  doc.setFontSize(12);
-  doc.setTextColor(...primaryColor);
-  doc.text(totalKmFinales.toFixed(2), margin + (cardWidth + 5) * 2 + 3, y + 14);
-
-  // Card 4: Diferencia
-  doc.setFillColor(...lightBg);
-  doc.roundedRect(margin + (cardWidth + 5) * 3, y, cardWidth, cardHeight, 2, 2, 'F');
-  doc.setFontSize(7);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(100);
-  doc.text('DIFERENCIA', margin + (cardWidth + 5) * 3 + 3, y + 6);
-  doc.setFontSize(12);
-  // Color based on difference
-  if (totalDiferencia > 0) {
-    doc.setTextColor(...dangerColor);
-    doc.text(`+${totalDiferencia.toFixed(2)}`, margin + (cardWidth + 5) * 3 + 3, y + 14);
-  } else if (totalDiferencia < 0) {
-    doc.setTextColor(...successColor);
-    doc.text(totalDiferencia.toFixed(2), margin + (cardWidth + 5) * 3 + 3, y + 14);
-  } else {
+  summaryCards.forEach((card, index) => {
+    const cardX = margin + index * (cardWidth + 5);
+    doc.setFillColor(...lightBg);
+    doc.roundedRect(cardX, y, cardWidth, cardHeight, 2, 2, 'F');
+    doc.setFontSize(7);
+    doc.setFont('helvetica', 'bold');
     doc.setTextColor(100);
-    doc.text('0.00', margin + (cardWidth + 5) * 3 + 3, y + 14);
-  }
+    doc.text(card.label, cardX + 3, y + 6);
+    doc.setFontSize(12);
+    doc.setTextColor(card.color[0], card.color[1], card.color[2]);
+    doc.text(card.value, cardX + 3, y + 14);
+  });
 
   doc.setTextColor(...textColor);
   y += cardHeight + 10;
@@ -224,20 +192,9 @@ export const generateReportePdf = async (data: ReportePdfData) => {
   y += 4;
 
   const tableData = sortedViajes.map((viaje) => {
-    const ruta =
-      viaje.tipoRuta === 'fija' && viaje.rutaOrigen && viaje.rutaDestino
-        ? `${viaje.rutaOrigen} - ${viaje.rutaDestino}`
-        : viaje.rutaOcasional || 'Sin ruta';
+    const ruta = getRutaDisplay(viaje);
 
-    const kmEstimado = viaje.distanciaEstimada || '—';
-    const kmFinal = viaje.distanciaFinal || '—';
-    const diferencia =
-      viaje.diferencia !== 0
-        ? viaje.diferencia > 0
-          ? `+${viaje.diferencia.toFixed(2)}`
-          : viaje.diferencia.toFixed(2)
-        : '0';
-
+    const kmReal = viaje.distanciaFinal || '—';
     const estadoLabels: Record<string, string> = {
       programado: 'Programado',
       en_progreso: 'En Progreso',
@@ -249,31 +206,28 @@ export const generateReportePdf = async (data: ReportePdfData) => {
       ? new Date(viaje.fechaSalida).toLocaleDateString('es-PE')
       : '---';
 
-    const horasContrato = viaje.horasContrato ? parseFloat(viaje.horasContrato).toFixed(2) : '-';
     const horasTotales = viaje.horasTotales ? viaje.horasTotales.toFixed(2) : '-';
-    const horasExcedidas =
-      viaje.horasExcedidas && viaje.horasExcedidas > 0
-        ? `+${viaje.horasExcedidas.toFixed(2)}`
-        : '-';
+    const conductor = viaje.conductorNombre || '---';
+    const unidad = [viaje.vehiculoPlaca, viaje.vehiculoMarca, viaje.vehiculoModelo]
+      .filter(Boolean)
+      .join(' - ') || '---';
 
     return [
       `#${viaje.id}`,
       ruta,
       estadoLabels[viaje.estado] || viaje.estado,
-      kmEstimado,
-      kmFinal,
-      diferencia,
+      kmReal,
       fechaSalida,
-      horasContrato,
       horasTotales,
-      horasExcedidas,
+      conductor,
+      unidad,
     ];
   });
 
   autoTable(doc, {
     startY: y,
     head: [
-      ['ID', 'Ruta', 'Estado', 'Km Est.', 'Km Real', 'Dif.', 'Fecha', 'H. Ctr', 'H. Tot', 'H. Exc'],
+      ['ID', 'Ruta', 'Estado', 'Km Real', 'Fecha', 'Hora Total', 'Conductor', 'Unidad'],
     ],
     body: tableData,
     theme: 'grid',
@@ -293,16 +247,14 @@ export const generateReportePdf = async (data: ReportePdfData) => {
       fontSize: 7,
     },
     columnStyles: {
-      0: { cellWidth: 12, halign: 'center' }, // ID
+      0: { cellWidth: 11, halign: 'center' }, // ID
       1: { halign: 'left' }, // Ruta - Auto width to fill space
-      2: { cellWidth: 22 }, // Estado
-      3: { cellWidth: 16, halign: 'right' }, // Km Est
-      4: { cellWidth: 16, halign: 'right' }, // Km Real
-      5: { cellWidth: 14, halign: 'right' }, // Dif
-      6: { cellWidth: 22, halign: 'center' }, // Fecha
-      7: { cellWidth: 16, halign: 'right' }, // H. Ctr
-      8: { cellWidth: 16, halign: 'right' }, // H. Tot
-      9: { cellWidth: 16, halign: 'right' }, // H. Exc
+      2: { cellWidth: 20 }, // Estado
+      3: { cellWidth: 14, halign: 'right' }, // Km Real
+      4: { cellWidth: 20, halign: 'center' }, // Fecha
+      5: { cellWidth: 18, halign: 'right' }, // Hora total
+      6: { cellWidth: 28, halign: 'left' }, // Conductor
+      7: { cellWidth: 30, halign: 'left' }, // Unidad
     },
     alternateRowStyles: {
       fillColor: [249, 250, 251],
@@ -319,23 +271,6 @@ export const generateReportePdf = async (data: ReportePdfData) => {
           cellData.cell.styles.textColor = [239, 68, 68];
         } else if (estado === 'Programado') {
           cellData.cell.styles.textColor = [245, 158, 11];
-        }
-      }
-      // Color for difference column
-      if (cellData.column.index === 5 && cellData.section === 'body') {
-        const dif = cellData.cell.raw as string;
-        if (dif.startsWith('+')) {
-          cellData.cell.styles.textColor = [239, 68, 68]; // Red for positive
-        } else if (dif.startsWith('-')) {
-          cellData.cell.styles.textColor = [34, 197, 94]; // Green for negative
-        }
-      }
-      // Color for Exceeded hours column (Index 9 now)
-      if (cellData.column.index === 9 && cellData.section === 'body') {
-        const val = cellData.cell.raw as string;
-        if (val.startsWith('+')) {
-          cellData.cell.styles.textColor = [239, 68, 68]; // Red for exceeded
-          cellData.cell.styles.fontStyle = 'bold';
         }
       }
     },

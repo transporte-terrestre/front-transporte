@@ -19,6 +19,7 @@ import { ClienteInputSearch } from '../../../../components/input-searchs/cliente
 import { ConductorInputSearch } from '../../../../components/input-searchs/conductor-input-search/conductor-input-search';
 import { VehiculoInputSearch } from '../../../../components/input-searchs/vehiculo-input-search/vehiculo-input-search';
 import * as XLSX from 'xlsx';
+import { applyMaxTwoDecimalFormat } from '@helper/excel.helper';
 import { ViajeStatusUpdate } from './layout/viaje-estado-update/viaje-estado-update';
 import { ViajeDuplicate } from '../../layout/viaje-duplicate/viaje-duplicate';
 
@@ -737,9 +738,10 @@ export class ViajesList implements OnInit, OnDestroy {
       .filter((r) => r !== null);
 
     const ws = XLSX.utils.json_to_sheet(data);
+    applyMaxTwoDecimalFormat(ws);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Viajes');
-    XLSX.writeFile(wb, `Reporte_Viajes_${new Date().toISOString().split('T')[0]}.xlsx`);
+    XLSX.writeFile(wb, `Reporte_Viajes_${new Date().toISOString().split('T')[0]}.xlsx`, { cellStyles: true });
   }
 
   getRutaDisplay(viaje: ViajeIndividual): string {

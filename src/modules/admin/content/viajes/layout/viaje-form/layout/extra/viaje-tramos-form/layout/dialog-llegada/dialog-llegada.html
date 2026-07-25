@@ -21,11 +21,9 @@
           <input
             type="text"
             formControlName="nombreLugar"
-            [readonly]="sugerencia()?.esPuntoFijo === true"
             class="w-full pl-10 pr-3 py-2.5 text-sm bg-text/5 border border-transparent rounded-xl outline-none font-inter-medium"
-            [class.cursor-not-allowed]="sugerencia()?.esPuntoFijo === true"
-            [class.focus:border-danger]="sugerencia()?.esPuntoFijo !== true"
-            placeholder="Ej. Terminal de Destino"
+            [class.focus:border-danger]="true"
+            [placeholder]="isResolvingPlace() ? 'Buscando ubicación...' : 'Ej. Terminal de Destino'"
           />
         </div>
       </div>

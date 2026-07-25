@@ -1,10 +1,11 @@
-import { Component, inject, input, output, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, input, output, OnInit, OnDestroy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ToastService } from '@service/toast.service';
 import { ModalForm } from '@module/admin/components/modal-form/modal-form';
 import { ViajeService } from '@service/admin/viaje.service';
 import { ViajeProximoTramoResultDto } from 'api/backend.api';
+import { reverseGeocodePlaceName } from '@helper/geocoding.helper';
 import * as L from 'leaflet';
 
 @Component({
@@ -28,6 +29,8 @@ export class DialogParadaComponent implements OnInit, OnDestroy {
 
   // State
   isSubmitting = false;
+  isResolvingPlace = signal(false);
+  private geocodingRequestId = 0;
 
   // Map
   private map?: L.Map;
@@ -79,19 +82,83 @@ export class DialogParadaComponent implements OnInit, OnDestroy {
     });
   }
 
-  async save() {
-    if (this.form.invalid) {
-      this.toastService.warning('Complete todos los campos');
-      return;
+  private async updatePlaceNameFromMap(latitude: number, longitude: number) {
+    const requestId = ++this.geocodingRequestId;
+    this.isResolvingPlace.set(true);
+    this.form.patchValue({ nombreLugar: '' });
+
+    try {
+      const nombreLugar = await reverseGeocodePlaceName(latitude, longitude);
+      if (requestId === this.geocodingRequestId) {
+        this.form.patchValue({ nombreLugar: nombreLugar || '' });
+      }
+    } catch (error) {
+      console.warn('No se pudo obtener el nombre de la ubicación:', error);
+    } finally {
+      if (requestId === this.geocodingRequestId) {
+        this.isResolvingPlace.set(false);
+      }
     }
+  }
+
+  private validateForm(): boolean {
+    this.form.markAllAsTouched();
+
+    const requiredFields = [
+      { control: 'nombreLugar', label: 'Nombre del lugar' },
+      { control: 'latitud', label: 'Ubicación del mapa' },
+      { control: 'longitud', label: 'Ubicación del mapa' },
+      { control: 'fecha', label: 'Fecha de la parada' },
+      { control: 'hora', label: 'Hora de la parada' },
+      { control: 'kilometrajeActual', label: 'Kilometraje actual' },
+    ];
+
+    const missingFields = [
+      ...new Set(
+        requiredFields
+          .filter(({ control }) => {
+            const field = this.form.get(control);
+            return (
+              !field ||
+              field.hasError('required') ||
+              field.value === null ||
+              field.value === undefined ||
+              String(field.value).trim() === ''
+            );
+          })
+          .map(({ label }) => label),
+      ),
+    ];
+
+    if (missingFields.length > 0) {
+      this.toastService.warning(`Falta completar: ${missingFields.join(', ')}.`);
+      return false;
+    }
+
+    if (this.form.get('kilometrajeActual')?.hasError('min')) {
+      this.toastService.warning('El kilometraje actual no puede ser negativo.');
+      return false;
+    }
+
+    if (this.form.invalid) {
+      this.toastService.warning('Revisa los datos ingresados antes de registrar la parada.');
+      return false;
+    }
+
+    return true;
+  }
+
+  async save() {
+    if (!this.validateForm()) return;
 
     this.isSubmitting = true;
     const val = this.form.getRawValue();
+    const nombreLugar = String(val.nombreLugar || '').trim();
     const isoString = `${val.fecha}T${val.hora}:00.000Z`;
 
     try {
       await this.viajeService.registrarParada(this.viajeId(), {
-        nombreLugar: val.nombreLugar,
+        nombreLugar,
         latitud: Number(val.latitud),
         longitud: Number(val.longitud),
         horaActual: isoString,
@@ -143,6 +210,7 @@ export class DialogParadaComponent implements OnInit, OnDestroy {
           latitud: pos.lat.toFixed(6),
           longitud: pos.lng.toFixed(6),
         });
+        void this.updatePlaceNameFromMap(pos.lat, pos.lng);
       }
     });
 
@@ -152,6 +220,7 @@ export class DialogParadaComponent implements OnInit, OnDestroy {
         latitud: e.latlng.lat.toFixed(6),
         longitud: e.latlng.lng.toFixed(6),
       });
+      void this.updatePlaceNameFromMap(e.latlng.lat, e.latlng.lng);
     });
 
     setTimeout(() => this.map?.invalidateSize(), 150);
