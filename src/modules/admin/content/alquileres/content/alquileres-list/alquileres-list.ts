@@ -26,6 +26,7 @@ import { ClienteInputSearch } from '../../../../components/input-searchs/cliente
 import { ConductorInputSearch } from '../../../../components/input-searchs/conductor-input-search/conductor-input-search';
 import { VehiculoInputSearch } from '../../../../components/input-searchs/vehiculo-input-search/vehiculo-input-search';
 import * as XLSX from 'xlsx';
+import { applyMaxTwoDecimalFormat, formatMaxTwoDecimals } from '@helper/excel.helper';
 
 @Component({
   selector: 'app-alquileres-list',
@@ -337,16 +338,17 @@ export class AlquileresList implements OnInit {
         'Fecha Inicio': a.fechaInicio ? new Date(a.fechaInicio).toLocaleDateString() : '—',
         'Fecha Fin': a.fechaFin ? new Date(a.fechaFin).toLocaleDateString() : '—',
         'Es Indefinido': a.esIndefinido ? 'Sí' : 'No',
-        'Monto por Día': `S/ ${a.montoPorDia}`,
-        'Monto Total Final': a.montoTotalFinal ? `S/ ${a.montoTotalFinal}` : '—',
+        'Monto por Día': `S/ ${formatMaxTwoDecimals(a.montoPorDia)}`,
+        'Monto Total Final': a.montoTotalFinal ? `S/ ${formatMaxTwoDecimals(a.montoTotalFinal)}` : '—',
         Estado: this.getEstadoLabel(a.estado),
       };
     });
 
     const ws = XLSX.utils.json_to_sheet(data);
+    applyMaxTwoDecimalFormat(ws);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Alquileres');
-    XLSX.writeFile(wb, `Reporte_Alquileres_${new Date().toISOString().split('T')[0]}.xlsx`);
+    XLSX.writeFile(wb, `Reporte_Alquileres_${new Date().toISOString().split('T')[0]}.xlsx`, { cellStyles: true });
   }
 
   private getEstadoLabel(estado: string): string {

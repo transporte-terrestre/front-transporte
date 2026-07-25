@@ -11,6 +11,7 @@ import { generateReporteConductoresExcel } from '../../templates/reporte-conduct
 import { generateReporteViajesExcel } from '../../templates/reporte-viajes-excel.template';
 import { generateReporteMantenimientosExcel } from '../../templates/reporte-mantenimientos-excel.template';
 import { generateReporteResumenFlotaPdf, ReporteResumenFlotaData } from '../../templates/reporte-resumen-flota.template';
+import { applyMaxTwoDecimalFormat, roundToMaxTwoDecimals } from '@helper/excel.helper';
 
 
 @Injectable({
@@ -92,18 +93,19 @@ export class ReportesService {
       item.placa,
       item.marca,
       item.modelo,
-      item.kilometrajeActual,
+      roundToMaxTwoDecimals(item.kilometrajeActual),
       item.estado,
       item.clienteActual || (item.estado === 'disponible' ? 'DISPONIBLE' : '-'),
       item.cantidadViajes,
-      item.totalKilometraje,
-      item.totalGalones,
-      item.totalGalones > 0 ? (item.totalKilometraje / item.totalGalones).toFixed(2) : '-'
+      roundToMaxTwoDecimals(item.totalKilometraje),
+      roundToMaxTwoDecimals(item.totalGalones),
+      item.totalGalones > 0 ? roundToMaxTwoDecimals(item.totalKilometraje / item.totalGalones) : '-'
     ]);
     const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+    applyMaxTwoDecimalFormat(ws);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Resumen Flota');
-    XLSX.writeFile(wb, `VAT-016_RESUMEN_FLOTA_${fechaInicio}_${fechaFin}.xlsx`);
+    XLSX.writeFile(wb, `VAT-016_RESUMEN_FLOTA_${fechaInicio}_${fechaFin}.xlsx`, { cellStyles: true });
   }
   async downloadReporteConductoresExcel() {
     try {

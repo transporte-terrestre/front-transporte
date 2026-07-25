@@ -1,4 +1,5 @@
 import { ApiResponse } from '@api/backend.api';
+import { applyMaxTwoDecimalFormat } from '@helper/excel.helper';
 import * as XLSX from 'xlsx';
 
 export const generateReporteConductoresExcel = (data: ApiResponse<'reportes', 'getReporteConductores'>) => {
@@ -68,12 +69,13 @@ export const generateReporteConductoresExcel = (data: ApiResponse<'reportes', 'g
   // Create workbook and worksheet
   const wb = XLSX.utils.book_new();
   const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+  applyMaxTwoDecimalFormat(ws);
 
   // Add worksheet to workbook
   XLSX.utils.book_append_sheet(wb, ws, 'Conductores');
 
   // Generate Excel file
-  const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+  const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array', cellStyles: true });
   const dataBlob = new Blob([excelBuffer], {
     type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   });

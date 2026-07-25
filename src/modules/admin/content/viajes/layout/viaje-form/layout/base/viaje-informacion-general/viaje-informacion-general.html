@@ -4,7 +4,10 @@
   <div class="grid grid-cols-4 gap-3">
     <div class="col-span-3">
       <label class="text-xs font-inter-semibold text-text mb-1.5 block"> Cliente </label>
-      <app-cliente-input-search formControlName="cliente"> </app-cliente-input-search>
+      <app-cliente-input-search
+        formControlName="cliente"
+        [tipo]="'corporativo'"
+      ></app-cliente-input-search>
       @if (form.get('cliente')?.touched && form.get('cliente')?.errors) {
         <p class="text-danger text-xs font-inter-medium mt-1">El cliente es requerido</p>
       }

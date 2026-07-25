@@ -5180,6 +5180,16 @@ export interface MantenimientoReporteEstadoDto {
    */
   imagenes: string[] | null;
   /**
+   * Proveedor asociado a la unidad
+   * @example "Transportes ABC S.A.C."
+   */
+  unidadProveedor: string | null;
+  /**
+   * Marca y modelo del vehículo
+   * @example "Toyota Avanza"
+   */
+  marcaModelo: string | null;
+  /**
    * Kilometraje actual del vehículo
    * @example 50000
    */

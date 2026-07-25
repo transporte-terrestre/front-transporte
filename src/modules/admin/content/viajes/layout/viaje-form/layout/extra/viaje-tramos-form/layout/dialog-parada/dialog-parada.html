@@ -23,7 +23,7 @@
             type="text"
             formControlName="nombreLugar"
             class="w-full pl-10 pr-3 py-2.5 text-sm bg-background border border-text/10 focus:border-secondary rounded-xl outline-none transition-all font-inter-medium"
-            placeholder="Ej. Grifo, Restaurante, etc."
+            [placeholder]="isResolvingPlace() ? 'Buscando ubicación...' : 'Ej. Grifo, Restaurante, etc.'"
           />
         </div>
       </div>
