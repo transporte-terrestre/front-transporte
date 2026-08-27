@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ReportesService } from '@service/admin/reportes.service';
 import { ToastService } from '@service/toast.service';
-import { ApiResponse, ApiQuery, ResumenVehiculoDto } from 'api/backend.api';
+import { ApiQuery, ResumenVehiculoDto } from 'api/backend.api';
 
 @Component({
   selector: 'app-reportes-resumen',
@@ -113,13 +113,36 @@ export class ReportesResumen implements OnInit {
     });
   }
 
-  descargarExcel() {
-    if (this.resumen().length === 0) return;
-    this.reportesService.generateReporteResumenFlotaExcel(
-      this.resumen(),
-      this.fechaInicio(),
-      this.fechaFin()
-    );
+  async descargarExcel() {
+    this.loading.set(true);
+
+    try {
+      const mantenimientos = await this.reportesService.getMantenimientosDetalladosPorVehiculo(0, {
+        id: 0,
+        fechaInicio: this.fechaInicio() || undefined,
+        fechaFin: this.fechaFin() || undefined,
+      });
+
+      if (mantenimientos.length === 0) {
+        this.toastService.warning('No hay mantenimientos para exportar en el periodo seleccionado');
+        return;
+      }
+
+      this.reportesService.generateReporteMantenimientosExcel(mantenimientos, {
+        titulo: 'HISTORIAL COMPLETO DE MANTENIMIENTOS — TODAS LAS UNIDADES',
+        subtitulo:
+          'Ordenado por Unidad y Fecha | Preventivos y Correctivos | Inversiones JR y Asociados S.A.C.',
+        nombreArchivo: `Reporte_Flota_Mantenimientos_${new Date().toISOString().split('T')[0]}.xlsx`,
+        fechaInicio: this.fechaInicio() || undefined,
+        fechaFin: this.fechaFin() || undefined,
+      });
+      this.toastService.success('Excel de mantenimientos generado exitosamente');
+    } catch (error) {
+      console.error('Error al exportar historial de mantenimientos:', error);
+      this.toastService.error('Error al generar el Excel de mantenimientos');
+    } finally {
+      this.loading.set(false);
+    }
   }
 
   getEstadoLabel(estado: string): string {
@@ -133,4 +156,3 @@ export class ReportesResumen implements OnInit {
     return labels[estado] || estado;
   }
 }
-

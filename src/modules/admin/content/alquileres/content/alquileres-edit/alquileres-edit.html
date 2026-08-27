@@ -93,9 +93,9 @@
                   </p>
                   @if (h.montoAnterior != null) {
                     <div class="mt-2 flex items-center gap-2 text-[10px] bg-white/50 px-2 py-1 rounded w-fit">
-                      <span class="text-text/40">S/ {{ h.montoAnterior }}</span>
+                      <span class="text-text/40">{{ formatCurrency(h.montoAnterior, alquilerData()?.moneda) }}</span>
                       <i class="fas fa-arrow-right text-[8px] text-text/20"></i>
-                      <span class="text-success font-inter-bold">S/ {{ h.montoNuevo }}</span>
+                      <span class="text-success font-inter-bold">{{ formatCurrency(h.montoNuevo, alquilerData()?.moneda) }}</span>
                     </div>
                   }
                 </div>

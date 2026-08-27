@@ -64,6 +64,7 @@ export class MantenimientoForm implements OnInit {
     codigoOrden: [{ value: '', disabled: true }],
     tipo: ['preventivo', [Validators.required]],
     costoTotal: ['', [Validators.required, Validators.min(0)]],
+    moneda: ['PEN', [Validators.required]],
     descripcion: ['', [Validators.required, Validators.minLength(10)]],
     fechaIngresoDate: ['', [Validators.required]],
     fechaIngresoTime: ['00:00', [Validators.required]],
@@ -94,6 +95,14 @@ export class MantenimientoForm implements OnInit {
     { value: 'pendiente', label: 'Pendiente', icon: 'fa-clock', color: 'text-info' },
     { value: 'en_proceso', label: 'En Proceso', icon: 'fa-tools', color: 'text-warning' },
     { value: 'finalizado', label: 'Finalizado', icon: 'fa-check-circle', color: 'text-success' },
+  ];
+
+  monedas: Array<{
+    value: ApiField<'mantenimientos', 'findOne', 'moneda'>;
+    label: string;
+  }> = [
+    { value: 'PEN', label: 'Soles (S/)' },
+    { value: 'USD', label: 'Dólares (US$)' },
   ];
 
   documentTypes: {
@@ -136,6 +145,7 @@ export class MantenimientoForm implements OnInit {
           codigoOrden: mantenimientoData.codigoOrden,
           tipo: mantenimientoData.tipo,
           costoTotal: mantenimientoData.costoTotal,
+          moneda: mantenimientoData.moneda || 'PEN',
           descripcion: mantenimientoData.descripcion,
           fechaIngresoDate: mantenimientoData.fechaIngreso
             ? mantenimientoData.fechaIngreso.split('T')[0]
@@ -162,6 +172,7 @@ export class MantenimientoForm implements OnInit {
         this.mantenimientoForm.reset({
           tipo: 'preventivo',
           estado: 'pendiente',
+          moneda: 'PEN',
           fechaIngresoDate: entryDate.toISOString().split('T')[0],
           fechaIngresoTime: '00:00',
           fechaSalidaDate: exitDate.toISOString().split('T')[0],
@@ -224,6 +235,7 @@ export class MantenimientoForm implements OnInit {
           : undefined) as any,
       tipo: formValue.tipo,
       costoTotal: String(formValue.costoTotal),
+      moneda: formValue.moneda || 'PEN',
       descripcion: formValue.descripcion,
       fechaIngreso: formValue.fechaIngresoDate
         ? `${formValue.fechaIngresoDate}T${formValue.fechaIngresoTime || '00:00'}:00.000Z`

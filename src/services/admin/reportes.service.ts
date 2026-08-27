@@ -9,7 +9,10 @@ import {
 import * as XLSX from 'xlsx';
 import { generateReporteConductoresExcel } from '../../templates/reporte-conductores.template';
 import { generateReporteViajesExcel } from '../../templates/reporte-viajes-excel.template';
-import { generateReporteMantenimientosExcel } from '../../templates/reporte-mantenimientos-excel.template';
+import {
+  generateReporteMantenimientosExcel,
+  ReporteMantenimientosExcelOptions,
+} from '../../templates/reporte-mantenimientos-excel.template';
 import { generateReporteResumenFlotaPdf, ReporteResumenFlotaData } from '../../templates/reporte-resumen-flota.template';
 import { applyMaxTwoDecimalFormat, roundToMaxTwoDecimals } from '@helper/excel.helper';
 
@@ -82,8 +85,13 @@ export class ReportesService {
     generateReporteViajesExcel(data);
   }
 
-  generateReporteMantenimientosExcel(data: ApiResponse<'reportes', 'getMantenimientosDetalladosPorVehiculo'> | ApiResponse<'reportes', 'getMantenimientosDetalladosPorTaller'>): void {
-    generateReporteMantenimientosExcel(data);
+  generateReporteMantenimientosExcel(
+    data:
+      | ApiResponse<'reportes', 'getMantenimientosDetalladosPorVehiculo'>
+      | ApiResponse<'reportes', 'getMantenimientosDetalladosPorTaller'>,
+    options?: ReporteMantenimientosExcelOptions,
+  ): void {
+    generateReporteMantenimientosExcel(data, options);
   }
   generateReporteResumenFlotaExcel(data: any[], fechaInicio: string, fechaFin: string): void {
     const headers = [

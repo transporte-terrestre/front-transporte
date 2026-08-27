@@ -34,10 +34,15 @@ export class ReportesClientes implements OnInit {
   entidades = signal<ApiResponse<'clientes', 'findAllEntidades'>['data']>([]);
   pasajeros = signal<ApiResponse<'clientes', 'findAllPasajeros'>['data']>([]);
 
-  totalAlquileresCost = computed(() => {
-    return this.alquileres().reduce((acc, current) => {
-      return acc + this.calculateRentalCost(current);
-    }, 0);
+  totalAlquileresCostByCurrency = computed(() => {
+    return this.alquileres().reduce(
+      (acc, alquiler) => {
+        const moneda = alquiler.moneda === 'USD' ? 'USD' : 'PEN';
+        acc[moneda] += this.calculateRentalCost(alquiler);
+        return acc;
+      },
+      { PEN: 0, USD: 0 },
+    );
   });
   
   loadingDetail = signal(false);
@@ -56,6 +61,18 @@ export class ReportesClientes implements OnInit {
     
     const numVehiculos = (alquiler.detalles?.length || 0);
     return diffDays * (alquiler.montoPorDia || 0) * (numVehiculos || 1);
+  }
+
+  formatCurrency(
+    value: string | number | null | undefined,
+    moneda: 'PEN' | 'USD' | null | undefined,
+  ): string {
+    return new Intl.NumberFormat('es-PE', {
+      style: 'currency',
+      currency: moneda === 'USD' ? 'USD' : 'PEN',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(Number(value) || 0);
   }
 
   async loadClientes(append = false) {

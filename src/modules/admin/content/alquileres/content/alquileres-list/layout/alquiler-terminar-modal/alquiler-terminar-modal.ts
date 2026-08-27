@@ -182,4 +182,8 @@ export class AlquilerTerminarModal implements OnInit, OnDestroy {
     const monto = Number(montoPorDia ?? 0);
     return Number.isFinite(monto) ? Number((dias * monto).toFixed(2)) : 0;
   }
+
+  currencySymbol(): string {
+    return this.alquiler().moneda === 'USD' ? 'US$' : 'S/';
+  }
 }

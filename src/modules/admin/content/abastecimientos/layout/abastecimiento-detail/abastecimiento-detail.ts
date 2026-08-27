@@ -50,4 +50,30 @@ export class AbastecimientoDetail {
   getVehiculoImage() {
     return this.abastecimiento()?.vehiculoImagenes?.[0] || null;
   }
+
+  getFechaLabel() {
+    const item = this.abastecimiento();
+    if (!item?.fechaAbastecimiento) return null;
+    const parsed = new Date(item.fechaAbastecimiento);
+    if (Number.isNaN(parsed.getTime())) return item.fechaAbastecimiento;
+
+    return new Intl.DateTimeFormat('es-PE', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hourCycle: 'h23',
+    })
+      .format(parsed)
+      .replace(',', '');
+  }
+
+  getUbicacionLabel() {
+    const item = this.abastecimiento();
+    if (!item) return null;
+    const lat = item.metadata?.ubicacion.lat ?? item.tramoLatitud;
+    const lng = item.metadata?.ubicacion.lng ?? item.tramoLongitud;
+    return lat != null && lng != null ? `${lat}, ${lng}` : null;
+  }
 }

@@ -1,7 +1,9 @@
 @if (loading()) {
   <div class="h-64 flex flex-col items-center justify-center gap-4">
     <i class="fas fa-spinner fa-spin text-secondary text-4xl"></i>
-    <span class="text-text/60 font-inter-medium text-sm">Cargando información del mantenimiento...</span>
+    <span class="text-text/60 font-inter-medium text-sm"
+      >Cargando información del mantenimiento...</span
+    >
   </div>
 } @else if (error()) {
   <div class="flex flex-col items-center justify-center p-8 text-center">
@@ -14,7 +16,9 @@
     <div class="rounded-xl bg-text/5 border border-text/10 p-4">
       <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
         <div class="flex items-center gap-3">
-          <div class="w-12 h-12 rounded-xl bg-secondary/10 flex items-center justify-center text-secondary shrink-0">
+          <div
+            class="w-12 h-12 rounded-xl bg-secondary/10 flex items-center justify-center text-secondary shrink-0"
+          >
             <i class="fas {{ getTipoIcon(m.tipo) }} text-lg"></i>
           </div>
           <div>
@@ -76,7 +80,7 @@
         </div>
         <div class="detail-field">
           <label><i class="fas fa-money-bill-wave text-secondary"></i> Costo Total</label>
-          <div>{{ formatCurrency(m.costoTotal) }}</div>
+          <div>{{ formatCurrency(m.costoTotal, m.moneda) }}</div>
         </div>
         <div class="detail-field">
           <label><i class="fas fa-clock text-secondary"></i> Última Actualización</label>
@@ -103,8 +107,14 @@
       </h3>
       <div class="flex flex-col md:flex-row gap-4 rounded-xl bg-text/5 border border-text/10 p-3">
         @if (m.vehiculo.imagenes?.length) {
-          <div class="w-full md:w-36 h-28 rounded-lg overflow-hidden bg-background border border-text/10 shrink-0">
-            <img [src]="m.vehiculo.imagenes![0]" [alt]="m.vehiculo.placa" class="w-full h-full object-cover" />
+          <div
+            class="w-full md:w-36 h-28 rounded-lg overflow-hidden bg-background border border-text/10 shrink-0"
+          >
+            <img
+              [src]="m.vehiculo.imagenes![0]"
+              [alt]="m.vehiculo.placa"
+              class="w-full h-full object-cover"
+            />
           </div>
         }
         <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -196,19 +206,29 @@
                 </span>
               </div>
               <div class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-text/60">
-                <span><i class="fas fa-user mr-1"></i>{{ tarea.responsable || 'Sin responsable' }}</span>
+                <span
+                  ><i class="fas fa-user mr-1"></i
+                  >{{ tarea.responsable || 'Sin responsable' }}</span
+                >
                 @if (tarea.horaInicio || tarea.horaFin) {
-                  <span><i class="fas fa-clock mr-1"></i>{{ tarea.horaInicio || '-' }} - {{ tarea.horaFin || '-' }}</span>
+                  <span
+                    ><i class="fas fa-clock mr-1"></i>{{ tarea.horaInicio || '-' }} -
+                    {{ tarea.horaFin || '-' }}</span
+                  >
                 }
               </div>
               @if (tarea.observaciones) {
-                <p class="mt-2 text-xs text-text/70 whitespace-pre-line">{{ tarea.observaciones }}</p>
+                <p class="mt-2 text-xs text-text/70 whitespace-pre-line">
+                  {{ tarea.observaciones }}
+                </p>
               }
             </div>
           }
         </div>
       } @else {
-        <div class="rounded-lg border border-dashed border-text/20 p-4 text-center text-xs text-text/50">
+        <div
+          class="rounded-lg border border-dashed border-text/20 p-4 text-center text-xs text-text/50"
+        >
           Sin tareas registradas
         </div>
       }
@@ -224,19 +244,27 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
           @for (type of documentTypes; track type.value) {
             @for (doc of getDocumentosByType(type.value); track doc.id) {
-              <div class="flex items-center justify-between gap-3 p-3 bg-background border border-text/10 rounded-lg hover:border-text/30 transition-all">
+              <div
+                class="flex items-center justify-between gap-3 p-3 bg-background border border-text/10 rounded-lg hover:border-text/30 transition-all"
+              >
                 <div class="flex items-start gap-3 min-w-0">
-                  <div class="w-9 h-9 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary shrink-0">
+                  <div
+                    class="w-9 h-9 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary shrink-0"
+                  >
                     <i class="fas {{ type.icon }}"></i>
                   </div>
                   <div class="min-w-0">
                     <p class="text-xs font-inter-bold text-text truncate">{{ doc.nombre }}</p>
                     <p class="text-[10px] text-text/50">{{ type.label }}</p>
                     @if (doc.fechaEmision) {
-                      <p class="text-[10px] text-text/60">Emisión: {{ formatDate(doc.fechaEmision) }}</p>
+                      <p class="text-[10px] text-text/60">
+                        Emisión: {{ formatDate(doc.fechaEmision) }}
+                      </p>
                     }
                     @if (doc.fechaExpiracion) {
-                      <p class="text-[10px] text-text/60">Vence: {{ formatDate(doc.fechaExpiracion) }}</p>
+                      <p class="text-[10px] text-text/60">
+                        Vence: {{ formatDate(doc.fechaExpiracion) }}
+                      </p>
                     }
                   </div>
                 </div>
@@ -256,7 +284,9 @@
           }
         </div>
       } @else {
-        <div class="rounded-lg border border-dashed border-text/20 p-4 text-center text-xs text-text/50">
+        <div
+          class="rounded-lg border border-dashed border-text/20 p-4 text-center text-xs text-text/50"
+        >
           Sin documentos registrados
         </div>
       }

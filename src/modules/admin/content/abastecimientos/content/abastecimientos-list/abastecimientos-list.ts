@@ -128,6 +128,12 @@ export class AbastecimientosList implements OnInit, OnDestroy {
     this.router.navigate([path]);
   }
 
+  goToViaje(viajeId: number, event: Event) {
+    event.stopPropagation();
+    const path = buildPath(PATH.admin.viajes.edit).replace(':id', viajeId.toString());
+    this.router.navigate([path]);
+  }
+
   closeForm() {
     if (this.saving()) return;
     this.showForm.set(false);
@@ -201,5 +207,21 @@ export class AbastecimientosList implements OnInit, OnDestroy {
 
   getVehiculoImage(item: Abastecimiento) {
     return item.vehiculoImagenes?.[0] || null;
+  }
+
+  formatDateTime(value: string) {
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) return value;
+
+    return new Intl.DateTimeFormat('es-PE', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hourCycle: 'h23',
+    })
+      .format(parsed)
+      .replace(',', '');
   }
 }

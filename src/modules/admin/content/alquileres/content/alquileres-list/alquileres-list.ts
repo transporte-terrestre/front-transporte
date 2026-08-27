@@ -26,7 +26,7 @@ import { ClienteInputSearch } from '../../../../components/input-searchs/cliente
 import { ConductorInputSearch } from '../../../../components/input-searchs/conductor-input-search/conductor-input-search';
 import { VehiculoInputSearch } from '../../../../components/input-searchs/vehiculo-input-search/vehiculo-input-search';
 import * as XLSX from 'xlsx';
-import { applyMaxTwoDecimalFormat, formatMaxTwoDecimals } from '@helper/excel.helper';
+import { applyMaxTwoDecimalFormat } from '@helper/excel.helper';
 
 @Component({
   selector: 'app-alquileres-list',
@@ -72,6 +72,7 @@ export class AlquileresList implements OnInit {
   fechaDia = signal('');
   mesSeleccionado = signal(this.getCurrentMonth());
   estado = signal('');
+  moneda = signal('');
   tipo = signal('');
   clienteId = signal<number | string>('');
   selectedClienteForSearch = signal<ApiResponse<'clientes', 'findAll'>['data'][number] | null>(
@@ -109,6 +110,7 @@ export class AlquileresList implements OnInit {
         limit: this.pageSize(),
         search: this.searchTerm() || undefined,
         estado: (this.estado() as any) || undefined,
+        moneda: (this.moneda() as 'PEN' | 'USD') || undefined,
         tipo: (this.tipo() as any) || undefined,
         clienteId: this.clienteId() ? Number(this.clienteId()) : undefined,
         conductorId: this.conductorId() ? Number(this.conductorId()) : undefined,
@@ -213,6 +215,7 @@ export class AlquileresList implements OnInit {
     this.mesSeleccionado.set(this.getCurrentMonth());
     this.setMonthRange(this.mesSeleccionado());
     this.estado.set('');
+    this.moneda.set('');
     this.tipo.set('');
     this.clienteId.set('');
     this.selectedClienteForSearch.set(null);
@@ -328,6 +331,7 @@ export class AlquileresList implements OnInit {
           .filter(Boolean)
           .join(', ') || '—';
       const tipo = a.detalles?.[0]?.tipo === 'maquina_operada' ? 'Máquina Operada' : 'Máquina Seca';
+      const moneda = a.moneda === 'USD' ? 'USD' : 'PEN';
 
       return {
         ID: a.id,
@@ -338,16 +342,42 @@ export class AlquileresList implements OnInit {
         'Fecha Inicio': a.fechaInicio ? new Date(a.fechaInicio).toLocaleDateString() : '—',
         'Fecha Fin': a.fechaFin ? new Date(a.fechaFin).toLocaleDateString() : '—',
         'Es Indefinido': a.esIndefinido ? 'Sí' : 'No',
-        'Monto por Día': `S/ ${formatMaxTwoDecimals(a.montoPorDia)}`,
-        'Monto Total Final': a.montoTotalFinal ? `S/ ${formatMaxTwoDecimals(a.montoTotalFinal)}` : '—',
+        Moneda: moneda,
+        'Monto por Día': this.formatCurrency(a.montoPorDia, moneda),
+        'Monto Total Final':
+          a.montoTotalFinal != null
+            ? this.formatCurrency(a.montoTotalFinal, moneda)
+            : '—',
         Estado: this.getEstadoLabel(a.estado),
       };
     });
 
+    const totalesPorMoneda = this.alquileres().reduce(
+      (acc, alquiler) => {
+        const moneda = alquiler.moneda === 'USD' ? 'USD' : 'PEN';
+        acc[moneda].tarifasDiarias += Number(alquiler.montoPorDia) || 0;
+        acc[moneda].montosFinales += Number(alquiler.montoTotalFinal) || 0;
+        return acc;
+      },
+      {
+        PEN: { tarifasDiarias: 0, montosFinales: 0 },
+        USD: { tarifasDiarias: 0, montosFinales: 0 },
+      },
+    );
+
+    const resumen = (['PEN', 'USD'] as const).map((moneda) => ({
+      Moneda: moneda,
+      'Suma de Tarifas Diarias': totalesPorMoneda[moneda].tarifasDiarias,
+      'Suma de Montos Finales': totalesPorMoneda[moneda].montosFinales,
+    }));
+
     const ws = XLSX.utils.json_to_sheet(data);
     applyMaxTwoDecimalFormat(ws);
+    const resumenWs = XLSX.utils.json_to_sheet(resumen);
+    applyMaxTwoDecimalFormat(resumenWs);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Alquileres');
+    XLSX.utils.book_append_sheet(wb, resumenWs, 'Resumen por Moneda');
     XLSX.writeFile(wb, `Reporte_Alquileres_${new Date().toISOString().split('T')[0]}.xlsx`, { cellStyles: true });
   }
 
@@ -369,5 +399,17 @@ export class AlquileresList implements OnInit {
     const pEnd = new Date(end);
     const diffTime = Math.abs(pEnd.getTime() - pStart.getTime());
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  }
+
+  formatCurrency(
+    value: string | number | null | undefined,
+    moneda: 'PEN' | 'USD' = 'PEN',
+  ): string {
+    return new Intl.NumberFormat('es-PE', {
+      style: 'currency',
+      currency: moneda,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(Number(value) || 0);
   }
 }

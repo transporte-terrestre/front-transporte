@@ -18,6 +18,53 @@ interface ReverseGeocodingResponse {
   address?: ReverseGeocodingAddress;
 }
 
+interface PlaceSearchResponseItem {
+  display_name?: string;
+  lat?: string;
+  lon?: string;
+}
+
+export interface PlaceSearchResult {
+  label: string;
+  lat: number;
+  lng: number;
+}
+
+/** Busca lugares por nombre para poder seleccionarlos en el mapa. */
+export async function searchPlaces(
+  query: string,
+  signal?: AbortSignal,
+): Promise<PlaceSearchResult[]> {
+  const normalizedQuery = query.trim();
+  if (normalizedQuery.length < 3) return [];
+
+  const params = new URLSearchParams({
+    format: 'jsonv2',
+    q: normalizedQuery,
+    limit: '6',
+    addressdetails: '1',
+    countrycodes: 'pe',
+    'accept-language': 'es',
+  });
+
+  const response = await fetch(`https://nominatim.openstreetmap.org/search?${params.toString()}`, {
+    headers: { Accept: 'application/json' },
+    signal,
+  });
+
+  if (!response.ok) return [];
+
+  const data = (await response.json()) as PlaceSearchResponseItem[];
+
+  return data.flatMap((item) => {
+    const lat = Number(item.lat);
+    const lng = Number(item.lon);
+    const label = item.display_name?.trim();
+
+    return label && Number.isFinite(lat) && Number.isFinite(lng) ? [{ label, lat, lng }] : [];
+  });
+}
+
 /** Obtiene un nombre legible para una coordenada usando geocodificación inversa. */
 export async function reverseGeocodePlaceName(
   latitude: number,
@@ -32,10 +79,9 @@ export async function reverseGeocodePlaceName(
     'accept-language': 'es',
   });
 
-  const response = await fetch(
-    `https://nominatim.openstreetmap.org/reverse?${params.toString()}`,
-    { headers: { Accept: 'application/json' } },
-  );
+  const response = await fetch(`https://nominatim.openstreetmap.org/reverse?${params.toString()}`, {
+    headers: { Accept: 'application/json' },
+  });
 
   if (!response.ok) return null;
 

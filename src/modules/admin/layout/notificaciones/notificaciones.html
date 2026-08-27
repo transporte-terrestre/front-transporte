@@ -31,6 +31,24 @@
         </div>
         <div class="flex items-center gap-1">
           <button
+            *ngIf="totalUnreadCount() > 0"
+            (click)="markAllRead()"
+            [disabled]="isBulkActionLoading()"
+            class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-text/5 text-text/60 hover:text-secondary transition-all disabled:opacity-40 disabled:cursor-wait"
+            title="Marcar todas como leídas"
+          >
+            <i class="fas" [ngClass]="isBulkActionLoading() ? 'fa-spinner fa-spin' : 'fa-check-double'"></i>
+          </button>
+          <button
+            *ngIf="notificaciones().length > 0 || totalUnreadCount() > 0"
+            (click)="ocultarTodas()"
+            [disabled]="isBulkActionLoading()"
+            class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-red-500/10 text-text/60 hover:text-red-500 transition-all disabled:opacity-40 disabled:cursor-wait"
+            title="Ocultar todas las notificaciones"
+          >
+            <i class="fas fa-trash-alt"></i>
+          </button>
+          <button
             (click)="toggleFullscreen()"
             class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-text/5 text-text/60 hover:text-text transition-all"
             [title]="isFullscreen() ? 'Reducir' : 'Expandir'"

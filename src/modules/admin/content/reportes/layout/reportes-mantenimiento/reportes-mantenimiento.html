@@ -172,11 +172,11 @@
               }}</span>
               <span class="text-[10px] text-text/40"> km</span>
             </td>
-            <td class="px-4 py-3 whitespace-nowrap text-right">
-              <span class="text-sm font-inter-bold text-success"
-                >S/ {{ item.costoTotal | number : '1.2-2' }}</span
-              >
-            </td>
+<td class="px-4 py-3 whitespace-nowrap text-right">
+  <span class="text-sm font-inter-bold text-success">
+    {{ formatCurrency(item.costoTotal, item.moneda) }}
+  </span>
+</td>
             <td class="px-4 py-3 whitespace-nowrap text-xs text-text/60">
               {{ item.fechaIngreso | date : 'dd/MM/yyyy' }}
             </td>
@@ -261,11 +261,11 @@
               }}</span>
               <span class="text-[10px] text-text/40"> km</span>
             </td>
-            <td class="px-4 py-3 whitespace-nowrap text-right">
-              <span class="text-sm font-inter-bold text-success"
-                >S/ {{ item.costoTotal | number : '1.2-2' }}</span
-              >
-            </td>
+<td class="px-4 py-3 whitespace-nowrap text-right">
+  <span class="text-sm font-inter-bold text-success">
+    {{ formatCurrency(item.costoTotal, item.moneda) }}
+  </span>
+</td>
             <td class="px-4 py-3 whitespace-nowrap text-xs text-text/60">
               {{ item.fechaIngreso | date : 'dd/MM/yyyy' }}
             </td>
@@ -290,13 +290,16 @@
             {{ mantenimientosVehiculos().length || mantenimientosTaller().length }} mantenimientos
           </span>
         </div>
-        <div class="flex items-center gap-2">
-          <i class="fas fa-dollar-sign text-success text-xs"></i>
-          <span class="text-xs font-inter-medium text-text">Costo Total:</span>
-          <span class="text-sm font-inter-bold text-success">
-            S/ {{ getTotalCosto() | number : '1.2-2' }}
-          </span>
-        </div>
+<div class="flex items-center gap-2">
+  <i class="fas fa-dollar-sign text-success text-xs"></i>
+  <span class="text-xs font-inter-medium text-text">Costos:</span>
+  <span class="text-sm font-inter-bold text-success">
+    {{ formatCurrency(getTotalCosto('PEN'), 'PEN') }}
+  </span>
+  <span class="text-sm font-inter-bold text-info">
+    {{ formatCurrency(getTotalCosto('USD'), 'USD') }}
+  </span>
+</div>
       </div>
       <div class="flex items-center gap-2">
         <button
@@ -320,5 +323,3 @@
     } }
   </div>
 </div>
-
-

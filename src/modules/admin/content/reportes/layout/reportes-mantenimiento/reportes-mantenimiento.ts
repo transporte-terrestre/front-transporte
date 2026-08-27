@@ -8,6 +8,7 @@ import { VehiculoInputSearch } from '../../../../components/input-searchs/vehicu
 import { TallerInputSearch } from '../../../../components/input-searchs/taller-input-search/taller-input-search';
 
 export type MantenimientoReportMode = 'mantenimientos-vehiculo' | 'mantenimientos-taller';
+type MantenimientoMoneda = 'PEN' | 'USD';
 
 @Component({
   selector: 'app-reportes-mantenimiento',
@@ -156,25 +157,26 @@ export class ReportesMantenimiento implements OnInit {
     return this.mantenimientosVehiculos().length > 0 || this.mantenimientosTaller().length > 0;
   }
 
-  getTotalCosto(): number {
-    const mode = this.activeMode();
-    if (mode === 'mantenimientos-vehiculo') {
-      return this.mantenimientosVehiculos().reduce(
-        (
-          total: number,
-          m: ApiResponse<'reportes', 'getMantenimientosDetalladosPorVehiculo'>[number],
-        ) => total + parseFloat(m.costoTotal || '0'),
-        0,
-      );
-    } else {
-      return this.mantenimientosTaller().reduce(
-        (
-          total: number,
-          m: ApiResponse<'reportes', 'getMantenimientosDetalladosPorTaller'>[number],
-        ) => total + parseFloat(m.costoTotal || '0'),
-        0,
-      );
-    }
+  getTotalCosto(moneda: MantenimientoMoneda): number {
+    const mantenimientos =
+      this.activeMode() === 'mantenimientos-vehiculo'
+        ? this.mantenimientosVehiculos()
+        : this.mantenimientosTaller();
+
+    return mantenimientos.reduce(
+      (total, mantenimiento) =>
+        (mantenimiento.moneda || 'PEN') === moneda
+          ? total + parseFloat(mantenimiento.costoTotal || '0')
+          : total,
+      0,
+    );
+  }
+
+  formatCurrency(value: string | number, moneda: MantenimientoMoneda): string {
+    return new Intl.NumberFormat('es-PE', {
+      style: 'currency',
+      currency: moneda,
+    }).format(Number(value));
   }
 
   descargarPdf() {
@@ -194,7 +196,6 @@ export class ReportesMantenimiento implements OnInit {
           : undefined,
       mantenimientosTaller:
         this.activeMode() === 'mantenimientos-taller' ? this.mantenimientosTaller() : undefined,
-      totalCosto: this.getTotalCosto(),
       selectedSignatures: [],
     });
 

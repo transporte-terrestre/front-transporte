@@ -27,7 +27,9 @@
             [class.fa-table]="viewMode() !== 'report'"
             [class.fa-calendar-alt]="viewMode() === 'report'"
           ></i>
-          <span class="hidden xl:inline ml-2">{{ viewMode() === 'report' ? 'Calendario' : 'Reporte' }}</span>
+          <span class="hidden xl:inline ml-2">{{
+            viewMode() === 'report' ? 'Calendario' : 'Reporte'
+          }}</span>
         </button>
         @if (viewMode() === 'calendar' || viewMode() === 'list') {
           <button
@@ -89,9 +91,9 @@
           </div>
         </div>
 
-        <!-- Fila 2: Filtros Avanzados (4 Extra) -->
+        <!-- Fila 2: Filtros Avanzados -->
         <div
-          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 transition-all duration-300"
+          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 transition-all duration-300"
           [class.hidden]="!showFilters()"
         >
           <!-- Estado -->
@@ -114,7 +116,9 @@
 
           <!-- Tipo -->
           <div class="relative w-full">
-            <i class="fas fa-tools absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"></i>
+            <i
+              class="fas fa-tools absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"
+            ></i>
             <select
               [ngModel]="tipo()"
               (ngModelChange)="tipo.set($event); onFilterChange()"
@@ -123,6 +127,25 @@
               <option value="">Todos los Tipos</option>
               <option value="preventivo">Preventivo</option>
               <option value="correctivo">Correctivo</option>
+            </select>
+            <i
+              class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-text/40 text-[10px] pointer-events-none"
+            ></i>
+          </div>
+
+          <!-- Moneda -->
+          <div class="relative w-full">
+            <i
+              class="fas fa-coins absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"
+            ></i>
+            <select
+              [ngModel]="moneda()"
+              (ngModelChange)="moneda.set($event); onFilterChange()"
+              class="w-full pl-10 pr-8 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all appearance-none cursor-pointer"
+            >
+              <option value="">Todas las Monedas</option>
+              <option value="PEN">Soles (PEN)</option>
+              <option value="USD">Dólares (USD)</option>
             </select>
             <i
               class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-text/40 text-[10px] pointer-events-none"
@@ -196,7 +219,9 @@
                 class="px-3 py-1.5 bg-secondary text-background rounded-lg text-xs font-inter-semibold hover:bg-secondary/90 transition-all flex items-center gap-2 shadow-sm"
               >
                 <i [class]="viewMode() === 'calendar' ? 'fas fa-list' : 'fas fa-calendar-alt'"></i>
-                <span class="hidden sm:inline-block">{{ viewMode() === 'calendar' ? 'Ver Lista' : 'Ver Calendario' }}</span>
+                <span class="hidden sm:inline-block">{{
+                  viewMode() === 'calendar' ? 'Ver Lista' : 'Ver Calendario'
+                }}</span>
               </button>
             </div>
           </div>
@@ -313,7 +338,7 @@
                     <div class="flex items-center gap-2 text-text">
                       <i class="far fa-calendar text-xs text-text/30"></i>
                       <span class="text-xs font-inter-semibold">{{
-                        mant.fechaIngreso | date : 'dd/MM/yyyy'
+                        mant.fechaIngreso | date: 'dd/MM/yyyy'
                       }}</span>
                     </div>
                   </div>
@@ -335,8 +360,15 @@
                       >Tipo</label
                     >
                     <div class="flex items-center gap-2">
-                       <i [class]="mant.tipo === 'preventivo' ? 'fas fa-shield-alt text-info' : 'fas fa-exclamation-triangle text-warning'" class="text-[10px]"></i>
-                       <span class="text-xs font-inter-semibold capitalize">{{ mant.tipo }}</span>
+                      <i
+                        [class]="
+                          mant.tipo === 'preventivo'
+                            ? 'fas fa-shield-alt text-info'
+                            : 'fas fa-exclamation-triangle text-warning'
+                        "
+                        class="text-[10px]"
+                      ></i>
+                      <span class="text-xs font-inter-semibold capitalize">{{ mant.tipo }}</span>
                     </div>
                   </div>
 
@@ -359,7 +391,7 @@
                       >Costo Total</label
                     >
                     <span class="text-sm font-inter-bold text-secondary">{{
-                      formatCurrency(mant.costoTotal)
+                      formatCurrency(mant.costoTotal, mant.moneda)
                     }}</span>
                   </div>
                 </div>
@@ -392,7 +424,9 @@
             } @empty {
               <div class="py-12 text-center">
                 <i class="fas fa-wrench text-text/20 text-4xl mb-3"></i>
-                <p class="text-text/60 font-inter-medium">No hay mantenimientos registrados este mes</p>
+                <p class="text-text/60 font-inter-medium">
+                  No hay mantenimientos registrados este mes
+                </p>
               </div>
             }
           </div>
@@ -434,7 +468,9 @@
           </div>
         </div>
 
-        <div class="bg-background border border-text/10 rounded-lg p-1 flex gap-1 self-end sm:h-[42px] items-center">
+        <div
+          class="bg-background border border-text/10 rounded-lg p-1 flex gap-1 self-end sm:h-[42px] items-center"
+        >
           <button
             (click)="exportToExcel()"
             class="px-4 h-full rounded-md text-xs font-inter-semibold bg-success/10 text-success hover:bg-success/20 transition-all flex items-center gap-2 mr-1"
@@ -692,7 +728,7 @@
               <div class="flex items-center gap-2 text-sm">
                 <i class="fas fa-money-bill-wave text-text/40 w-4"></i>
                 <span class="text-text font-inter-semibold">{{
-                  formatCurrency(mant.costoTotal)
+                  formatCurrency(mant.costoTotal, mant.moneda)
                 }}</span>
               </div>
             </div>
@@ -730,11 +766,7 @@
 
 <!-- Modal Detail -->
 @if (showDetailModal()) {
-  <app-modal-info
-    title="Detalle del Mantenimiento"
-    maxWidth="5xl"
-    (onClose)="closeDetailModal()"
-  >
+  <app-modal-info title="Detalle del Mantenimiento" maxWidth="5xl" (onClose)="closeDetailModal()">
     @if (selectedMantenimientoId(); as mantenimientoId) {
       <app-mantenimiento-detail [mantenimientoId]="mantenimientoId" />
     }

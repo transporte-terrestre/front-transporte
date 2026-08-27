@@ -33,6 +33,7 @@ export class Notificaciones {
   hasMore = signal(true);
   isLoadingMore = signal(false);
   isFullscreen = signal(false);
+  isBulkActionLoading = signal(false);
 
   // Filters
   entidadFilter = signal<string>('');
@@ -97,19 +98,19 @@ export class Notificaciones {
       this.currentPage.set(1);
       this.hasMore.set(true);
       const filters = this.buildFilters();
-      const res = await this.service.findAll({ userId: user.id, page: 1, limit: this.pageSize, ...filters });
+      const res = await this.service.findAll({ page: 1, limit: this.pageSize, ...filters });
       this.notificaciones.set(res.data);
       this.hasMore.set(res.data.length >= this.pageSize);
-      await this.updateTotalUnreadCount(user.id);
+      await this.updateTotalUnreadCount();
     } catch (error) {
       console.error('Error loading notifications:', error);
     }
   }
 
-  private async updateTotalUnreadCount(userId: number) {
+  private async updateTotalUnreadCount() {
     try {
       const filters = this.buildFilters();
-      const res = await this.service.countUnread({ userId, ...filters });
+      const res = await this.service.countUnread({ ...filters });
       this.service.totalUnreadCount.set(res.count);
     } catch (error) {
       console.error('Error updating total unread count:', error);
@@ -136,7 +137,7 @@ export class Notificaciones {
       this.isLoadingMore.set(true);
       const nextPage = this.currentPage() + 1;
       const filters = this.buildFilters();
-      const res = await this.service.findAll({ userId: user.id, page: nextPage, limit: this.pageSize, ...filters });
+      const res = await this.service.findAll({ page: nextPage, limit: this.pageSize, ...filters });
 
       if (res.data.length > 0) {
         this.notificaciones.update((current) => [...current, ...res.data]);
@@ -162,7 +163,7 @@ export class Notificaciones {
       this.service.totalUnreadCount.update((count) => Math.max(0, count - 1));
     }
 
-    await this.service.markAsRead({ id, userId: user.id });
+    await this.service.markAsRead({ id });
     this.notificaciones.update((list) => list.map((n) => (n.id === id ? { ...n, leido: true } : n)));
   }
 
@@ -181,7 +182,7 @@ export class Notificaciones {
     }
 
     try {
-      await this.service.markAsDismissed({ id, userId: user.id });
+      await this.service.markAsDismissed({ id });
     } catch (error) {
       console.error('Error hiding notification:', error);
       this.loadNotificaciones();
@@ -209,8 +210,32 @@ export class Notificaciones {
   }
 
   async markAllRead() {
-    const unread = this.notificaciones().filter((n) => !n.leido);
-    await Promise.all(unread.map((n) => this.markAsRead(n.id)));
+    if (this.isBulkActionLoading()) return;
+
+    try {
+      this.isBulkActionLoading.set(true);
+      await this.service.markAllAsRead();
+      await this.loadNotificaciones();
+    } catch (error) {
+      console.error('Error marcando todas las notificaciones como leídas:', error);
+    } finally {
+      this.isBulkActionLoading.set(false);
+    }
+  }
+
+  async ocultarTodas() {
+    if (this.isBulkActionLoading()) return;
+    if (!window.confirm('¿Ocultar todas las notificaciones registradas hasta ahora?')) return;
+
+    try {
+      this.isBulkActionLoading.set(true);
+      await this.service.dismissAll();
+      await this.loadNotificaciones();
+    } catch (error) {
+      console.error('Error ocultando todas las notificaciones:', error);
+    } finally {
+      this.isBulkActionLoading.set(false);
+    }
   }
 
   toggleExpand(id: number, event: Event) {
