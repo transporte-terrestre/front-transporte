@@ -17,7 +17,6 @@ export interface ReporteMantenimientoPdfData {
   fechaFin: string;
   mantenimientosVehiculo?: ApiResponse<'reportes', 'getMantenimientosDetalladosPorVehiculo'>;
   mantenimientosTaller?: ApiResponse<'reportes', 'getMantenimientosDetalladosPorTaller'>;
-  totalCosto: number;
   selectedSignatures?: SignatureSelection[];
 }
 
@@ -51,10 +50,19 @@ export const generateReporteMantenimientoPdf = async (data: ReporteMantenimiento
   // Calculate totals
   const totalPreventivos = mantenimientos.filter((m: any) => m.tipo === 'preventivo').length;
   const totalCorrectivos = mantenimientos.filter((m: any) => m.tipo === 'correctivo').length;
-  const totalCosto = mantenimientos.reduce(
-    (acc: number, m: any) => acc + (parseFloat(m.costoTotal) || 0),
-    0,
+  const totalCostos = mantenimientos.reduce(
+    (acc: { PEN: number; USD: number }, m: any) => {
+      const moneda = m.moneda === 'USD' ? 'USD' : 'PEN';
+      acc[moneda] += parseFloat(m.costoTotal) || 0;
+      return acc;
+    },
+    { PEN: 0, USD: 0 },
   );
+
+  const formatCosto = (mantenimiento: any) => {
+    const simbolo = mantenimiento.moneda === 'USD' ? 'US$' : 'S/';
+    return `${simbolo} ${(parseFloat(mantenimiento.costoTotal) || 0).toFixed(2)}`;
+  };
 
   const drawCenteredText = (text: string, x: number, currentY: number, width: number) => {
     const textWidth = doc.getTextWidth(text);
@@ -142,7 +150,7 @@ export const generateReporteMantenimientoPdf = async (data: ReporteMantenimiento
 
   // === SUMMARY CARDS (4 cards) ===
   const cardWidth = (pageWidth - margin * 2 - 15) / 4;
-  const cardHeight = 18;
+  const cardHeight = 22;
 
   // Card 1: Total Mantenimientos
   doc.setFillColor(...lightBg);
@@ -177,16 +185,18 @@ export const generateReporteMantenimientoPdf = async (data: ReporteMantenimiento
   doc.setTextColor(...primaryColor);
   doc.text(totalCorrectivos.toString(), margin + (cardWidth + 5) * 2 + 3, y + 14);
 
-  // Card 4: Costo Total
+  // Card 4: Costos separados por moneda
   doc.setFillColor(...lightBg);
   doc.roundedRect(margin + (cardWidth + 5) * 3, y, cardWidth, cardHeight, 2, 2, 'F');
   doc.setFontSize(7);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(100);
-  doc.text('COSTO TOTAL', margin + (cardWidth + 5) * 3 + 3, y + 6);
-  doc.setFontSize(10);
+  doc.text('COSTOS', margin + (cardWidth + 5) * 3 + 3, y + 6);
+  doc.setFontSize(8);
   doc.setTextColor(...successColor);
-  doc.text(`S/ ${totalCosto.toFixed(2)}`, margin + (cardWidth + 5) * 3 + 3, y + 14);
+  doc.text(`S/ ${totalCostos.PEN.toFixed(2)}`, margin + (cardWidth + 5) * 3 + 3, y + 12);
+  doc.setTextColor(...infoColor);
+  doc.text(`US$ ${totalCostos.USD.toFixed(2)}`, margin + (cardWidth + 5) * 3 + 3, y + 18);
 
   doc.setTextColor(...textColor);
   y += cardHeight + 10;
@@ -220,7 +230,7 @@ export const generateReporteMantenimientoPdf = async (data: ReporteMantenimiento
         estadoLabels[m.estado] || m.estado,
         m.tallerNombre || '---',
         m.kilometraje.toLocaleString(),
-        `S/ ${parseFloat(m.costoTotal).toFixed(2)}`,
+        formatCosto(m),
         fechaIngreso,
       ];
     });
@@ -243,7 +253,7 @@ export const generateReporteMantenimientoPdf = async (data: ReporteMantenimiento
         m.tipo.charAt(0).toUpperCase() + m.tipo.slice(1),
         estadoLabels[m.estado] || m.estado,
         m.kilometraje.toLocaleString(),
-        `S/ ${parseFloat(m.costoTotal).toFixed(2)}`,
+        formatCosto(m),
         fechaIngreso,
       ];
     });
@@ -333,7 +343,9 @@ export const generateReporteMantenimientoPdf = async (data: ReporteMantenimiento
   if (data.selectedSignatures && data.selectedSignatures.length > 0) {
     const sigY = y + 20;
     const sigWidth = 60;
-    const sigSpacing = (pageWidth - margin * 2 - sigWidth * data.selectedSignatures.length) / (data.selectedSignatures.length + 1);
+    const sigSpacing =
+      (pageWidth - margin * 2 - sigWidth * data.selectedSignatures.length) /
+      (data.selectedSignatures.length + 1);
 
     for (let i = 0; i < data.selectedSignatures.length; i++) {
       const sig = data.selectedSignatures[i];
@@ -344,7 +356,11 @@ export const generateReporteMantenimientoPdf = async (data: ReporteMantenimiento
         const imgH = 18;
         const base64 = await getBase64Image(sig.firmaUrl);
         if (base64) {
-          const format = sig.firmaUrl.toLowerCase().includes('.jpg') || sig.firmaUrl.toLowerCase().includes('.jpeg') ? 'JPEG' : 'PNG';
+          const format =
+            sig.firmaUrl.toLowerCase().includes('.jpg') ||
+            sig.firmaUrl.toLowerCase().includes('.jpeg')
+              ? 'JPEG'
+              : 'PNG';
           doc.addImage(base64, format, sigX + (sigWidth - imgW) / 2, sigY - 18, imgW, imgH);
         }
       }

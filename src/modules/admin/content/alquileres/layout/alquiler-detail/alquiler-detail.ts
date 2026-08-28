@@ -83,6 +83,18 @@ export class AlquilerDetail {
     });
   }
 
+  formatCurrency(
+    value: string | number | null | undefined,
+    moneda: 'PEN' | 'USD' = 'PEN',
+  ): string {
+    return new Intl.NumberFormat('es-PE', {
+      style: 'currency',
+      currency: moneda,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(Number(value) || 0);
+  }
+
   getDocumentSections(): {
     tipo: keyof DocumentosAgrupadosAlquilerDto;
     label: string;

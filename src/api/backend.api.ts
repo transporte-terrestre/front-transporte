@@ -3725,7 +3725,7 @@ export interface DocumentoItemDto {
   observacion?: string;
   /**
    * Fecha de Vencimiento Inicial/Por defecto
-   * @example "2026-05-21T21:32:42.563Z"
+   * @example "2026-08-27T15:00:39.812Z"
    */
   fechaVencimiento?: string;
 }
@@ -3908,17 +3908,17 @@ export interface BotiquinItemDto {
   habilitado: boolean;
   /**
    * Fecha de Vencimiento actual
-   * @example "2026-05-21T21:32:42.568Z"
+   * @example "2026-08-27T15:00:39.817Z"
    */
   fechaVencimiento?: string;
   /**
    * Fecha de Salida
-   * @example "2026-05-21T21:32:42.568Z"
+   * @example "2026-08-27T15:00:39.817Z"
    */
   fechaSalida?: string;
   /**
    * Fecha de Reposición
-   * @example "2026-05-21T21:32:42.568Z"
+   * @example "2026-08-27T15:00:39.817Z"
    */
   fechaReposicion?: string;
 }
@@ -4331,6 +4331,11 @@ export interface MantenimientoListDto {
    * @example "150.50"
    */
   costoTotal: string;
+  /**
+   * Currency of the total cost
+   * @example "PEN"
+   */
+  moneda: "PEN" | "USD";
   /**
    * Description
    * @example "Cambio de aceite"
@@ -4745,6 +4750,11 @@ export interface MantenimientoResultDto {
    */
   costoTotal: string;
   /**
+   * Currency of the total cost
+   * @example "PEN"
+   */
+  moneda: "PEN" | "USD";
+  /**
    * Description
    * @example "Cambio de aceite"
    */
@@ -4827,6 +4837,11 @@ export interface MantenimientoCreateDto {
    */
   costoTotal: string;
   /**
+   * Moneda del costo total (PEN: soles, USD: dólares)
+   * @default "PEN"
+   */
+  moneda?: "PEN" | "USD";
+  /**
    * Description
    * @example "Cambio de aceite"
    */
@@ -4888,6 +4903,11 @@ export interface MantenimientoUpdateDto {
    * @example "150.50"
    */
   costoTotal?: string;
+  /**
+   * Moneda del costo total (PEN: soles, USD: dólares)
+   * @default "PEN"
+   */
+  moneda?: "PEN" | "USD";
   /**
    * Description
    * @example "Cambio de aceite"
@@ -5284,6 +5304,16 @@ export interface NotificacionResultDto {
   /** @example false */
   leido: boolean;
   metadata?: object;
+}
+
+export interface NotificacionCorteResultDto {
+  /** @example "Notificaciones actualizadas correctamente" */
+  message: string;
+  /**
+   * @format date-time
+   * @example "2026-08-27T18:30:00.000Z"
+   */
+  fechaCorte: string;
 }
 
 export interface VencimientoResumenDto {
@@ -8806,6 +8836,10 @@ export interface ViajeDetalladoDto {
   distanciaEstimada: string | null;
   /** Distancia real al final del viaje en km */
   distanciaFinal: string | null;
+  /** Kilometraje del vehículo al iniciar el viaje */
+  kilometrajeInicial: number | null;
+  /** Kilometraje del vehículo al finalizar el viaje */
+  kilometrajeFinal: number | null;
   /** Diferencia entre distancia final y estimada (0 si no hay valores) */
   diferencia: number;
   /** Horas contratadas para este viaje */
@@ -8857,13 +8891,26 @@ export interface MantenimientoDetalladoVehiculoDto {
   estado: string;
   descripcion: string;
   kilometraje: number;
+  kilometrajeProximoMantenimiento: number | null;
   costoTotal: string;
+  /** @example "PEN" */
+  moneda: "PEN" | "USD";
   /** @format date-time */
   fechaIngreso: string;
   /** @format date-time */
   fechaSalida: string | null;
-  tallerNombre: string;
-  tallerTipo: string;
+  tallerNombre: string | null;
+  tallerTipo: string | null;
+  tallerSucursal: string | null;
+  numeroFacturaCertificado: string | null;
+  intervencion: string;
+  observaciones: string | null;
+  vehiculoPlaca: string | null;
+  vehiculoMarca: string | null;
+  vehiculoModelo: string | null;
+  vehiculoAnio: number | null;
+  vehiculoTipo: string | null;
+  vehiculoEstado: string | null;
 }
 
 export interface MantenimientoDetalladoTallerDto {
@@ -8873,14 +8920,26 @@ export interface MantenimientoDetalladoTallerDto {
   estado: string;
   descripcion: string;
   kilometraje: number;
+  kilometrajeProximoMantenimiento: number | null;
   costoTotal: string;
+  /** @example "PEN" */
+  moneda: "PEN" | "USD";
   /** @format date-time */
   fechaIngreso: string;
   /** @format date-time */
   fechaSalida: string | null;
-  vehiculoPlaca: string;
-  vehiculoMarca: string;
-  vehiculoModelo: string;
+  vehiculoPlaca: string | null;
+  vehiculoMarca: string | null;
+  vehiculoModelo: string | null;
+  tallerNombre: string | null;
+  tallerTipo: string | null;
+  tallerSucursal: string | null;
+  numeroFacturaCertificado: string | null;
+  intervencion: string;
+  observaciones: string | null;
+  vehiculoAnio: number | null;
+  vehiculoTipo: string | null;
+  vehiculoEstado: string | null;
 }
 
 export interface ReporteConductorDto {
@@ -9903,6 +9962,8 @@ export interface AlquilerItemDto {
   clienteId: number;
   montoPorDia: number;
   montoTotalFinal?: number;
+  /** @example "PEN" */
+  moneda: "PEN" | "USD";
   razon?: string;
   /** @format date-time */
   fechaInicio: string;
@@ -9953,6 +10014,8 @@ export interface AlquilerResultDto {
   clienteId: number;
   montoPorDia: number;
   montoTotalFinal?: number;
+  /** @example "PEN" */
+  moneda: "PEN" | "USD";
   razon?: string;
   /** @format date-time */
   fechaInicio: string;
@@ -9985,6 +10048,11 @@ export interface AlquilerCreateDto {
   clienteId: number;
   /** @example 450 */
   montoPorDia: number;
+  /**
+   * Moneda de la tarifa y del monto total (PEN: soles, USD: dólares)
+   * @default "PEN"
+   */
+  moneda?: "PEN" | "USD";
   /** Razón o motivo del alquiler */
   razon?: string;
   /** @format date-time */
@@ -10003,6 +10071,11 @@ export interface AlquilerUpdateDto {
   clienteId?: number;
   /** @example 450 */
   montoPorDia?: number;
+  /**
+   * Moneda de la tarifa y del monto total (PEN: soles, USD: dólares)
+   * @default "PEN"
+   */
+  moneda?: "PEN" | "USD";
   /** Razón o motivo del alquiler */
   razon?: string;
   /** @format date-time */
@@ -10208,6 +10281,17 @@ export interface DescargarDocumentosDto {
   vehiculos?: object;
 }
 
+export interface AbastecimientoUbicacionDto {
+  /** @example -12.121907562533325 */
+  lat: number;
+  /** @example -76.9966634621533 */
+  lng: number;
+}
+
+export interface AbastecimientoMetadataDto {
+  ubicacion: AbastecimientoUbicacionDto;
+}
+
 export interface AbastecimientoResultDto {
   /** @example 1 */
   id: number;
@@ -10215,6 +10299,18 @@ export interface AbastecimientoResultDto {
   vehiculoId: number;
   /** @example 10 */
   viajeTramoId?: number | null;
+  /** @example 3 */
+  viajeId?: number | null;
+  /** @example "45952.50" */
+  kilometrajeSuelto?: string | null;
+  /** @example "Grifo Repsol - Av. Principal" */
+  tramoSuelto?: string | null;
+  /**
+   * @format date-time
+   * @example "2026-08-27T14:35:00.000Z"
+   */
+  fechaAbastecimiento?: string | null;
+  metadata?: AbastecimientoMetadataDto | null;
   /** @example "diesel" */
   combustible: string;
   /** @example "10.50" */
@@ -10232,6 +10328,12 @@ export interface AbastecimientoResultDto {
    * @example "2026-05-21T12:00:00Z"
    */
   tramoHoraFinal?: string | null;
+  /** @example 45952.5 */
+  tramoKilometrajeFinal?: number | null;
+  /** @example -12.121907562533325 */
+  tramoLatitud?: number | null;
+  /** @example -76.9966634621533 */
+  tramoLongitud?: number | null;
   /**
    * @format date-time
    * @example "2026-05-21T12:00:00Z"
@@ -10270,6 +10372,23 @@ export interface AbastecimientoCreateDto {
    */
   viajeTramoId?: number;
   /**
+   * Kilometraje registrado en un abastecimiento sin viaje
+   * @example 45952.5
+   */
+  kilometrajeSuelto?: number | null;
+  /**
+   * Tramo o lugar de un abastecimiento sin viaje
+   * @example "Grifo Repsol - Av. Principal"
+   */
+  tramoSuelto?: string | null;
+  /**
+   * Fecha y hora operativa del abastecimiento sin viaje
+   * @format date-time
+   * @example "2026-08-27T14:35:00.000Z"
+   */
+  fechaAbastecimiento?: string | null;
+  metadata?: AbastecimientoMetadataDto | null;
+  /**
    * Tipo de combustible
    * @example "diesel"
    */
@@ -10292,6 +10411,23 @@ export interface AbastecimientoUpdateDto {
    * @example 10
    */
   viajeTramoId?: number;
+  /**
+   * Kilometraje registrado en un abastecimiento sin viaje
+   * @example 45952.5
+   */
+  kilometrajeSuelto?: number | null;
+  /**
+   * Tramo o lugar de un abastecimiento sin viaje
+   * @example "Grifo Repsol - Av. Principal"
+   */
+  tramoSuelto?: string | null;
+  /**
+   * Fecha y hora operativa del abastecimiento sin viaje
+   * @format date-time
+   * @example "2026-08-27T14:35:00.000Z"
+   */
+  fechaAbastecimiento?: string | null;
+  metadata?: AbastecimientoMetadataDto | null;
   /**
    * Tipo de combustible
    * @example "diesel"
@@ -11058,6 +11194,11 @@ export interface MantenimientosFindAllParams {
    * @example "pendiente"
    */
   estado?: "pendiente" | "en_proceso" | "finalizado";
+  /**
+   * Filtrar por moneda
+   * @example "PEN"
+   */
+  moneda?: "PEN" | "USD";
   /** Filtrar por taller */
   tallerId?: number;
   /** Filtrar por vehículo */
@@ -11212,11 +11353,6 @@ export interface NotificacionesFindAllParams {
    */
   limit?: number;
   /**
-   * ID del usuario
-   * @example 1
-   */
-  userId: number;
-  /**
    * Filtrar por destino del usuario
    * @example "sistema"
    */
@@ -11241,11 +11377,6 @@ export interface NotificacionesFindAllParams {
 export type NotificacionesFindAllData = PaginatedNotificacionResultDto;
 
 export interface NotificacionesCountUnreadParams {
-  /**
-   * ID del usuario
-   * @example 1
-   */
-  userId: number;
   /** Filtrar por destino */
   destino?: "sistema" | "clientes" | "usuarios" | "conductor";
   /**
@@ -11270,18 +11401,20 @@ export type NotificacionesCountUnreadData = UnreadCountResultDto;
 export type NotificacionesCreateData = NotificacionResultDto;
 
 export interface NotificacionesMarkAsReadParams {
-  userId: number;
   id: number;
 }
 
 export type NotificacionesMarkAsReadData = NotificacionResultDto;
 
 export interface NotificacionesMarkAsDismissedParams {
-  userId: number;
   id: number;
 }
 
 export type NotificacionesMarkAsDismissedData = NotificacionResultDto;
+
+export type NotificacionesMarkAllAsReadData = NotificacionCorteResultDto;
+
+export type NotificacionesDismissAllData = NotificacionCorteResultDto;
 
 export interface NotificacionesCreateForConductorParams {
   conductorId: number;
@@ -12439,6 +12572,8 @@ export interface AlquileresFindAllParams {
   search?: string;
   /** Filtrar por estado */
   estado?: "activo" | "finalizado" | "cancelado";
+  /** Filtrar por moneda */
+  moneda?: "PEN" | "USD";
   clienteId?: number;
   /** Filtrar por tipo */
   tipo?: "maquina_seca" | "maquina_operada";
@@ -14463,6 +14598,11 @@ export namespace Mantenimientos {
        * @example "pendiente"
        */
       estado?: "pendiente" | "en_proceso" | "finalizado";
+      /**
+       * Filtrar por moneda
+       * @example "PEN"
+       */
+      moneda?: "PEN" | "USD";
       /** Filtrar por taller */
       tallerId?: number;
       /** Filtrar por vehículo */
@@ -14838,6 +14978,7 @@ export namespace Notificaciones {
    * @name NotificacionesFindAll
    * @summary Obtener notificaciones del usuario
    * @request GET:/notificacion/find-all
+   * @secure
    * @response `200` `NotificacionesFindAllData`
    */
   export namespace NotificacionesFindAll {
@@ -14855,11 +14996,6 @@ export namespace Notificaciones {
        * @example 10
        */
       limit?: number;
-      /**
-       * ID del usuario
-       * @example 1
-       */
-      userId: number;
       /**
        * Filtrar por destino del usuario
        * @example "sistema"
@@ -14892,16 +15028,12 @@ export namespace Notificaciones {
    * @name NotificacionesCountUnread
    * @summary Obtener cantidad de notificaciones no leídas
    * @request GET:/notificacion/unread-count
+   * @secure
    * @response `200` `NotificacionesCountUnreadData`
    */
   export namespace NotificacionesCountUnread {
     export type RequestParams = {};
     export type RequestQuery = {
-      /**
-       * ID del usuario
-       * @example 1
-       */
-      userId: number;
       /** Filtrar por destino */
       destino?: "sistema" | "clientes" | "usuarios" | "conductor";
       /**
@@ -14931,6 +15063,7 @@ export namespace Notificaciones {
    * @name NotificacionesCreate
    * @summary Crear una nueva notificación general
    * @request POST:/notificacion/create
+   * @secure
    * @response `201` `NotificacionesCreateData`
    */
   export namespace NotificacionesCreate {
@@ -14947,15 +15080,14 @@ export namespace Notificaciones {
    * @name NotificacionesMarkAsRead
    * @summary Marcar notificación como leída
    * @request POST:/notificacion/leido/{id}
+   * @secure
    * @response `200` `NotificacionesMarkAsReadData`
    */
   export namespace NotificacionesMarkAsRead {
     export type RequestParams = {
       id: number;
     };
-    export type RequestQuery = {
-      userId: number;
-    };
+    export type RequestQuery = {};
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = NotificacionesMarkAsReadData;
@@ -14967,15 +15099,14 @@ export namespace Notificaciones {
    * @name NotificacionesMarkAsDismissed
    * @summary Ocultar notificación para un usuario
    * @request POST:/notificacion/ocultar/{id}
+   * @secure
    * @response `200` `NotificacionesMarkAsDismissedData`
    */
   export namespace NotificacionesMarkAsDismissed {
     export type RequestParams = {
       id: number;
     };
-    export type RequestQuery = {
-      userId: number;
-    };
+    export type RequestQuery = {};
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = NotificacionesMarkAsDismissedData;
@@ -14984,9 +15115,44 @@ export namespace Notificaciones {
   /**
    * No description
    * @tags notificaciones
+   * @name NotificacionesMarkAllAsRead
+   * @summary Marcar todas las notificaciones como leídas
+   * @request POST:/notificacion/marcar-todas-leidas
+   * @secure
+   * @response `200` `NotificacionesMarkAllAsReadData`
+   */
+  export namespace NotificacionesMarkAllAsRead {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = NotificacionesMarkAllAsReadData;
+  }
+
+  /**
+   * No description
+   * @tags notificaciones
+   * @name NotificacionesDismissAll
+   * @summary Ocultar todas las notificaciones anteriores a este momento
+   * @request POST:/notificacion/ocultar-todas
+   * @secure
+   * @response `200` `NotificacionesDismissAllData`
+   */
+  export namespace NotificacionesDismissAll {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = NotificacionesDismissAllData;
+  }
+
+  /**
+   * No description
+   * @tags notificaciones
    * @name NotificacionesCreateForConductor
    * @summary Crear una nueva notificación para un conductor
    * @request POST:/notificacion/create-conductor/{conductorId}
+   * @secure
    * @response `201` `NotificacionesCreateForConductorData`
    */
   export namespace NotificacionesCreateForConductor {
@@ -15005,6 +15171,7 @@ export namespace Notificaciones {
    * @name NotificacionesFindAllByConductor
    * @summary Obtener notificaciones de un conductor
    * @request GET:/notificacion/conductor/{conductorId}
+   * @secure
    * @response `200` `NotificacionesFindAllByConductorData`
    */
   export namespace NotificacionesFindAllByConductor {
@@ -15036,6 +15203,7 @@ export namespace Notificaciones {
    * @name NotificacionesMarkAsReadByConductor
    * @summary Marcar notificación como leída para un conductor
    * @request POST:/notificacion/leido-conductor/{id}
+   * @secure
    * @response `200` `NotificacionesMarkAsReadByConductorData`
    */
   export namespace NotificacionesMarkAsReadByConductor {
@@ -15056,6 +15224,7 @@ export namespace Notificaciones {
    * @name NotificacionesMarkAsDismissedByConductor
    * @summary Ocultar notificación para un conductor
    * @request POST:/notificacion/ocultar-conductor/{id}
+   * @secure
    * @response `200` `NotificacionesMarkAsDismissedByConductorData`
    */
   export namespace NotificacionesMarkAsDismissedByConductor {
@@ -15076,6 +15245,7 @@ export namespace Notificaciones {
    * @name NotificacionesPreviewVencimientos
    * @summary TEST: Previsualizar notificaciones de documentos por vencer
    * @request GET:/notificacion/vencimientos/test
+   * @secure
    * @response `200` `NotificacionesPreviewVencimientosData`
    */
   export namespace NotificacionesPreviewVencimientos {
@@ -15104,6 +15274,7 @@ export namespace Notificaciones {
    * @name NotificacionesGenerarVencimientos
    * @summary Generar y guardar notificaciones de documentos por vencer
    * @request POST:/notificacion/vencimientos/generar
+   * @secure
    * @response `201` `NotificacionesGenerarVencimientosData`
    */
   export namespace NotificacionesGenerarVencimientos {
@@ -15132,6 +15303,7 @@ export namespace Notificaciones {
    * @name NotificacionesSendEmail
    * @summary Enviar un correo electrónico
    * @request POST:/notificacion/send-email
+   * @secure
    * @response `200` `NotificacionesSendEmailData` Correo enviado correctamente
    */
   export namespace NotificacionesSendEmail {
@@ -15148,6 +15320,7 @@ export namespace Notificaciones {
    * @name NotificacionesNotifyEachAdmin
    * @summary Enviar lista de conductores con documentos por vencer a todos los administradores
    * @request POST:/notificacion/notify-each-admin
+   * @secure
    * @response `200` `NotificacionesNotifyEachAdminData` Correos enviados con el reporte
    */
   export namespace NotificacionesNotifyEachAdmin {
@@ -15166,6 +15339,7 @@ export namespace Notificaciones {
    * @name NotificacionesNotifyEachConductor
    * @summary Enviar correo personalizado a cada conductor con sus documentos por vencer
    * @request POST:/notificacion/notify-each-conductor
+   * @secure
    * @response `200` `NotificacionesNotifyEachConductorData` Proceso de notificación por correo finalizado
    */
   export namespace NotificacionesNotifyEachConductor {
@@ -17833,6 +18007,8 @@ export namespace Alquileres {
       search?: string;
       /** Filtrar por estado */
       estado?: "activo" | "finalizado" | "cancelado";
+      /** Filtrar por moneda */
+      moneda?: "PEN" | "USD";
       clienteId?: number;
       /** Filtrar por tipo */
       tipo?: "maquina_seca" | "maquina_operada";
@@ -20795,6 +20971,7 @@ export class Api<SecurityDataType extends unknown> {
      * @name NotificacionesFindAll
      * @summary Obtener notificaciones del usuario
      * @request GET:/notificacion/find-all
+     * @secure
      * @response `200` `NotificacionesFindAllData`
      */
     findAll: (
@@ -20805,6 +20982,7 @@ export class Api<SecurityDataType extends unknown> {
         path: `/notificacion/find-all`,
         method: "GET",
         query: query,
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -20816,6 +20994,7 @@ export class Api<SecurityDataType extends unknown> {
      * @name NotificacionesCountUnread
      * @summary Obtener cantidad de notificaciones no leídas
      * @request GET:/notificacion/unread-count
+     * @secure
      * @response `200` `NotificacionesCountUnreadData`
      */
     countUnread: (
@@ -20826,6 +21005,7 @@ export class Api<SecurityDataType extends unknown> {
         path: `/notificacion/unread-count`,
         method: "GET",
         query: query,
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -20837,6 +21017,7 @@ export class Api<SecurityDataType extends unknown> {
      * @name NotificacionesCreate
      * @summary Crear una nueva notificación general
      * @request POST:/notificacion/create
+     * @secure
      * @response `201` `NotificacionesCreateData`
      */
     create: (
@@ -20847,6 +21028,7 @@ export class Api<SecurityDataType extends unknown> {
         path: `/notificacion/create`,
         method: "POST",
         body: data,
+        secure: true,
         type: ContentType.Json,
         format: "json",
         ...params,
@@ -20859,6 +21041,7 @@ export class Api<SecurityDataType extends unknown> {
      * @name NotificacionesMarkAsRead
      * @summary Marcar notificación como leída
      * @request POST:/notificacion/leido/{id}
+     * @secure
      * @response `200` `NotificacionesMarkAsReadData`
      */
     markAsRead: (
@@ -20868,7 +21051,7 @@ export class Api<SecurityDataType extends unknown> {
       this.http.request<NotificacionesMarkAsReadData, any>({
         path: `/notificacion/leido/${id}`,
         method: "POST",
-        query: query,
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -20880,6 +21063,7 @@ export class Api<SecurityDataType extends unknown> {
      * @name NotificacionesMarkAsDismissed
      * @summary Ocultar notificación para un usuario
      * @request POST:/notificacion/ocultar/{id}
+     * @secure
      * @response `200` `NotificacionesMarkAsDismissedData`
      */
     markAsDismissed: (
@@ -20889,7 +21073,45 @@ export class Api<SecurityDataType extends unknown> {
       this.http.request<NotificacionesMarkAsDismissedData, any>({
         path: `/notificacion/ocultar/${id}`,
         method: "POST",
-        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags notificaciones
+     * @name NotificacionesMarkAllAsRead
+     * @summary Marcar todas las notificaciones como leídas
+     * @request POST:/notificacion/marcar-todas-leidas
+     * @secure
+     * @response `200` `NotificacionesMarkAllAsReadData`
+     */
+    markAllAsRead: (params: RequestParams = {}) =>
+      this.http.request<NotificacionesMarkAllAsReadData, any>({
+        path: `/notificacion/marcar-todas-leidas`,
+        method: "POST",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags notificaciones
+     * @name NotificacionesDismissAll
+     * @summary Ocultar todas las notificaciones anteriores a este momento
+     * @request POST:/notificacion/ocultar-todas
+     * @secure
+     * @response `200` `NotificacionesDismissAllData`
+     */
+    dismissAll: (params: RequestParams = {}) =>
+      this.http.request<NotificacionesDismissAllData, any>({
+        path: `/notificacion/ocultar-todas`,
+        method: "POST",
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -20901,6 +21123,7 @@ export class Api<SecurityDataType extends unknown> {
      * @name NotificacionesCreateForConductor
      * @summary Crear una nueva notificación para un conductor
      * @request POST:/notificacion/create-conductor/{conductorId}
+     * @secure
      * @response `201` `NotificacionesCreateForConductorData`
      */
     createForConductor: (
@@ -20912,6 +21135,7 @@ export class Api<SecurityDataType extends unknown> {
         path: `/notificacion/create-conductor/${conductorId}`,
         method: "POST",
         body: data,
+        secure: true,
         type: ContentType.Json,
         format: "json",
         ...params,
@@ -20924,6 +21148,7 @@ export class Api<SecurityDataType extends unknown> {
      * @name NotificacionesFindAllByConductor
      * @summary Obtener notificaciones de un conductor
      * @request GET:/notificacion/conductor/{conductorId}
+     * @secure
      * @response `200` `NotificacionesFindAllByConductorData`
      */
     findAllByConductor: (
@@ -20934,6 +21159,7 @@ export class Api<SecurityDataType extends unknown> {
         path: `/notificacion/conductor/${conductorId}`,
         method: "GET",
         query: query,
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -20945,6 +21171,7 @@ export class Api<SecurityDataType extends unknown> {
      * @name NotificacionesMarkAsReadByConductor
      * @summary Marcar notificación como leída para un conductor
      * @request POST:/notificacion/leido-conductor/{id}
+     * @secure
      * @response `200` `NotificacionesMarkAsReadByConductorData`
      */
     markAsReadByConductor: (
@@ -20955,6 +21182,7 @@ export class Api<SecurityDataType extends unknown> {
         path: `/notificacion/leido-conductor/${id}`,
         method: "POST",
         query: query,
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -20966,6 +21194,7 @@ export class Api<SecurityDataType extends unknown> {
      * @name NotificacionesMarkAsDismissedByConductor
      * @summary Ocultar notificación para un conductor
      * @request POST:/notificacion/ocultar-conductor/{id}
+     * @secure
      * @response `200` `NotificacionesMarkAsDismissedByConductorData`
      */
     markAsDismissedByConductor: (
@@ -20976,6 +21205,7 @@ export class Api<SecurityDataType extends unknown> {
         path: `/notificacion/ocultar-conductor/${id}`,
         method: "POST",
         query: query,
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -20987,6 +21217,7 @@ export class Api<SecurityDataType extends unknown> {
      * @name NotificacionesPreviewVencimientos
      * @summary TEST: Previsualizar notificaciones de documentos por vencer
      * @request GET:/notificacion/vencimientos/test
+     * @secure
      * @response `200` `NotificacionesPreviewVencimientosData`
      */
     previewVencimientos: (
@@ -20997,6 +21228,7 @@ export class Api<SecurityDataType extends unknown> {
         path: `/notificacion/vencimientos/test`,
         method: "GET",
         query: query,
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -21008,6 +21240,7 @@ export class Api<SecurityDataType extends unknown> {
      * @name NotificacionesGenerarVencimientos
      * @summary Generar y guardar notificaciones de documentos por vencer
      * @request POST:/notificacion/vencimientos/generar
+     * @secure
      * @response `201` `NotificacionesGenerarVencimientosData`
      */
     generarVencimientos: (
@@ -21018,6 +21251,7 @@ export class Api<SecurityDataType extends unknown> {
         path: `/notificacion/vencimientos/generar`,
         method: "POST",
         query: query,
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -21029,6 +21263,7 @@ export class Api<SecurityDataType extends unknown> {
      * @name NotificacionesSendEmail
      * @summary Enviar un correo electrónico
      * @request POST:/notificacion/send-email
+     * @secure
      * @response `200` `NotificacionesSendEmailData` Correo enviado correctamente
      */
     sendEmail: (data: SendEmailDto, params: RequestParams = {}) =>
@@ -21036,6 +21271,7 @@ export class Api<SecurityDataType extends unknown> {
         path: `/notificacion/send-email`,
         method: "POST",
         body: data,
+        secure: true,
         type: ContentType.Json,
         ...params,
       }),
@@ -21047,6 +21283,7 @@ export class Api<SecurityDataType extends unknown> {
      * @name NotificacionesNotifyEachAdmin
      * @summary Enviar lista de conductores con documentos por vencer a todos los administradores
      * @request POST:/notificacion/notify-each-admin
+     * @secure
      * @response `200` `NotificacionesNotifyEachAdminData` Correos enviados con el reporte
      */
     notifyEachAdmin: (
@@ -21057,6 +21294,7 @@ export class Api<SecurityDataType extends unknown> {
         path: `/notificacion/notify-each-admin`,
         method: "POST",
         query: query,
+        secure: true,
         ...params,
       }),
 
@@ -21067,6 +21305,7 @@ export class Api<SecurityDataType extends unknown> {
      * @name NotificacionesNotifyEachConductor
      * @summary Enviar correo personalizado a cada conductor con sus documentos por vencer
      * @request POST:/notificacion/notify-each-conductor
+     * @secure
      * @response `200` `NotificacionesNotifyEachConductorData` Proceso de notificación por correo finalizado
      */
     notifyEachConductor: (
@@ -21077,6 +21316,7 @@ export class Api<SecurityDataType extends unknown> {
         path: `/notificacion/notify-each-conductor`,
         method: "POST",
         query: query,
+        secure: true,
         ...params,
       }),
   };

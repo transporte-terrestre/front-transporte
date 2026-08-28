@@ -31,10 +31,18 @@ export class NotificacionService {
   async create(data: ApiBody<'notificaciones', 'create'>) {
     return await this.api.notificaciones.create(data).then((response) => response.data);
   }
-  async markAsRead(params: { id: ApiParam<'notificaciones', 'markAsRead', 'id'>; userId: number }) {
+  async markAsRead(params: { id: ApiParam<'notificaciones', 'markAsRead', 'id'> }) {
     return await this.api.notificaciones.markAsRead(params, {}).then((response) => response.data);
   }
-  async markAsDismissed(params: { id: number; userId: number }) {
+  async markAsDismissed(params: { id: number }) {
     return await this.api.notificaciones.markAsDismissed(params, {}).then((response) => response.data);
+  }
+
+  async markAllAsRead() {
+    return await this.api.notificaciones.markAllAsRead().then((response) => response.data);
+  }
+
+  async dismissAll() {
+    return await this.api.notificaciones.dismissAll().then((response) => response.data);
   }
 }

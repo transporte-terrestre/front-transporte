@@ -1,4 +1,4 @@
-import { Component, inject, signal, input, OnInit, computed } from '@angular/core';
+import { Component, inject, signal, OnInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ReportesService } from '@service/admin/reportes.service';
@@ -63,8 +63,6 @@ export class SectionConductor implements OnInit {
   // Date filters
   fechaInicio = signal<string>('');
   fechaFin = signal<string>('');
-  fechaDia = signal<string>('');
-  mesSeleccionado = signal<string>(this.getCurrentMonth());
 
   // Additional filters
   filtroEstado = signal<string>('');
@@ -110,44 +108,34 @@ export class SectionConductor implements OnInit {
   });
 
   ngOnInit() {
-    this.setMonthRange(this.mesSeleccionado());
+    this.inicializarRangoMesActual();
 
     // Auto-show relevant entity columns based on mode
     this.updateDefaultColumnsForMode();
   }
 
-  private getCurrentMonth(): string {
-    const now = new Date();
-    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  private inicializarRangoMesActual(): void {
+    const fechaActual = new Date();
+    const anio = fechaActual.getFullYear();
+    const mes = fechaActual.getMonth() + 1;
+    const mesFormateado = String(mes).padStart(2, '0');
+    const ultimoDia = new Date(anio, mes, 0).getDate();
+
+    this.fechaInicio.set(`${anio}-${mesFormateado}-01`);
+    this.fechaFin.set(`${anio}-${mesFormateado}-${String(ultimoDia).padStart(2, '0')}`);
   }
 
-  private setMonthRange(monthValue: string) {
-    if (!monthValue) {
-      this.fechaInicio.set('');
-      this.fechaFin.set('');
-      return;
-    }
-    const [year, month] = monthValue.split('-').map(Number);
-    const firstDay = `${year}-${String(month).padStart(2, '0')}-01`;
-    const lastDay = new Date(year, month, 0).getDate();
-    const lastDayStr = `${year}-${String(month).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
-    this.fechaInicio.set(firstDay);
-    this.fechaFin.set(lastDayStr);
-  }
-
-  onMonthChange(value: string) {
-    this.mesSeleccionado.set(value);
-    this.setMonthRange(value);
-    this.fechaDia.set(''); // Clear day selection if month changes
-  }
-
-  onDiaChange(value: string) {
-    this.fechaDia.set(value);
-    if (value) {
-      this.fechaInicio.set(value);
+  onFechaInicioChange(value: string): void {
+    this.fechaInicio.set(value);
+    if (value && this.fechaFin() && value > this.fechaFin()) {
       this.fechaFin.set(value);
-    } else {
-      this.setMonthRange(this.mesSeleccionado());
+    }
+  }
+
+  onFechaFinChange(value: string): void {
+    this.fechaFin.set(value);
+    if (value && this.fechaInicio() && value < this.fechaInicio()) {
+      this.fechaInicio.set(value);
     }
   }
 
@@ -189,10 +177,6 @@ export class SectionConductor implements OnInit {
     const visible = this.visibleColumns();
     return this.columnDefinitions().filter((c) => visible.has(c.key));
   });
-
-  formatDate(date: Date): string {
-    return date.toISOString().split('T')[0];
-  }
 
   onVehiculoSelected(vehiculo: ApiResponse<'vehiculos', 'findAll'>['data'][number] | null) {
     this.selectedVehiculo.set(vehiculo);

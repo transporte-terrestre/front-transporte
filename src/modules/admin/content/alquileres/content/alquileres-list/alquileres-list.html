@@ -37,7 +37,7 @@
 
     <!-- Buscador y Filtros -->
     <div
-      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3"
+      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3"
       [class.hidden]="!showFilters()"
       [class.lg:grid]="!showFilters()"
     >
@@ -116,8 +116,25 @@
         ></i>
       </div>
 
+      <!-- Moneda -->
+      <div class="relative w-full">
+        <i class="fas fa-coins absolute left-3 top-1/2 -translate-y-1/2 text-text/40 text-sm"></i>
+        <select
+          [ngModel]="moneda()"
+          (ngModelChange)="moneda.set($event); onFilterChange()"
+          class="w-full pl-10 pr-8 py-2.5 bg-background border-2 border-text/10 focus:border-secondary rounded-lg text-sm text-text font-inter-regular outline-none transition-all appearance-none cursor-pointer"
+        >
+          <option value="">Todas las Monedas</option>
+          <option value="PEN">Soles (S/)</option>
+          <option value="USD">Dólares (US$)</option>
+        </select>
+        <i
+          class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-text/40 text-[10px] pointer-events-none"
+        ></i>
+      </div>
+
       <!-- Clientes, Conductores, Vehículos -->
-      <div class="lg:col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div class="lg:col-span-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div class="relative w-full">
           <app-cliente-input-search
             [ngModel]="selectedClienteForSearch()"
@@ -342,14 +359,16 @@
                 </td>
 
                 <td class="px-4 py-3 whitespace-nowrap text-center">
-                  <span class="text-xs font-inter-bold text-success bg-success/10 px-2 py-0.5 rounded-md"
-                    >S/ {{ alquiler.montoPorDia }}/día</span
-                  >
+                  <span class="text-xs font-inter-bold text-success bg-success/10 px-2 py-0.5 rounded-md">
+                    {{ formatCurrency(alquiler.montoPorDia, alquiler.moneda) }}/día
+                  </span>
                 </td>
 
                 <td class="px-4 py-3 whitespace-nowrap text-center">
                   @if (alquiler.montoTotalFinal != null) {
-                    <span class="text-xs font-inter-bold text-text">S/ {{ alquiler.montoTotalFinal }}</span>
+                    <span class="text-xs font-inter-bold text-text">
+                      {{ formatCurrency(alquiler.montoTotalFinal, alquiler.moneda) }}
+                    </span>
                   } @else {
                     <span class="text-xs text-text/40">—</span>
                   }

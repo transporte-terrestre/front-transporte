@@ -84,4 +84,16 @@ export class AlquileresEdit implements OnInit {
   navigateBack() {
     this.router.navigate([buildPath(PATH.admin.alquileres)]);
   }
+
+  formatCurrency(
+    value: string | number | null | undefined,
+    moneda: 'PEN' | 'USD' | null | undefined,
+  ): string {
+    return new Intl.NumberFormat('es-PE', {
+      style: 'currency',
+      currency: moneda === 'USD' ? 'USD' : 'PEN',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(Number(value) || 0);
+  }
 }

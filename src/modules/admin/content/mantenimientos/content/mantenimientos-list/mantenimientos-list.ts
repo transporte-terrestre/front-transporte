@@ -25,7 +25,11 @@ import {
   SignatureSelection,
 } from '../../../../components/user-signature-select-modal/user-signature-select-modal';
 import * as XLSX from 'xlsx';
-import { applyMaxTwoDecimalFormat, formatMaxTwoDecimals, roundToMaxTwoDecimals } from '@helper/excel.helper';
+import {
+  applyMaxTwoDecimalFormat,
+  formatMaxTwoDecimals,
+  roundToMaxTwoDecimals,
+} from '@helper/excel.helper';
 
 interface CalendarDay {
   date: Date;
@@ -104,6 +108,7 @@ export class MantenimientosList implements OnInit {
   mesSeleccionado = signal(this.getCurrentMonth());
   tipo = signal('');
   estado = signal('');
+  moneda = signal('');
   tallerId = signal<number | string>('');
   selectedTallerForSearch = signal<any>(null);
   vehiculoId = signal<number | string>('');
@@ -160,6 +165,7 @@ export class MantenimientosList implements OnInit {
         fechaFin: this.fechaFin() || undefined,
         tipo: (this.tipo() as any) || undefined,
         estado: (this.estado() as any) || undefined,
+        moneda: (this.moneda() as any) || undefined,
         tallerId: this.tallerId() ? Number(this.tallerId()) : undefined,
         vehiculoId: this.vehiculoId() ? Number(this.vehiculoId()) : undefined,
       })
@@ -212,6 +218,7 @@ export class MantenimientosList implements OnInit {
     this.setMonthRange(this.mesSeleccionado());
     this.tipo.set('');
     this.estado.set('');
+    this.moneda.set('');
     this.tallerId.set('');
     this.selectedTallerForSearch.set(null);
     this.vehiculoId.set('');
@@ -540,6 +547,7 @@ export class MantenimientosList implements OnInit {
         Taller: this.getTallerDisplay(m.tallerId, m),
         Tipo: this.getTipoLabel(m.tipo),
         Fecha: this.formatDate(m.fechaIngreso),
+        Moneda: m.moneda || 'PEN',
         Costo: roundToMaxTwoDecimals(m.costoTotal ? Number(m.costoTotal) : 0),
         Estado: this.getEstadoLabel(m.estado),
         Descripción: m.descripcion,
@@ -550,7 +558,24 @@ export class MantenimientosList implements OnInit {
     applyMaxTwoDecimalFormat(ws);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Mantenimientos');
-    XLSX.writeFile(wb, `Reporte_Mantenimientos_${new Date().toISOString().split('T')[0]}.xlsx`, { cellStyles: true });
+    const totales = this.mantenimientos().reduce(
+      (acc, mantenimiento) => {
+        const moneda = mantenimiento.moneda === 'USD' ? 'USD' : 'PEN';
+        acc[moneda] += Number(mantenimiento.costoTotal) || 0;
+        return acc;
+      },
+      { PEN: 0, USD: 0 },
+    );
+    const resumenWs = XLSX.utils.aoa_to_sheet([
+      ['Moneda', 'Total'],
+      ['Soles (PEN)', roundToMaxTwoDecimals(totales.PEN)],
+      ['Dólares (USD)', roundToMaxTwoDecimals(totales.USD)],
+    ]);
+    applyMaxTwoDecimalFormat(resumenWs);
+    XLSX.utils.book_append_sheet(wb, resumenWs, 'Resumen por Moneda');
+    XLSX.writeFile(wb, `Reporte_Mantenimientos_${new Date().toISOString().split('T')[0]}.xlsx`, {
+      cellStyles: true,
+    });
   }
 
   private exportReportToExcel() {
@@ -568,8 +593,14 @@ export class MantenimientosList implements OnInit {
         'Último Mant. Fecha': item.ultimoMantenimientoFecha
           ? this.formatDate(item.ultimoMantenimientoFecha)
           : '-',
-        'Último Mant. Km': item.ultimoMantenimientoKm != null ? roundToMaxTwoDecimals(item.ultimoMantenimientoKm) : '-',
-        'Próximo Mant. Km': item.proxMantenimientoKm != null ? roundToMaxTwoDecimals(item.proxMantenimientoKm) : 'Sin Prog.',
+        'Último Mant. Km':
+          item.ultimoMantenimientoKm != null
+            ? roundToMaxTwoDecimals(item.ultimoMantenimientoKm)
+            : '-',
+        'Próximo Mant. Km':
+          item.proxMantenimientoKm != null
+            ? roundToMaxTwoDecimals(item.proxMantenimientoKm)
+            : 'Sin Prog.',
         'Km Actual': roundToMaxTwoDecimals(item.kilometrajeActual),
         'Km Restante':
           item.kilometrajeRestante !== null
@@ -582,7 +613,9 @@ export class MantenimientosList implements OnInit {
     applyMaxTwoDecimalFormat(ws);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Estado Flota');
-    XLSX.writeFile(wb, `Reporte_Estado_Flota_${new Date().toISOString().split('T')[0]}.xlsx`, { cellStyles: true });
+    XLSX.writeFile(wb, `Reporte_Estado_Flota_${new Date().toISOString().split('T')[0]}.xlsx`, {
+      cellStyles: true,
+    });
   }
 
   getTallerDisplay(
@@ -682,10 +715,10 @@ export class MantenimientosList implements OnInit {
     });
   }
 
-  formatCurrency(value: string): string {
+  formatCurrency(value: string, moneda: 'PEN' | 'USD' = 'PEN'): string {
     return new Intl.NumberFormat('es-PE', {
       style: 'currency',
-      currency: 'PEN',
+      currency: moneda,
     }).format(Number(value));
   }
 

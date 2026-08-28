@@ -82,7 +82,7 @@
                   </span>
                   <span class="text-xs text-text/50 truncate">
                     {{ mantenimiento.fechaIngreso | date: 'shortDate' }} -
-                    {{ mantenimiento.costoTotal | currency: 'PEN' : 'symbol' }}
+                    {{ mantenimiento.costoTotal | currency: mantenimiento.moneda : 'symbol' }}
                   </span>
                 </div>
               </li>

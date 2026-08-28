@@ -17,25 +17,26 @@
           ></app-vehiculo-input-search>
       </div>
 
-      <!-- Mes -->
+      <!-- Fecha de inicio -->
       <div class="flex flex-col gap-2 relative group">
         <label
           class="text-xs font-inter-bold text-text/60 uppercase tracking-wider flex items-center gap-1"
         >
-          <i class="fas fa-calendar-alt"></i> Mes
+          <i class="fas fa-calendar-day"></i> Fecha Inicio
         </label>
         <div class="relative w-full">
           <input
-            type="month"
-            [ngModel]="mesSeleccionado()"
-            (ngModelChange)="onMonthChange($event)"
+            type="date"
+            [ngModel]="fechaInicio()"
+            (ngModelChange)="onFechaInicioChange($event)"
+            [max]="fechaFin()"
             class="w-full bg-text/5 border-2 border-transparent rounded-xl pl-4 pr-4 py-2.5 text-sm font-inter-medium text-text focus:outline-none focus:border-secondary transition-all"
           />
-          @if (mesSeleccionado()) {
+          @if (fechaInicio()) {
             <button
-              (click)="onMonthChange('')"
+              (click)="onFechaInicioChange('')"
               class="absolute right-10 inset-y-0 flex items-center text-text/30 hover:text-danger transition-colors p-1"
-              title="Limpiar mes"
+              title="Limpiar fecha de inicio"
             >
               <i class="fas fa-times text-xs"></i>
             </button>
@@ -43,25 +44,26 @@
         </div>
       </div>
 
-      <!-- Día Específico -->
+      <!-- Fecha de fin -->
       <div class="flex flex-col gap-2 relative group">
         <label
           class="text-xs font-inter-bold text-text/60 uppercase tracking-wider flex items-center gap-1"
         >
-          <i class="fas fa-calendar-day"></i> Día Exacto
+          <i class="fas fa-calendar-day"></i> Fecha Fin
         </label>
         <div class="relative w-full">
           <input
             type="date"
-            [ngModel]="fechaDia()"
-            (ngModelChange)="onDiaChange($event)"
+            [ngModel]="fechaFin()"
+            (ngModelChange)="onFechaFinChange($event)"
+            [min]="fechaInicio()"
             class="w-full bg-text/5 border-2 border-transparent rounded-xl pl-4 pr-4 py-2.5 text-sm font-inter-medium text-text focus:outline-none focus:border-secondary transition-all"
           />
-          @if (fechaDia()) {
+          @if (fechaFin()) {
             <button
-              (click)="onDiaChange('')"
+              (click)="onFechaFinChange('')"
               class="absolute right-10 inset-y-0 flex items-center text-text/30 hover:text-danger transition-colors p-1"
-              title="Limpiar día"
+              title="Limpiar fecha de fin"
             >
               <i class="fas fa-times text-xs"></i>
             </button>

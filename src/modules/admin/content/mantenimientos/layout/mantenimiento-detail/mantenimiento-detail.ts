@@ -65,7 +65,8 @@ export class MantenimientoDetail {
     const documentos = this.mantenimiento()?.documentos?.[type] || [];
 
     return [...documentos].sort((a, b) => {
-      const dateDifference = new Date(b.creadoEn ?? 0).getTime() - new Date(a.creadoEn ?? 0).getTime();
+      const dateDifference =
+        new Date(b.creadoEn ?? 0).getTime() - new Date(a.creadoEn ?? 0).getTime();
       return dateDifference || b.id - a.id;
     });
   }
@@ -126,12 +127,12 @@ export class MantenimientoDetail {
     });
   }
 
-  formatCurrency(value: string | number | null | undefined): string {
+  formatCurrency(value: string | number | null | undefined, moneda: 'PEN' | 'USD' = 'PEN'): string {
     if (value === null || value === undefined || value === '') return '-';
 
     return new Intl.NumberFormat('es-PE', {
       style: 'currency',
-      currency: 'PEN',
+      currency: moneda,
     }).format(Number(value));
   }
 

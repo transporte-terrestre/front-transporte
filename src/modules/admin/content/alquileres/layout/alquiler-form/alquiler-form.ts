@@ -77,6 +77,7 @@ export class AlquilerForm implements OnInit {
       [Validators.required],
     ),
     montoPorDia: this.fb.control<number | null>(null, [Validators.min(0)]),
+    moneda: this.fb.control<'PEN' | 'USD'>('PEN', [Validators.required]),
     razon: this.fb.control<string>(''),
 
     fechaInicio: this.fb.control<string>('', [Validators.required]),
@@ -100,6 +101,7 @@ export class AlquilerForm implements OnInit {
         this.form.patchValue({
           clienteId: data.clienteId,
           montoPorDia: data.montoPorDia != null ? Number(data.montoPorDia) : null,
+          moneda: data.moneda || 'PEN',
           razon: data.razon || '',
           fechaInicio: new Date(data.fechaInicio).toISOString().split('T')[0],
           fechaFin: data.fechaFin ? new Date(data.fechaFin).toISOString().split('T')[0] : null,
@@ -295,6 +297,7 @@ export class AlquilerForm implements OnInit {
     const payload = {
       clienteId,
       montoPorDia: Number(rawValue.montoPorDia),
+      moneda: rawValue.moneda || 'PEN',
       razon: rawValue.razon || undefined,
       fechaInicio: new Date(String(rawValue.fechaInicio)).toISOString(),
       fechaFin: rawValue.fechaFin ? new Date(String(rawValue.fechaFin)).toISOString() : undefined,
