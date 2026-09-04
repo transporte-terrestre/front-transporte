@@ -1,8 +1,16 @@
 import { Routes } from '@angular/router';
 import { authGuard } from '@guard/auth/auth.guard';
 import { PATH, getPath } from '@route/path.route';
+import { environment } from '@environment/environment';
 
-export const routes: Routes = [
+const blockedRoutes: Routes = [
+  {
+    path: '**',
+    loadComponent: () => import('@module/blank/blank').then((m) => m.Blank),
+  },
+];
+
+const defaultRoutes: Routes = [
   {
     path: getPath(PATH.admin),
     loadComponent: () => import('@module/admin/admin').then((m) => m.Admin),
@@ -343,3 +351,6 @@ export const routes: Routes = [
   },
   { path: '**', redirectTo: getPath(PATH.admin), pathMatch: 'full' },
 ];
+
+export const routes: Routes = environment.bloqued ? blockedRoutes : defaultRoutes;
+
