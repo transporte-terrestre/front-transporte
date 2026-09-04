@@ -2,6 +2,7 @@
 declare interface Env {
   readonly NODE_ENV: string;
   readonly NG_APP_BASE_URL: string;
+  readonly NG_APP_BLOQUED?: string;
   [key: string]: any;
 }
 

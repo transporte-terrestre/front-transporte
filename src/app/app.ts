@@ -3,6 +3,7 @@ import { RouterOutlet } from '@angular/router';
 import { Toast } from '@component/toast/toast';
 import { Alert } from '@component/alert/alert';
 import { ThemeService } from '@service/theme.service';
+import { environment } from '@environment/environment';
 
 @Component({
   selector: 'app-root',
@@ -12,4 +13,6 @@ import { ThemeService } from '@service/theme.service';
 })
 export class App {
   private themeService = inject(ThemeService);
+  protected readonly isBloqued = environment.bloqued;
 }
+
